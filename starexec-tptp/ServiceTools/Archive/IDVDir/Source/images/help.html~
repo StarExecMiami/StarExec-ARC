@@ -1,0 +1,143 @@
+<HTML>
+<HEAD>
+<TITLE>IDV Help</TITLE>
+</HEAD>
+<BODY ALIGN=JUSTIFY>
+<HR><!------------------------------------------------------------------------>
+<CENTER>
+<H1> IDV Help </H1>
+</CENTER>
+
+<UL>
+<LI> Seeing
+     <UL>
+     <LI> Shapes
+          <UL>
+          <LI> <IMG HEIGHT="25" SRC="ConjectureHouse.GIF" ALT="ConjectureHouse">
+               Conjecture
+          <LI> <IMG HEIGHT="25" SRC="NegatedConjectureHouse.GIF" ALT="NegatedConjectureHouse">
+               Negated conjecture
+          <LI> <IMG HEIGHT="25" SRC="AxiomTriangle.GIF" ALT="AxiomTriangle">
+               Axiom
+          <LI> <IMG HEIGHT="25" SRC="AssumptionStar.GIF" ALT="AssumptionStar">
+               Assumption
+          <LI> <IMG HEIGHT="25" SRC="PlainCircle.GIF" ALT="PlainCircle">
+               Plain
+          <LI> <IMG HEIGHT="25" SRC="LemmaDiamond.GIF" ALT="LemmaDiamond">
+               Lemma
+          <LI> <IMG HEIGHT="25" SRC="TheoremHexagon.GIF" ALT="TheoremHexagon">
+               Theorem
+          <LI> <IMG HEIGHT="25" SRC="FalseSquare.GIF" ALT="FalseSquare">
+               <TT>$false</TT>
+          </UL>
+     <LI> Colors
+          <UL>
+          <LI> Black outline:
+               FOF
+          <LI> Red outline:
+               CNF
+          </UL>
+     <LI> Inference tags
+          <UL>
+          <LI> <IMG HEIGHT="25" SRC="EqualsCircle.GIF" ALT="EqualsCircle">
+               Equality reasoning
+          <LI> <IMG HEIGHT="25" SRC="RedCircle.GIF" ALT="RedCircle">
+               Non-logical consequence
+          <LI> <IMG HEIGHT="25" SRC="RedTriangle.GIF" ALT="RedTriangle">
+               Split
+          </UL>
+     </UL>
+<P>
+<LI> Focussing
+     <UL>
+     <LI> Mouse over:
+          Colors the ancestors and descendants
+     <LI> Left click:
+          Popup inference formulae window 
+          <UL>
+          <LI> Verification control panel - see below
+          <LI> <IMG HEIGHT="25" SRC="PalmTree.GIF" ALT="PalmTree">
+               Open SystemOnTSTP window with verification proof
+          </UL>
+     <LI> Control left click:
+          IDV for this node and its parents
+     <LI> Shift control left click:
+          IDV for this node and its ancestors
+     <LI> Control right click:
+          IDV for this node and its children and their parents
+     <LI> Shift control right click:
+          IDV for this node and its descendants and their parents
+     </UL>
+<P>
+<LI> Zooming
+     <UL>
+     <LI> <IMG HEIGHT="25" SRC="MagnifyPlus.GIF" ALT="MagnifyPlus">
+          <IMG HEIGHT="25" SRC="MagnifyMinus.GIF" ALT="MagnifyMinus">
+          Zoom in/out 50%
+     <LI> <IMG HEIGHT="25" SRC="MagnifyHeight.GIF" ALT="MagnifyHeight">
+          <IMG HEIGHT="25" SRC="MagnifyWidth.GIF" ALT="MagnifyWidth">
+          Fit image to pane height/width
+     </UL>
+<P>
+<LI> Verifying
+     <UL>
+     <LI> <IMG HEIGHT="25" SRC="CheckOff.GIF" ALT="CheckOff">
+          <IMG HEIGHT="25" SRC="CheckOn.GIF" ALT="CheckOn">
+          Hide/display ticks on verified nodes
+     <LI> <IMG HEIGHT="25" SRC="FlagOff.GIF" ALT="FlagOff">
+          <IMG HEIGHT="25" SRC="FlagOn.GIF" ALT="FlagOn">
+          Start/stop verification process
+          <UL>
+          <LI> System pull down:
+               Trusted system for verification
+          <LI> Time limit:
+               Time limit in seconds for verifying (? each step of overall ?)
+          <LI> <IMG HEIGHT="25" SRC="GDVOn.GIF" ALT="GDVOn">
+               <IMG HEIGHT="25" SRC="GDVOff.GIF" ALT="GDVOff">
+               Verification controlled by GDV/IDV
+          <LI> <IMG HEIGHT="25" SRC="GoCanes.GIF" ALT="GoCanes">
+               Start verification process
+          </UL>
+     </UL>
+<P>
+<LI> Limiting
+     <UL>
+     <LI> <IMG HEIGHT="25" SRC="CatEvil.GIF" ALT="CatEvil">
+          <IMG HEIGHT="25" SRC="CatGood.GIF" ALT="CatGood">
+          Display/hide nodes that are not logical consequences of axioms
+     <LI> <IMG HEIGHT="25" SRC="RedlineOn.GIF" ALT="RedlineOn">
+          <IMG HEIGHT="25" SRC="RedlineOff.GIF" ALT="RedlineOff">
+          <IMG HEIGHT="25" SRC="Slider.GIF" ALT="Slider">
+          Enable/disable redline slider,
+          raise/lower redline to hide nodes above redline
+     <LI> <IMG HEIGHT="25" SRC="BulbOff.GIF" ALT="BulbOff">
+          <IMG HEIGHT="25" SRC="BulbOn.GIF" ALT="BulbOn">
+          <IMG HEIGHT="25" SRC="Slider.GIF" ALT="Slider">
+          Disable/ensable interestingness slider,
+          raise/lower interestingness threshold to hide less interesting nodes<BR>
+          <IMG HEIGHT="25" SRC="ProtectionOn.GIF" ALT="ProtectionOn">
+          <IMG HEIGHT="25" SRC="ProtectionOff.GIF" ALT="ProtectionOff">
+          Protect/unprotect leaves from being hidden<BR>
+          <IMG HEIGHT="25" SRC="Redraw.GIF" ALT="Redraw">
+          <IMG HEIGHT="25" SRC="Undo.GIF" ALT="Undo">
+          <IMG HEIGHT="25" SRC="Redo.GIF" ALT="Redo">
+          Redraw derivation with only visible nodes (? does this apply to redline ?),
+          undo/redo redrawing to previous interestingness level
+     </UL>
+<P>
+<LI> Recursing
+     <UL>
+     <LI> <IMG HEIGHT="25" SRC="Superman.GIF" ALT="Superman">
+          Open SystemOnTSTP window with currently displayed nodes' formulae
+     </UL>
+<P>
+<LI> Helping
+     <UL>
+     <LI> <IMG HEIGHT="25" SRC="Help.GIF" ALT="Help">
+          Help
+     </UL>
+</UL>
+<P>
+<HR><!------------------------------------------------------------------------>
+</BODY>
+</HTML>

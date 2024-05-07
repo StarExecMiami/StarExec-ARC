@@ -1,0 +1,372 @@
+fof(keep_not_released,axiom,(
+    ! [Fluent,Time] :
+      ( ( ~ releasedAt(Fluent,Time)
+        & ~ ? [Event] :
+              ( happens(Event,Time)
+              & releases(Event,Fluent,Time) ) )
+     => ~ releasedAt(Fluent,plus(Time,n1)) ) )).
+
+fof(releases_all_defn,axiom,(
+    ! [Event,Fluent,Time] :
+      ( releases(Event,Fluent,Time)
+    <=> ? [Height] :
+          ( Event = tapOn
+          & Fluent = waterLevel(Height) ) ) )).
+
+fof(happens_all_defn,axiom,(
+    ! [Event,Time] :
+      ( happens(Event,Time)
+    <=> ( ( Event = tapOn
+          & Time = n0 )
+        | ( holdsAt(waterLevel(n3),Time)
+          & holdsAt(filling,Time)
+          & Event = overflow ) ) ) )).
+
+fof(filling_not_waterLevel,axiom,(
+    ! [X] : filling != waterLevel(X) )).
+
+fof(plus0_1,axiom,(
+    plus(n0,n1) = n1 )).
+
+fof(plus1_1,axiom,(
+    plus(n1,n1) = n2 )).
+
+fof(plus1_2,axiom,(
+    plus(n1,n2) = n3 )).
+
+fof(symmetry_of_plus,axiom,(
+    ! [X,Y] : plus(X,Y) = plus(Y,X) )).
+
+fof(not_filling_0,hypothesis,(
+    ~ holdsAt(filling,n0) )).
+
+fof(not_released_filling_0,hypothesis,(
+    ~ releasedAt(filling,n0) )).
+
+fof(filling_3_l1,conjecture,(
+    ~ releasedAt(filling,n3) )).
+
+cnf(0,plain,
+    ( ~ releases(Event,Fluent,Time)
+    | Fluent = waterLevel(skolemFOFtoCNF_Height_2(Fluent)) ),
+    inference(cnf_normalization,[],[releases_all_defn])).
+
+cnf(1,plain,
+    ( ~ releases(tapOn,filling,n0)
+    | filling = waterLevel(skolemFOFtoCNF_Height_2(filling)) ),
+    inference(subst,[],[0:[bind(Event,$fot(tapOn)),bind(Fluent,$fot(filling)),bind(Time,$fot(n0))]])).
+
+cnf(2,plain,
+    ( ~ releasedAt(Fluent,plus(Time,n1))
+    | releasedAt(Fluent,Time)
+    | releases(skolemFOFtoCNF_Event_5(Fluent,Time),Fluent,Time) ),
+    inference(cnf_normalization,[],[keep_not_released])).
+
+cnf(3,plain,
+    ( ~ releasedAt(X1,plus(n0,n1))
+    | releasedAt(X1,n0)
+    | releases(skolemFOFtoCNF_Event_5(X1,n0),X1,n0) ),
+    inference(subst,[],[2:[bind(Fluent,$fot(X1)),bind(Time,$fot(n0))]])).
+
+cnf(4,plain,
+    ( plus(n0,n1) = n1 ),
+    inference(cnf_normalization,[],[plus0_1])).
+
+cnf(5,plain,
+    ( plus(n0,n1) != n1
+    | ~ releasedAt(X1,n1)
+    | releasedAt(X1,plus(n0,n1)) ),
+    introduced(tautology,[equality,[$cnf(~ releasedAt(X1,plus(n0,n1))),[1],$fot(n1)]])).
+
+cnf(6,plain,
+    ( ~ releasedAt(X1,n1)
+    | releasedAt(X1,plus(n0,n1)) ),
+    inference(resolve,[$cnf('$equal'(plus(n0,n1),n1))],[4,5])).
+
+cnf(7,plain,
+    ( ~ releasedAt(X1,n1)
+    | releasedAt(X1,n0)
+    | releases(skolemFOFtoCNF_Event_5(X1,n0),X1,n0) ),
+    inference(resolve,[$cnf(releasedAt(X1,plus(n0,n1)))],[6,3])).
+
+cnf(8,plain,
+    ( ~ releasedAt(filling,n1)
+    | releasedAt(filling,n0)
+    | releases(skolemFOFtoCNF_Event_5(filling,n0),filling,n0) ),
+    inference(subst,[],[7:[bind(X1,$fot(filling))]])).
+
+cnf(9,plain,
+    ( ~ releases(skolemFOFtoCNF_Event_5(filling,n1),filling,n1)
+    | filling = waterLevel(skolemFOFtoCNF_Height_2(filling)) ),
+    inference(subst,[],[0:[bind(Event,$fot(skolemFOFtoCNF_Event_5(filling,n1))),bind(Fluent,$fot(filling)),bind(Time,$fot(n1))]])).
+
+cnf(10,plain,
+    ( ~ releasedAt(X1,plus(n1,n1))
+    | releasedAt(X1,n1)
+    | releases(skolemFOFtoCNF_Event_5(X1,n1),X1,n1) ),
+    inference(subst,[],[2:[bind(Fluent,$fot(X1)),bind(Time,$fot(n1))]])).
+
+cnf(11,plain,
+    ( plus(n1,n1) = n2 ),
+    inference(cnf_normalization,[],[plus1_1])).
+
+cnf(12,plain,
+    ( plus(n1,n1) != n2
+    | ~ releasedAt(X1,n2)
+    | releasedAt(X1,plus(n1,n1)) ),
+    introduced(tautology,[equality,[$cnf(~ releasedAt(X1,plus(n1,n1))),[1],$fot(n2)]])).
+
+cnf(13,plain,
+    ( ~ releasedAt(X1,n2)
+    | releasedAt(X1,plus(n1,n1)) ),
+    inference(resolve,[$cnf('$equal'(plus(n1,n1),n2))],[11,12])).
+
+cnf(14,plain,
+    ( ~ releasedAt(X1,n2)
+    | releasedAt(X1,n1)
+    | releases(skolemFOFtoCNF_Event_5(X1,n1),X1,n1) ),
+    inference(resolve,[$cnf(releasedAt(X1,plus(n1,n1)))],[13,10])).
+
+cnf(15,plain,
+    ( ~ releasedAt(filling,n2)
+    | releasedAt(filling,n1)
+    | releases(skolemFOFtoCNF_Event_5(filling,n1),filling,n1) ),
+    inference(subst,[],[14:[bind(X1,$fot(filling))]])).
+
+cnf(16,plain,
+    ( ~ releases(skolemFOFtoCNF_Event_5(filling,n2),filling,n2)
+    | filling = waterLevel(skolemFOFtoCNF_Height_2(filling)) ),
+    inference(subst,[],[0:[bind(Event,$fot(skolemFOFtoCNF_Event_5(filling,n2))),bind(Fluent,$fot(filling)),bind(Time,$fot(n2))]])).
+
+cnf(17,plain,
+    ( releasedAt(filling,n3) ),
+    inference(cnf_normalization,[],[filling_3_l1])).
+
+cnf(18,plain,
+    ( ~ releasedAt(X1,plus(X2,n1))
+    | releasedAt(X1,X2)
+    | releases(skolemFOFtoCNF_Event_5(X1,X2),X1,X2) ),
+    inference(subst,[],[2:[bind(Fluent,$fot(X1)),bind(Time,$fot(X2))]])).
+
+cnf(19,plain,
+    ( plus(X,Y) = plus(Y,X) ),
+    inference(cnf_normalization,[],[symmetry_of_plus])).
+
+cnf(20,plain,
+    ( plus(n1,X2) = plus(X2,n1) ),
+    inference(subst,[],[19:[bind(X,$fot(n1)),bind(Y,$fot(X2))]])).
+
+cnf(21,plain,
+    ( X4 = X4 ),
+    introduced(tautology,[refl,[$fot(X4)]])).
+
+cnf(22,plain,
+    ( X4 != X4
+    | X4 != Y0
+    | Y0 = X4 ),
+    introduced(tautology,[equality,[$cnf('$equal'(X4,X4)),[0],$fot(Y0)]])).
+
+cnf(23,plain,
+    ( X4 != Y0
+    | Y0 = X4 ),
+    inference(resolve,[$cnf('$equal'(X4,X4))],[21,22])).
+
+cnf(24,plain,
+    ( plus(n1,X2) != plus(X2,n1)
+    | plus(X2,n1) = plus(n1,X2) ),
+    inference(subst,[],[23:[bind(X4,$fot(plus(n1,X2))),bind(Y0,$fot(plus(X2,n1)))]])).
+
+cnf(25,plain,
+    ( plus(X2,n1) = plus(n1,X2) ),
+    inference(resolve,[$cnf('$equal'(plus(n1,X2),plus(X2,n1)))],[20,24])).
+
+cnf(26,plain,
+    ( plus(X2,n1) != plus(n1,X2)
+    | ~ releasedAt(X1,plus(n1,X2))
+    | releasedAt(X1,plus(X2,n1)) ),
+    introduced(tautology,[equality,[$cnf(~ releasedAt(X1,plus(X2,n1))),[1],$fot(plus(n1,X2))]])).
+
+cnf(27,plain,
+    ( ~ releasedAt(X1,plus(n1,X2))
+    | releasedAt(X1,plus(X2,n1)) ),
+    inference(resolve,[$cnf('$equal'(plus(X2,n1),plus(n1,X2)))],[25,26])).
+
+cnf(28,plain,
+    ( ~ releasedAt(X1,plus(n1,X2))
+    | releasedAt(X1,X2)
+    | releases(skolemFOFtoCNF_Event_5(X1,X2),X1,X2) ),
+    inference(resolve,[$cnf(releasedAt(X1,plus(X2,n1)))],[27,18])).
+
+cnf(29,plain,
+    ( ~ releasedAt(X3,plus(n1,n2))
+    | releasedAt(X3,n2)
+    | releases(skolemFOFtoCNF_Event_5(X3,n2),X3,n2) ),
+    inference(subst,[],[28:[bind(X1,$fot(X3)),bind(X2,$fot(n2))]])).
+
+cnf(30,plain,
+    ( plus(n1,n2) = n3 ),
+    inference(cnf_normalization,[],[plus1_2])).
+
+cnf(31,plain,
+    ( plus(n1,n2) != n3
+    | ~ releasedAt(X3,n3)
+    | releasedAt(X3,plus(n1,n2)) ),
+    introduced(tautology,[equality,[$cnf(~ releasedAt(X3,plus(n1,n2))),[1],$fot(n3)]])).
+
+cnf(32,plain,
+    ( ~ releasedAt(X3,n3)
+    | releasedAt(X3,plus(n1,n2)) ),
+    inference(resolve,[$cnf('$equal'(plus(n1,n2),n3))],[30,31])).
+
+cnf(33,plain,
+    ( ~ releasedAt(X3,n3)
+    | releasedAt(X3,n2)
+    | releases(skolemFOFtoCNF_Event_5(X3,n2),X3,n2) ),
+    inference(resolve,[$cnf(releasedAt(X3,plus(n1,n2)))],[32,29])).
+
+cnf(34,plain,
+    ( ~ releasedAt(filling,n3)
+    | releasedAt(filling,n2)
+    | releases(skolemFOFtoCNF_Event_5(filling,n2),filling,n2) ),
+    inference(subst,[],[33:[bind(X3,$fot(filling))]])).
+
+cnf(35,plain,
+    ( releasedAt(filling,n2)
+    | releases(skolemFOFtoCNF_Event_5(filling,n2),filling,n2) ),
+    inference(resolve,[$cnf(releasedAt(filling,n3))],[17,34])).
+
+cnf(36,plain,
+    ( filling = waterLevel(skolemFOFtoCNF_Height_2(filling))
+    | releasedAt(filling,n2) ),
+    inference(resolve,[$cnf(releases(skolemFOFtoCNF_Event_5(filling,n2),filling,n2))],[35,16])).
+
+cnf(37,plain,
+    ( filling != waterLevel(X) ),
+    inference(cnf_normalization,[],[filling_not_waterLevel])).
+
+cnf(38,plain,
+    ( filling != waterLevel(skolemFOFtoCNF_Height_2(filling)) ),
+    inference(subst,[],[37:[bind(X,$fot(skolemFOFtoCNF_Height_2(filling)))]])).
+
+cnf(39,plain,
+    ( releasedAt(filling,n2) ),
+    inference(resolve,[$cnf('$equal'(filling,waterLevel(skolemFOFtoCNF_Height_2(filling))))],[36,38])).
+
+cnf(40,plain,
+    ( releasedAt(filling,n1)
+    | releases(skolemFOFtoCNF_Event_5(filling,n1),filling,n1) ),
+    inference(resolve,[$cnf(releasedAt(filling,n2))],[39,15])).
+
+cnf(41,plain,
+    ( filling = waterLevel(skolemFOFtoCNF_Height_2(filling))
+    | releasedAt(filling,n1) ),
+    inference(resolve,[$cnf(releases(skolemFOFtoCNF_Event_5(filling,n1),filling,n1))],[40,9])).
+
+cnf(42,plain,
+    ( releasedAt(filling,n1) ),
+    inference(resolve,[$cnf('$equal'(filling,waterLevel(skolemFOFtoCNF_Height_2(filling))))],[41,38])).
+
+cnf(43,plain,
+    ( releasedAt(filling,n0)
+    | releases(skolemFOFtoCNF_Event_5(filling,n0),filling,n0) ),
+    inference(resolve,[$cnf(releasedAt(filling,n1))],[42,8])).
+
+cnf(44,plain,
+    ( ~ releasedAt(filling,n0) ),
+    inference(cnf_normalization,[],[not_released_filling_0])).
+
+cnf(45,plain,
+    ( releases(skolemFOFtoCNF_Event_5(filling,n0),filling,n0) ),
+    inference(resolve,[$cnf(releasedAt(filling,n0))],[43,44])).
+
+cnf(46,plain,
+    ( ~ happens(Event,Time)
+    | Event = tapOn
+    | holdsAt(filling,Time) ),
+    inference(cnf_normalization,[],[happens_all_defn])).
+
+cnf(47,plain,
+    ( ~ happens(skolemFOFtoCNF_Event_5(filling,n0),n0)
+    | skolemFOFtoCNF_Event_5(filling,n0) = tapOn
+    | holdsAt(filling,n0) ),
+    inference(subst,[],[46:[bind(Event,$fot(skolemFOFtoCNF_Event_5(filling,n0))),bind(Time,$fot(n0))]])).
+
+cnf(48,plain,
+    ( ~ releasedAt(Fluent,plus(Time,n1))
+    | happens(skolemFOFtoCNF_Event_5(Fluent,Time),Time)
+    | releasedAt(Fluent,Time) ),
+    inference(cnf_normalization,[],[keep_not_released])).
+
+cnf(49,plain,
+    ( ~ releasedAt(X0,plus(n0,n1))
+    | happens(skolemFOFtoCNF_Event_5(X0,n0),n0)
+    | releasedAt(X0,n0) ),
+    inference(subst,[],[48:[bind(Fluent,$fot(X0)),bind(Time,$fot(n0))]])).
+
+cnf(50,plain,
+    ( plus(n0,n1) != n1
+    | ~ releasedAt(X0,n1)
+    | releasedAt(X0,plus(n0,n1)) ),
+    introduced(tautology,[equality,[$cnf(~ releasedAt(X0,plus(n0,n1))),[1],$fot(n1)]])).
+
+cnf(51,plain,
+    ( ~ releasedAt(X0,n1)
+    | releasedAt(X0,plus(n0,n1)) ),
+    inference(resolve,[$cnf('$equal'(plus(n0,n1),n1))],[4,50])).
+
+cnf(52,plain,
+    ( ~ releasedAt(X0,n1)
+    | happens(skolemFOFtoCNF_Event_5(X0,n0),n0)
+    | releasedAt(X0,n0) ),
+    inference(resolve,[$cnf(releasedAt(X0,plus(n0,n1)))],[51,49])).
+
+cnf(53,plain,
+    ( ~ releasedAt(filling,n1)
+    | happens(skolemFOFtoCNF_Event_5(filling,n0),n0)
+    | releasedAt(filling,n0) ),
+    inference(subst,[],[52:[bind(X0,$fot(filling))]])).
+
+cnf(54,plain,
+    ( happens(skolemFOFtoCNF_Event_5(filling,n0),n0)
+    | releasedAt(filling,n0) ),
+    inference(resolve,[$cnf(releasedAt(filling,n1))],[42,53])).
+
+cnf(55,plain,
+    ( happens(skolemFOFtoCNF_Event_5(filling,n0),n0) ),
+    inference(resolve,[$cnf(releasedAt(filling,n0))],[54,44])).
+
+cnf(56,plain,
+    ( skolemFOFtoCNF_Event_5(filling,n0) = tapOn
+    | holdsAt(filling,n0) ),
+    inference(resolve,[$cnf(happens(skolemFOFtoCNF_Event_5(filling,n0),n0))],[55,47])).
+
+cnf(57,plain,
+    ( ~ holdsAt(filling,n0) ),
+    inference(cnf_normalization,[],[not_filling_0])).
+
+cnf(58,plain,
+    ( skolemFOFtoCNF_Event_5(filling,n0) = tapOn ),
+    inference(resolve,[$cnf(holdsAt(filling,n0))],[56,57])).
+
+cnf(59,plain,
+    ( skolemFOFtoCNF_Event_5(filling,n0) != tapOn
+    | ~ releases(skolemFOFtoCNF_Event_5(filling,n0),filling,n0)
+    | releases(tapOn,filling,n0) ),
+    introduced(tautology,[equality,[$cnf(releases(skolemFOFtoCNF_Event_5(filling,n0),filling,n0)),[0],$fot(tapOn)]])).
+
+cnf(60,plain,
+    ( ~ releases(skolemFOFtoCNF_Event_5(filling,n0),filling,n0)
+    | releases(tapOn,filling,n0) ),
+    inference(resolve,[$cnf('$equal'(skolemFOFtoCNF_Event_5(filling,n0),tapOn))],[58,59])).
+
+cnf(61,plain,
+    ( releases(tapOn,filling,n0) ),
+    inference(resolve,[$cnf(releases(skolemFOFtoCNF_Event_5(filling,n0),filling,n0))],[45,60])).
+
+cnf(62,plain,
+    ( filling = waterLevel(skolemFOFtoCNF_Height_2(filling)) ),
+    inference(resolve,[$cnf(releases(tapOn,filling,n0))],[61,1])).
+
+cnf(63,plain,
+    ( $false ),
+    inference(resolve,[$cnf('$equal'(filling,waterLevel(skolemFOFtoCNF_Height_2(filling))))],[62,38])).

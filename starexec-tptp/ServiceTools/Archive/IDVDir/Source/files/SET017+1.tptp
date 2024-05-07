@@ -1,0 +1,289 @@
+%------------------------------------------------------------------------------
+% File       : EP---0.9
+% Problem    : SET017+1 : TPTP v2.2.0
+% Transform  : none
+% Format     : tptp
+% Command    : eproof --print-statistics -xAuto -tAuto --memory-limit=Auto --tstp-in --tstp-out %s
+
+% Computer   : art03.cs.miami.edu
+% Model      : i686 unknown
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2793MHz
+% Memory     : 1000MB
+% OS         : Linux 2.4.22-21mdk-i686-up-4GB
+% CPULimit   : 600s
+
+% Result     : Theorem 0.0s
+% Output     : Refutation 0.0s
+% Statistics : Number of formulae    :   30 ( 111 expanded)
+%              Number of clauses     :   20 (  36 expanded)
+%              Depth                 :   18
+%              Number of atoms       :   93 ( 481 expanded)
+%              Maximal formula depth :   13 (   4 average)
+%              Maximal clause size   :   11 (   5 average)
+%              Maximal term depth    :    2 (   1 average)
+% Verified   : 
+
+% Comments   : 
+%------------------------------------------------------------------------------
+%----TSTP SOLUTION
+fof(4,axiom,(
+    ! [X3,X1,X2] : 
+      ( member(X3,unordered_pair(X1,X2))
+    <=> ( member(X3,universal_class)
+        & ( X3 = X1
+          | X3 = X2 ) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET017+1.tptp',unordered_pair_defn)).
+
+fof(42,conjecture,(
+    ! [X1,X2,X5] : 
+      ( ( member(X2,universal_class)
+        & member(X5,universal_class)
+        & unordered_pair(X1,X2) = unordered_pair(X1,X5) )
+     => X2 = X5 ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET017+1.tptp',left_cancellation)).
+
+fof(43,negated_conjecture-derived,(
+    ~ ( ! [X1,X2,X5] : 
+          ( ( member(X2,universal_class)
+            & member(X5,universal_class)
+            & unordered_pair(X1,X2) = unordered_pair(X1,X5) )
+         => X2 = X5 ) ) ),
+    inference(assume_negation,[status(cth)],[42])).
+
+fof(61,derived,(
+    ! [X3,X1,X2] : 
+      ( ( ~ member(X3,unordered_pair(X1,X2))
+        | ( member(X3,universal_class)
+          & ( X3 = X1
+            | X3 = X2 ) ) )
+      & ( ~ member(X3,universal_class)
+        | ( X3 != X1
+          & X3 != X2 )
+        | member(X3,unordered_pair(X1,X2)) ) ) ),
+    inference(fof_nnf,[status(thm)],[4])).
+
+fof(62,derived,
+    ( ! [X3,X1,X2] : 
+        ( ~ member(X3,unordered_pair(X1,X2))
+        | ( member(X3,universal_class)
+          & ( X3 = X1
+            | X3 = X2 ) ) )
+    & ! [X3,X1,X2] : 
+        ( ~ member(X3,universal_class)
+        | ( X3 != X1
+          & X3 != X2 )
+        | member(X3,unordered_pair(X1,X2)) ) ),
+    inference(shift_quantors,[status(thm)],[61])).
+
+fof(63,derived,
+    ( ! [X4,X5,X6] : 
+        ( ~ member(X4,unordered_pair(X5,X6))
+        | ( member(X4,universal_class)
+          & ( X4 = X5
+            | X4 = X6 ) ) )
+    & ! [X7,X8,X9] : 
+        ( ~ member(X7,universal_class)
+        | ( X7 != X8
+          & X7 != X9 )
+        | member(X7,unordered_pair(X8,X9)) ) ),
+    inference(variable_rename,[status(thm)],[62])).
+
+fof(64,derived,(
+    ! [X4,X5,X6,X7,X8,X9] : 
+      ( ( member(X4,universal_class)
+        | ~ member(X4,unordered_pair(X5,X6)) )
+      & ( X4 = X5
+        | X4 = X6
+        | ~ member(X4,unordered_pair(X5,X6)) )
+      & ( X7 != X8
+        | ~ member(X7,universal_class)
+        | member(X7,unordered_pair(X8,X9)) )
+      & ( X7 != X9
+        | ~ member(X7,universal_class)
+        | member(X7,unordered_pair(X8,X9)) ) ) ),
+    inference(distribute,[status(thm)],[63])).
+
+cnf(65,derived,
+    ( member(X1,unordered_pair(X2,X3))
+    | ~ member(X1,universal_class)
+    | X1 != X3 ),
+    inference(split_conjunct,[status(thm)],[64])).
+
+cnf(67,derived,
+    ( X1 = X3
+    | X1 = X2
+    | ~ member(X1,unordered_pair(X2,X3)) ),
+    inference(split_conjunct,[status(thm)],[64])).
+
+fof(237,negated_conjecture-derived,(
+    ? [X1,X2,X5] : 
+      ( member(X2,universal_class)
+      & member(X5,universal_class)
+      & unordered_pair(X1,X2) = unordered_pair(X1,X5)
+      & X2 != X5 ) ),
+    inference(fof_nnf,[status(thm)],[43])).
+
+fof(238,negated_conjecture-derived,(
+    ? [X6,X7,X8] : 
+      ( member(X7,universal_class)
+      & member(X8,universal_class)
+      & unordered_pair(X6,X7) = unordered_pair(X6,X8)
+      & X7 != X8 ) ),
+    inference(variable_rename,[status(thm)],[237])).
+
+fof(239,negated_conjecture-derived,
+    ( member(esk8_0,universal_class)
+    & member(esk9_0,universal_class)
+    & unordered_pair(esk7_0,esk8_0) = unordered_pair(esk7_0,esk9_0)
+    & esk8_0 != esk9_0 ),
+    inference(skolemize,[status(sab)],[238])).
+
+cnf(240,negated_conjecture-derived,
+    ( esk8_0 != esk9_0 ),
+    inference(split_conjunct,[status(thm)],[239])).
+
+cnf(241,negated_conjecture-derived,
+    ( unordered_pair(esk7_0,esk8_0) = unordered_pair(esk7_0,esk9_0) ),
+    inference(split_conjunct,[status(thm)],[239])).
+
+cnf(242,negated_conjecture-derived,
+    ( member(esk9_0,universal_class) ),
+    inference(split_conjunct,[status(thm)],[239])).
+
+cnf(243,negated_conjecture-derived,
+    ( member(esk8_0,universal_class) ),
+    inference(split_conjunct,[status(thm)],[239])).
+
+cnf(310,derived,
+    ( member(X1,unordered_pair(X2,X1))
+    | ~ member(X1,universal_class) ),
+    inference(er,[status(thm)],[65,theory(equality)])).
+
+cnf(326,negated_conjecture-derived,
+    ( X1 = esk7_0
+    | X1 = esk9_0
+    | ~ member(X1,unordered_pair(esk7_0,esk8_0)) ),
+    inference(spm,[status(thm)],[67,241,theory(equality)])).
+
+cnf(712,negated_conjecture-derived,
+    ( esk8_0 = esk9_0
+    | esk8_0 = esk7_0
+    | ~ member(esk8_0,universal_class) ),
+    inference(spm,[status(thm)],[326,310,theory(equality)])).
+
+cnf(720,negated_conjecture-derived,
+    ( esk8_0 = esk9_0
+    | esk8_0 = esk7_0
+    | $false ),
+    inference(rw,[status(thm)],[712,243,theory(equality)])).
+
+cnf(721,negated_conjecture-derived,
+    ( esk8_0 = esk9_0
+    | esk8_0 = esk7_0 ),
+    inference(cn,[status(thm)],[720,theory(equality)])).
+
+cnf(722,negated_conjecture-derived,
+    ( esk7_0 = esk8_0 ),
+    inference(sr,[status(thm)],[721,240,theory(equality)])).
+
+cnf(727,negated_conjecture-derived,
+    ( unordered_pair(esk8_0,esk9_0) = unordered_pair(esk7_0,esk8_0) ),
+    inference(rw,[status(thm)],[241,722,theory(equality)])).
+
+cnf(728,negated_conjecture-derived,
+    ( unordered_pair(esk8_0,esk9_0) = unordered_pair(esk8_0,esk8_0) ),
+    inference(rw,[status(thm)],[727,722,theory(equality)])).
+
+cnf(783,negated_conjecture-derived,
+    ( member(esk9_0,unordered_pair(esk8_0,esk8_0))
+    | ~ member(esk9_0,universal_class) ),
+    inference(spm,[status(thm)],[310,728,theory(equality)])).
+
+cnf(785,negated_conjecture-derived,
+    ( member(esk9_0,unordered_pair(esk8_0,esk8_0))
+    | $false ),
+    inference(rw,[status(thm)],[783,242,theory(equality)])).
+
+cnf(786,negated_conjecture-derived,
+    ( member(esk9_0,unordered_pair(esk8_0,esk8_0)) ),
+    inference(cn,[status(thm)],[785,theory(equality)])).
+
+cnf(787,negated_conjecture-derived,
+    ( esk9_0 = esk8_0 ),
+    inference(spm,[status(thm)],[67,786,theory(equality)])).
+
+cnf(790,negated_conjecture-derived,
+    ( $false ),
+    inference(sr,[status(thm)],[787,240,theory(equality)])).
+
+cnf(791,negated_conjecture-derived,
+    ( $false ),
+    790,
+    ['proof']).
+%------------------------------------------------------------------------------
+%----ORIGINAL SYSTEM OUTPUT
+% # Problem is unsatisfiable (or provable), constructing proof object
+% # TSTP exit status: Theorem
+% # Proof object starts here.
+% fof(4, axiom,![X3]:![X1]:![X2]:(member(X3,unordered_pair(X1,X2))<=>(member(X3,universal_class)&(equal(X3, X1)|equal(X3, X2)))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET017+1.tptp', unordered_pair_defn)).
+% fof(42, conjecture,![X1]:![X2]:![X5]:((member(X2,universal_class)&(member(X5,universal_class)&equal(unordered_pair(X1,X2), unordered_pair(X1,X5))))=>equal(X2, X5)),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET017+1.tptp', left_cancellation)).
+% fof(43, negated_conjecture-derived,~(![X1]:![X2]:![X5]:((member(X2,universal_class)&(member(X5,universal_class)&equal(unordered_pair(X1,X2), unordered_pair(X1,X5))))=>equal(X2, X5))),inference(assume_negation,[status(cth)],[42])).
+% fof(61, derived,![X3]:![X1]:![X2]:((~(member(X3,unordered_pair(X1,X2)))|(member(X3,universal_class)&(equal(X3, X1)|equal(X3, X2))))&((~(member(X3,universal_class))|(~(equal(X3, X1))&~(equal(X3, X2))))|member(X3,unordered_pair(X1,X2)))),inference(fof_nnf,[status(thm)],[4])).
+% fof(62, derived,(![X3]:![X1]:![X2]:(~(member(X3,unordered_pair(X1,X2)))|(member(X3,universal_class)&(equal(X3, X1)|equal(X3, X2))))&![X3]:![X1]:![X2]:((~(member(X3,universal_class))|(~(equal(X3, X1))&~(equal(X3, X2))))|member(X3,unordered_pair(X1,X2)))),inference(shift_quantors,[status(thm)],[61])).
+% fof(63, derived,(![X4]:![X5]:![X6]:(~(member(X4,unordered_pair(X5,X6)))|(member(X4,universal_class)&(equal(X4, X5)|equal(X4, X6))))&![X7]:![X8]:![X9]:((~(member(X7,universal_class))|(~(equal(X7, X8))&~(equal(X7, X9))))|member(X7,unordered_pair(X8,X9)))),inference(variable_rename,[status(thm)],[62])).
+% fof(64, derived,![X4]:![X5]:![X6]:![X7]:![X8]:![X9]:(((member(X4,universal_class)|~(member(X4,unordered_pair(X5,X6))))&((equal(X4, X5)|equal(X4, X6))|~(member(X4,unordered_pair(X5,X6)))))&(((~(equal(X7, X8))|~(member(X7,universal_class)))|member(X7,unordered_pair(X8,X9)))&((~(equal(X7, X9))|~(member(X7,universal_class)))|member(X7,unordered_pair(X8,X9))))),inference(distribute,[status(thm)],[63])).
+% cnf(65,derived,(member(X1,unordered_pair(X2,X3))|~member(X1,universal_class)|X1!=X3),inference(split_conjunct,[status(thm)],[64])).
+% cnf(67,derived,(X1=X3|X1=X2|~member(X1,unordered_pair(X2,X3))),inference(split_conjunct,[status(thm)],[64])).
+% fof(237, negated_conjecture-derived,?[X1]:?[X2]:?[X5]:((member(X2,universal_class)&(member(X5,universal_class)&equal(unordered_pair(X1,X2), unordered_pair(X1,X5))))&~(equal(X2, X5))),inference(fof_nnf,[status(thm)],[43])).
+% fof(238, negated_conjecture-derived,?[X6]:?[X7]:?[X8]:((member(X7,universal_class)&(member(X8,universal_class)&equal(unordered_pair(X6,X7), unordered_pair(X6,X8))))&~(equal(X7, X8))),inference(variable_rename,[status(thm)],[237])).
+% fof(239, negated_conjecture-derived,((member(esk8_0,universal_class)&(member(esk9_0,universal_class)&equal(unordered_pair(esk7_0,esk8_0), unordered_pair(esk7_0,esk9_0))))&~(equal(esk8_0, esk9_0))),inference(skolemize,[status(sab)],[238])).
+% cnf(240,negated_conjecture-derived,(esk8_0!=esk9_0),inference(split_conjunct,[status(thm)],[239])).
+% cnf(241,negated_conjecture-derived,(unordered_pair(esk7_0,esk8_0)=unordered_pair(esk7_0,esk9_0)),inference(split_conjunct,[status(thm)],[239])).
+% cnf(242,negated_conjecture-derived,(member(esk9_0,universal_class)),inference(split_conjunct,[status(thm)],[239])).
+% cnf(243,negated_conjecture-derived,(member(esk8_0,universal_class)),inference(split_conjunct,[status(thm)],[239])).
+% cnf(310,derived,(member(X1,unordered_pair(X2,X1))|~member(X1,universal_class)),inference(er,[status(thm)],[65,theory(equality)])).
+% cnf(326,negated_conjecture-derived,(X1=esk7_0|X1=esk9_0|~member(X1,unordered_pair(esk7_0,esk8_0))),inference(spm,[status(thm)],[67,241,theory(equality)])).
+% cnf(712,negated_conjecture-derived,(esk8_0=esk9_0|esk8_0=esk7_0|~member(esk8_0,universal_class)),inference(spm,[status(thm)],[326,310,theory(equality)])).
+% cnf(720,negated_conjecture-derived,(esk8_0=esk9_0|esk8_0=esk7_0|$false),inference(rw,[status(thm)],[712,243,theory(equality)])).
+% cnf(721,negated_conjecture-derived,(esk8_0=esk9_0|esk8_0=esk7_0),inference(cn,[status(thm)],[720,theory(equality)])).
+% cnf(722,negated_conjecture-derived,(esk7_0=esk8_0),inference(sr,[status(thm)],[721,240,theory(equality)])).
+% cnf(727,negated_conjecture-derived,(unordered_pair(esk8_0,esk9_0)=unordered_pair(esk7_0,esk8_0)),inference(rw,[status(thm)],[241,722,theory(equality)])).
+% cnf(728,negated_conjecture-derived,(unordered_pair(esk8_0,esk9_0)=unordered_pair(esk8_0,esk8_0)),inference(rw,[status(thm)],[727,722,theory(equality)])).
+% cnf(783,negated_conjecture-derived,(member(esk9_0,unordered_pair(esk8_0,esk8_0))|~member(esk9_0,universal_class)),inference(spm,[status(thm)],[310,728,theory(equality)])).
+% cnf(785,negated_conjecture-derived,(member(esk9_0,unordered_pair(esk8_0,esk8_0))|$false),inference(rw,[status(thm)],[783,242,theory(equality)])).
+% cnf(786,negated_conjecture-derived,(member(esk9_0,unordered_pair(esk8_0,esk8_0))),inference(cn,[status(thm)],[785,theory(equality)])).
+% cnf(787,negated_conjecture-derived,(esk9_0=esk8_0),inference(spm,[status(thm)],[67,786,theory(equality)])).
+% cnf(790,negated_conjecture-derived,($false),inference(sr,[status(thm)],[787,240,theory(equality)])).
+% cnf(791,negated_conjecture-derived,($false),790,['proof']).
+% # Proof object ends here.
+% # ...subsumed                          : 36
+% # ...remaining for further processing  : 130
+% # Other redundant clauses eliminated   : 4
+% # Clauses deleted for lack of memory   : 0
+% # Backward-subsumed                    : 4
+% # Backward-rewritten                   : 23
+% # Generated clauses                    : 375
+% # ...of the previous two non-trivial   : 339
+% # Contextual simplify-reflections      : 13
+% # Paramodulations                      : 369
+% # Factorizations                       : 1
+% # Equation resolutions                 : 5
+% # Current number of processed clauses  : 99
+% #    Positive orientable unit clauses  : 28
+% #    Positive unorientable unit clauses: 0
+% #    Negative unit clauses             : 2
+% #    Non-unit-clauses                  : 69
+% # Current number of unprocessed clauses: 182
+% # ...number of literals in the above   : 501
+% # Clause-clause subsumption calls (NU) : 358
+% # Rec. Clause-clause subsumption calls : 282
+% # Unit Clause-clause subsumption calls : 43
+% # Rewrite failures with RHS unbound    : 0
+% 
+% # -------------------------------------------------
+% # User time                : 0.030 s
+% # System time              : 0.010 s
+% # Total time               : 0.040 s
+% # Maximum resident set size: 0 pages
+% 
+%------------------------------------------------------------------------------

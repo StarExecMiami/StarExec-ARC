@@ -1,0 +1,223 @@
+cnf(1,axiom,
+    ( a_truth(truthteller(X1))
+    | a_truth(liar(X1))
+    | a_truth(normal(X1)) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ027-1.tptp',person_is_one_type)).
+
+cnf(5,axiom,
+    ( a_truth(X2)
+    | ~ a_truth(truthteller(X1))
+    | ~ a_truth(says(X1,X2)) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ027-1.tptp',truthtellers_tell_truth)).
+
+cnf(6,axiom,
+    ( ~ a_truth(liar(X1))
+    | ~ a_truth(says(X1,X2))
+    | ~ a_truth(X2) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ027-1.tptp',liars_lie)).
+
+cnf(8,axiom,
+    ( a_truth(X1)
+    | a_truth(liar(X2))
+    | a_truth(normal(X2))
+    | ~ a_truth(says(X2,X1)) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ027-1.tptp',liars_and_normal_lie)).
+
+cnf(10,axiom,
+    ( ~ a_truth(not_lower(X1,X2))
+    | ~ a_truth(lower(X1,X2)) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ027-1.tptp',not_not_lower_and_lower)).
+
+cnf(11,axiom,
+    ( a_truth(not_lower(X1,X2))
+    | a_truth(lower(X1,X2)) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ027-1.tptp',not_lower_or_lower)).
+
+cnf(16,axiom,
+    ( a_truth(liar(X1))
+    | ~ a_truth(lower(X1,X2))
+    | ~ a_truth(normal(X2)) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ027-1.tptp',liars_lower_than_normal)).
+
+cnf(17,axiom,
+    ( ~ a_truth(lower(X1,X2))
+    | ~ a_truth(liar(X2)) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ027-1.tptp',no_one_lower_than_liars)).
+
+cnf(19,axiom,
+    ( a_truth(liar(X2))
+    | a_truth(lower(X2,X1))
+    | ~ a_truth(not_lower(X1,X2))
+    | ~ a_truth(liar(X1)) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ027-1.tptp',not_lower_than_liar)).
+
+cnf(21,axiom,
+    ( a_truth(says(a,lower(a,b))) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ027-1.tptp',a_says_a_lower_than_b)).
+
+cnf(22,axiom,
+    ( a_truth(says(b,not_lower(a,b))) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ027-1.tptp',b_says_a_not_lower_than_b)).
+
+cnf(26,axiom,
+    ( answer(a_normal_b_truthteller)
+    | ~ a_truth(normal(a))
+    | ~ a_truth(truthteller(b)) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ027-1.tptp',a_normal_b_truthteller)).
+
+cnf(27,axiom,
+    ( answer(a_and_b_normal)
+    | ~ a_truth(normal(a))
+    | ~ a_truth(normal(b)) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ027-1.tptp',a_and_b_normal)).
+
+cnf(30,axiom,
+    ( answer(a_liar_b_normal)
+    | ~ a_truth(liar(a))
+    | ~ a_truth(normal(b)) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ027-1.tptp',a_liar_b_normal)).
+
+cnf(32,negated_conjecture,
+    ( ~ answer(X1) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ027-1.tptp',prove_there_is_an_answer)).
+
+cnf(38,plain,
+    ( ~ a_truth(truthteller(b))
+    | ~ a_truth(normal(a)) ),
+    inference(sr,[status(thm)],[26,32,theory(equality)])).
+
+cnf(39,plain,
+    ( ~ a_truth(normal(a))
+    | ~ a_truth(normal(b)) ),
+    inference(sr,[status(thm)],[27,32,theory(equality)])).
+
+cnf(43,plain,
+    ( a_truth(not_lower(a,b))
+    | ~ a_truth(truthteller(b)) ),
+    inference(spm,[status(thm)],[5,22,theory(equality)])).
+
+cnf(45,plain,
+    ( ~ a_truth(liar(b))
+    | ~ a_truth(not_lower(a,b)) ),
+    inference(spm,[status(thm)],[6,22,theory(equality)])).
+
+cnf(46,plain,
+    ( ~ a_truth(liar(a))
+    | ~ a_truth(normal(b)) ),
+    inference(sr,[status(thm)],[30,32,theory(equality)])).
+
+cnf(55,plain,
+    ( a_truth(normal(a))
+    | a_truth(liar(a))
+    | a_truth(lower(a,b)) ),
+    inference(spm,[status(thm)],[8,21,theory(equality)])).
+
+cnf(56,plain,
+    ( a_truth(normal(b))
+    | a_truth(liar(b))
+    | a_truth(not_lower(a,b)) ),
+    inference(spm,[status(thm)],[8,22,theory(equality)])).
+
+cnf(61,plain,
+    ( a_truth(liar(X2))
+    | ~ a_truth(not_lower(X1,X2))
+    | ~ a_truth(liar(X1)) ),
+    inference(csr,[status(thm)],[19,17])).
+
+cnf(67,plain,
+    ( ~ a_truth(lower(a,b))
+    | ~ a_truth(truthteller(b)) ),
+    inference(spm,[status(thm)],[10,43,theory(equality)])).
+
+cnf(71,plain,
+    ( a_truth(lower(a,b))
+    | ~ a_truth(liar(b)) ),
+    inference(spm,[status(thm)],[45,11,theory(equality)])).
+
+cnf(73,plain,
+    ( ~ a_truth(liar(b)) ),
+    inference(csr,[status(thm)],[71,17])).
+
+cnf(82,plain,
+    ( a_truth(normal(b))
+    | a_truth(not_lower(a,b)) ),
+    inference(sr,[status(thm)],[56,73,theory(equality)])).
+
+cnf(85,plain,
+    ( a_truth(liar(b))
+    | a_truth(normal(b))
+    | ~ a_truth(liar(a)) ),
+    inference(spm,[status(thm)],[61,82,theory(equality)])).
+
+cnf(88,plain,
+    ( a_truth(normal(b))
+    | ~ a_truth(liar(a)) ),
+    inference(sr,[status(thm)],[85,73,theory(equality)])).
+
+cnf(89,plain,
+    ( ~ a_truth(liar(a)) ),
+    inference(csr,[status(thm)],[88,46])).
+
+cnf(90,plain,
+    ( a_truth(lower(a,b))
+    | a_truth(normal(a)) ),
+    inference(sr,[status(thm)],[55,89,theory(equality)])).
+
+cnf(94,plain,
+    ( a_truth(liar(a))
+    | a_truth(normal(a))
+    | ~ a_truth(normal(b)) ),
+    inference(spm,[status(thm)],[16,90,theory(equality)])).
+
+cnf(99,plain,
+    ( a_truth(normal(a))
+    | ~ a_truth(normal(b)) ),
+    inference(sr,[status(thm)],[94,89,theory(equality)])).
+
+cnf(106,plain,
+    ( ~ a_truth(normal(b)) ),
+    inference(csr,[status(thm)],[99,39])).
+
+cnf(107,plain,
+    ( a_truth(liar(b))
+    | a_truth(truthteller(b)) ),
+    inference(spm,[status(thm)],[106,1,theory(equality)])).
+
+cnf(109,plain,
+    ( a_truth(truthteller(b)) ),
+    inference(sr,[status(thm)],[107,73,theory(equality)])).
+
+cnf(110,plain,
+    ( ~ a_truth(lower(a,b))
+    | $false ),
+    inference(rw,[status(thm)],[67,109,theory(equality)])).
+
+cnf(111,plain,
+    ( ~ a_truth(lower(a,b)) ),
+    inference(cn,[status(thm)],[110,theory(equality)])).
+
+cnf(116,plain,
+    ( $false
+    | ~ a_truth(normal(a)) ),
+    inference(rw,[status(thm)],[38,109,theory(equality)])).
+
+cnf(117,plain,
+    ( ~ a_truth(normal(a)) ),
+    inference(cn,[status(thm)],[116,theory(equality)])).
+
+cnf(130,plain,
+    ( a_truth(normal(a)) ),
+    inference(sr,[status(thm)],[90,111,theory(equality)])).
+
+cnf(137,plain,
+    ( $false ),
+    inference(rw,[status(thm)],[117,130,theory(equality)])).
+
+cnf(138,plain,
+    ( $false ),
+    inference(cn,[status(thm)],[137,theory(equality)])).
+
+cnf(139,plain,
+    ( $false ),
+    138,
+    [proof]).

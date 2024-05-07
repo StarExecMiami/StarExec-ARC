@@ -1,0 +1,23 @@
+<HTML>
+
+<script type="text/javascript">
+<!--
+  var tstp_dump;
+  function openSoTSTP (dump) {   
+    alert("open SoTSTP page");
+    var tstp_url = "http://www.cs.miami.edu/students/strac/test/IDV/WindowOpened.html";
+    var tstp_browser = window.open(tstp_url, "_blank");
+    tstp_dump = dump;
+  }
+  function getTSTPDump () {
+    return tstp_dump;
+  }
+//-->
+</script>
+
+<BODY>
+</BODY>
+
+<button onclick="openSoTSTP('fof');">Open</button>
+
+</HTML>

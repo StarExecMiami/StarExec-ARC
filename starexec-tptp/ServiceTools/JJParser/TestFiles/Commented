@@ -1,0 +1,18 @@
+%----Comment with %
+
+/* multi
+   line
+   comment */
+fof(freddy,axiom,
+    ( ! [X,Y] : 
+        ( q(X)
+       => ( ~ p1(X)   %----Comment in middle
+          & (f2(X,cat) = X => X != god)
+          & ($false | $true)  /*Block in middle*/
+          & p2(X,f3(X,cat,g(cat))) ) ) )).
+
+/*----Comment in start*/fof(refutation,derived,
+    ( $false )   ).
+
+#----comment with #
+fof(last,axiom,p3).

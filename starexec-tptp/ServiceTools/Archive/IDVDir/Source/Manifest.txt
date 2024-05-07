@@ -1,0 +1,2 @@
+Class-Path: TptpParser.jar antlr-2.7.5.jar Netscape.jar ClientHttpRequest.jar
+Main-Class: IDV

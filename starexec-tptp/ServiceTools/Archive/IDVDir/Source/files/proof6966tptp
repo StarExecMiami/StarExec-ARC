@@ -1,0 +1,165 @@
+% 2 [] -killer(x)|hates(x,Agatha).
+cnf(2,axiom,
+	( ~ killer(x)
+	| hates(x,Agatha) ),
+	file('proof6965otter',unknown),
+	[]).
+
+% 3 [] -killer(x)| -richer(x,Agatha).
+cnf(3,axiom,
+	( ~ killer(x)
+	| ~ richer(x,Agatha) ),
+	file('proof6965otter',unknown),
+	[]).
+
+% 4 [] -hates(Agatha,x)| -hates(Charles,x).
+cnf(4,axiom,
+	( ~ hates(Agatha,x)
+	| ~ hates(Charles,x) ),
+	file('proof6965otter',unknown),
+	[]).
+
+% 5 [] -hates(Agatha,x)|hates(Butler,x).
+cnf(5,axiom,
+	( ~ hates(Agatha,x)
+	| hates(Butler,x) ),
+	file('proof6965otter',unknown),
+	[]).
+
+% 6 [] -hates(x,$f1(x)).
+cnf(6,axiom,
+	( ~ hates(x,dollar_f1(x)) ),
+	file('proof6965otter',unknown),
+	[]).
+
+% 8 [] -notequals(x,Butler)|hates(Agatha,x).
+cnf(8,axiom,
+	( ~ notequals(x,Butler)
+	| hates(Agatha,x) ),
+	file('proof6965otter',unknown),
+	[]).
+
+% 9 [] -notequals(x,y)|notequals(y,x).
+cnf(9,axiom,
+	( ~ notequals(x,y)
+	| notequals(y,x) ),
+	file('proof6965otter',unknown),
+	[]).
+
+% 10 [] -killer(Agatha).
+cnf(10,axiom,
+	( ~ killer(Agatha) ),
+	file('proof6965otter',unknown),
+	[]).
+
+% 14 [] killer(Agatha)|killer(Butler)|killer(Charles).
+cnf(14,axiom,
+	( killer(Agatha)
+	| killer(Butler)
+	| killer(Charles) ),
+	file('proof6965otter',unknown),
+	[]).
+
+% 15 [copy,14,unit_del,10] killer(Butler)|killer(Charles).
+cnf(15,plain,
+	( killer(Butler)
+	| killer(Charles) ),
+	inference(unit_del,[status(thm)],[
+		inference(copy,[status(thm)],[14]),10]),
+	[iquote('copy,14,unit_del,10')]).
+
+% 16 [] richer(x,Agatha)|hates(Butler,x).
+cnf(16,axiom,
+	( richer(x,Agatha)
+	| hates(Butler,x) ),
+	file('proof6965otter',unknown),
+	[]).
+
+% 18 [] notequals(x,y)|equals(x,y).
+cnf(18,axiom,
+	( notequals(x,y)
+	| equals(x,y) ),
+	file('proof6965otter',unknown),
+	[]).
+
+% 19 [] notequals(Butler,Agatha).
+cnf(19,axiom,
+	( notequals(Butler,Agatha) ),
+	file('proof6965otter',unknown),
+	[]).
+
+% 21 [hyper,19,9] notequals(Agatha,Butler).
+cnf(21,plain,
+	( notequals(Agatha,Butler) ),
+	inference(hyper,[status(thm)],[19,9]),
+	[iquote('hyper,19,9')]).
+
+% 25 [hyper,21,8] hates(Agatha,Agatha).
+cnf(25,plain,
+	( hates(Agatha,Agatha) ),
+	inference(hyper,[status(thm)],[21,8]),
+	[iquote('hyper,21,8')]).
+
+% 27 [ur,25,4] -hates(Charles,Agatha).
+cnf(27,plain,
+	( ~ hates(Charles,Agatha) ),
+	inference(ur,[status(thm)],[25,4]),
+	[iquote('ur,25,4')]).
+
+% 30 [ur,16,6] richer($f1(Butler),Agatha).
+cnf(30,plain,
+	( richer(dollar_f1(Butler),Agatha) ),
+	inference(ur,[status(thm)],[16,6]),
+	[iquote('ur,16,6')]).
+
+% 31 [ur,27,2] -killer(Charles).
+cnf(31,plain,
+	( ~ killer(Charles) ),
+	inference(ur,[status(thm)],[27,2]),
+	[iquote('ur,27,2')]).
+
+% 32 [hyper,31,15] killer(Butler).
+cnf(32,plain,
+	( killer(Butler) ),
+	inference(hyper,[status(thm)],[31,15]),
+	[iquote('hyper,31,15')]).
+
+% 36 [hyper,18,8] equals(x,Butler)|hates(Agatha,x).
+cnf(36,plain,
+	( equals(x,Butler)
+	| hates(Agatha,x) ),
+	inference(hyper,[status(thm)],[18,8]),
+	[iquote('hyper,18,8')]).
+
+% 37 [ur,30,3] -killer($f1(Butler)).
+cnf(37,plain,
+	( ~ killer(dollar_f1(Butler)) ),
+	inference(ur,[status(thm)],[30,3]),
+	[iquote('ur,30,3')]).
+
+% 41 [hyper,36,5] equals(x,Butler)|hates(Butler,x).
+cnf(41,plain,
+	( equals(x,Butler)
+	| hates(Butler,x) ),
+	inference(hyper,[status(thm)],[36,5]),
+	[iquote('hyper,36,5')]).
+
+% 45,44 [hyper,41,6] equals($f1(Butler),Butler).
+cnf(45,plain,
+	( equals(dollar_f1(Butler),Butler) ),
+	inference(hyper,[status(thm)],[41,6]),
+	[iquote('hyper,41,6')]).
+
+% 46 [back_demod,37,demod,45] -killer(Butler).
+cnf(46,plain,
+	( ~ killer(Butler) ),
+	inference(demod,[status(thm)],[
+		inference(back_demod,[status(thm)],[37]),45,theory(equality)]),
+	[iquote('back_demod,37,demod,45')]).
+
+% 47 [binary,46.1,32.1] $F.
+cnf(47,plain,
+	( $false ),
+	inference(binary,[status(thm)],[46,32]),
+	[iquote('binary,46.1,32.1')]).
+

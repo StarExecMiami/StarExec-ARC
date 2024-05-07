@@ -1,0 +1,1071 @@
+%------------------------------------------------------------------------------
+% File       : EP---0.9
+% Problem    : SET647+3 : TPTP v2.2.0
+% Transform  : none
+% Format     : tptp
+% Command    : eproof --print-statistics -xAuto -tAuto --memory-limit=Auto --tstp-in --tstp-out %s
+
+% Computer   : art10.cs.miami.edu
+% Model      : i686 unknown
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2793MHz
+% Memory     : 1000MB
+% OS         : Linux 2.4.22-21mdk-i686-up-4GB
+% CPULimit   : 600s
+
+% Result     : Theorem 0.0s
+% Output     : Refutation 0.0s
+% Statistics : Number of formulae    :  103 ( 178 expanded)
+%              Number of clauses     :   57 (  77 expanded)
+%              Depth                 :   19
+%              Number of atoms       :  492 ( 646 expanded)
+%              Maximal formula depth :   11 (   6 average)
+%              Maximal clause size   :   18 (   9 average)
+%              Maximal term depth    :    5 (   1 average)
+% Verified   : 
+
+% Comments   : 
+%------------------------------------------------------------------------------
+%----TSTP SOLUTION
+fof(1,axiom,(
+    ! [X1] : 
+      ( ilf_type(X1,set_type)
+     => ! [X2] : 
+          ( ilf_type(X2,set_type)
+         => ! [X3] : 
+              ( ilf_type(X3,set_type)
+             => ( ( subset(X1,X2)
+                  & subset(X2,X3) )
+               => subset(X1,X3) ) ) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp',p1)).
+
+fof(2,axiom,(
+    ! [X1] : 
+      ( ilf_type(X1,binary_relation_type)
+     => subset(X1,cross_product(domain_of(X1),range_of(X1))) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp',p2)).
+
+fof(3,axiom,(
+    ! [X1] : 
+      ( ilf_type(X1,set_type)
+     => ! [X2] : 
+          ( ilf_type(X2,set_type)
+         => ! [X3] : 
+              ( ilf_type(X3,set_type)
+             => ( subset(X1,X2)
+               => ( subset(cross_product(X1,X3),cross_product(X2,X3))
+                  & subset(cross_product(X3,X1),cross_product(X3,X2)) ) ) ) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp',p3)).
+
+fof(4,axiom,(
+    ! [X1] : 
+      ( ilf_type(X1,set_type)
+     => ! [X2] : 
+          ( ilf_type(X2,set_type)
+         => ( ! [X3] : 
+                ( ilf_type(X3,subset_type(cross_product(X1,X2)))
+               => ilf_type(X3,relation_type(X1,X2)) )
+            & ! [X4] : 
+                ( ilf_type(X4,relation_type(X1,X2))
+               => ilf_type(X4,subset_type(cross_product(X1,X2))) ) ) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp',p4)).
+
+fof(12,axiom,(
+    ! [X1] : 
+      ( ilf_type(X1,set_type)
+     => ! [X2] : 
+          ( ilf_type(X2,set_type)
+         => ( subset(X1,X2)
+          <=> ! [X3] : 
+                ( ilf_type(X3,set_type)
+               => ( member(X3,X1)
+                 => member(X3,X2) ) ) ) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp',p12)).
+
+fof(15,axiom,(
+    ! [X1] : 
+      ( ilf_type(X1,set_type)
+     => ! [X2] : 
+          ( ilf_type(X2,set_type)
+         => ( ilf_type(X2,subset_type(X1))
+          <=> ilf_type(X2,member_type(power_set(X1))) ) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp',p15)).
+
+fof(20,axiom,(
+    ! [X1] : 
+      ( ilf_type(X1,set_type)
+     => ! [X2] : 
+          ( ilf_type(X2,set_type)
+         => ( member(X1,power_set(X2))
+          <=> ! [X3] : 
+                ( ilf_type(X3,set_type)
+               => ( member(X3,X1)
+                 => member(X3,X2) ) ) ) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp',p20)).
+
+fof(22,axiom,(
+    ! [X1] : 
+      ( ilf_type(X1,set_type)
+     => ! [X2] : 
+          ( ( ~ empty(X2)
+            & ilf_type(X2,set_type) )
+         => ( ilf_type(X1,member_type(X2))
+          <=> member(X1,X2) ) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp',p22)).
+
+fof(24,axiom,(
+    ! [X1] : 
+      ( ilf_type(X1,set_type)
+     => ( empty(X1)
+      <=> ! [X2] : 
+            ( ilf_type(X2,set_type)
+           => ~ member(X2,X1) ) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp',p24)).
+
+fof(26,axiom,(
+    ! [X1] : ilf_type(X1,set_type) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp',p26)).
+
+fof(27,conjecture,(
+    ! [X1] : 
+      ( ilf_type(X1,set_type)
+     => ! [X2] : 
+          ( ilf_type(X2,binary_relation_type)
+         => ( subset(domain_of(X2),X1)
+           => ilf_type(X2,relation_type(X1,range_of(X2))) ) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp',prove_relset_1_9)).
+
+fof(28,negated_conjecture-derived,(
+    ~ ( ! [X1] : 
+          ( ilf_type(X1,set_type)
+         => ! [X2] : 
+              ( ilf_type(X2,binary_relation_type)
+             => ( subset(domain_of(X2),X1)
+               => ilf_type(X2,relation_type(X1,range_of(X2))) ) ) ) ) ),
+    inference(assume_negation,[status(cth)],[27])).
+
+fof(29,derived,(
+    ! [X1] : 
+      ( ~ ilf_type(X1,set_type)
+      | ! [X2] : 
+          ( ~ ilf_type(X2,set_type)
+          | ! [X3] : 
+              ( ~ ilf_type(X3,set_type)
+              | ~ subset(X1,X2)
+              | ~ subset(X2,X3)
+              | subset(X1,X3) ) ) ) ),
+    inference(fof_nnf,[status(thm)],[1])).
+
+fof(30,derived,(
+    ! [X4] : 
+      ( ~ ilf_type(X4,set_type)
+      | ! [X5] : 
+          ( ~ ilf_type(X5,set_type)
+          | ! [X6] : 
+              ( ~ ilf_type(X6,set_type)
+              | ~ subset(X4,X5)
+              | ~ subset(X5,X6)
+              | subset(X4,X6) ) ) ) ),
+    inference(variable_rename,[status(thm)],[29])).
+
+cnf(31,derived,
+    ( subset(X1,X2)
+    | ~ subset(X3,X2)
+    | ~ subset(X1,X3)
+    | ~ ilf_type(X2,set_type)
+    | ~ ilf_type(X3,set_type)
+    | ~ ilf_type(X1,set_type) ),
+    inference(split_conjunct,[status(thm)],[30])).
+
+fof(32,derived,(
+    ! [X1] : 
+      ( ~ ilf_type(X1,binary_relation_type)
+      | subset(X1,cross_product(domain_of(X1),range_of(X1))) ) ),
+    inference(fof_nnf,[status(thm)],[2])).
+
+fof(33,derived,(
+    ! [X2] : 
+      ( ~ ilf_type(X2,binary_relation_type)
+      | subset(X2,cross_product(domain_of(X2),range_of(X2))) ) ),
+    inference(variable_rename,[status(thm)],[32])).
+
+cnf(34,derived,
+    ( subset(X1,cross_product(domain_of(X1),range_of(X1)))
+    | ~ ilf_type(X1,binary_relation_type) ),
+    inference(split_conjunct,[status(thm)],[33])).
+
+fof(35,derived,(
+    ! [X1] : 
+      ( ~ ilf_type(X1,set_type)
+      | ! [X2] : 
+          ( ~ ilf_type(X2,set_type)
+          | ! [X3] : 
+              ( ~ ilf_type(X3,set_type)
+              | ~ subset(X1,X2)
+              | ( subset(cross_product(X1,X3),cross_product(X2,X3))
+                & subset(cross_product(X3,X1),cross_product(X3,X2)) ) ) ) ) ),
+    inference(fof_nnf,[status(thm)],[3])).
+
+fof(36,derived,(
+    ! [X4] : 
+      ( ~ ilf_type(X4,set_type)
+      | ! [X5] : 
+          ( ~ ilf_type(X5,set_type)
+          | ! [X6] : 
+              ( ~ ilf_type(X6,set_type)
+              | ~ subset(X4,X5)
+              | ( subset(cross_product(X4,X6),cross_product(X5,X6))
+                & subset(cross_product(X6,X4),cross_product(X6,X5)) ) ) ) ) ),
+    inference(variable_rename,[status(thm)],[35])).
+
+fof(37,derived,(
+    ! [X4,X5,X6] : 
+      ( ( subset(cross_product(X4,X6),cross_product(X5,X6))
+        | ~ subset(X4,X5)
+        | ~ ilf_type(X6,set_type)
+        | ~ ilf_type(X5,set_type)
+        | ~ ilf_type(X4,set_type) )
+      & ( subset(cross_product(X6,X4),cross_product(X6,X5))
+        | ~ subset(X4,X5)
+        | ~ ilf_type(X6,set_type)
+        | ~ ilf_type(X5,set_type)
+        | ~ ilf_type(X4,set_type) ) ) ),
+    inference(distribute,[status(thm)],[36])).
+
+cnf(39,derived,
+    ( subset(cross_product(X1,X3),cross_product(X2,X3))
+    | ~ ilf_type(X1,set_type)
+    | ~ ilf_type(X2,set_type)
+    | ~ ilf_type(X3,set_type)
+    | ~ subset(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[37])).
+
+fof(40,derived,(
+    ! [X1] : 
+      ( ~ ilf_type(X1,set_type)
+      | ! [X2] : 
+          ( ~ ilf_type(X2,set_type)
+          | ( ! [X3] : 
+                ( ~ ilf_type(X3,subset_type(cross_product(X1,X2)))
+                | ilf_type(X3,relation_type(X1,X2)) )
+            & ! [X4] : 
+                ( ~ ilf_type(X4,relation_type(X1,X2))
+                | ilf_type(X4,subset_type(cross_product(X1,X2))) ) ) ) ) ),
+    inference(fof_nnf,[status(thm)],[4])).
+
+fof(41,derived,(
+    ! [X5] : 
+      ( ~ ilf_type(X5,set_type)
+      | ! [X6] : 
+          ( ~ ilf_type(X6,set_type)
+          | ( ! [X7] : 
+                ( ~ ilf_type(X7,subset_type(cross_product(X5,X6)))
+                | ilf_type(X7,relation_type(X5,X6)) )
+            & ! [X8] : 
+                ( ~ ilf_type(X8,relation_type(X5,X6))
+                | ilf_type(X8,subset_type(cross_product(X5,X6))) ) ) ) ) ),
+    inference(variable_rename,[status(thm)],[40])).
+
+fof(42,derived,(
+    ! [X5,X6,X7,X8] : 
+      ( ( ~ ilf_type(X7,subset_type(cross_product(X5,X6)))
+        | ilf_type(X7,relation_type(X5,X6))
+        | ~ ilf_type(X6,set_type)
+        | ~ ilf_type(X5,set_type) )
+      & ( ~ ilf_type(X8,relation_type(X5,X6))
+        | ilf_type(X8,subset_type(cross_product(X5,X6)))
+        | ~ ilf_type(X6,set_type)
+        | ~ ilf_type(X5,set_type) ) ) ),
+    inference(distribute,[status(thm)],[41])).
+
+cnf(44,derived,
+    ( ilf_type(X3,relation_type(X1,X2))
+    | ~ ilf_type(X1,set_type)
+    | ~ ilf_type(X2,set_type)
+    | ~ ilf_type(X3,subset_type(cross_product(X1,X2))) ),
+    inference(split_conjunct,[status(thm)],[42])).
+
+fof(78,derived,(
+    ! [X1] : 
+      ( ~ ilf_type(X1,set_type)
+      | ! [X2] : 
+          ( ~ ilf_type(X2,set_type)
+          | ( ( ~ subset(X1,X2)
+              | ! [X3] : 
+                  ( ~ ilf_type(X3,set_type)
+                  | ~ member(X3,X1)
+                  | member(X3,X2) ) )
+            & ( ? [X3] : 
+                  ( ilf_type(X3,set_type)
+                  & member(X3,X1)
+                  & ~ member(X3,X2) )
+              | subset(X1,X2) ) ) ) ) ),
+    inference(fof_nnf,[status(thm)],[12])).
+
+fof(79,derived,(
+    ! [X4] : 
+      ( ~ ilf_type(X4,set_type)
+      | ! [X5] : 
+          ( ~ ilf_type(X5,set_type)
+          | ( ( ~ subset(X4,X5)
+              | ! [X6] : 
+                  ( ~ ilf_type(X6,set_type)
+                  | ~ member(X6,X4)
+                  | member(X6,X5) ) )
+            & ( ? [X7] : 
+                  ( ilf_type(X7,set_type)
+                  & member(X7,X4)
+                  & ~ member(X7,X5) )
+              | subset(X4,X5) ) ) ) ) ),
+    inference(variable_rename,[status(thm)],[78])).
+
+fof(80,derived,(
+    ! [X4] : 
+      ( ~ ilf_type(X4,set_type)
+      | ! [X5] : 
+          ( ~ ilf_type(X5,set_type)
+          | ( ( ~ subset(X4,X5)
+              | ! [X6] : 
+                  ( ~ ilf_type(X6,set_type)
+                  | ~ member(X6,X4)
+                  | member(X6,X5) ) )
+            & ( ( ilf_type(esk5_2(X4,X5),set_type)
+                & member(esk5_2(X4,X5),X4)
+                & ~ member(esk5_2(X4,X5),X5) )
+              | subset(X4,X5) ) ) ) ) ),
+    inference(skolemize,[status(sab)],[79])).
+
+fof(81,derived,(
+    ! [X4,X5,X6] : 
+      ( ( ~ subset(X4,X5)
+        | ~ ilf_type(X6,set_type)
+        | ~ member(X6,X4)
+        | member(X6,X5)
+        | ~ ilf_type(X5,set_type)
+        | ~ ilf_type(X4,set_type) )
+      & ( ilf_type(esk5_2(X4,X5),set_type)
+        | subset(X4,X5)
+        | ~ ilf_type(X5,set_type)
+        | ~ ilf_type(X4,set_type) )
+      & ( member(esk5_2(X4,X5),X4)
+        | subset(X4,X5)
+        | ~ ilf_type(X5,set_type)
+        | ~ ilf_type(X4,set_type) )
+      & ( ~ member(esk5_2(X4,X5),X5)
+        | subset(X4,X5)
+        | ~ ilf_type(X5,set_type)
+        | ~ ilf_type(X4,set_type) ) ) ),
+    inference(distribute,[status(thm)],[80])).
+
+cnf(85,derived,
+    ( member(X3,X2)
+    | ~ ilf_type(X1,set_type)
+    | ~ ilf_type(X2,set_type)
+    | ~ member(X3,X1)
+    | ~ ilf_type(X3,set_type)
+    | ~ subset(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[81])).
+
+fof(92,derived,(
+    ! [X1] : 
+      ( ~ ilf_type(X1,set_type)
+      | ! [X2] : 
+          ( ~ ilf_type(X2,set_type)
+          | ( ( ~ ilf_type(X2,subset_type(X1))
+              | ilf_type(X2,member_type(power_set(X1))) )
+            & ( ~ ilf_type(X2,member_type(power_set(X1)))
+              | ilf_type(X2,subset_type(X1)) ) ) ) ) ),
+    inference(fof_nnf,[status(thm)],[15])).
+
+fof(93,derived,(
+    ! [X3] : 
+      ( ~ ilf_type(X3,set_type)
+      | ! [X4] : 
+          ( ~ ilf_type(X4,set_type)
+          | ( ( ~ ilf_type(X4,subset_type(X3))
+              | ilf_type(X4,member_type(power_set(X3))) )
+            & ( ~ ilf_type(X4,member_type(power_set(X3)))
+              | ilf_type(X4,subset_type(X3)) ) ) ) ) ),
+    inference(variable_rename,[status(thm)],[92])).
+
+fof(94,derived,(
+    ! [X3,X4] : 
+      ( ( ~ ilf_type(X4,subset_type(X3))
+        | ilf_type(X4,member_type(power_set(X3)))
+        | ~ ilf_type(X4,set_type)
+        | ~ ilf_type(X3,set_type) )
+      & ( ~ ilf_type(X4,member_type(power_set(X3)))
+        | ilf_type(X4,subset_type(X3))
+        | ~ ilf_type(X4,set_type)
+        | ~ ilf_type(X3,set_type) ) ) ),
+    inference(distribute,[status(thm)],[93])).
+
+cnf(95,derived,
+    ( ilf_type(X2,subset_type(X1))
+    | ~ ilf_type(X1,set_type)
+    | ~ ilf_type(X2,set_type)
+    | ~ ilf_type(X2,member_type(power_set(X1))) ),
+    inference(split_conjunct,[status(thm)],[94])).
+
+fof(117,derived,(
+    ! [X1] : 
+      ( ~ ilf_type(X1,set_type)
+      | ! [X2] : 
+          ( ~ ilf_type(X2,set_type)
+          | ( ( ~ member(X1,power_set(X2))
+              | ! [X3] : 
+                  ( ~ ilf_type(X3,set_type)
+                  | ~ member(X3,X1)
+                  | member(X3,X2) ) )
+            & ( ? [X3] : 
+                  ( ilf_type(X3,set_type)
+                  & member(X3,X1)
+                  & ~ member(X3,X2) )
+              | member(X1,power_set(X2)) ) ) ) ) ),
+    inference(fof_nnf,[status(thm)],[20])).
+
+fof(118,derived,(
+    ! [X4] : 
+      ( ~ ilf_type(X4,set_type)
+      | ! [X5] : 
+          ( ~ ilf_type(X5,set_type)
+          | ( ( ~ member(X4,power_set(X5))
+              | ! [X6] : 
+                  ( ~ ilf_type(X6,set_type)
+                  | ~ member(X6,X4)
+                  | member(X6,X5) ) )
+            & ( ? [X7] : 
+                  ( ilf_type(X7,set_type)
+                  & member(X7,X4)
+                  & ~ member(X7,X5) )
+              | member(X4,power_set(X5)) ) ) ) ) ),
+    inference(variable_rename,[status(thm)],[117])).
+
+fof(119,derived,(
+    ! [X4] : 
+      ( ~ ilf_type(X4,set_type)
+      | ! [X5] : 
+          ( ~ ilf_type(X5,set_type)
+          | ( ( ~ member(X4,power_set(X5))
+              | ! [X6] : 
+                  ( ~ ilf_type(X6,set_type)
+                  | ~ member(X6,X4)
+                  | member(X6,X5) ) )
+            & ( ( ilf_type(esk10_2(X4,X5),set_type)
+                & member(esk10_2(X4,X5),X4)
+                & ~ member(esk10_2(X4,X5),X5) )
+              | member(X4,power_set(X5)) ) ) ) ) ),
+    inference(skolemize,[status(sab)],[118])).
+
+fof(120,derived,(
+    ! [X4,X5,X6] : 
+      ( ( ~ member(X4,power_set(X5))
+        | ~ ilf_type(X6,set_type)
+        | ~ member(X6,X4)
+        | member(X6,X5)
+        | ~ ilf_type(X5,set_type)
+        | ~ ilf_type(X4,set_type) )
+      & ( ilf_type(esk10_2(X4,X5),set_type)
+        | member(X4,power_set(X5))
+        | ~ ilf_type(X5,set_type)
+        | ~ ilf_type(X4,set_type) )
+      & ( member(esk10_2(X4,X5),X4)
+        | member(X4,power_set(X5))
+        | ~ ilf_type(X5,set_type)
+        | ~ ilf_type(X4,set_type) )
+      & ( ~ member(esk10_2(X4,X5),X5)
+        | member(X4,power_set(X5))
+        | ~ ilf_type(X5,set_type)
+        | ~ ilf_type(X4,set_type) ) ) ),
+    inference(distribute,[status(thm)],[119])).
+
+cnf(121,derived,
+    ( member(X1,power_set(X2))
+    | ~ ilf_type(X1,set_type)
+    | ~ ilf_type(X2,set_type)
+    | ~ member(esk10_2(X1,X2),X2) ),
+    inference(split_conjunct,[status(thm)],[120])).
+
+cnf(122,derived,
+    ( member(X1,power_set(X2))
+    | member(esk10_2(X1,X2),X1)
+    | ~ ilf_type(X1,set_type)
+    | ~ ilf_type(X2,set_type) ),
+    inference(split_conjunct,[status(thm)],[120])).
+
+fof(131,derived,(
+    ! [X1] : 
+      ( ilf_type(X1,set_type)
+     => ! [X2] : 
+          ( ( ~ empty(X2)
+            & ilf_type(X2,set_type) )
+         => ( ilf_type(X1,member_type(X2))
+          <=> member(X1,X2) ) ) ) ),
+    inference(fof_simplification,[status(thm)],[22,theory(equality)])).
+
+fof(132,derived,(
+    ! [X1] : 
+      ( ~ ilf_type(X1,set_type)
+      | ! [X2] : 
+          ( empty(X2)
+          | ~ ilf_type(X2,set_type)
+          | ( ( ~ ilf_type(X1,member_type(X2))
+              | member(X1,X2) )
+            & ( ~ member(X1,X2)
+              | ilf_type(X1,member_type(X2)) ) ) ) ) ),
+    inference(fof_nnf,[status(thm)],[131])).
+
+fof(133,derived,(
+    ! [X3] : 
+      ( ~ ilf_type(X3,set_type)
+      | ! [X4] : 
+          ( empty(X4)
+          | ~ ilf_type(X4,set_type)
+          | ( ( ~ ilf_type(X3,member_type(X4))
+              | member(X3,X4) )
+            & ( ~ member(X3,X4)
+              | ilf_type(X3,member_type(X4)) ) ) ) ) ),
+    inference(variable_rename,[status(thm)],[132])).
+
+fof(134,derived,(
+    ! [X3,X4] : 
+      ( ( ~ ilf_type(X3,member_type(X4))
+        | member(X3,X4)
+        | empty(X4)
+        | ~ ilf_type(X4,set_type)
+        | ~ ilf_type(X3,set_type) )
+      & ( ~ member(X3,X4)
+        | ilf_type(X3,member_type(X4))
+        | empty(X4)
+        | ~ ilf_type(X4,set_type)
+        | ~ ilf_type(X3,set_type) ) ) ),
+    inference(distribute,[status(thm)],[133])).
+
+cnf(135,derived,
+    ( empty(X2)
+    | ilf_type(X1,member_type(X2))
+    | ~ ilf_type(X1,set_type)
+    | ~ ilf_type(X2,set_type)
+    | ~ member(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[134])).
+
+fof(142,derived,(
+    ! [X1] : 
+      ( ilf_type(X1,set_type)
+     => ( empty(X1)
+      <=> ! [X2] : 
+            ( ilf_type(X2,set_type)
+           => ~ member(X2,X1) ) ) ) ),
+    inference(fof_simplification,[status(thm)],[24,theory(equality)])).
+
+fof(143,derived,(
+    ! [X1] : 
+      ( ~ ilf_type(X1,set_type)
+      | ( ( ~ empty(X1)
+          | ! [X2] : 
+              ( ~ ilf_type(X2,set_type)
+              | ~ member(X2,X1) ) )
+        & ( ? [X2] : 
+              ( ilf_type(X2,set_type)
+              & member(X2,X1) )
+          | empty(X1) ) ) ) ),
+    inference(fof_nnf,[status(thm)],[142])).
+
+fof(144,derived,(
+    ! [X3] : 
+      ( ~ ilf_type(X3,set_type)
+      | ( ( ~ empty(X3)
+          | ! [X4] : 
+              ( ~ ilf_type(X4,set_type)
+              | ~ member(X4,X3) ) )
+        & ( ? [X5] : 
+              ( ilf_type(X5,set_type)
+              & member(X5,X3) )
+          | empty(X3) ) ) ) ),
+    inference(variable_rename,[status(thm)],[143])).
+
+fof(145,derived,(
+    ! [X3] : 
+      ( ~ ilf_type(X3,set_type)
+      | ( ( ~ empty(X3)
+          | ! [X4] : 
+              ( ~ ilf_type(X4,set_type)
+              | ~ member(X4,X3) ) )
+        & ( ( ilf_type(esk12_1(X3),set_type)
+            & member(esk12_1(X3),X3) )
+          | empty(X3) ) ) ) ),
+    inference(skolemize,[status(sab)],[144])).
+
+fof(146,derived,(
+    ! [X3,X4] : 
+      ( ( ~ empty(X3)
+        | ~ ilf_type(X4,set_type)
+        | ~ member(X4,X3)
+        | ~ ilf_type(X3,set_type) )
+      & ( ilf_type(esk12_1(X3),set_type)
+        | empty(X3)
+        | ~ ilf_type(X3,set_type) )
+      & ( member(esk12_1(X3),X3)
+        | empty(X3)
+        | ~ ilf_type(X3,set_type) ) ) ),
+    inference(distribute,[status(thm)],[145])).
+
+cnf(149,derived,
+    ( ~ ilf_type(X1,set_type)
+    | ~ member(X2,X1)
+    | ~ ilf_type(X2,set_type)
+    | ~ empty(X1) ),
+    inference(split_conjunct,[status(thm)],[146])).
+
+fof(153,derived,(
+    ! [X2] : ilf_type(X2,set_type) ),
+    inference(variable_rename,[status(thm)],[26])).
+
+cnf(154,derived,
+    ( ilf_type(X1,set_type) ),
+    inference(split_conjunct,[status(thm)],[153])).
+
+fof(155,negated_conjecture-derived,(
+    ? [X1] : 
+      ( ilf_type(X1,set_type)
+      & ? [X2] : 
+          ( ilf_type(X2,binary_relation_type)
+          & subset(domain_of(X2),X1)
+          & ~ ilf_type(X2,relation_type(X1,range_of(X2))) ) ) ),
+    inference(fof_nnf,[status(thm)],[28])).
+
+fof(156,negated_conjecture-derived,(
+    ? [X3] : 
+      ( ilf_type(X3,set_type)
+      & ? [X4] : 
+          ( ilf_type(X4,binary_relation_type)
+          & subset(domain_of(X4),X3)
+          & ~ ilf_type(X4,relation_type(X3,range_of(X4))) ) ) ),
+    inference(variable_rename,[status(thm)],[155])).
+
+fof(157,negated_conjecture-derived,
+    ( ilf_type(esk13_0,set_type)
+    & ilf_type(esk14_0,binary_relation_type)
+    & subset(domain_of(esk14_0),esk13_0)
+    & ~ ilf_type(esk14_0,relation_type(esk13_0,range_of(esk14_0))) ),
+    inference(skolemize,[status(sab)],[156])).
+
+cnf(158,negated_conjecture-derived,
+    ( ~ ilf_type(esk14_0,relation_type(esk13_0,range_of(esk14_0))) ),
+    inference(split_conjunct,[status(thm)],[157])).
+
+cnf(159,negated_conjecture-derived,
+    ( subset(domain_of(esk14_0),esk13_0) ),
+    inference(split_conjunct,[status(thm)],[157])).
+
+cnf(160,negated_conjecture-derived,
+    ( ilf_type(esk14_0,binary_relation_type) ),
+    inference(split_conjunct,[status(thm)],[157])).
+
+cnf(213,derived,
+    ( ~ empty(X1)
+    | ~ member(X2,X1)
+    | $false
+    | ~ ilf_type(X1,set_type) ),
+    inference(rw,[status(thm)],[149,154,theory(equality)])).
+
+cnf(214,derived,
+    ( ~ empty(X1)
+    | ~ member(X2,X1)
+    | $false
+    | $false ),
+    inference(rw,[status(thm)],[213,154,theory(equality)])).
+
+cnf(215,derived,
+    ( ~ empty(X1)
+    | ~ member(X2,X1) ),
+    inference(cn,[status(thm)],[214,theory(equality)])).
+
+cnf(221,derived,
+    ( empty(X2)
+    | ilf_type(X1,member_type(X2))
+    | ~ member(X1,X2)
+    | $false
+    | ~ ilf_type(X1,set_type) ),
+    inference(rw,[status(thm)],[135,154,theory(equality)])).
+
+cnf(222,derived,
+    ( empty(X2)
+    | ilf_type(X1,member_type(X2))
+    | ~ member(X1,X2)
+    | $false
+    | $false ),
+    inference(rw,[status(thm)],[221,154,theory(equality)])).
+
+cnf(223,derived,
+    ( empty(X2)
+    | ilf_type(X1,member_type(X2))
+    | ~ member(X1,X2) ),
+    inference(cn,[status(thm)],[222,theory(equality)])).
+
+cnf(224,derived,
+    ( ilf_type(X1,member_type(X2))
+    | ~ member(X1,X2) ),
+    inference(csr,[status(thm)],[223,215])).
+
+cnf(249,negated_conjecture-derived,
+    ( subset(esk14_0,cross_product(domain_of(esk14_0),range_of(esk14_0))) ),
+    inference(spm,[status(thm)],[34,160,theory(equality)])).
+
+cnf(250,derived,
+    ( member(X1,power_set(X2))
+    | member(esk10_2(X1,X2),X1)
+    | $false
+    | ~ ilf_type(X1,set_type) ),
+    inference(rw,[status(thm)],[122,154,theory(equality)])).
+
+cnf(251,derived,
+    ( member(X1,power_set(X2))
+    | member(esk10_2(X1,X2),X1)
+    | $false
+    | $false ),
+    inference(rw,[status(thm)],[250,154,theory(equality)])).
+
+cnf(252,derived,
+    ( member(X1,power_set(X2))
+    | member(esk10_2(X1,X2),X1) ),
+    inference(cn,[status(thm)],[251,theory(equality)])).
+
+cnf(255,derived,
+    ( ilf_type(X2,subset_type(X1))
+    | $false
+    | ~ ilf_type(X1,set_type)
+    | ~ ilf_type(X2,member_type(power_set(X1))) ),
+    inference(rw,[status(thm)],[95,154,theory(equality)])).
+
+cnf(256,derived,
+    ( ilf_type(X2,subset_type(X1))
+    | $false
+    | $false
+    | ~ ilf_type(X2,member_type(power_set(X1))) ),
+    inference(rw,[status(thm)],[255,154,theory(equality)])).
+
+cnf(257,derived,
+    ( ilf_type(X2,subset_type(X1))
+    | ~ ilf_type(X2,member_type(power_set(X1))) ),
+    inference(cn,[status(thm)],[256,theory(equality)])).
+
+cnf(272,derived,
+    ( member(X1,power_set(X2))
+    | $false
+    | ~ ilf_type(X1,set_type)
+    | ~ member(esk10_2(X1,X2),X2) ),
+    inference(rw,[status(thm)],[121,154,theory(equality)])).
+
+cnf(273,derived,
+    ( member(X1,power_set(X2))
+    | $false
+    | $false
+    | ~ member(esk10_2(X1,X2),X2) ),
+    inference(rw,[status(thm)],[272,154,theory(equality)])).
+
+cnf(274,derived,
+    ( member(X1,power_set(X2))
+    | ~ member(esk10_2(X1,X2),X2) ),
+    inference(cn,[status(thm)],[273,theory(equality)])).
+
+cnf(302,derived,
+    ( ilf_type(X3,relation_type(X1,X2))
+    | $false
+    | ~ ilf_type(X1,set_type)
+    | ~ ilf_type(X3,subset_type(cross_product(X1,X2))) ),
+    inference(rw,[status(thm)],[44,154,theory(equality)])).
+
+cnf(303,derived,
+    ( ilf_type(X3,relation_type(X1,X2))
+    | $false
+    | $false
+    | ~ ilf_type(X3,subset_type(cross_product(X1,X2))) ),
+    inference(rw,[status(thm)],[302,154,theory(equality)])).
+
+cnf(304,derived,
+    ( ilf_type(X3,relation_type(X1,X2))
+    | ~ ilf_type(X3,subset_type(cross_product(X1,X2))) ),
+    inference(cn,[status(thm)],[303,theory(equality)])).
+
+cnf(313,derived,
+    ( subset(cross_product(X1,X3),cross_product(X2,X3))
+    | ~ subset(X1,X2)
+    | $false
+    | ~ ilf_type(X2,set_type)
+    | ~ ilf_type(X1,set_type) ),
+    inference(rw,[status(thm)],[39,154,theory(equality)])).
+
+cnf(314,derived,
+    ( subset(cross_product(X1,X3),cross_product(X2,X3))
+    | ~ subset(X1,X2)
+    | $false
+    | $false
+    | ~ ilf_type(X1,set_type) ),
+    inference(rw,[status(thm)],[313,154,theory(equality)])).
+
+cnf(315,derived,
+    ( subset(cross_product(X1,X3),cross_product(X2,X3))
+    | ~ subset(X1,X2)
+    | $false
+    | $false
+    | $false ),
+    inference(rw,[status(thm)],[314,154,theory(equality)])).
+
+cnf(316,derived,
+    ( subset(cross_product(X1,X3),cross_product(X2,X3))
+    | ~ subset(X1,X2) ),
+    inference(cn,[status(thm)],[315,theory(equality)])).
+
+cnf(317,negated_conjecture-derived,
+    ( subset(cross_product(domain_of(esk14_0),X1),cross_product(esk13_0,X1)) ),
+    inference(spm,[status(thm)],[316,159,theory(equality)])).
+
+cnf(327,derived,
+    ( subset(X1,X2)
+    | ~ subset(X3,X2)
+    | ~ subset(X1,X3)
+    | $false
+    | ~ ilf_type(X2,set_type)
+    | ~ ilf_type(X1,set_type) ),
+    inference(rw,[status(thm)],[31,154,theory(equality)])).
+
+cnf(328,derived,
+    ( subset(X1,X2)
+    | ~ subset(X3,X2)
+    | ~ subset(X1,X3)
+    | $false
+    | $false
+    | ~ ilf_type(X1,set_type) ),
+    inference(rw,[status(thm)],[327,154,theory(equality)])).
+
+cnf(329,derived,
+    ( subset(X1,X2)
+    | ~ subset(X3,X2)
+    | ~ subset(X1,X3)
+    | $false
+    | $false
+    | $false ),
+    inference(rw,[status(thm)],[328,154,theory(equality)])).
+
+cnf(330,derived,
+    ( subset(X1,X2)
+    | ~ subset(X3,X2)
+    | ~ subset(X1,X3) ),
+    inference(cn,[status(thm)],[329,theory(equality)])).
+
+cnf(333,derived,
+    ( member(X3,X2)
+    | ~ subset(X1,X2)
+    | ~ member(X3,X1)
+    | $false
+    | ~ ilf_type(X2,set_type)
+    | ~ ilf_type(X1,set_type) ),
+    inference(rw,[status(thm)],[85,154,theory(equality)])).
+
+cnf(334,derived,
+    ( member(X3,X2)
+    | ~ subset(X1,X2)
+    | ~ member(X3,X1)
+    | $false
+    | $false
+    | ~ ilf_type(X1,set_type) ),
+    inference(rw,[status(thm)],[333,154,theory(equality)])).
+
+cnf(335,derived,
+    ( member(X3,X2)
+    | ~ subset(X1,X2)
+    | ~ member(X3,X1)
+    | $false
+    | $false
+    | $false ),
+    inference(rw,[status(thm)],[334,154,theory(equality)])).
+
+cnf(336,derived,
+    ( member(X3,X2)
+    | ~ subset(X1,X2)
+    | ~ member(X3,X1) ),
+    inference(cn,[status(thm)],[335,theory(equality)])).
+
+cnf(787,negated_conjecture-derived,
+    ( subset(X1,cross_product(esk13_0,X2))
+    | ~ subset(X1,cross_product(domain_of(esk14_0),X2)) ),
+    inference(spm,[status(thm)],[330,317,theory(equality)])).
+
+cnf(3566,negated_conjecture-derived,
+    ( subset(esk14_0,cross_product(esk13_0,range_of(esk14_0))) ),
+    inference(spm,[status(thm)],[787,249,theory(equality)])).
+
+cnf(3582,negated_conjecture-derived,
+    ( member(X1,cross_product(esk13_0,range_of(esk14_0)))
+    | ~ member(X1,esk14_0) ),
+    inference(spm,[status(thm)],[336,3566,theory(equality)])).
+
+cnf(3599,negated_conjecture-derived,
+    ( member(esk10_2(esk14_0,X1),cross_product(esk13_0,range_of(esk14_0)))
+    | member(esk14_0,power_set(X1)) ),
+    inference(spm,[status(thm)],[3582,252,theory(equality)])).
+
+cnf(3932,negated_conjecture-derived,
+    ( member(esk14_0,power_set(cross_product(esk13_0,range_of(esk14_0)))) ),
+    inference(spm,[status(thm)],[274,3599,theory(equality)])).
+
+cnf(3937,negated_conjecture-derived,
+    ( ilf_type(esk14_0,member_type(power_set(cross_product(esk13_0,range_of(esk14_0))))) ),
+    inference(spm,[status(thm)],[224,3932,theory(equality)])).
+
+cnf(3941,negated_conjecture-derived,
+    ( ilf_type(esk14_0,subset_type(cross_product(esk13_0,range_of(esk14_0)))) ),
+    inference(spm,[status(thm)],[257,3937,theory(equality)])).
+
+cnf(3948,negated_conjecture-derived,
+    ( ilf_type(esk14_0,relation_type(esk13_0,range_of(esk14_0))) ),
+    inference(spm,[status(thm)],[304,3941,theory(equality)])).
+
+cnf(3951,negated_conjecture-derived,
+    ( $false ),
+    inference(sr,[status(thm)],[3948,158,theory(equality)])).
+
+cnf(3952,negated_conjecture-derived,
+    ( $false ),
+    3951,
+    ['proof']).
+%------------------------------------------------------------------------------
+%----ORIGINAL SYSTEM OUTPUT
+% # Problem is unsatisfiable (or provable), constructing proof object
+% # TSTP exit status: Theorem
+% # Proof object starts here.
+% fof(1, axiom,![X1]:(ilf_type(X1,set_type)=>![X2]:(ilf_type(X2,set_type)=>![X3]:(ilf_type(X3,set_type)=>((subset(X1,X2)&subset(X2,X3))=>subset(X1,X3))))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp', p1)).
+% fof(2, axiom,![X1]:(ilf_type(X1,binary_relation_type)=>subset(X1,cross_product(domain_of(X1),range_of(X1)))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp', p2)).
+% fof(3, axiom,![X1]:(ilf_type(X1,set_type)=>![X2]:(ilf_type(X2,set_type)=>![X3]:(ilf_type(X3,set_type)=>(subset(X1,X2)=>(subset(cross_product(X1,X3),cross_product(X2,X3))&subset(cross_product(X3,X1),cross_product(X3,X2))))))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp', p3)).
+% fof(4, axiom,![X1]:(ilf_type(X1,set_type)=>![X2]:(ilf_type(X2,set_type)=>(![X3]:(ilf_type(X3,subset_type(cross_product(X1,X2)))=>ilf_type(X3,relation_type(X1,X2)))&![X4]:(ilf_type(X4,relation_type(X1,X2))=>ilf_type(X4,subset_type(cross_product(X1,X2))))))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp', p4)).
+% fof(12, axiom,![X1]:(ilf_type(X1,set_type)=>![X2]:(ilf_type(X2,set_type)=>(subset(X1,X2)<=>![X3]:(ilf_type(X3,set_type)=>(member(X3,X1)=>member(X3,X2)))))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp', p12)).
+% fof(15, axiom,![X1]:(ilf_type(X1,set_type)=>![X2]:(ilf_type(X2,set_type)=>(ilf_type(X2,subset_type(X1))<=>ilf_type(X2,member_type(power_set(X1)))))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp', p15)).
+% fof(20, axiom,![X1]:(ilf_type(X1,set_type)=>![X2]:(ilf_type(X2,set_type)=>(member(X1,power_set(X2))<=>![X3]:(ilf_type(X3,set_type)=>(member(X3,X1)=>member(X3,X2)))))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp', p20)).
+% fof(22, axiom,![X1]:(ilf_type(X1,set_type)=>![X2]:((~(empty(X2))&ilf_type(X2,set_type))=>(ilf_type(X1,member_type(X2))<=>member(X1,X2)))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp', p22)).
+% fof(24, axiom,![X1]:(ilf_type(X1,set_type)=>(empty(X1)<=>![X2]:(ilf_type(X2,set_type)=>~(member(X2,X1))))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp', p24)).
+% fof(26, axiom,![X1]:ilf_type(X1,set_type),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp', p26)).
+% fof(27, conjecture,![X1]:(ilf_type(X1,set_type)=>![X2]:(ilf_type(X2,binary_relation_type)=>(subset(domain_of(X2),X1)=>ilf_type(X2,relation_type(X1,range_of(X2)))))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET647+3.tptp', prove_relset_1_9)).
+% fof(28, negated_conjecture-derived,~(![X1]:(ilf_type(X1,set_type)=>![X2]:(ilf_type(X2,binary_relation_type)=>(subset(domain_of(X2),X1)=>ilf_type(X2,relation_type(X1,range_of(X2))))))),inference(assume_negation,[status(cth)],[27])).
+% fof(29, derived,![X1]:(~(ilf_type(X1,set_type))|![X2]:(~(ilf_type(X2,set_type))|![X3]:(~(ilf_type(X3,set_type))|((~(subset(X1,X2))|~(subset(X2,X3)))|subset(X1,X3))))),inference(fof_nnf,[status(thm)],[1])).
+% fof(30, derived,![X4]:(~(ilf_type(X4,set_type))|![X5]:(~(ilf_type(X5,set_type))|![X6]:(~(ilf_type(X6,set_type))|((~(subset(X4,X5))|~(subset(X5,X6)))|subset(X4,X6))))),inference(variable_rename,[status(thm)],[29])).
+% cnf(31,derived,(subset(X1,X2)|~subset(X3,X2)|~subset(X1,X3)|~ilf_type(X2,set_type)|~ilf_type(X3,set_type)|~ilf_type(X1,set_type)),inference(split_conjunct,[status(thm)],[30])).
+% fof(32, derived,![X1]:(~(ilf_type(X1,binary_relation_type))|subset(X1,cross_product(domain_of(X1),range_of(X1)))),inference(fof_nnf,[status(thm)],[2])).
+% fof(33, derived,![X2]:(~(ilf_type(X2,binary_relation_type))|subset(X2,cross_product(domain_of(X2),range_of(X2)))),inference(variable_rename,[status(thm)],[32])).
+% cnf(34,derived,(subset(X1,cross_product(domain_of(X1),range_of(X1)))|~ilf_type(X1,binary_relation_type)),inference(split_conjunct,[status(thm)],[33])).
+% fof(35, derived,![X1]:(~(ilf_type(X1,set_type))|![X2]:(~(ilf_type(X2,set_type))|![X3]:(~(ilf_type(X3,set_type))|(~(subset(X1,X2))|(subset(cross_product(X1,X3),cross_product(X2,X3))&subset(cross_product(X3,X1),cross_product(X3,X2))))))),inference(fof_nnf,[status(thm)],[3])).
+% fof(36, derived,![X4]:(~(ilf_type(X4,set_type))|![X5]:(~(ilf_type(X5,set_type))|![X6]:(~(ilf_type(X6,set_type))|(~(subset(X4,X5))|(subset(cross_product(X4,X6),cross_product(X5,X6))&subset(cross_product(X6,X4),cross_product(X6,X5))))))),inference(variable_rename,[status(thm)],[35])).
+% fof(37, derived,![X4]:![X5]:![X6]:(((((subset(cross_product(X4,X6),cross_product(X5,X6))|~(subset(X4,X5)))|~(ilf_type(X6,set_type)))|~(ilf_type(X5,set_type)))|~(ilf_type(X4,set_type)))&((((subset(cross_product(X6,X4),cross_product(X6,X5))|~(subset(X4,X5)))|~(ilf_type(X6,set_type)))|~(ilf_type(X5,set_type)))|~(ilf_type(X4,set_type)))),inference(distribute,[status(thm)],[36])).
+% cnf(39,derived,(subset(cross_product(X1,X3),cross_product(X2,X3))|~ilf_type(X1,set_type)|~ilf_type(X2,set_type)|~ilf_type(X3,set_type)|~subset(X1,X2)),inference(split_conjunct,[status(thm)],[37])).
+% fof(40, derived,![X1]:(~(ilf_type(X1,set_type))|![X2]:(~(ilf_type(X2,set_type))|(![X3]:(~(ilf_type(X3,subset_type(cross_product(X1,X2))))|ilf_type(X3,relation_type(X1,X2)))&![X4]:(~(ilf_type(X4,relation_type(X1,X2)))|ilf_type(X4,subset_type(cross_product(X1,X2))))))),inference(fof_nnf,[status(thm)],[4])).
+% fof(41, derived,![X5]:(~(ilf_type(X5,set_type))|![X6]:(~(ilf_type(X6,set_type))|(![X7]:(~(ilf_type(X7,subset_type(cross_product(X5,X6))))|ilf_type(X7,relation_type(X5,X6)))&![X8]:(~(ilf_type(X8,relation_type(X5,X6)))|ilf_type(X8,subset_type(cross_product(X5,X6))))))),inference(variable_rename,[status(thm)],[40])).
+% fof(42, derived,![X5]:![X6]:![X7]:![X8]:((((~(ilf_type(X7,subset_type(cross_product(X5,X6))))|ilf_type(X7,relation_type(X5,X6)))|~(ilf_type(X6,set_type)))|~(ilf_type(X5,set_type)))&(((~(ilf_type(X8,relation_type(X5,X6)))|ilf_type(X8,subset_type(cross_product(X5,X6))))|~(ilf_type(X6,set_type)))|~(ilf_type(X5,set_type)))),inference(distribute,[status(thm)],[41])).
+% cnf(44,derived,(ilf_type(X3,relation_type(X1,X2))|~ilf_type(X1,set_type)|~ilf_type(X2,set_type)|~ilf_type(X3,subset_type(cross_product(X1,X2)))),inference(split_conjunct,[status(thm)],[42])).
+% fof(78, derived,![X1]:(~(ilf_type(X1,set_type))|![X2]:(~(ilf_type(X2,set_type))|((~(subset(X1,X2))|![X3]:(~(ilf_type(X3,set_type))|(~(member(X3,X1))|member(X3,X2))))&(?[X3]:(ilf_type(X3,set_type)&(member(X3,X1)&~(member(X3,X2))))|subset(X1,X2))))),inference(fof_nnf,[status(thm)],[12])).
+% fof(79, derived,![X4]:(~(ilf_type(X4,set_type))|![X5]:(~(ilf_type(X5,set_type))|((~(subset(X4,X5))|![X6]:(~(ilf_type(X6,set_type))|(~(member(X6,X4))|member(X6,X5))))&(?[X7]:(ilf_type(X7,set_type)&(member(X7,X4)&~(member(X7,X5))))|subset(X4,X5))))),inference(variable_rename,[status(thm)],[78])).
+% fof(80, derived,![X4]:(~(ilf_type(X4,set_type))|![X5]:(~(ilf_type(X5,set_type))|((~(subset(X4,X5))|![X6]:(~(ilf_type(X6,set_type))|(~(member(X6,X4))|member(X6,X5))))&((ilf_type(esk5_2(X4,X5),set_type)&(member(esk5_2(X4,X5),X4)&~(member(esk5_2(X4,X5),X5))))|subset(X4,X5))))),inference(skolemize,[status(sab)],[79])).
+% fof(81, derived,![X4]:![X5]:![X6]:((((~(subset(X4,X5))|(~(ilf_type(X6,set_type))|(~(member(X6,X4))|member(X6,X5))))|~(ilf_type(X5,set_type)))|~(ilf_type(X4,set_type)))&((((ilf_type(esk5_2(X4,X5),set_type)|subset(X4,X5))|~(ilf_type(X5,set_type)))|~(ilf_type(X4,set_type)))&((((member(esk5_2(X4,X5),X4)|subset(X4,X5))|~(ilf_type(X5,set_type)))|~(ilf_type(X4,set_type)))&(((~(member(esk5_2(X4,X5),X5))|subset(X4,X5))|~(ilf_type(X5,set_type)))|~(ilf_type(X4,set_type)))))),inference(distribute,[status(thm)],[80])).
+% cnf(85,derived,(member(X3,X2)|~ilf_type(X1,set_type)|~ilf_type(X2,set_type)|~member(X3,X1)|~ilf_type(X3,set_type)|~subset(X1,X2)),inference(split_conjunct,[status(thm)],[81])).
+% fof(92, derived,![X1]:(~(ilf_type(X1,set_type))|![X2]:(~(ilf_type(X2,set_type))|((~(ilf_type(X2,subset_type(X1)))|ilf_type(X2,member_type(power_set(X1))))&(~(ilf_type(X2,member_type(power_set(X1))))|ilf_type(X2,subset_type(X1)))))),inference(fof_nnf,[status(thm)],[15])).
+% fof(93, derived,![X3]:(~(ilf_type(X3,set_type))|![X4]:(~(ilf_type(X4,set_type))|((~(ilf_type(X4,subset_type(X3)))|ilf_type(X4,member_type(power_set(X3))))&(~(ilf_type(X4,member_type(power_set(X3))))|ilf_type(X4,subset_type(X3)))))),inference(variable_rename,[status(thm)],[92])).
+% fof(94, derived,![X3]:![X4]:((((~(ilf_type(X4,subset_type(X3)))|ilf_type(X4,member_type(power_set(X3))))|~(ilf_type(X4,set_type)))|~(ilf_type(X3,set_type)))&(((~(ilf_type(X4,member_type(power_set(X3))))|ilf_type(X4,subset_type(X3)))|~(ilf_type(X4,set_type)))|~(ilf_type(X3,set_type)))),inference(distribute,[status(thm)],[93])).
+% cnf(95,derived,(ilf_type(X2,subset_type(X1))|~ilf_type(X1,set_type)|~ilf_type(X2,set_type)|~ilf_type(X2,member_type(power_set(X1)))),inference(split_conjunct,[status(thm)],[94])).
+% fof(117, derived,![X1]:(~(ilf_type(X1,set_type))|![X2]:(~(ilf_type(X2,set_type))|((~(member(X1,power_set(X2)))|![X3]:(~(ilf_type(X3,set_type))|(~(member(X3,X1))|member(X3,X2))))&(?[X3]:(ilf_type(X3,set_type)&(member(X3,X1)&~(member(X3,X2))))|member(X1,power_set(X2)))))),inference(fof_nnf,[status(thm)],[20])).
+% fof(118, derived,![X4]:(~(ilf_type(X4,set_type))|![X5]:(~(ilf_type(X5,set_type))|((~(member(X4,power_set(X5)))|![X6]:(~(ilf_type(X6,set_type))|(~(member(X6,X4))|member(X6,X5))))&(?[X7]:(ilf_type(X7,set_type)&(member(X7,X4)&~(member(X7,X5))))|member(X4,power_set(X5)))))),inference(variable_rename,[status(thm)],[117])).
+% fof(119, derived,![X4]:(~(ilf_type(X4,set_type))|![X5]:(~(ilf_type(X5,set_type))|((~(member(X4,power_set(X5)))|![X6]:(~(ilf_type(X6,set_type))|(~(member(X6,X4))|member(X6,X5))))&((ilf_type(esk10_2(X4,X5),set_type)&(member(esk10_2(X4,X5),X4)&~(member(esk10_2(X4,X5),X5))))|member(X4,power_set(X5)))))),inference(skolemize,[status(sab)],[118])).
+% fof(120, derived,![X4]:![X5]:![X6]:((((~(member(X4,power_set(X5)))|(~(ilf_type(X6,set_type))|(~(member(X6,X4))|member(X6,X5))))|~(ilf_type(X5,set_type)))|~(ilf_type(X4,set_type)))&((((ilf_type(esk10_2(X4,X5),set_type)|member(X4,power_set(X5)))|~(ilf_type(X5,set_type)))|~(ilf_type(X4,set_type)))&((((member(esk10_2(X4,X5),X4)|member(X4,power_set(X5)))|~(ilf_type(X5,set_type)))|~(ilf_type(X4,set_type)))&(((~(member(esk10_2(X4,X5),X5))|member(X4,power_set(X5)))|~(ilf_type(X5,set_type)))|~(ilf_type(X4,set_type)))))),inference(distribute,[status(thm)],[119])).
+% cnf(121,derived,(member(X1,power_set(X2))|~ilf_type(X1,set_type)|~ilf_type(X2,set_type)|~member(esk10_2(X1,X2),X2)),inference(split_conjunct,[status(thm)],[120])).
+% cnf(122,derived,(member(X1,power_set(X2))|member(esk10_2(X1,X2),X1)|~ilf_type(X1,set_type)|~ilf_type(X2,set_type)),inference(split_conjunct,[status(thm)],[120])).
+% fof(131, derived,![X1]:(ilf_type(X1,set_type)=>![X2]:((~(empty(X2))&ilf_type(X2,set_type))=>(ilf_type(X1,member_type(X2))<=>member(X1,X2)))),inference(fof_simplification,[status(thm)],[22,theory(equality)])).
+% fof(132, derived,![X1]:(~(ilf_type(X1,set_type))|![X2]:((empty(X2)|~(ilf_type(X2,set_type)))|((~(ilf_type(X1,member_type(X2)))|member(X1,X2))&(~(member(X1,X2))|ilf_type(X1,member_type(X2)))))),inference(fof_nnf,[status(thm)],[131])).
+% fof(133, derived,![X3]:(~(ilf_type(X3,set_type))|![X4]:((empty(X4)|~(ilf_type(X4,set_type)))|((~(ilf_type(X3,member_type(X4)))|member(X3,X4))&(~(member(X3,X4))|ilf_type(X3,member_type(X4)))))),inference(variable_rename,[status(thm)],[132])).
+% fof(134, derived,![X3]:![X4]:((((~(ilf_type(X3,member_type(X4)))|member(X3,X4))|(empty(X4)|~(ilf_type(X4,set_type))))|~(ilf_type(X3,set_type)))&(((~(member(X3,X4))|ilf_type(X3,member_type(X4)))|(empty(X4)|~(ilf_type(X4,set_type))))|~(ilf_type(X3,set_type)))),inference(distribute,[status(thm)],[133])).
+% cnf(135,derived,(empty(X2)|ilf_type(X1,member_type(X2))|~ilf_type(X1,set_type)|~ilf_type(X2,set_type)|~member(X1,X2)),inference(split_conjunct,[status(thm)],[134])).
+% fof(142, derived,![X1]:(ilf_type(X1,set_type)=>(empty(X1)<=>![X2]:(ilf_type(X2,set_type)=>~(member(X2,X1))))),inference(fof_simplification,[status(thm)],[24,theory(equality)])).
+% fof(143, derived,![X1]:(~(ilf_type(X1,set_type))|((~(empty(X1))|![X2]:(~(ilf_type(X2,set_type))|~(member(X2,X1))))&(?[X2]:(ilf_type(X2,set_type)&member(X2,X1))|empty(X1)))),inference(fof_nnf,[status(thm)],[142])).
+% fof(144, derived,![X3]:(~(ilf_type(X3,set_type))|((~(empty(X3))|![X4]:(~(ilf_type(X4,set_type))|~(member(X4,X3))))&(?[X5]:(ilf_type(X5,set_type)&member(X5,X3))|empty(X3)))),inference(variable_rename,[status(thm)],[143])).
+% fof(145, derived,![X3]:(~(ilf_type(X3,set_type))|((~(empty(X3))|![X4]:(~(ilf_type(X4,set_type))|~(member(X4,X3))))&((ilf_type(esk12_1(X3),set_type)&member(esk12_1(X3),X3))|empty(X3)))),inference(skolemize,[status(sab)],[144])).
+% fof(146, derived,![X3]:![X4]:(((~(empty(X3))|(~(ilf_type(X4,set_type))|~(member(X4,X3))))|~(ilf_type(X3,set_type)))&(((ilf_type(esk12_1(X3),set_type)|empty(X3))|~(ilf_type(X3,set_type)))&((member(esk12_1(X3),X3)|empty(X3))|~(ilf_type(X3,set_type))))),inference(distribute,[status(thm)],[145])).
+% cnf(149,derived,(~ilf_type(X1,set_type)|~member(X2,X1)|~ilf_type(X2,set_type)|~empty(X1)),inference(split_conjunct,[status(thm)],[146])).
+% fof(153, derived,![X2]:ilf_type(X2,set_type),inference(variable_rename,[status(thm)],[26])).
+% cnf(154,derived,(ilf_type(X1,set_type)),inference(split_conjunct,[status(thm)],[153])).
+% fof(155, negated_conjecture-derived,?[X1]:(ilf_type(X1,set_type)&?[X2]:(ilf_type(X2,binary_relation_type)&(subset(domain_of(X2),X1)&~(ilf_type(X2,relation_type(X1,range_of(X2))))))),inference(fof_nnf,[status(thm)],[28])).
+% fof(156, negated_conjecture-derived,?[X3]:(ilf_type(X3,set_type)&?[X4]:(ilf_type(X4,binary_relation_type)&(subset(domain_of(X4),X3)&~(ilf_type(X4,relation_type(X3,range_of(X4))))))),inference(variable_rename,[status(thm)],[155])).
+% fof(157, negated_conjecture-derived,(ilf_type(esk13_0,set_type)&(ilf_type(esk14_0,binary_relation_type)&(subset(domain_of(esk14_0),esk13_0)&~(ilf_type(esk14_0,relation_type(esk13_0,range_of(esk14_0))))))),inference(skolemize,[status(sab)],[156])).
+% cnf(158,negated_conjecture-derived,(~ilf_type(esk14_0,relation_type(esk13_0,range_of(esk14_0)))),inference(split_conjunct,[status(thm)],[157])).
+% cnf(159,negated_conjecture-derived,(subset(domain_of(esk14_0),esk13_0)),inference(split_conjunct,[status(thm)],[157])).
+% cnf(160,negated_conjecture-derived,(ilf_type(esk14_0,binary_relation_type)),inference(split_conjunct,[status(thm)],[157])).
+% cnf(213,derived,(~empty(X1)|~member(X2,X1)|$false|~ilf_type(X1,set_type)),inference(rw,[status(thm)],[149,154,theory(equality)])).
+% cnf(214,derived,(~empty(X1)|~member(X2,X1)|$false|$false),inference(rw,[status(thm)],[213,154,theory(equality)])).
+% cnf(215,derived,(~empty(X1)|~member(X2,X1)),inference(cn,[status(thm)],[214,theory(equality)])).
+% cnf(221,derived,(empty(X2)|ilf_type(X1,member_type(X2))|~member(X1,X2)|$false|~ilf_type(X1,set_type)),inference(rw,[status(thm)],[135,154,theory(equality)])).
+% cnf(222,derived,(empty(X2)|ilf_type(X1,member_type(X2))|~member(X1,X2)|$false|$false),inference(rw,[status(thm)],[221,154,theory(equality)])).
+% cnf(223,derived,(empty(X2)|ilf_type(X1,member_type(X2))|~member(X1,X2)),inference(cn,[status(thm)],[222,theory(equality)])).
+% cnf(224,derived,(ilf_type(X1,member_type(X2))|~member(X1,X2)),inference(csr,[status(thm)],[223,215])).
+% cnf(249,negated_conjecture-derived,(subset(esk14_0,cross_product(domain_of(esk14_0),range_of(esk14_0)))),inference(spm,[status(thm)],[34,160,theory(equality)])).
+% cnf(250,derived,(member(X1,power_set(X2))|member(esk10_2(X1,X2),X1)|$false|~ilf_type(X1,set_type)),inference(rw,[status(thm)],[122,154,theory(equality)])).
+% cnf(251,derived,(member(X1,power_set(X2))|member(esk10_2(X1,X2),X1)|$false|$false),inference(rw,[status(thm)],[250,154,theory(equality)])).
+% cnf(252,derived,(member(X1,power_set(X2))|member(esk10_2(X1,X2),X1)),inference(cn,[status(thm)],[251,theory(equality)])).
+% cnf(255,derived,(ilf_type(X2,subset_type(X1))|$false|~ilf_type(X1,set_type)|~ilf_type(X2,member_type(power_set(X1)))),inference(rw,[status(thm)],[95,154,theory(equality)])).
+% cnf(256,derived,(ilf_type(X2,subset_type(X1))|$false|$false|~ilf_type(X2,member_type(power_set(X1)))),inference(rw,[status(thm)],[255,154,theory(equality)])).
+% cnf(257,derived,(ilf_type(X2,subset_type(X1))|~ilf_type(X2,member_type(power_set(X1)))),inference(cn,[status(thm)],[256,theory(equality)])).
+% cnf(272,derived,(member(X1,power_set(X2))|$false|~ilf_type(X1,set_type)|~member(esk10_2(X1,X2),X2)),inference(rw,[status(thm)],[121,154,theory(equality)])).
+% cnf(273,derived,(member(X1,power_set(X2))|$false|$false|~member(esk10_2(X1,X2),X2)),inference(rw,[status(thm)],[272,154,theory(equality)])).
+% cnf(274,derived,(member(X1,power_set(X2))|~member(esk10_2(X1,X2),X2)),inference(cn,[status(thm)],[273,theory(equality)])).
+% cnf(302,derived,(ilf_type(X3,relation_type(X1,X2))|$false|~ilf_type(X1,set_type)|~ilf_type(X3,subset_type(cross_product(X1,X2)))),inference(rw,[status(thm)],[44,154,theory(equality)])).
+% cnf(303,derived,(ilf_type(X3,relation_type(X1,X2))|$false|$false|~ilf_type(X3,subset_type(cross_product(X1,X2)))),inference(rw,[status(thm)],[302,154,theory(equality)])).
+% cnf(304,derived,(ilf_type(X3,relation_type(X1,X2))|~ilf_type(X3,subset_type(cross_product(X1,X2)))),inference(cn,[status(thm)],[303,theory(equality)])).
+% cnf(313,derived,(subset(cross_product(X1,X3),cross_product(X2,X3))|~subset(X1,X2)|$false|~ilf_type(X2,set_type)|~ilf_type(X1,set_type)),inference(rw,[status(thm)],[39,154,theory(equality)])).
+% cnf(314,derived,(subset(cross_product(X1,X3),cross_product(X2,X3))|~subset(X1,X2)|$false|$false|~ilf_type(X1,set_type)),inference(rw,[status(thm)],[313,154,theory(equality)])).
+% cnf(315,derived,(subset(cross_product(X1,X3),cross_product(X2,X3))|~subset(X1,X2)|$false|$false|$false),inference(rw,[status(thm)],[314,154,theory(equality)])).
+% cnf(316,derived,(subset(cross_product(X1,X3),cross_product(X2,X3))|~subset(X1,X2)),inference(cn,[status(thm)],[315,theory(equality)])).
+% cnf(317,negated_conjecture-derived,(subset(cross_product(domain_of(esk14_0),X1),cross_product(esk13_0,X1))),inference(spm,[status(thm)],[316,159,theory(equality)])).
+% cnf(327,derived,(subset(X1,X2)|~subset(X3,X2)|~subset(X1,X3)|$false|~ilf_type(X2,set_type)|~ilf_type(X1,set_type)),inference(rw,[status(thm)],[31,154,theory(equality)])).
+% cnf(328,derived,(subset(X1,X2)|~subset(X3,X2)|~subset(X1,X3)|$false|$false|~ilf_type(X1,set_type)),inference(rw,[status(thm)],[327,154,theory(equality)])).
+% cnf(329,derived,(subset(X1,X2)|~subset(X3,X2)|~subset(X1,X3)|$false|$false|$false),inference(rw,[status(thm)],[328,154,theory(equality)])).
+% cnf(330,derived,(subset(X1,X2)|~subset(X3,X2)|~subset(X1,X3)),inference(cn,[status(thm)],[329,theory(equality)])).
+% cnf(333,derived,(member(X3,X2)|~subset(X1,X2)|~member(X3,X1)|$false|~ilf_type(X2,set_type)|~ilf_type(X1,set_type)),inference(rw,[status(thm)],[85,154,theory(equality)])).
+% cnf(334,derived,(member(X3,X2)|~subset(X1,X2)|~member(X3,X1)|$false|$false|~ilf_type(X1,set_type)),inference(rw,[status(thm)],[333,154,theory(equality)])).
+% cnf(335,derived,(member(X3,X2)|~subset(X1,X2)|~member(X3,X1)|$false|$false|$false),inference(rw,[status(thm)],[334,154,theory(equality)])).
+% cnf(336,derived,(member(X3,X2)|~subset(X1,X2)|~member(X3,X1)),inference(cn,[status(thm)],[335,theory(equality)])).
+% cnf(787,negated_conjecture-derived,(subset(X1,cross_product(esk13_0,X2))|~subset(X1,cross_product(domain_of(esk14_0),X2))),inference(spm,[status(thm)],[330,317,theory(equality)])).
+% cnf(3566,negated_conjecture-derived,(subset(esk14_0,cross_product(esk13_0,range_of(esk14_0)))),inference(spm,[status(thm)],[787,249,theory(equality)])).
+% cnf(3582,negated_conjecture-derived,(member(X1,cross_product(esk13_0,range_of(esk14_0)))|~member(X1,esk14_0)),inference(spm,[status(thm)],[336,3566,theory(equality)])).
+% cnf(3599,negated_conjecture-derived,(member(esk10_2(esk14_0,X1),cross_product(esk13_0,range_of(esk14_0)))|member(esk14_0,power_set(X1))),inference(spm,[status(thm)],[3582,252,theory(equality)])).
+% cnf(3932,negated_conjecture-derived,(member(esk14_0,power_set(cross_product(esk13_0,range_of(esk14_0))))),inference(spm,[status(thm)],[274,3599,theory(equality)])).
+% cnf(3937,negated_conjecture-derived,(ilf_type(esk14_0,member_type(power_set(cross_product(esk13_0,range_of(esk14_0)))))),inference(spm,[status(thm)],[224,3932,theory(equality)])).
+% cnf(3941,negated_conjecture-derived,(ilf_type(esk14_0,subset_type(cross_product(esk13_0,range_of(esk14_0))))),inference(spm,[status(thm)],[257,3937,theory(equality)])).
+% cnf(3948,negated_conjecture-derived,(ilf_type(esk14_0,relation_type(esk13_0,range_of(esk14_0)))),inference(spm,[status(thm)],[304,3941,theory(equality)])).
+% cnf(3951,negated_conjecture-derived,($false),inference(sr,[status(thm)],[3948,158,theory(equality)])).
+% cnf(3952,negated_conjecture-derived,($false),3951,['proof']).
+% # Proof object ends here.
+% # ...subsumed                          : 530
+% # ...remaining for further processing  : 984
+% # Other redundant clauses eliminated   : 0
+% # Clauses deleted for lack of memory   : 0
+% # Backward-subsumed                    : 12
+% # Backward-rewritten                   : 1
+% # Generated clauses                    : 2874
+% # ...of the previous two non-trivial   : 2672
+% # Contextual simplify-reflections      : 195
+% # Paramodulations                      : 2723
+% # Factorizations                       : 0
+% # Equation resolutions                 : 0
+% # Current number of processed clauses  : 823
+% #    Positive orientable unit clauses  : 174
+% #    Positive unorientable unit clauses: 0
+% #    Negative unit clauses             : 10
+% #    Non-unit-clauses                  : 639
+% # Current number of unprocessed clauses: 958
+% # ...number of literals in the above   : 2185
+% # Clause-clause subsumption calls (NU) : 10811
+% # Rec. Clause-clause subsumption calls : 10479
+% # Unit Clause-clause subsumption calls : 425
+% # Rewrite failures with RHS unbound    : 0
+% 
+% # -------------------------------------------------
+% # User time                : 0.390 s
+% # System time              : 0.000 s
+% # Total time               : 0.390 s
+% # Maximum resident set size: 0 pages
+% 
+%------------------------------------------------------------------------------

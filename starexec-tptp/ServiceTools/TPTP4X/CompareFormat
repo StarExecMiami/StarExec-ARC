@@ -1,0 +1,25 @@
+#! /bin/tcsh
+
+set file=$1
+#foreach dir (~/TPTP/Problems/???)
+#    echo "Doing " `basename $dir`
+#    foreach file ($dir/*.p)
+
+        /home/tptp/ServiceTools/TPTP4XDir/tptp4X $file > `basename $file`.new
+        /home/tptp/ServiceTools/tptp4X $file > `basename $file`.old
+        # echo compare original and new
+        diff -b $file `basename $file`.new >& /dev/null
+        if ($? > 0) then
+            echo "original and new of" `basename $file` " differ"
+        endif
+        # echo compare old and new
+        diff -b `basename $file`.old `basename $file`.new >& /dev/null
+        if ($? > 0) then
+            echo "old and new of" `basename $file` " differ"
+        endif
+
+#        rm `basename $file`.new
+#        rm `basename $file`.old
+
+#    end
+#end

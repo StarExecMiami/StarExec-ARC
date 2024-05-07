@@ -1,0 +1,21 @@
+%----TSTP SOLUTION
+fof(1,axiom,(
+    ? [X1] : 
+      ( lives(X1)
+      & killed(X1,agatha) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp',pel55_1)).
+
+
+fof(5,axiom,(
+    ! [X1] : 
+      ( lives(X1)
+     => ( X1 = agatha
+        | X1 = butler
+        | X1 = charles ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp',pel55_3)).
+
+fof(30,derived,(
+    ! [X1,X2] : 
+      ( ~ killed(X1,X2)
+      | ~ richer(X1,X2) ) ),
+    inference(fof_nnf,[status(thm)],[1,5])).

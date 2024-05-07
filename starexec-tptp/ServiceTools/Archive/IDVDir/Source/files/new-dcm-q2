@@ -1,0 +1,140 @@
+%------------------------------------------------------------------------------
+% File       : SPASS---3.0c
+% Problem    : PA1_FSW_wOSC_5_frame_0018/PA1_FSW_wOSC_5_frame_0018.p : TPTP v?.?.?
+% Transform  : none
+% Format     : dfg
+% Command    : SPASS -PGiven=0 -PProblem=0 -DocProof -TimeLimit=%d %s
+
+% Computer   : feileadhmor.arc.nasa.gov
+% Model      : i686 i686
+% CPU        : Intel(R) XEON(TM) CPU 2.20GHz @ 2194MHz
+% Memory     : 1838MB
+% OS         : Linux 2.6.9-34.0.1.ELsmp
+% CPULimit   : 300s
+
+% Result     : Theorem 0.1s
+% Output     : Refutation 0.1s
+% Verified   : 
+% Statistics : Number of clauses     :   15 (  16 expanded)
+%              Number of leaves      :    9 (  10 expanded)
+%              Depth                 :    5
+%              Number of atoms       :   19 (  20 expanded)
+%              Maximal clause size   :    3 (   1 average)
+%              Maximal term depth    :   13 (   4 average)
+
+% Comments   : 
+%------------------------------------------------------------------------------
+cnf(58,plain,
+    ( has_unit__dfg(skc2,long__dfg) ),
+    file('/tmp/SystemOnTPTP29237/PA1_FSW_wOSC_5_frame_0018.dfg',unknown),
+    []).
+
+cnf(60,plain,
+    ( has_unit__dfg(skc3,geolat__dfg) ),
+    file('/tmp/SystemOnTPTP29237/PA1_FSW_wOSC_5_frame_0018.dfg',unknown),
+    []).
+
+cnf(65,plain,
+    ( cos__dfg(skc3) = rtb_Product3_mm_idx__dfg ),
+    file('/tmp/SystemOnTPTP29237/PA1_FSW_wOSC_5_frame_0018.dfg',unknown),
+    []).
+
+cnf(66,plain,
+    ( sin__dfg(skc2) = rtb_sine_idx_0__dfg ),
+    file('/tmp/SystemOnTPTP29237/PA1_FSW_wOSC_5_frame_0018.dfg',unknown),
+    []).
+
+cnf(67,plain,
+    ( cos__dfg(skc2) = rtb_Product3_mm_idx_0__dfg ),
+    file('/tmp/SystemOnTPTP29237/PA1_FSW_wOSC_5_frame_0018.dfg',unknown),
+    []).
+
+cnf(68,plain,
+    ( sin__dfg(skc3) = rtb_sine_idx__dfg ),
+    file('/tmp/SystemOnTPTP29237/PA1_FSW_wOSC_5_frame_0018.dfg',unknown),
+    []).
+
+cnf(88,plain,
+    ( times__dfg(U,V) = times__dfg(V,U) ),
+    file('/tmp/SystemOnTPTP29237/PA1_FSW_wOSC_5_frame_0018.dfg',unknown),
+    []).
+
+cnf(150,plain,
+    ( ~ has_frame__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(cg_in__dfg,n0__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx_0__dfg,rtb_sine_idx__dfg))),n1__dfg,times__dfg(tptp_float_minus_1_0__dfg,rtb_sine_idx_0__dfg)),n2__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,rtb_Product3_mm_idx_0__dfg))),n3__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_sine_idx__dfg,rtb_sine_idx_0__dfg))),n4__dfg,rtb_Product3_mm_idx_0__dfg),n5__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,rtb_sine_idx_0__dfg))),n6__dfg,rtb_Product3_mm_idx__dfg),n7__dfg,times__dfg(tptp_float_0_0__dfg,rtb_Product3_mm_idx__dfg)),n8__dfg,times__dfg(tptp_float_minus_1_0__dfg,rtb_sine_idx__dfg)),dcm__dfg(ecef__dfg,ned__dfg)) ),
+    file('/tmp/SystemOnTPTP29237/PA1_FSW_wOSC_5_frame_0018.dfg',unknown),
+    []).
+
+cnf(152,plain,
+    ( ~ has_unit__dfg(U,geolat__dfg)
+    | ~ has_unit__dfg(V,long__dfg)
+    | has_frame__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(W,n0__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(sin__dfg(U),cos__dfg(V)))),n1__dfg,times__dfg(tptp_float_minus_1_0__dfg,sin__dfg(V))),n2__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(cos__dfg(U),cos__dfg(V)))),n3__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(sin__dfg(U),sin__dfg(V)))),n4__dfg,cos__dfg(V)),n5__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(cos__dfg(U),sin__dfg(V)))),n6__dfg,cos__dfg(U)),n7__dfg,times__dfg(tptp_float_0_0__dfg,cos__dfg(U))),n8__dfg,times__dfg(tptp_float_minus_1_0__dfg,sin__dfg(U))),dcm__dfg(ecef__dfg,ned__dfg)) ),
+    file('/tmp/SystemOnTPTP29237/PA1_FSW_wOSC_5_frame_0018.dfg',unknown),
+    []).
+
+cnf(173,plain,
+    ( ~ has_frame__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(cg_in__dfg,n0__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx_0__dfg,rtb_sine_idx__dfg))),n1__dfg,times__dfg(rtb_sine_idx_0__dfg,tptp_float_minus_1_0__dfg)),n2__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,rtb_Product3_mm_idx_0__dfg))),n3__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_sine_idx__dfg,rtb_sine_idx_0__dfg))),n4__dfg,rtb_Product3_mm_idx_0__dfg),n5__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,rtb_sine_idx_0__dfg))),n6__dfg,rtb_Product3_mm_idx__dfg),n7__dfg,times__dfg(rtb_Product3_mm_idx__dfg,tptp_float_0_0__dfg)),n8__dfg,times__dfg(rtb_sine_idx__dfg,tptp_float_minus_1_0__dfg)),dcm__dfg(ecef__dfg,ned__dfg)) ),
+    inference(rew,[status(thm)],[88,150,theory(equality)]),
+    [iquote('0:Rew:88.0,150.0,88.0,150.0,88.0,150.0')]).
+
+cnf(175,plain,
+    ( ~ has_unit__dfg(U,long__dfg)
+    | has_frame__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(V,n0__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(sin__dfg(skc3),cos__dfg(U)))),n1__dfg,times__dfg(tptp_float_minus_1_0__dfg,sin__dfg(U))),n2__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(cos__dfg(skc3),cos__dfg(U)))),n3__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(sin__dfg(skc3),sin__dfg(U)))),n4__dfg,cos__dfg(U)),n5__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(cos__dfg(skc3),sin__dfg(U)))),n6__dfg,cos__dfg(skc3)),n7__dfg,times__dfg(tptp_float_0_0__dfg,cos__dfg(skc3))),n8__dfg,times__dfg(tptp_float_minus_1_0__dfg,sin__dfg(skc3))),dcm__dfg(ecef__dfg,ned__dfg)) ),
+    inference(res,[status(thm)],[60,152,theory(equality)]),
+    [iquote('0:Res:60.0,152.1')]).
+
+cnf(194,plain,
+    ( ~ has_unit__dfg(U,long__dfg)
+    | has_frame__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(V,n0__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_sine_idx__dfg,cos__dfg(U)))),n1__dfg,times__dfg(tptp_float_minus_1_0__dfg,sin__dfg(U))),n2__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,cos__dfg(U)))),n3__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_sine_idx__dfg,sin__dfg(U)))),n4__dfg,cos__dfg(U)),n5__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,sin__dfg(U)))),n6__dfg,rtb_Product3_mm_idx__dfg),n7__dfg,times__dfg(tptp_float_0_0__dfg,rtb_Product3_mm_idx__dfg)),n8__dfg,times__dfg(tptp_float_minus_1_0__dfg,rtb_sine_idx__dfg)),dcm__dfg(ecef__dfg,ned__dfg)) ),
+    inference(rew,[status(thm)],[65,175,68,theory(equality)]),
+    [iquote('0:Rew:65.0,175.1,68.0,175.1')]).
+
+cnf(200,plain,
+    ( has_frame__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(U,n0__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_sine_idx__dfg,cos__dfg(skc2)))),n1__dfg,times__dfg(tptp_float_minus_1_0__dfg,sin__dfg(skc2))),n2__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,cos__dfg(skc2)))),n3__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_sine_idx__dfg,sin__dfg(skc2)))),n4__dfg,cos__dfg(skc2)),n5__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,sin__dfg(skc2)))),n6__dfg,rtb_Product3_mm_idx__dfg),n7__dfg,times__dfg(tptp_float_0_0__dfg,rtb_Product3_mm_idx__dfg)),n8__dfg,times__dfg(tptp_float_minus_1_0__dfg,rtb_sine_idx__dfg)),dcm__dfg(ecef__dfg,ned__dfg)) ),
+    inference(res,[status(thm)],[58,194,theory(equality)]),
+    [iquote('0:Res:58.0,194.0')]).
+
+cnf(211,plain,
+    ( has_frame__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(U,n0__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx_0__dfg,rtb_sine_idx__dfg))),n1__dfg,times__dfg(rtb_sine_idx_0__dfg,tptp_float_minus_1_0__dfg)),n2__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,rtb_Product3_mm_idx_0__dfg))),n3__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_sine_idx__dfg,rtb_sine_idx_0__dfg))),n4__dfg,rtb_Product3_mm_idx_0__dfg),n5__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,rtb_sine_idx_0__dfg))),n6__dfg,rtb_Product3_mm_idx__dfg),n7__dfg,times__dfg(rtb_Product3_mm_idx__dfg,tptp_float_0_0__dfg)),n8__dfg,times__dfg(rtb_sine_idx__dfg,tptp_float_minus_1_0__dfg)),dcm__dfg(ecef__dfg,ned__dfg)) ),
+    inference(rew,[status(thm)],[88,200,67,66,theory(equality)]),
+    [iquote('0:Rew:88.0,200.0,88.0,200.0,67.0,200.0,66.0,200.0,88.0,200.0,88.0,200.0')]).
+
+cnf(212,plain,
+    ( $false ),
+    inference(unc,[status(thm)],[211,173]),
+    [iquote('0:UnC:211.0,173.0')]).
+%------------------------------------------------------------------------------
+%----ORIGINAL SYSTEM OUTPUT
+% 
+% SPASS V 3.0c 
+% SPASS beiseite: Proof found.
+% Problem: /tmp/SystemOnTPTP29237/PA1_FSW_wOSC_5_frame_0018.dfg 
+% SPASS derived 20 clauses, backtracked 0 clauses and kept 162 clauses.
+% SPASS allocated 846 KBytes.
+% SPASS spent	0:00:00.08 on the problem.
+% 		0:00:00.01 for the input.
+% 		0:00:00.04 for the FLOTTER CNF translation.
+% 		0:00:00.00 for inferences.
+% 		0:00:00.00 for the backtracking.
+% 		0:00:00.01 for the reduction.
+% 
+% 
+% Here is a proof with depth 2, length 15 :
+% 58[0:Inp] ||  -> has_unit__dfg(skc2,long__dfg)*.
+% 60[0:Inp] ||  -> has_unit__dfg(skc3,geolat__dfg)*.
+% 65[0:Inp] ||  -> equal(cos__dfg(skc3),rtb_Product3_mm_idx__dfg)**.
+% 66[0:Inp] ||  -> equal(sin__dfg(skc2),rtb_sine_idx_0__dfg)**.
+% 67[0:Inp] ||  -> equal(cos__dfg(skc2),rtb_Product3_mm_idx_0__dfg)**.
+% 68[0:Inp] ||  -> equal(sin__dfg(skc3),rtb_sine_idx__dfg)**.
+% 88[0:Inp] ||  -> equal(times__dfg(U,V),times__dfg(V,U))*.
+% 150[0:Inp] || has_frame__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(cg_in__dfg,n0__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx_0__dfg,rtb_sine_idx__dfg))),n1__dfg,times__dfg(tptp_float_minus_1_0__dfg,rtb_sine_idx_0__dfg)),n2__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,rtb_Product3_mm_idx_0__dfg))),n3__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_sine_idx__dfg,rtb_sine_idx_0__dfg))),n4__dfg,rtb_Product3_mm_idx_0__dfg),n5__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,rtb_sine_idx_0__dfg))),n6__dfg,rtb_Product3_mm_idx__dfg),n7__dfg,times__dfg(tptp_float_0_0__dfg,rtb_Product3_mm_idx__dfg)),n8__dfg,times__dfg(tptp_float_minus_1_0__dfg,rtb_sine_idx__dfg)),dcm__dfg(ecef__dfg,ned__dfg))* -> .
+% 152[0:Inp] || has_unit__dfg(U,geolat__dfg) has_unit__dfg(V,long__dfg) -> has_frame__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(W,n0__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(sin__dfg(U),cos__dfg(V)))),n1__dfg,times__dfg(tptp_float_minus_1_0__dfg,sin__dfg(V))),n2__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(cos__dfg(U),cos__dfg(V)))),n3__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(sin__dfg(U),sin__dfg(V)))),n4__dfg,cos__dfg(V)),n5__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(cos__dfg(U),sin__dfg(V)))),n6__dfg,cos__dfg(U)),n7__dfg,times__dfg(tptp_float_0_0__dfg,cos__dfg(U))),n8__dfg,times__dfg(tptp_float_minus_1_0__dfg,sin__dfg(U))),dcm__dfg(ecef__dfg,ned__dfg))*.
+% 173[0:Rew:88.0,150.0,88.0,150.0,88.0,150.0] || has_frame__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(cg_in__dfg,n0__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx_0__dfg,rtb_sine_idx__dfg))),n1__dfg,times__dfg(rtb_sine_idx_0__dfg,tptp_float_minus_1_0__dfg)),n2__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,rtb_Product3_mm_idx_0__dfg))),n3__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_sine_idx__dfg,rtb_sine_idx_0__dfg))),n4__dfg,rtb_Product3_mm_idx_0__dfg),n5__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,rtb_sine_idx_0__dfg))),n6__dfg,rtb_Product3_mm_idx__dfg),n7__dfg,times__dfg(rtb_Product3_mm_idx__dfg,tptp_float_0_0__dfg)),n8__dfg,times__dfg(rtb_sine_idx__dfg,tptp_float_minus_1_0__dfg)),dcm__dfg(ecef__dfg,ned__dfg))* -> .
+% 175[0:Res:60.0,152.1] || has_unit__dfg(U,long__dfg) -> has_frame__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(V,n0__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(sin__dfg(skc3),cos__dfg(U)))),n1__dfg,times__dfg(tptp_float_minus_1_0__dfg,sin__dfg(U))),n2__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(cos__dfg(skc3),cos__dfg(U)))),n3__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(sin__dfg(skc3),sin__dfg(U)))),n4__dfg,cos__dfg(U)),n5__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(cos__dfg(skc3),sin__dfg(U)))),n6__dfg,cos__dfg(skc3)),n7__dfg,times__dfg(tptp_float_0_0__dfg,cos__dfg(skc3))),n8__dfg,times__dfg(tptp_float_minus_1_0__dfg,sin__dfg(skc3))),dcm__dfg(ecef__dfg,ned__dfg))*.
+% 194[0:Rew:65.0,175.1,68.0,175.1] || has_unit__dfg(U,long__dfg) -> has_frame__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(V,n0__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_sine_idx__dfg,cos__dfg(U)))),n1__dfg,times__dfg(tptp_float_minus_1_0__dfg,sin__dfg(U))),n2__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,cos__dfg(U)))),n3__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_sine_idx__dfg,sin__dfg(U)))),n4__dfg,cos__dfg(U)),n5__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,sin__dfg(U)))),n6__dfg,rtb_Product3_mm_idx__dfg),n7__dfg,times__dfg(tptp_float_0_0__dfg,rtb_Product3_mm_idx__dfg)),n8__dfg,times__dfg(tptp_float_minus_1_0__dfg,rtb_sine_idx__dfg)),dcm__dfg(ecef__dfg,ned__dfg))*.
+% 200[0:Res:58.0,194.0] ||  -> has_frame__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(U,n0__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_sine_idx__dfg,cos__dfg(skc2)))),n1__dfg,times__dfg(tptp_float_minus_1_0__dfg,sin__dfg(skc2))),n2__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,cos__dfg(skc2)))),n3__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_sine_idx__dfg,sin__dfg(skc2)))),n4__dfg,cos__dfg(skc2)),n5__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,sin__dfg(skc2)))),n6__dfg,rtb_Product3_mm_idx__dfg),n7__dfg,times__dfg(tptp_float_0_0__dfg,rtb_Product3_mm_idx__dfg)),n8__dfg,times__dfg(tptp_float_minus_1_0__dfg,rtb_sine_idx__dfg)),dcm__dfg(ecef__dfg,ned__dfg))*.
+% 211[0:Rew:88.0,200.0,88.0,200.0,67.0,200.0,66.0,200.0,88.0,200.0,88.0,200.0] ||  -> has_frame__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(tptp_update2__dfg(U,n0__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx_0__dfg,rtb_sine_idx__dfg))),n1__dfg,times__dfg(rtb_sine_idx_0__dfg,tptp_float_minus_1_0__dfg)),n2__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,rtb_Product3_mm_idx_0__dfg))),n3__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_sine_idx__dfg,rtb_sine_idx_0__dfg))),n4__dfg,rtb_Product3_mm_idx_0__dfg),n5__dfg,times__dfg(tptp_float_minus_1_0__dfg,times__dfg(rtb_Product3_mm_idx__dfg,rtb_sine_idx_0__dfg))),n6__dfg,rtb_Product3_mm_idx__dfg),n7__dfg,times__dfg(rtb_Product3_mm_idx__dfg,tptp_float_0_0__dfg)),n8__dfg,times__dfg(rtb_sine_idx__dfg,tptp_float_minus_1_0__dfg)),dcm__dfg(ecef__dfg,ned__dfg))*.
+% 212[0:UnC:211.0,173.0] ||  -> .
+% Formulae used in the proof : pPA1_FSW_wOSC_5_frame_0018 times_commute dcm_ecef_ned_matrix_def
+% 
+% 
+%------------------------------------------------------------------------------

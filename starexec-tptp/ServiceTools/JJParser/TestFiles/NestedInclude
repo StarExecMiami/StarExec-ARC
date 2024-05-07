@@ -1,0 +1,7 @@
+fof(a,axiom,p).
+
+include('NestedTestFiles/NestedInclude').
+
+fof(c,axiom,p).
+
+include('Axioms/GEO004+1.ax').

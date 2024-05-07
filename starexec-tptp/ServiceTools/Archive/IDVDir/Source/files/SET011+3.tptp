@@ -1,0 +1,414 @@
+%------------------------------------------------------------------------------
+% File       : EP---0.91
+% Problem    : SET011+3 : TPTP v2.2.0
+% Transform  : none
+% Format     : tptp
+% Command    : eproof --print-statistics -xAuto -tAuto --memory-limit=Auto --tstp-in --tstp-out %s
+
+% Computer   : art06.cs.miami.edu
+% Model      : i686 i686
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2793MHz
+% Memory     : 1003MB
+% OS         : Linux 2.6.11-1.1369_FC4
+% CPULimit   : 600s
+
+% Result     : Theorem 29.8s
+% Output     : Refutation 44.8s
+% Statistics : Number of formulae    :   61 ( 234 expanded)
+%              Number of clauses     :   37 (  67 expanded)
+%              Depth                 :   19
+%              Number of atoms       :  178 (1015 expanded)
+%              Maximal formula depth :    9 (   4 average)
+%              Maximal clause size   :    7 (   5 average)
+%              Maximal term depth    :    4 (   1 average)
+% Verified   : 
+
+% Comments   : 
+%------------------------------------------------------------------------------
+%----TSTP SOLUTION
+fof(1,axiom,(
+    ! [X1,X2,X3] : 
+      ( member(X3,intersection(X1,X2))
+    <=> ( member(X3,X1)
+        & member(X3,X2) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET011+3.tptp',intersection_defn)).
+
+fof(2,axiom,(
+    ! [X1,X2,X3] : 
+      ( member(X3,difference(X1,X2))
+    <=> ( member(X3,X1)
+        & ~ member(X3,X2) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET011+3.tptp',difference_defn)).
+
+fof(3,axiom,(
+    ! [X1,X2] : 
+      ( X1 = X2
+    <=> ( subset(X1,X2)
+        & subset(X2,X1) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET011+3.tptp',equal_defn)).
+
+fof(5,axiom,(
+    ! [X1,X2] : 
+      ( subset(X1,X2)
+    <=> ! [X3] : 
+          ( member(X3,X1)
+         => member(X3,X2) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET011+3.tptp',subset_defn)).
+
+fof(8,conjecture,(
+    ! [X1,X2] : difference(X1,difference(X1,X2)) = intersection(X1,X2) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET011+3.tptp',prove_difference_difference_intersection)).
+
+fof(9,negated_conjecture,(
+    ~ ( ! [X1,X2] : difference(X1,difference(X1,X2)) = intersection(X1,X2) ) ),
+    inference(assume_negation,[status(cth)],[8])).
+
+fof(10,plain,(
+    ! [X1,X2,X3] : 
+      ( member(X3,difference(X1,X2))
+    <=> ( member(X3,X1)
+        & ~ member(X3,X2) ) ) ),
+    inference(fof_simplification,[status(thm)],[2,theory(equality)])).
+
+fof(11,plain,(
+    ! [X1,X2,X3] : 
+      ( ( ~ member(X3,intersection(X1,X2))
+        | ( member(X3,X1)
+          & member(X3,X2) ) )
+      & ( ~ member(X3,X1)
+        | ~ member(X3,X2)
+        | member(X3,intersection(X1,X2)) ) ) ),
+    inference(fof_nnf,[status(thm)],[1])).
+
+fof(12,plain,(
+    ! [X4,X5,X6] : 
+      ( ( ~ member(X6,intersection(X4,X5))
+        | ( member(X6,X4)
+          & member(X6,X5) ) )
+      & ( ~ member(X6,X4)
+        | ~ member(X6,X5)
+        | member(X6,intersection(X4,X5)) ) ) ),
+    inference(variable_rename,[status(thm)],[11])).
+
+fof(13,plain,(
+    ! [X4,X5,X6] : 
+      ( ( member(X6,X4)
+        | ~ member(X6,intersection(X4,X5)) )
+      & ( member(X6,X5)
+        | ~ member(X6,intersection(X4,X5)) )
+      & ( ~ member(X6,X4)
+        | ~ member(X6,X5)
+        | member(X6,intersection(X4,X5)) ) ) ),
+    inference(distribute,[status(thm)],[12])).
+
+cnf(14,plain,
+    ( member(X1,intersection(X2,X3))
+    | ~ member(X1,X3)
+    | ~ member(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[13])).
+
+cnf(15,plain,
+    ( member(X1,X3)
+    | ~ member(X1,intersection(X2,X3)) ),
+    inference(split_conjunct,[status(thm)],[13])).
+
+cnf(16,plain,
+    ( member(X1,X2)
+    | ~ member(X1,intersection(X2,X3)) ),
+    inference(split_conjunct,[status(thm)],[13])).
+
+fof(17,plain,(
+    ! [X1,X2,X3] : 
+      ( ( ~ member(X3,difference(X1,X2))
+        | ( member(X3,X1)
+          & ~ member(X3,X2) ) )
+      & ( ~ member(X3,X1)
+        | member(X3,X2)
+        | member(X3,difference(X1,X2)) ) ) ),
+    inference(fof_nnf,[status(thm)],[10])).
+
+fof(18,plain,(
+    ! [X4,X5,X6] : 
+      ( ( ~ member(X6,difference(X4,X5))
+        | ( member(X6,X4)
+          & ~ member(X6,X5) ) )
+      & ( ~ member(X6,X4)
+        | member(X6,X5)
+        | member(X6,difference(X4,X5)) ) ) ),
+    inference(variable_rename,[status(thm)],[17])).
+
+fof(19,plain,(
+    ! [X4,X5,X6] : 
+      ( ( member(X6,X4)
+        | ~ member(X6,difference(X4,X5)) )
+      & ( ~ member(X6,X5)
+        | ~ member(X6,difference(X4,X5)) )
+      & ( ~ member(X6,X4)
+        | member(X6,X5)
+        | member(X6,difference(X4,X5)) ) ) ),
+    inference(distribute,[status(thm)],[18])).
+
+cnf(20,plain,
+    ( member(X1,difference(X2,X3))
+    | member(X1,X3)
+    | ~ member(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[19])).
+
+cnf(21,plain,
+    ( ~ member(X1,difference(X2,X3))
+    | ~ member(X1,X3) ),
+    inference(split_conjunct,[status(thm)],[19])).
+
+cnf(22,plain,
+    ( member(X1,X2)
+    | ~ member(X1,difference(X2,X3)) ),
+    inference(split_conjunct,[status(thm)],[19])).
+
+fof(23,plain,(
+    ! [X1,X2] : 
+      ( ( X1 != X2
+        | ( subset(X1,X2)
+          & subset(X2,X1) ) )
+      & ( ~ subset(X1,X2)
+        | ~ subset(X2,X1)
+        | X1 = X2 ) ) ),
+    inference(fof_nnf,[status(thm)],[3])).
+
+fof(24,plain,(
+    ! [X3,X4] : 
+      ( ( X3 != X4
+        | ( subset(X3,X4)
+          & subset(X4,X3) ) )
+      & ( ~ subset(X3,X4)
+        | ~ subset(X4,X3)
+        | X3 = X4 ) ) ),
+    inference(variable_rename,[status(thm)],[23])).
+
+fof(25,plain,(
+    ! [X3,X4] : 
+      ( ( subset(X3,X4)
+        | X3 != X4 )
+      & ( subset(X4,X3)
+        | X3 != X4 )
+      & ( ~ subset(X3,X4)
+        | ~ subset(X4,X3)
+        | X3 = X4 ) ) ),
+    inference(distribute,[status(thm)],[24])).
+
+cnf(26,plain,
+    ( X1 = X2
+    | ~ subset(X2,X1)
+    | ~ subset(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[25])).
+
+fof(31,plain,(
+    ! [X1,X2] : 
+      ( ( ~ subset(X1,X2)
+        | ! [X3] : 
+            ( ~ member(X3,X1)
+            | member(X3,X2) ) )
+      & ( ? [X3] : 
+            ( member(X3,X1)
+            & ~ member(X3,X2) )
+        | subset(X1,X2) ) ) ),
+    inference(fof_nnf,[status(thm)],[5])).
+
+fof(32,plain,(
+    ! [X4,X5] : 
+      ( ( ~ subset(X4,X5)
+        | ! [X6] : 
+            ( ~ member(X6,X4)
+            | member(X6,X5) ) )
+      & ( ? [X7] : 
+            ( member(X7,X4)
+            & ~ member(X7,X5) )
+        | subset(X4,X5) ) ) ),
+    inference(variable_rename,[status(thm)],[31])).
+
+fof(33,plain,(
+    ! [X4,X5] : 
+      ( ( ~ subset(X4,X5)
+        | ! [X6] : 
+            ( ~ member(X6,X4)
+            | member(X6,X5) ) )
+      & ( ( member(esk1_2(X4,X5),X4)
+          & ~ member(esk1_2(X4,X5),X5) )
+        | subset(X4,X5) ) ) ),
+    inference(skolemize,[status(sab)],[32])).
+
+fof(34,plain,(
+    ! [X4,X5,X6] : 
+      ( ( ~ member(X6,X4)
+        | member(X6,X5)
+        | ~ subset(X4,X5) )
+      & ( ( member(esk1_2(X4,X5),X4)
+          & ~ member(esk1_2(X4,X5),X5) )
+        | subset(X4,X5) ) ) ),
+    inference(shift_quantors,[status(thm)],[33])).
+
+fof(35,plain,(
+    ! [X4,X5,X6] : 
+      ( ( ~ member(X6,X4)
+        | member(X6,X5)
+        | ~ subset(X4,X5) )
+      & ( member(esk1_2(X4,X5),X4)
+        | subset(X4,X5) )
+      & ( ~ member(esk1_2(X4,X5),X5)
+        | subset(X4,X5) ) ) ),
+    inference(distribute,[status(thm)],[34])).
+
+cnf(36,plain,
+    ( subset(X1,X2)
+    | ~ member(esk1_2(X1,X2),X2) ),
+    inference(split_conjunct,[status(thm)],[35])).
+
+cnf(37,plain,
+    ( subset(X1,X2)
+    | member(esk1_2(X1,X2),X1) ),
+    inference(split_conjunct,[status(thm)],[35])).
+
+fof(50,negated_conjecture,(
+    ? [X1,X2] : difference(X1,difference(X1,X2)) != intersection(X1,X2) ),
+    inference(fof_nnf,[status(thm)],[9])).
+
+fof(51,negated_conjecture,(
+    ? [X3,X4] : difference(X3,difference(X3,X4)) != intersection(X3,X4) ),
+    inference(variable_rename,[status(thm)],[50])).
+
+fof(52,negated_conjecture,(
+    difference(esk3_0,difference(esk3_0,esk4_0)) != intersection(esk3_0,esk4_0) ),
+    inference(skolemize,[status(sab)],[51])).
+
+cnf(53,negated_conjecture,
+    ( difference(esk3_0,difference(esk3_0,esk4_0)) != intersection(esk3_0,esk4_0) ),
+    inference(split_conjunct,[status(thm)],[52])).
+
+cnf(62,plain,
+    ( member(esk1_2(intersection(X1,X2),X3),X2)
+    | subset(intersection(X1,X2),X3) ),
+    inference(spm,[status(thm)],[15,37,theory(equality)])).
+
+cnf(63,plain,
+    ( member(esk1_2(intersection(X1,X2),X3),X1)
+    | subset(intersection(X1,X2),X3) ),
+    inference(spm,[status(thm)],[16,37,theory(equality)])).
+
+cnf(64,plain,
+    ( member(esk1_2(difference(X1,X2),X3),X1)
+    | subset(difference(X1,X2),X3) ),
+    inference(spm,[status(thm)],[22,37,theory(equality)])).
+
+cnf(65,plain,
+    ( subset(difference(X1,X2),X3)
+    | ~ member(esk1_2(difference(X1,X2),X3),X2) ),
+    inference(spm,[status(thm)],[21,37,theory(equality)])).
+
+cnf(71,plain,
+    ( subset(X1,difference(X2,X3))
+    | member(esk1_2(X1,difference(X2,X3)),X3)
+    | ~ member(esk1_2(X1,difference(X2,X3)),X2) ),
+    inference(spm,[status(thm)],[36,20,theory(equality)])).
+
+cnf(90,plain,
+    ( subset(difference(X1,difference(X2,X3)),X4)
+    | member(esk1_2(difference(X1,difference(X2,X3)),X4),X3)
+    | ~ member(esk1_2(difference(X1,difference(X2,X3)),X4),X2) ),
+    inference(spm,[status(thm)],[65,20,theory(equality)])).
+
+cnf(91,plain,
+    ( subset(difference(X1,intersection(X2,X3)),X4)
+    | ~ member(esk1_2(difference(X1,intersection(X2,X3)),X4),X3)
+    | ~ member(esk1_2(difference(X1,intersection(X2,X3)),X4),X2) ),
+    inference(spm,[status(thm)],[65,14,theory(equality)])).
+
+cnf(251,plain,
+    ( subset(difference(X1,difference(X1,X2)),X3)
+    | member(esk1_2(difference(X1,difference(X1,X2)),X3),X2) ),
+    inference(spm,[status(thm)],[90,64,theory(equality)])).
+
+cnf(491,plain,
+    ( subset(intersection(X1,X2),difference(X1,X3))
+    | member(esk1_2(intersection(X1,X2),difference(X1,X3)),X3) ),
+    inference(spm,[status(thm)],[71,63,theory(equality)])).
+
+cnf(492,plain,
+    ( subset(difference(X1,X2),difference(X1,X3))
+    | member(esk1_2(difference(X1,X2),difference(X1,X3)),X3) ),
+    inference(spm,[status(thm)],[71,64,theory(equality)])).
+
+cnf(8962,plain,
+    ( subset(difference(X1,difference(X1,X2)),X2) ),
+    inference(spm,[status(thm)],[36,251,theory(equality)])).
+
+cnf(9032,plain,
+    ( X1 = difference(X2,difference(X2,X1))
+    | ~ subset(X1,difference(X2,difference(X2,X1))) ),
+    inference(spm,[status(thm)],[26,8962,theory(equality)])).
+
+cnf(15407,plain,
+    ( subset(intersection(X1,X2),difference(X1,difference(X3,X4)))
+    | ~ member(esk1_2(intersection(X1,X2),difference(X1,difference(X3,X4))),X4) ),
+    inference(spm,[status(thm)],[21,491,theory(equality)])).
+
+cnf(15750,plain,
+    ( member(esk1_2(difference(X1,X2),difference(X1,intersection(X3,X4))),X4)
+    | subset(difference(X1,X2),difference(X1,intersection(X3,X4))) ),
+    inference(spm,[status(thm)],[15,492,theory(equality)])).
+
+cnf(15758,plain,
+    ( subset(difference(X1,intersection(X2,X3)),difference(X1,X3))
+    | ~ member(esk1_2(difference(X1,intersection(X2,X3)),difference(X1,X3)),X2) ),
+    inference(spm,[status(thm)],[91,492,theory(equality)])).
+
+cnf(1898236,plain,
+    ( subset(intersection(X1,X2),difference(X1,difference(X3,X2))) ),
+    inference(spm,[status(thm)],[15407,62,theory(equality)])).
+
+cnf(1925222,plain,
+    ( subset(difference(X1,X2),difference(X1,intersection(X3,X2))) ),
+    inference(spm,[status(thm)],[65,15750,theory(equality)])).
+
+cnf(1937661,plain,
+    ( subset(difference(X1,intersection(X1,X2)),difference(X1,X2)) ),
+    inference(spm,[status(thm)],[15758,64,theory(equality)])).
+
+cnf(1939265,plain,
+    ( difference(X1,X2) = difference(X1,intersection(X1,X2))
+    | ~ subset(difference(X1,X2),difference(X1,intersection(X1,X2))) ),
+    inference(spm,[status(thm)],[26,1937661,theory(equality)])).
+
+cnf(1939832,plain,
+    ( difference(X1,X2) = difference(X1,intersection(X1,X2))
+    | $false ),
+    inference(rw,[status(thm)],[1939265,1925222,theory(equality)])).
+
+cnf(1939833,plain,
+    ( difference(X1,X2) = difference(X1,intersection(X1,X2)) ),
+    inference(cn,[status(thm)],[1939832,theory(equality)])).
+
+cnf(1941160,plain,
+    ( difference(X1,difference(X1,X2)) = intersection(X1,X2)
+    | ~ subset(intersection(X1,X2),difference(X1,difference(X1,X2))) ),
+    inference(spm,[status(thm)],[9032,1939833,theory(equality)])).
+
+cnf(1942349,plain,
+    ( difference(X1,difference(X1,X2)) = intersection(X1,X2)
+    | $false ),
+    inference(rw,[status(thm)],[1941160,1898236,theory(equality)])).
+
+cnf(1942350,plain,
+    ( difference(X1,difference(X1,X2)) = intersection(X1,X2) ),
+    inference(cn,[status(thm)],[1942349,theory(equality)])).
+
+cnf(1943651,negated_conjecture,
+    ( $false ),
+    inference(rw,[status(thm)],[53,1942350,theory(equality)])).
+
+cnf(1943652,negated_conjecture,
+    ( $false ),
+    inference(cn,[status(thm)],[1943651,theory(equality)])).
+
+cnf(1943653,negated_conjecture,
+    ( $false ),
+    1943652,
+    ['proof']).

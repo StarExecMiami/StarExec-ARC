@@ -1,0 +1,112 @@
+%------------------------------------------------------------------------------
+% File       : SNARK---20050129f
+% Problem    : SET637+3 : TPTP v2.2.0
+% Transform  : none
+% Format     : kif
+% Command    : run-snark %s %d
+
+% Computer   : art06.cs.miami.edu
+% Model      : i686 unknown
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2793MHz
+% Memory     : 1000MB
+% OS         : Linux 2.4.22-21mdk-i686-up-4GB
+% CPULimit   : 600s
+
+% Result     : Theorem 0.0s
+% Output     : Refutation 0.0s
+% Statistics : Number of clauses     :   20 (  56 expanded)
+%              Depth                 :    7
+%              Number of atoms       :   37 ( 107 expanded)
+%              Maximal clause size   :    3 (   2 average)
+%              Maximal term depth    :    3 (   1 average)
+% Verified   : 
+
+% Comments   : 
+%------------------------------------------------------------------------------
+%----TSTP SOLUTION
+cnf(row_1,axiom,
+    ( ~ member(X,intersection(Y,Z))
+    | member(X,Y) )).
+
+cnf(row_2,axiom,
+    ( member(X,intersection(Y,Z))
+    | ~ member(X,Y)
+    | ~ member(X,Z) )).
+
+cnf(row_3,axiom,
+    ( ~ intersect(X,Y)
+    | member(skolemaaaf1(X,Y),X) )).
+
+cnf(row_4,axiom,
+    ( ~ intersect(X,Y)
+    | member(skolemaaaf1(X,Y),Y) )).
+
+cnf(row_5,axiom,
+    ( intersect(X,Y)
+    | ~ member(Z,X)
+    | ~ member(Z,Y) )).
+
+cnf(row_6,axiom,
+    ( ~ member(X,empty_set) )).
+
+cnf(row_9,axiom,
+    ( X = Y
+    | member(skolemaaaf2(X,Y),X)
+    | member(skolemaaaf2(X,Y),Y) )).
+
+cnf(row_10,axiom,
+    ( ~ empty(X)
+    | ~ member(Y,X) )).
+
+cnf(row_11,axiom,
+    ( empty(X)
+    | member(skolemaaaf3(X),X) )).
+
+cnf(row_12,axiom,
+    ( ~ intersect(skolemaaaf4,skolemaaaf5)
+    | intersection(skolemaaaf4,skolemaaaf5) = empty_set )).
+
+cnf(row_13,axiom,
+    ( intersect(skolemaaaf4,skolemaaaf5)
+    | intersection(skolemaaaf4,skolemaaaf5) != empty_set )).
+
+cnf(row_15,derived,
+    ( empty(intersection(X,Y))
+    | member(skolemaaaf3(intersection(X,Y)),X) ),
+    inference(hyperresolve,[status(thm)],[row_1,row_11])).
+
+cnf(row_18,derived,
+    ( empty_set = X
+    | member(skolemaaaf2(empty_set,X),X) ),
+    inference(hyperresolve,[status(thm)],[row_6,row_9])).
+
+cnf(row_77,derived,
+    ( empty(intersection(X,Y))
+    | intersect(X,Y) ),
+    inference(hyperresolve,[status(thm)],[row_5,row_15,row_15])).
+
+cnf(row_88,derived,
+    ( empty(intersection(skolemaaaf4,skolemaaaf5))
+    | intersection(skolemaaaf4,skolemaaaf5) = empty_set ),
+    inference(hyperresolve,[status(thm)],[row_12,row_77])).
+
+cnf(row_97,derived,
+    ( intersection(skolemaaaf4,skolemaaaf5) = empty_set ),
+    inference(hyperresolve,[status(thm)],[row_10,row_88,row_18])).
+
+cnf(row_98,derived,
+    ( intersect(skolemaaaf4,skolemaaaf5) ),
+    inference(rewrite,[status(thm)],[row_13,row_97,theory(equality)])).
+
+cnf(row_99,derived,
+    ( member(skolemaaaf1(skolemaaaf4,skolemaaaf5),skolemaaaf5) ),
+    inference(hyperresolve,[status(thm)],[row_4,row_98])).
+
+cnf(row_101,derived,
+    ( member(skolemaaaf1(skolemaaaf4,skolemaaaf5),skolemaaaf4) ),
+    inference(hyperresolve,[status(thm)],[row_3,row_98])).
+
+cnf(row_109,derived,
+    ( $false ),
+    inference(rewrite,[status(thm)],[inference(hyperresolve,[status(thm)],[row_2,row_101,row_99]),row_97,row_6,theory(equality)])).
+%------------------------------------------------------------------------------

@@ -1,0 +1,5 @@
+fof(a,axiom,a).
+fof(a_b,axiom,a=>b).
+fof(b_c,axiom,b=>c).
+fof(b,plain,b,inference(mp,[status(thm)],[a,a_b])).
+fof(c,plain,c,inference(mp,[status(thm)],[b,b_c])).

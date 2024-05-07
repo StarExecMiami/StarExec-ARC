@@ -1,0 +1,13 @@
+COMMAND TEXT: dvdv [OPTIONS] [SYSTEM]
+
+OPTIONS:  -f Force continue if any nodes fail.
+          -v Verbose - print failed nodes.
+          -i Verify initial nodes.
+	  -k Keep obligations and results.
+	  -r Check relevance of parent set.
+
+SYSTEM:   -u [SYSTEM] Indicate what ATP system you would like to use.
+	  -s [SYSTEM] Indicate the model checker to use.
+	  -t [INTEGER] Indicate the system time limit (in seconds).
+	  -x [FILE] Specify axioms file.
+	  -p [FILE] Indicate proof file to verify.

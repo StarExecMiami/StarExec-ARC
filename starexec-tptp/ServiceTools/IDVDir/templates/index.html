@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>IDV</h1>
+<form action="/idv/idv" method="POST" enctype="multipart/form-data">
+  <div class="form-group">
+    <label for="proof">Proof: </label>
+    <input type="file" id="proof" class="form-control" name="proof" placeholder=''>
+  </div>
+  <button class="btn btn-primary" type="submit">Visualize</button>
+</form>
+{% endblock %}
+
+

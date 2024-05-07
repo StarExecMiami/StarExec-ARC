@@ -1,0 +1,36 @@
+fof(freddr,assumption,
+    p(a),
+    unknown,
+    [where_did_this_come_from]).
+
+
+fof(freddo,assumption,
+    p(a),
+    unknown,
+    [where_did_this_come_from]).
+
+%----OOOO a comment
+include(filein,[included]).
+
+fof(10,derived,
+    p(a),
+    inference(modus_ponens,[],[freddr-'1.1',included])).
+
+fof(frog,derived,
+    q(a),
+    inference(modus_ponens,[],[freddo-'1.1',included]),
+    []).
+
+%cnf(jj,derived,
+%    ( q(f(f(b)),f(X))
+%    | ~p(a,b,f(g(a,f(X))))
+%    |  ~p(X) ),
+%    inference(modus_ponens,[],[frog,10]),
+%    []).
+
+fof(jj,derived,
+    ? [X] :
+      ( q(f(f(b)),f(X))
+     => p(a,b,f(g(a,f(X)))) ),
+    inference(modus_ponens,[],[frog,10]),
+    []).

@@ -1,0 +1,256 @@
+%------------------------------------------------------------------------------
+% File       : EP---0.9
+% Problem    : NUM299+1 : TPTP v3.1.0
+% Transform  : none
+% Format     : tptp
+% Command    : eproof --print-statistics -xAuto -tAuto --memory-limit=Auto --tstp-in --tstp-out %s
+
+% Computer   : art03.cs.miami.edu
+% Model      : i686 unknown
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2793MHz
+% Memory     : 1000MB
+% OS         : Linux 2.4.22-21mdk-i686-up-4GB
+% CPULimit   : 600s
+
+% Result     : Theorem 346.8s
+% Output     : Refutation 346.8s
+% Statistics : Number of formulae    :   38 (  38 expanded)
+%              Number of clauses     :   18 (  18 expanded)
+%              Depth                 :   12
+%              Number of atoms       :   95 (  95 expanded)
+%              Maximal formula depth :    9 (   4 average)
+%              Maximal clause size   :    7 (   5 average)
+%              Maximal term depth    :    3 (   1 average)
+% Verified   : 
+
+% Comments   : 
+%------------------------------------------------------------------------------
+%----TSTP SOLUTION
+fof(130,axiom,(
+    rdn_translate(nn2,rdn_neg(rdnn(n2))) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM299+1.tptp',rdnn2)).
+
+fof(132,axiom,(
+    rdn_translate(nn4,rdn_neg(rdnn(n4))) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM299+1.tptp',rdnn4)).
+
+fof(268,axiom,(
+    rdn_positive_less(rdnn(n2),rdnn(n3)) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM299+1.tptp',rdn_positive_less23)).
+
+fof(269,axiom,(
+    rdn_positive_less(rdnn(n3),rdnn(n4)) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM299+1.tptp',rdn_positive_less34)).
+
+fof(275,axiom,(
+    ! [X1,X2,X3] : 
+      ( ( rdn_positive_less(rdnn(X1),rdnn(X2))
+        & rdn_positive_less(rdnn(X2),rdnn(X3)) )
+     => rdn_positive_less(rdnn(X1),rdnn(X3)) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM299+1.tptp',rdn_positive_less_transitivity)).
+
+fof(283,axiom,(
+    ! [X1,X2,X10,X11] : 
+      ( ( rdn_translate(X1,rdn_neg(X10))
+        & rdn_translate(X2,rdn_neg(X11))
+        & rdn_positive_less(X11,X10) )
+     => less(X1,X2) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM299+1.tptp',less_entry_point_neg_neg)).
+
+fof(284,axiom,(
+    ! [X1,X2] : 
+      ( less(X1,X2)
+    <=> ( ~ less(X2,X1)
+        & X2 != X1 ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM299+1.tptp',less_property)).
+
+fof(402,conjecture,(
+    ~ less(nn2,nn4) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM299+1.tptp',nn2_not_less_nn4)).
+
+fof(403,negated_conjecture-derived,(
+    ~ ~ less(nn2,nn4) ),
+    inference(assume_negation,[status(cth)],[402])).
+
+cnf(533,derived,
+    ( rdn_translate(nn2,rdn_neg(rdnn(n2))) ),
+    inference(split_conjunct,[status(thm)],[130])).
+
+cnf(535,derived,
+    ( rdn_translate(nn4,rdn_neg(rdnn(n4))) ),
+    inference(split_conjunct,[status(thm)],[132])).
+
+cnf(671,derived,
+    ( rdn_positive_less(rdnn(n2),rdnn(n3)) ),
+    inference(split_conjunct,[status(thm)],[268])).
+
+cnf(672,derived,
+    ( rdn_positive_less(rdnn(n3),rdnn(n4)) ),
+    inference(split_conjunct,[status(thm)],[269])).
+
+fof(678,derived,(
+    ! [X1,X2,X3] : 
+      ( ~ rdn_positive_less(rdnn(X1),rdnn(X2))
+      | ~ rdn_positive_less(rdnn(X2),rdnn(X3))
+      | rdn_positive_less(rdnn(X1),rdnn(X3)) ) ),
+    inference(fof_nnf,[status(thm)],[275])).
+
+fof(679,derived,(
+    ! [X4,X5,X6] : 
+      ( ~ rdn_positive_less(rdnn(X4),rdnn(X5))
+      | ~ rdn_positive_less(rdnn(X5),rdnn(X6))
+      | rdn_positive_less(rdnn(X4),rdnn(X6)) ) ),
+    inference(variable_rename,[status(thm)],[678])).
+
+cnf(680,derived,
+    ( rdn_positive_less(rdnn(X1),rdnn(X2))
+    | ~ rdn_positive_less(rdnn(X3),rdnn(X2))
+    | ~ rdn_positive_less(rdnn(X1),rdnn(X3)) ),
+    inference(split_conjunct,[status(thm)],[679])).
+
+fof(704,derived,(
+    ! [X1,X2,X10,X11] : 
+      ( ~ rdn_translate(X1,rdn_neg(X10))
+      | ~ rdn_translate(X2,rdn_neg(X11))
+      | ~ rdn_positive_less(X11,X10)
+      | less(X1,X2) ) ),
+    inference(fof_nnf,[status(thm)],[283])).
+
+fof(705,derived,(
+    ! [X1,X2] : 
+      ( ! [X10] : 
+          ( ~ rdn_translate(X1,rdn_neg(X10))
+          | ! [X11] : 
+              ( ~ rdn_translate(X2,rdn_neg(X11))
+              | ~ rdn_positive_less(X11,X10) ) )
+      | less(X1,X2) ) ),
+    inference(shift_quantors,[status(thm)],[704])).
+
+fof(706,derived,(
+    ! [X12,X13] : 
+      ( ! [X14] : 
+          ( ~ rdn_translate(X12,rdn_neg(X14))
+          | ! [X15] : 
+              ( ~ rdn_translate(X13,rdn_neg(X15))
+              | ~ rdn_positive_less(X15,X14) ) )
+      | less(X12,X13) ) ),
+    inference(variable_rename,[status(thm)],[705])).
+
+cnf(707,derived,
+    ( less(X1,X2)
+    | ~ rdn_positive_less(X3,X4)
+    | ~ rdn_translate(X2,rdn_neg(X3))
+    | ~ rdn_translate(X1,rdn_neg(X4)) ),
+    inference(split_conjunct,[status(thm)],[706])).
+
+fof(708,derived,(
+    ! [X1,X2] : 
+      ( less(X1,X2)
+    <=> ( ~ less(X2,X1)
+        & X2 != X1 ) ) ),
+    inference(fof_simplification,[status(thm)],[284,theory(equality)])).
+
+fof(709,derived,(
+    ! [X1,X2] : 
+      ( ( ~ less(X1,X2)
+        | ( ~ less(X2,X1)
+          & X2 != X1 ) )
+      & ( less(X2,X1)
+        | X2 = X1
+        | less(X1,X2) ) ) ),
+    inference(fof_nnf,[status(thm)],[708])).
+
+fof(710,derived,
+    ( ! [X1,X2] : 
+        ( ~ less(X1,X2)
+        | ( ~ less(X2,X1)
+          & X2 != X1 ) )
+    & ! [X1,X2] : 
+        ( less(X2,X1)
+        | X2 = X1
+        | less(X1,X2) ) ),
+    inference(shift_quantors,[status(thm)],[709])).
+
+fof(711,derived,
+    ( ! [X3,X4] : 
+        ( ~ less(X3,X4)
+        | ( ~ less(X4,X3)
+          & X4 != X3 ) )
+    & ! [X5,X6] : 
+        ( less(X6,X5)
+        | X6 = X5
+        | less(X5,X6) ) ),
+    inference(variable_rename,[status(thm)],[710])).
+
+fof(712,derived,(
+    ! [X3,X4,X5,X6] : 
+      ( ( ~ less(X4,X3)
+        | ~ less(X3,X4) )
+      & ( X4 != X3
+        | ~ less(X3,X4) )
+      & ( less(X6,X5)
+        | X6 = X5
+        | less(X5,X6) ) ) ),
+    inference(distribute,[status(thm)],[711])).
+
+cnf(715,derived,
+    ( ~ less(X1,X2)
+    | ~ less(X2,X1) ),
+    inference(split_conjunct,[status(thm)],[712])).
+
+fof(885,negated_conjecture-derived,(
+    less(nn2,nn4) ),
+    inference(fof_simplification,[status(thm)],[403,theory(equality)])).
+
+cnf(886,negated_conjecture-derived,
+    ( less(nn2,nn4) ),
+    inference(split_conjunct,[status(thm)],[885])).
+
+cnf(891,negated_conjecture-derived,
+    ( ~ less(nn4,nn2) ),
+    inference(spm,[status(thm)],[715,886,theory(equality)])).
+
+cnf(1096,derived,
+    ( less(X1,nn2)
+    | ~ rdn_positive_less(rdnn(n2),X2)
+    | ~ rdn_translate(X1,rdn_neg(X2)) ),
+    inference(spm,[status(thm)],[707,533,theory(equality)])).
+
+cnf(1198,derived,
+    ( rdn_positive_less(rdnn(X1),rdnn(n4))
+    | ~ rdn_positive_less(rdnn(X1),rdnn(n3)) ),
+    inference(spm,[status(thm)],[680,672,theory(equality)])).
+
+cnf(16945,derived,
+    ( less(X1,nn2)
+    | ~ rdn_translate(X1,rdn_neg(rdnn(n4)))
+    | ~ rdn_positive_less(rdnn(n2),rdnn(n3)) ),
+    inference(spm,[status(thm)],[1096,1198,theory(equality)])).
+
+cnf(16954,derived,
+    ( less(X1,nn2)
+    | ~ rdn_translate(X1,rdn_neg(rdnn(n4)))
+    | $false ),
+    inference(rw,[status(thm)],[16945,671,theory(equality)])).
+
+cnf(16955,derived,
+    ( less(X1,nn2)
+    | ~ rdn_translate(X1,rdn_neg(rdnn(n4))) ),
+    inference(cn,[status(thm)],[16954,theory(equality)])).
+
+cnf(85451,negated_conjecture-derived,
+    ( ~ rdn_translate(nn4,rdn_neg(rdnn(n4))) ),
+    inference(spm,[status(thm)],[891,16955,theory(equality)])).
+
+cnf(85582,negated_conjecture-derived,
+    ( $false ),
+    inference(rw,[status(thm)],[85451,535,theory(equality)])).
+
+cnf(85583,negated_conjecture-derived,
+    ( $false ),
+    inference(cn,[status(thm)],[85582,theory(equality)])).
+
+cnf(85584,negated_conjecture-derived,
+    ( $false ),
+    85583,
+    ['proof']).

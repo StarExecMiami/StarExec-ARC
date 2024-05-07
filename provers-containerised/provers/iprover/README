@@ -1,0 +1,10 @@
+Dockerfiles for generating container images for iProver. Two folders:
+
+1) build (tag as "iprover-build") -- FAILS!
+- Full image for building iProver from sources (depends on the "ocaml-build" image, whose Dockerfile is found in the folder: "../../base-build/ocaml-build").
+- Building the image currently takes too long and often fails mysteriously!
+
+2) distr (tag as "iprover") -- TODO
+
+
+Example: Solving a proof problem (TODO)

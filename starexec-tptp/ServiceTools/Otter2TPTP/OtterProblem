@@ -1,0 +1,8 @@
+formula_list(axiom).
+all x (p(x) -> q(x)).
+exists y p(y).
+end_of_list.
+
+formula_list(conjecture).
+exists x q(x).
+end_of_list.

@@ -1,0 +1,4 @@
+fof(a,plain,a,
+    inference(rule,[],[parent:[bind(X,$fot(a))]])).
+
+

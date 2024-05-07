@@ -1,0 +1,16 @@
+cnf(d,derived,
+    p(a),
+    inference(geoff,[status(thm)],[b])).
+
+cnf(c,derived,
+    p(a),
+    inference(geoff,[status(thm)],[d])).
+
+cnf(b,derived,
+    p(a),
+    inference(geoff,[status(thm)],[c])).
+
+cnf(a,derived,
+    p(a),
+    inference(geoff,[status(thm)],[b])).
+

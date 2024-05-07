@@ -1,0 +1,221 @@
+%------------------------------------------------------------------------------
+% File       : Otter---3.2
+% Problem    : GRP006-1 : TPTP v1.0.0
+% Transform  : rm_equality:stfp
+% Format     : otter:hypothesis:set(auto),clear(print_given)
+% Command    : otter-script %s
+
+% Computer   : diver.cs.jcu.edu.au
+% Model      : SUNW,Ultra-80
+% CPU        : sparcv9 @ 450MHz
+% Memory     : 256MB
+% OS         : SunOS 5.8
+% CPULimit   : 600s
+
+% Result     : Unsatisfiable 0.0s
+% Output     : Refutation 0.0s
+% Statistics : TBA
+% Verified   : 
+
+% Comments   : 
+%------------------------------------------------------------------------------
+%----TSTP SOLUTION
+% 1 [] -an_element(A)| -an_element(B)| -product(A,inverse(B),C)|an_element(C).
+cnf(1,initial,
+    ( ~an_element(A)
+    | ~an_element(B)
+    | ~product(A,inverse(B),C)
+    | an_element(C) ),
+    file('GRP006-1+rm_eq_stfp.in',unknown),
+    []).
+
+% 4 [] -an_element(inverse(the_element)).
+cnf(4,initial,
+    ( ~an_element(inverse(the_element)) ),
+    file('GRP006-1+rm_eq_stfp.in',unknown),
+    []).
+
+% 5 [] product(identity,A,A).
+cnf(5,initial,
+    ( product(identity,A,A) ),
+    file('GRP006-1+rm_eq_stfp.in',unknown),
+    []).
+
+% 7 [] product(A,inverse(A),identity).
+cnf(7,initial,
+    ( product(A,inverse(A),identity) ),
+    file('GRP006-1+rm_eq_stfp.in',unknown),
+    []).
+
+% 9 [] an_element(the_element).
+cnf(9,initial,
+    ( an_element(the_element) ),
+    file('GRP006-1+rm_eq_stfp.in',unknown),
+    []).
+
+% 14 [hyper,1,9.1,9.1,7.1] an_element(identity).
+cnf(14,derived,
+    ( an_element(identity) ),
+    inference(hyper,[thm],[1,9,9,7]),
+    [iquote('hyper,1,9.1,9.1,7.1')]).
+
+% 16 [hyper,1,14.1,9.1,5.1] an_element(inverse(the_element)).
+cnf(16,derived,
+    ( an_element(inverse(the_element)) ),
+    inference(hyper,[thm],[1,14,9,5]),
+    [iquote('hyper,1,14.1,9.1,5.1')]).
+
+% 17 [binary,16.1,4.1] $F.
+cnf(17,derived,
+    ( false ),
+    inference(binary,[thm],[16,4]),
+    [iquote('binary,16.1,4.1')]).
+
+%------------------------------------------------------------------------------
+%----ORIGINAL SYSTEM OUTPUT
+% ----- Otter 3.2-beta3, May 2001 -----
+% The process was started by tptp on diver,
+% Sun Nov 17 05:27:17 2002
+% The command was "/home/tptp/Systems/Otter-MACE---3.2-2.0/otter".  The process ID is 14813.
+% 
+% set(prolog_style_variables).
+% set(tptp_eq).
+% set(auto).
+%    dependent: set(auto1).
+%    dependent: set(process_input).
+%    dependent: clear(print_kept).
+%    dependent: clear(print_new_demod).
+%    dependent: clear(print_back_demod).
+%    dependent: clear(print_back_sub).
+%    dependent: set(control_memory).
+%    dependent: assign(max_mem, 12000).
+%    dependent: assign(pick_given_ratio, 4).
+%    dependent: assign(stats_level, 1).
+%    dependent: assign(max_seconds, 10800).
+% clear(print_given).
+% set(build_proof_object_2).
+%    dependent: set(build_proof_object).
+%    dependent: set(order_history).
+% 
+% list(usable).
+% 0 [] product(identity,X,X).
+% 0 [] product(X,identity,X).
+% 0 [] product(X,inverse(X),identity).
+% 0 [] product(inverse(X),X,identity).
+% 0 [] -an_element(X)| -an_element(Y)| -product(X,inverse(Y),Z)|an_element(Z).
+% 0 [] -product(X,Y,U)| -product(Y,Z,V)| -product(U,Z,W)|product(X,V,W).
+% 0 [] -product(X,Y,U)| -product(Y,Z,V)| -product(X,V,W)|product(U,Z,W).
+% end_of_list.
+% 
+% list(sos).
+% 0 [] an_element(the_element).
+% 0 [] -an_element(inverse(the_element)).
+% end_of_list.
+% WARNING: Sos list not accepted in auto1 mode:
+%          sos clauses are being moved to usable list.
+% 
+% SCAN INPUT: prop=0, horn=1, equality=0, symmetry=0, max_lits=4.
+% 
+% This is a Horn set without equality.  The strategy will
+% be hyperresolution, with satellites in sos and nuclei
+% in usable.
+% 
+%    dependent: set(hyper_res).
+%    dependent: clear(order_hyper).
+% 
+% ------------> process usable:
+% ** KEPT (pick-wt=11): 1 [] -an_element(A)| -an_element(B)| -product(A,inverse(B),C)|an_element(C).
+% ** KEPT (pick-wt=16): 2 [] -product(A,B,C)| -product(B,D,E)| -product(C,D,F)|product(A,E,F).
+% ** KEPT (pick-wt=16): 3 [] -product(A,B,C)| -product(B,D,E)| -product(A,E,F)|product(C,D,F).
+% ** KEPT (pick-wt=3): 4 [] -an_element(inverse(the_element)).
+% 
+% ------------> process sos:
+% ** KEPT (pick-wt=4): 5 [] product(identity,A,A).
+% ** KEPT (pick-wt=4): 6 [] product(A,identity,A).
+% ** KEPT (pick-wt=5): 7 [] product(A,inverse(A),identity).
+% ** KEPT (pick-wt=5): 8 [] product(inverse(A),A,identity).
+% ** KEPT (pick-wt=2): 9 [] an_element(the_element).
+% 
+% ======= end of input processing =======
+% 
+% =========== start of search ===========
+% 
+% ------- PROOF -------- 
+% 
+% ----> UNIT CONFLICT at   0.01 sec ----> 17 [binary,16.1,4.1] $F.
+% 
+% Length of proof is 2.  Level of proof is 2.
+% 
+% ---------------- PROOF ----------------
+% 
+% 1 [] -an_element(A)| -an_element(B)| -product(A,inverse(B),C)|an_element(C).
+% 4 [] -an_element(inverse(the_element)).
+% 5 [] product(identity,A,A).
+% 7 [] product(A,inverse(A),identity).
+% 9 [] an_element(the_element).
+% 14 [hyper,1,9.1,9.1,7.1] an_element(identity).
+% 16 [hyper,1,14.1,9.1,5.1] an_element(inverse(the_element)).
+% 17 [binary,16.1,4.1] $F.
+% 
+% ------------ end of proof -------------
+% 
+% 
+% ;; BEGINNING OF PROOF OBJECT
+% (
+% (1 (input) (or (not (an_element v0)) (or (not (an_element v1)) (or (not (product v0 (inverse v1) v2)) (an_element v2)))) (1))
+% (2 (input) (not (an_element (inverse (the_element)))) (4))
+% (3 (input) (product (identity) v0 v0) (5))
+% (4 (input) (product v0 (inverse v0) (identity)) (7))
+% (5 (input) (an_element (the_element)) (9))
+% (6 (instantiate 1 ((v0 . (the_element)))) (or (not (an_element (the_element))) (or (not (an_element v1)) (or (not (product (the_element) (inverse v1) v2)) (an_element v2)))) NIL)
+% (7 (resolve 6 (1) 5 ()) (or (not (an_element v1)) (or (not (product (the_element) (inverse v1) v2)) (an_element v2))) NIL)
+% (8 (instantiate 7 ((v1 . v0)(v2 . v1))) (or (not (an_element v0)) (or (not (product (the_element) (inverse v0) v1)) (an_element v1))) NIL)
+% (9 (instantiate 8 ((v0 . (the_element)))) (or (not (an_element (the_element))) (or (not (product (the_element) (inverse (the_element)) v1)) (an_element v1))) NIL)
+% (10 (resolve 9 (1) 5 ()) (or (not (product (the_element) (inverse (the_element)) v1)) (an_element v1)) NIL)
+% (11 (instantiate 10 ((v1 . v0))) (or (not (product (the_element) (inverse (the_element)) v0)) (an_element v0)) NIL)
+% (12 (instantiate 11 ((v0 . (identity)))) (or (not (product (the_element) (inverse (the_element)) (identity))) (an_element (identity))) NIL)
+% (13 (instantiate 4 ((v0 . (the_element)))) (product (the_element) (inverse (the_element)) (identity)) NIL)
+% (14 (resolve 12 (1) 13 ()) (an_element (identity)) (14))
+% (15 (instantiate 1 ((v0 . (identity)))) (or (not (an_element (identity))) (or (not (an_element v1)) (or (not (product (identity) (inverse v1) v2)) (an_element v2)))) NIL)
+% (16 (resolve 15 (1) 14 ()) (or (not (an_element v1)) (or (not (product (identity) (inverse v1) v2)) (an_element v2))) NIL)
+% (17 (instantiate 16 ((v1 . v0)(v2 . v1))) (or (not (an_element v0)) (or (not (product (identity) (inverse v0) v1)) (an_element v1))) NIL)
+% (18 (instantiate 17 ((v0 . (the_element)))) (or (not (an_element (the_element))) (or (not (product (identity) (inverse (the_element)) v1)) (an_element v1))) NIL)
+% (19 (resolve 18 (1) 5 ()) (or (not (product (identity) (inverse (the_element)) v1)) (an_element v1)) NIL)
+% (20 (instantiate 19 ((v1 . v0))) (or (not (product (identity) (inverse (the_element)) v0)) (an_element v0)) NIL)
+% (21 (instantiate 20 ((v0 . (inverse (the_element))))) (or (not (product (identity) (inverse (the_element)) (inverse (the_element)))) (an_element (inverse (the_element)))) NIL)
+% (22 (instantiate 3 ((v0 . (inverse (the_element))))) (product (identity) (inverse (the_element)) (inverse (the_element))) NIL)
+% (23 (resolve 21 (1) 22 ()) (an_element (inverse (the_element))) (16))
+% (24 (resolve 2 () 23 ()) false (17))
+% 
+% earch stopped by max_proofs option.
+% 
+% )
+% ;; END OF PROOF OBJECT
+% 
+% Search stopped by max_proofs option.
+% 
+% ============ end of search ============
+% 
+% -------------- statistics -------------
+% clauses given                  5
+% clauses generated             62
+% clauses kept                  16
+% clauses forward subsumed      55
+% clauses back subsumed          0
+% Kbytes malloced               95
+% 
+% ----------- times (seconds) -----------
+% user CPU time          0.01          (0 hr, 0 min, 0 sec)
+% system CPU time        0.00          (0 hr, 0 min, 0 sec)
+% wall-clock time        0             (0 hr, 0 min, 0 sec)
+% hyper_res time         0.00
+% for_sub time           0.00
+% back_sub time          0.00
+% conflict time          0.00
+% demod time             0.00
+% 
+% That finishes the proof of the theorem.
+% 
+% Process 14813 finished Sun Nov 17 05:27:17 2002
+% PROOF FOUND
+%------------------------------------------------------------------------------

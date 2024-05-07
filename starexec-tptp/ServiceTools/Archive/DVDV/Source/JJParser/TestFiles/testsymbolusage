@@ -1,0 +1,12 @@
+cnf(one,axiom,(
+    ( ~ wolf(a,ff(a),gg(gg(X)),a)
+    | ~ wolf(gg(a),ff(a),gg(hh(X),hh(X)),ff(gg(hh(a),gg(a)))) )   )).
+
+cnf(two,axiom,(
+    ( animal(X)
+    | ~ fox(X) )   )).
+
+cnf(three,axiom,(
+    ( animal(X)
+    | ~ bird(X) )   )).
+

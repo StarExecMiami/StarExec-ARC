@@ -1,0 +1,6 @@
+#!/bin/tcsh
+
+setenv HERE `dirname $0`
+#----The arguments passed in are the problem, cpu limit, wall clock limit, memory limit, intent
+echo "Running run_vampire $1 $3 $5"
+$HERE/run_vampire $1 $3 $5

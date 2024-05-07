@@ -1,0 +1,36 @@
+#!/bin/tcsh
+
+setenv HERE `dirname $0`
+setenv TEMPDIR `mktemp -d`
+setenv PROBLEMFILE $TEMPDIR/Vampire---4.8_$$
+onintr cleanup
+
+$HERE/tptp4X -x $1 > $PROBLEMFILE
+
+set SPCLine=`grep "^% SPC " $PROBLEMFILE`
+if ("$SPCLine" != "") then
+    set ProblemSPC = `expr "$SPCLine" : "^% SPC  *: *\([^ ]*\)"`
+else
+    set ProblemSPC = `$HERE/SPCForProblem $PROBLEMFILE`
+endif
+set Mode = $3
+
+if ("$Mode" == "THM") then
+    if (`expr "$ProblemSPC" : "TH.*"`) then
+        echo "Running higher-order theorem proving"
+        set Command = "$HERE/vampire_rel_static_ahmed-new-hol_6848 --cores 8 --input_syntax tptp --proof tptp --output_axiom_names on --mode portfolio --schedule snake_tptp_hol $PROBLEMFILE -m 12000  -t $2"
+    else
+        echo "Running first-order theorem proving"
+        set Command = "$HERE/vampire --mode portfolio --schedule snake_tptp_uns -p tptp --output_axiom_names on -m 16384 --cores 7 -t $2 $PROBLEMFILE"
+    endif
+else
+    echo "Running first-order model finding"
+    set Command = "$HERE/vampire_z3_rel_static_master_6827 --forced_options bce=off:erd=off:fde=none:updr=off --mode casc_sat -m 16384 --cores 7 -t $2 $PROBLEMFILE"
+endif
+
+echo "Running: $Command"
+$Command
+
+cleanup:
+    echo "% Vampire---4.8 exiting"
+    rm -rf $TEMPDIR

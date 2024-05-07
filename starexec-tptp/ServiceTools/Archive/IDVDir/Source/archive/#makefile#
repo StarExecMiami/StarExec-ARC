@@ -1,0 +1,114 @@
+#all:
+#	javac -source 1.4 -target 1.4 *.java
+#	cp *.class ~/public_html/test/IDV/
+#	cp html/*.html ~/public_html/test/IDV/
+#	cp files/*.tptp ~/public_html/test/IDV/files/
+
+all:
+	javac -source 1.4 -target 1.4 *.java	
+	jar cf IDV.jar *.class images/*.*
+	cp IDV.jar ~/private_html/test/IDV/
+	cp html/*.html ~/private_html/test/IDV/
+	cp files/*.tptp ~/private_html/test/IDV/files/
+
+#all:
+#	javac -source 1.4 -target 1.4 *.java	
+#	jar cf IDV.jar *.class images/*.*
+#	cp IDV.jar ~/public_html/test/IDV/
+#	cp html/*.html ~/public_html/test/IDV/
+#cnf(32,derived,
+    ( ~ richer(X1,X2)
+    | ~ killed(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[31])).
+cnf(18,derived,
+    ( killed(esk1_0,agatha) ),
+    inference(split_conjunct,[status(thm)],[17])).
+cnf(19,derived,
+    ( lives(esk1_0) ),
+    inference(split_conjunct,[status(thm)],[17])).
+cnf(43,derived,
+    ( hates(butler,X1)
+    | richer(X1,agatha) ),
+    inference(split_conjunct,[status(thm)],[42])).
+cnf(36,derived,
+    ( ~ hates(charles,X1)
+    | ~ hates(agatha,X1) ),
+    inference(split_conjunct,[status(thm)],[35])).
+cnf(25,derived,
+    ( X1 = charles
+    | X1 = butler
+    | X1 = agatha
+    | ~ lives(X1) ),
+    inference(split_conjunct,[status(thm)],[24])).
+cnf(28,derived,
+    ( hates(X1,X2)
+    | ~ killed(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[27])).
+cnf(39,derived,
+    ( hates(agatha,X1)
+    | X1 = butler ),
+    inference(split_conjunct,[status(thm)],[38])).
+cnf(51,derived,
+    ( agatha != butler ),
+    inference(split_conjunct,[status(thm)],[13])).
+cnf(46,derived,
+    ( hates(butler,X1)
+    | ~ hates(agatha,X1) ),
+    inference(split_conjunct,[status(thm)],[45])).
+cnf(50,derived,
+    ( ~ hates(X1,esk2_1(X1)) ),
+    inference(split_conjunct,[status(thm)],[49])).
+cnf(53,negated_conjecture-derived,
+    ( ~ killed(agatha,agatha) ),
+    inference(split_conjucnf(32,derived,
+    ( ~ richer(X1,X2)
+    | ~ killed(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[31])).
+cnf(18,derived,
+    ( killed(esk1_0,agatha) ),
+    inference(split_conjunct,[status(thm)],[17])).
+cnf(19,derived,
+    ( lives(esk1_0) ),
+    inference(split_conjunct,[status(thm)],[17])).
+cnf(43,derived,
+    ( hates(butler,X1)
+    | richer(X1,agatha) ),
+    inference(split_conjunct,[status(thm)],[42])).
+cnf(36,derived,
+    ( ~ hates(charles,X1)
+    | ~ hates(agatha,X1) ),
+    inference(split_conjunct,[status(thm)],[35])).
+cnf(25,derived,
+    ( X1 = charles
+    | X1 = butler
+    | X1 = agatha
+    | ~ lives(X1) ),
+    inference(split_conjunct,[status(thm)],[24])).
+cnf(28,derived,
+    ( hates(X1,X2)
+    | ~ killed(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[27])).
+cnf(39,derived,
+    ( hates(agatha,X1)
+    | X1 = butler ),
+    inference(split_conjunct,[status(thm)],[38])).
+cnf(51,derived,
+    ( agatha != butler ),
+    inference(split_conjunct,[status(thm)],[13])).
+cnf(46,derived,
+    ( hates(butler,X1)
+    | ~ hates(agatha,X1) ),
+    inference(split_conjunct,[status(thm)],[45])).
+cnf(50,derived,
+    ( ~ hates(X1,esk2_1(X1)) ),
+    inference(split_conjunct,[status(thm)],[49])).
+cnf(53,negated_conjecture-derived,
+    ( ~ killed(agatha,agatha) ),
+    inference(split_conju	cp files/*.tptp ~/public_html/test/IDV/files/
+
+test:
+	cp html/*.html ~/public_html/test/IDV/
+	cp files/*.tptp ~/public_html/test/IDV/files/
+
+clean:
+	rm *.class *~ core.* *.jar

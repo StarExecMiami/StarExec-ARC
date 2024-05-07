@@ -1,0 +1,32 @@
+//*****************************************************************************
+//*****************************************************************************
+/*
+  Steven Trac
+  Node Class of Graph Proof Tree
+*/
+//*****************************************************************************
+/****
+ * A Node in the Graph
+ *   Abstract Class
+ *   Stores:
+ *     X, Y - double location coordinates
+ * Note: stores formula in the future
+ ****/
+//*****************************************************************************
+
+public abstract class Node {
+    protected double x, y;
+    protected boolean pinState = false; // True if "pinned down"
+
+    public Node (double _x, double _y) { x = _x; y = _y; }
+    public Node (Node that) { 
+	x = that.x; y = that.y; 
+	pinState = other.pinState;
+    }
+
+    
+}
+
+//*****************************************************************************
+//*****************************************************************************
+

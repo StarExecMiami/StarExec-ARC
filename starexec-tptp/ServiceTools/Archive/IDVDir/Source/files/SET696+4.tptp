@@ -1,0 +1,463 @@
+%------------------------------------------------------------------------------
+% File       : EP---0.9
+% Problem    : SET696+4 : TPTP v2.2.0
+% Transform  : none
+% Format     : tptp
+% Command    : eproof --print-statistics -xAuto -tAuto --memory-limit=Auto --tstp-in --tstp-out %s
+
+% Computer   : art05.cs.miami.edu
+% Model      : i686 unknown
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2793MHz
+% Memory     : 1000MB
+% OS         : Linux 2.4.22-21mdk-i686-up-4GB
+% CPULimit   : 600s
+
+% Result     : Theorem 0.0s
+% Output     : Refutation 0.0s
+% Statistics : Number of formulae    :   48 (  67 expanded)
+%              Number of clauses     :   18 (  20 expanded)
+%              Depth                 :   12
+%              Number of atoms       :  163 ( 263 expanded)
+%              Maximal formula depth :   12 (   5 average)
+%              Maximal clause size   :    7 (   9 average)
+%              Maximal term depth    :    4 (   1 average)
+% Verified   : 
+
+% Comments   : 
+%------------------------------------------------------------------------------
+%----TSTP SOLUTION
+fof(1,axiom,(
+    ! [X1,X2] : 
+      ( subset(X1,X2)
+    <=> ! [X3] : 
+          ( member(X3,X1)
+         => member(X3,X2) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET696+4.tptp',subset)).
+
+fof(2,axiom,(
+    ! [X1,X2] : 
+      ( equal_set(X1,X2)
+    <=> ( subset(X1,X2)
+        & subset(X2,X1) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET696+4.tptp',equal_set)).
+
+fof(4,axiom,(
+    ! [X3,X1,X2] : 
+      ( member(X3,intersection(X1,X2))
+    <=> ( member(X3,X1)
+        & member(X3,X2) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET696+4.tptp',intersection)).
+
+fof(6,axiom,(
+    ! [X3] : ~ member(X3,empty_set) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET696+4.tptp',empty_set)).
+
+fof(7,axiom,(
+    ! [X2,X1,X4] : 
+      ( member(X2,difference(X4,X1))
+    <=> ( member(X2,X4)
+        & ~ member(X2,X1) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET696+4.tptp',difference)).
+
+fof(12,conjecture,(
+    ! [X1,X4] : 
+      ( subset(X1,X4)
+     => equal_set(intersection(difference(X4,X1),X1),empty_set) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET696+4.tptp',thI28)).
+
+fof(13,negated_conjecture-derived,(
+    ~ ( ! [X1,X4] : 
+          ( subset(X1,X4)
+         => equal_set(intersection(difference(X4,X1),X1),empty_set) ) ) ),
+    inference(assume_negation,[status(cth)],[12])).
+
+fof(14,derived,(
+    ! [X1,X2] : 
+      ( ( ~ subset(X1,X2)
+        | ! [X3] : 
+            ( ~ member(X3,X1)
+            | member(X3,X2) ) )
+      & ( ? [X3] : 
+            ( member(X3,X1)
+            & ~ member(X3,X2) )
+        | subset(X1,X2) ) ) ),
+    inference(fof_nnf,[status(thm)],[1])).
+
+fof(15,derived,
+    ( ! [X1,X2] : 
+        ( ~ subset(X1,X2)
+        | ! [X3] : 
+            ( ~ member(X3,X1)
+            | member(X3,X2) ) )
+    & ! [X1,X2] : 
+        ( ? [X3] : 
+            ( member(X3,X1)
+            & ~ member(X3,X2) )
+        | subset(X1,X2) ) ),
+    inference(shift_quantors,[status(thm)],[14])).
+
+fof(16,derived,
+    ( ! [X4,X5] : 
+        ( ~ subset(X4,X5)
+        | ! [X6] : 
+            ( ~ member(X6,X4)
+            | member(X6,X5) ) )
+    & ! [X7,X8] : 
+        ( ? [X9] : 
+            ( member(X9,X7)
+            & ~ member(X9,X8) )
+        | subset(X7,X8) ) ),
+    inference(variable_rename,[status(thm)],[15])).
+
+fof(17,derived,
+    ( ! [X4,X5] : 
+        ( ~ subset(X4,X5)
+        | ! [X6] : 
+            ( ~ member(X6,X4)
+            | member(X6,X5) ) )
+    & ! [X7,X8] : 
+        ( ( member(esk1_2(X7,X8),X7)
+          & ~ member(esk1_2(X7,X8),X8) )
+        | subset(X7,X8) ) ),
+    inference(skolemize,[status(sab)],[16])).
+
+fof(18,derived,(
+    ! [X4,X5,X6,X7,X8] : 
+      ( ( ~ subset(X4,X5)
+        | ~ member(X6,X4)
+        | member(X6,X5) )
+      & ( member(esk1_2(X7,X8),X7)
+        | subset(X7,X8) )
+      & ( ~ member(esk1_2(X7,X8),X8)
+        | subset(X7,X8) ) ) ),
+    inference(distribute,[status(thm)],[17])).
+
+cnf(20,derived,
+    ( subset(X1,X2)
+    | member(esk1_2(X1,X2),X1) ),
+    inference(split_conjunct,[status(thm)],[18])).
+
+fof(22,derived,(
+    ! [X1,X2] : 
+      ( ( ~ equal_set(X1,X2)
+        | ( subset(X1,X2)
+          & subset(X2,X1) ) )
+      & ( ~ subset(X1,X2)
+        | ~ subset(X2,X1)
+        | equal_set(X1,X2) ) ) ),
+    inference(fof_nnf,[status(thm)],[2])).
+
+fof(23,derived,
+    ( ! [X1,X2] : 
+        ( ~ equal_set(X1,X2)
+        | ( subset(X1,X2)
+          & subset(X2,X1) ) )
+    & ! [X1,X2] : 
+        ( ~ subset(X1,X2)
+        | ~ subset(X2,X1)
+        | equal_set(X1,X2) ) ),
+    inference(shift_quantors,[status(thm)],[22])).
+
+fof(24,derived,
+    ( ! [X3,X4] : 
+        ( ~ equal_set(X3,X4)
+        | ( subset(X3,X4)
+          & subset(X4,X3) ) )
+    & ! [X5,X6] : 
+        ( ~ subset(X5,X6)
+        | ~ subset(X6,X5)
+        | equal_set(X5,X6) ) ),
+    inference(variable_rename,[status(thm)],[23])).
+
+fof(25,derived,(
+    ! [X3,X4,X5,X6] : 
+      ( ( subset(X3,X4)
+        | ~ equal_set(X3,X4) )
+      & ( subset(X4,X3)
+        | ~ equal_set(X3,X4) )
+      & ( ~ subset(X5,X6)
+        | ~ subset(X6,X5)
+        | equal_set(X5,X6) ) ) ),
+    inference(distribute,[status(thm)],[24])).
+
+cnf(26,derived,
+    ( equal_set(X1,X2)
+    | ~ subset(X2,X1)
+    | ~ subset(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[25])).
+
+fof(34,derived,(
+    ! [X3,X1,X2] : 
+      ( ( ~ member(X3,intersection(X1,X2))
+        | ( member(X3,X1)
+          & member(X3,X2) ) )
+      & ( ~ member(X3,X1)
+        | ~ member(X3,X2)
+        | member(X3,intersection(X1,X2)) ) ) ),
+    inference(fof_nnf,[status(thm)],[4])).
+
+fof(35,derived,
+    ( ! [X3,X1,X2] : 
+        ( ~ member(X3,intersection(X1,X2))
+        | ( member(X3,X1)
+          & member(X3,X2) ) )
+    & ! [X3,X1,X2] : 
+        ( ~ member(X3,X1)
+        | ~ member(X3,X2)
+        | member(X3,intersection(X1,X2)) ) ),
+    inference(shift_quantors,[status(thm)],[34])).
+
+fof(36,derived,
+    ( ! [X4,X5,X6] : 
+        ( ~ member(X4,intersection(X5,X6))
+        | ( member(X4,X5)
+          & member(X4,X6) ) )
+    & ! [X7,X8,X9] : 
+        ( ~ member(X7,X8)
+        | ~ member(X7,X9)
+        | member(X7,intersection(X8,X9)) ) ),
+    inference(variable_rename,[status(thm)],[35])).
+
+fof(37,derived,(
+    ! [X4,X5,X6,X7,X8,X9] : 
+      ( ( member(X4,X5)
+        | ~ member(X4,intersection(X5,X6)) )
+      & ( member(X4,X6)
+        | ~ member(X4,intersection(X5,X6)) )
+      & ( ~ member(X7,X8)
+        | ~ member(X7,X9)
+        | member(X7,intersection(X8,X9)) ) ) ),
+    inference(distribute,[status(thm)],[36])).
+
+cnf(39,derived,
+    ( member(X1,X3)
+    | ~ member(X1,intersection(X2,X3)) ),
+    inference(split_conjunct,[status(thm)],[37])).
+
+cnf(40,derived,
+    ( member(X1,X2)
+    | ~ member(X1,intersection(X2,X3)) ),
+    inference(split_conjunct,[status(thm)],[37])).
+
+fof(48,derived,(
+    ! [X3] : ~ member(X3,empty_set) ),
+    inference(fof_simplification,[status(thm)],[6,theory(equality)])).
+
+fof(49,derived,(
+    ! [X4] : ~ member(X4,empty_set) ),
+    inference(variable_rename,[status(thm)],[48])).
+
+cnf(50,derived,
+    ( ~ member(X1,empty_set) ),
+    inference(split_conjunct,[status(thm)],[49])).
+
+fof(51,derived,(
+    ! [X2,X1,X4] : 
+      ( member(X2,difference(X4,X1))
+    <=> ( member(X2,X4)
+        & ~ member(X2,X1) ) ) ),
+    inference(fof_simplification,[status(thm)],[7,theory(equality)])).
+
+fof(52,derived,(
+    ! [X2,X1,X4] : 
+      ( ( ~ member(X2,difference(X4,X1))
+        | ( member(X2,X4)
+          & ~ member(X2,X1) ) )
+      & ( ~ member(X2,X4)
+        | member(X2,X1)
+        | member(X2,difference(X4,X1)) ) ) ),
+    inference(fof_nnf,[status(thm)],[51])).
+
+fof(53,derived,
+    ( ! [X2,X1,X4] : 
+        ( ~ member(X2,difference(X4,X1))
+        | ( member(X2,X4)
+          & ~ member(X2,X1) ) )
+    & ! [X2,X1,X4] : 
+        ( ~ member(X2,X4)
+        | member(X2,X1)
+        | member(X2,difference(X4,X1)) ) ),
+    inference(shift_quantors,[status(thm)],[52])).
+
+fof(54,derived,
+    ( ! [X5,X6,X7] : 
+        ( ~ member(X5,difference(X7,X6))
+        | ( member(X5,X7)
+          & ~ member(X5,X6) ) )
+    & ! [X8,X9,X10] : 
+        ( ~ member(X8,X10)
+        | member(X8,X9)
+        | member(X8,difference(X10,X9)) ) ),
+    inference(variable_rename,[status(thm)],[53])).
+
+fof(55,derived,(
+    ! [X5,X6,X7,X8,X9,X10] : 
+      ( ( member(X5,X7)
+        | ~ member(X5,difference(X7,X6)) )
+      & ( ~ member(X5,X6)
+        | ~ member(X5,difference(X7,X6)) )
+      & ( ~ member(X8,X10)
+        | member(X8,X9)
+        | member(X8,difference(X10,X9)) ) ) ),
+    inference(distribute,[status(thm)],[54])).
+
+cnf(57,derived,
+    ( ~ member(X1,difference(X2,X3))
+    | ~ member(X1,X3) ),
+    inference(split_conjunct,[status(thm)],[55])).
+
+fof(87,negated_conjecture-derived,(
+    ? [X1,X4] : 
+      ( subset(X1,X4)
+      & ~ equal_set(intersection(difference(X4,X1),X1),empty_set) ) ),
+    inference(fof_nnf,[status(thm)],[13])).
+
+fof(88,negated_conjecture-derived,(
+    ? [X5,X6] : 
+      ( subset(X5,X6)
+      & ~ equal_set(intersection(difference(X6,X5),X5),empty_set) ) ),
+    inference(variable_rename,[status(thm)],[87])).
+
+fof(89,negated_conjecture-derived,
+    ( subset(esk4_0,esk5_0)
+    & ~ equal_set(intersection(difference(esk5_0,esk4_0),esk4_0),empty_set) ),
+    inference(skolemize,[status(sab)],[88])).
+
+cnf(90,negated_conjecture-derived,
+    ( ~ equal_set(intersection(difference(esk5_0,esk4_0),esk4_0),empty_set) ),
+    inference(split_conjunct,[status(thm)],[89])).
+
+cnf(96,negated_conjecture-derived,
+    ( ~ subset(empty_set,intersection(difference(esk5_0,esk4_0),esk4_0))
+    | ~ subset(intersection(difference(esk5_0,esk4_0),esk4_0),empty_set) ),
+    inference(spm,[status(thm)],[90,26,theory(equality)])).
+
+cnf(99,derived,
+    ( subset(empty_set,X1) ),
+    inference(spm,[status(thm)],[50,20,theory(equality)])).
+
+cnf(102,derived,
+    ( member(esk1_2(intersection(X1,X2),X3),X2)
+    | subset(intersection(X1,X2),X3) ),
+    inference(spm,[status(thm)],[39,20,theory(equality)])).
+
+cnf(103,derived,
+    ( member(esk1_2(intersection(X1,X2),X3),X1)
+    | subset(intersection(X1,X2),X3) ),
+    inference(spm,[status(thm)],[40,20,theory(equality)])).
+
+cnf(240,negated_conjecture-derived,
+    ( $false
+    | ~ subset(intersection(difference(esk5_0,esk4_0),esk4_0),empty_set) ),
+    inference(rw,[status(thm)],[96,99,theory(equality)])).
+
+cnf(241,negated_conjecture-derived,
+    ( ~ subset(intersection(difference(esk5_0,esk4_0),esk4_0),empty_set) ),
+    inference(cn,[status(thm)],[240,theory(equality)])).
+
+cnf(401,derived,
+    ( subset(intersection(difference(X1,X2),X3),X4)
+    | ~ member(esk1_2(intersection(difference(X1,X2),X3),X4),X2) ),
+    inference(spm,[status(thm)],[57,103,theory(equality)])).
+
+cnf(13459,derived,
+    ( subset(intersection(difference(X1,X2),X2),X3) ),
+    inference(spm,[status(thm)],[401,102,theory(equality)])).
+
+cnf(13482,negated_conjecture-derived,
+    ( $false ),
+    inference(rw,[status(thm)],[241,13459,theory(equality)])).
+
+cnf(13483,negated_conjecture-derived,
+    ( $false ),
+    inference(cn,[status(thm)],[13482,theory(equality)])).
+
+cnf(13484,negated_conjecture-derived,
+    ( $false ),
+    13483,
+    ['proof']).
+%------------------------------------------------------------------------------
+%----ORIGINAL SYSTEM OUTPUT
+% # Problem is unsatisfiable (or provable), constructing proof object
+% # TSTP exit status: Theorem
+% # Proof object starts here.
+% fof(1, axiom,![X1]:![X2]:(subset(X1,X2)<=>![X3]:(member(X3,X1)=>member(X3,X2))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET696+4.tptp', subset)).
+% fof(2, axiom,![X1]:![X2]:(equal_set(X1,X2)<=>(subset(X1,X2)&subset(X2,X1))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET696+4.tptp', equal_set)).
+% fof(4, axiom,![X3]:![X1]:![X2]:(member(X3,intersection(X1,X2))<=>(member(X3,X1)&member(X3,X2))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET696+4.tptp', intersection)).
+% fof(6, axiom,![X3]:~(member(X3,empty_set)),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET696+4.tptp', empty_set)).
+% fof(7, axiom,![X2]:![X1]:![X4]:(member(X2,difference(X4,X1))<=>(member(X2,X4)&~(member(X2,X1)))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET696+4.tptp', difference)).
+% fof(12, conjecture,![X1]:![X4]:(subset(X1,X4)=>equal_set(intersection(difference(X4,X1),X1),empty_set)),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET696+4.tptp', thI28)).
+% fof(13, negated_conjecture-derived,~(![X1]:![X4]:(subset(X1,X4)=>equal_set(intersection(difference(X4,X1),X1),empty_set))),inference(assume_negation,[status(cth)],[12])).
+% fof(14, derived,![X1]:![X2]:((~(subset(X1,X2))|![X3]:(~(member(X3,X1))|member(X3,X2)))&(?[X3]:(member(X3,X1)&~(member(X3,X2)))|subset(X1,X2))),inference(fof_nnf,[status(thm)],[1])).
+% fof(15, derived,(![X1]:![X2]:(~(subset(X1,X2))|![X3]:(~(member(X3,X1))|member(X3,X2)))&![X1]:![X2]:(?[X3]:(member(X3,X1)&~(member(X3,X2)))|subset(X1,X2))),inference(shift_quantors,[status(thm)],[14])).
+% fof(16, derived,(![X4]:![X5]:(~(subset(X4,X5))|![X6]:(~(member(X6,X4))|member(X6,X5)))&![X7]:![X8]:(?[X9]:(member(X9,X7)&~(member(X9,X8)))|subset(X7,X8))),inference(variable_rename,[status(thm)],[15])).
+% fof(17, derived,(![X4]:![X5]:(~(subset(X4,X5))|![X6]:(~(member(X6,X4))|member(X6,X5)))&![X7]:![X8]:((member(esk1_2(X7,X8),X7)&~(member(esk1_2(X7,X8),X8)))|subset(X7,X8))),inference(skolemize,[status(sab)],[16])).
+% fof(18, derived,![X4]:![X5]:![X6]:![X7]:![X8]:((~(subset(X4,X5))|(~(member(X6,X4))|member(X6,X5)))&((member(esk1_2(X7,X8),X7)|subset(X7,X8))&(~(member(esk1_2(X7,X8),X8))|subset(X7,X8)))),inference(distribute,[status(thm)],[17])).
+% cnf(20,derived,(subset(X1,X2)|member(esk1_2(X1,X2),X1)),inference(split_conjunct,[status(thm)],[18])).
+% fof(22, derived,![X1]:![X2]:((~(equal_set(X1,X2))|(subset(X1,X2)&subset(X2,X1)))&((~(subset(X1,X2))|~(subset(X2,X1)))|equal_set(X1,X2))),inference(fof_nnf,[status(thm)],[2])).
+% fof(23, derived,(![X1]:![X2]:(~(equal_set(X1,X2))|(subset(X1,X2)&subset(X2,X1)))&![X1]:![X2]:((~(subset(X1,X2))|~(subset(X2,X1)))|equal_set(X1,X2))),inference(shift_quantors,[status(thm)],[22])).
+% fof(24, derived,(![X3]:![X4]:(~(equal_set(X3,X4))|(subset(X3,X4)&subset(X4,X3)))&![X5]:![X6]:((~(subset(X5,X6))|~(subset(X6,X5)))|equal_set(X5,X6))),inference(variable_rename,[status(thm)],[23])).
+% fof(25, derived,![X3]:![X4]:![X5]:![X6]:(((subset(X3,X4)|~(equal_set(X3,X4)))&(subset(X4,X3)|~(equal_set(X3,X4))))&((~(subset(X5,X6))|~(subset(X6,X5)))|equal_set(X5,X6))),inference(distribute,[status(thm)],[24])).
+% cnf(26,derived,(equal_set(X1,X2)|~subset(X2,X1)|~subset(X1,X2)),inference(split_conjunct,[status(thm)],[25])).
+% fof(34, derived,![X3]:![X1]:![X2]:((~(member(X3,intersection(X1,X2)))|(member(X3,X1)&member(X3,X2)))&((~(member(X3,X1))|~(member(X3,X2)))|member(X3,intersection(X1,X2)))),inference(fof_nnf,[status(thm)],[4])).
+% fof(35, derived,(![X3]:![X1]:![X2]:(~(member(X3,intersection(X1,X2)))|(member(X3,X1)&member(X3,X2)))&![X3]:![X1]:![X2]:((~(member(X3,X1))|~(member(X3,X2)))|member(X3,intersection(X1,X2)))),inference(shift_quantors,[status(thm)],[34])).
+% fof(36, derived,(![X4]:![X5]:![X6]:(~(member(X4,intersection(X5,X6)))|(member(X4,X5)&member(X4,X6)))&![X7]:![X8]:![X9]:((~(member(X7,X8))|~(member(X7,X9)))|member(X7,intersection(X8,X9)))),inference(variable_rename,[status(thm)],[35])).
+% fof(37, derived,![X4]:![X5]:![X6]:![X7]:![X8]:![X9]:(((member(X4,X5)|~(member(X4,intersection(X5,X6))))&(member(X4,X6)|~(member(X4,intersection(X5,X6)))))&((~(member(X7,X8))|~(member(X7,X9)))|member(X7,intersection(X8,X9)))),inference(distribute,[status(thm)],[36])).
+% cnf(39,derived,(member(X1,X3)|~member(X1,intersection(X2,X3))),inference(split_conjunct,[status(thm)],[37])).
+% cnf(40,derived,(member(X1,X2)|~member(X1,intersection(X2,X3))),inference(split_conjunct,[status(thm)],[37])).
+% fof(48, derived,![X3]:~(member(X3,empty_set)),inference(fof_simplification,[status(thm)],[6,theory(equality)])).
+% fof(49, derived,![X4]:~(member(X4,empty_set)),inference(variable_rename,[status(thm)],[48])).
+% cnf(50,derived,(~member(X1,empty_set)),inference(split_conjunct,[status(thm)],[49])).
+% fof(51, derived,![X2]:![X1]:![X4]:(member(X2,difference(X4,X1))<=>(member(X2,X4)&~(member(X2,X1)))),inference(fof_simplification,[status(thm)],[7,theory(equality)])).
+% fof(52, derived,![X2]:![X1]:![X4]:((~(member(X2,difference(X4,X1)))|(member(X2,X4)&~(member(X2,X1))))&((~(member(X2,X4))|member(X2,X1))|member(X2,difference(X4,X1)))),inference(fof_nnf,[status(thm)],[51])).
+% fof(53, derived,(![X2]:![X1]:![X4]:(~(member(X2,difference(X4,X1)))|(member(X2,X4)&~(member(X2,X1))))&![X2]:![X1]:![X4]:((~(member(X2,X4))|member(X2,X1))|member(X2,difference(X4,X1)))),inference(shift_quantors,[status(thm)],[52])).
+% fof(54, derived,(![X5]:![X6]:![X7]:(~(member(X5,difference(X7,X6)))|(member(X5,X7)&~(member(X5,X6))))&![X8]:![X9]:![X10]:((~(member(X8,X10))|member(X8,X9))|member(X8,difference(X10,X9)))),inference(variable_rename,[status(thm)],[53])).
+% fof(55, derived,![X5]:![X6]:![X7]:![X8]:![X9]:![X10]:(((member(X5,X7)|~(member(X5,difference(X7,X6))))&(~(member(X5,X6))|~(member(X5,difference(X7,X6)))))&((~(member(X8,X10))|member(X8,X9))|member(X8,difference(X10,X9)))),inference(distribute,[status(thm)],[54])).
+% cnf(57,derived,(~member(X1,difference(X2,X3))|~member(X1,X3)),inference(split_conjunct,[status(thm)],[55])).
+% fof(87, negated_conjecture-derived,?[X1]:?[X4]:(subset(X1,X4)&~(equal_set(intersection(difference(X4,X1),X1),empty_set))),inference(fof_nnf,[status(thm)],[13])).
+% fof(88, negated_conjecture-derived,?[X5]:?[X6]:(subset(X5,X6)&~(equal_set(intersection(difference(X6,X5),X5),empty_set))),inference(variable_rename,[status(thm)],[87])).
+% fof(89, negated_conjecture-derived,(subset(esk4_0,esk5_0)&~(equal_set(intersection(difference(esk5_0,esk4_0),esk4_0),empty_set))),inference(skolemize,[status(sab)],[88])).
+% cnf(90,negated_conjecture-derived,(~equal_set(intersection(difference(esk5_0,esk4_0),esk4_0),empty_set)),inference(split_conjunct,[status(thm)],[89])).
+% cnf(96,negated_conjecture-derived,(~subset(empty_set,intersection(difference(esk5_0,esk4_0),esk4_0))|~subset(intersection(difference(esk5_0,esk4_0),esk4_0),empty_set)),inference(spm,[status(thm)],[90,26,theory(equality)])).
+% cnf(99,derived,(subset(empty_set,X1)),inference(spm,[status(thm)],[50,20,theory(equality)])).
+% cnf(102,derived,(member(esk1_2(intersection(X1,X2),X3),X2)|subset(intersection(X1,X2),X3)),inference(spm,[status(thm)],[39,20,theory(equality)])).
+% cnf(103,derived,(member(esk1_2(intersection(X1,X2),X3),X1)|subset(intersection(X1,X2),X3)),inference(spm,[status(thm)],[40,20,theory(equality)])).
+% cnf(240,negated_conjecture-derived,($false|~subset(intersection(difference(esk5_0,esk4_0),esk4_0),empty_set)),inference(rw,[status(thm)],[96,99,theory(equality)])).
+% cnf(241,negated_conjecture-derived,(~subset(intersection(difference(esk5_0,esk4_0),esk4_0),empty_set)),inference(cn,[status(thm)],[240,theory(equality)])).
+% cnf(401,derived,(subset(intersection(difference(X1,X2),X3),X4)|~member(esk1_2(intersection(difference(X1,X2),X3),X4),X2)),inference(spm,[status(thm)],[57,103,theory(equality)])).
+% cnf(13459,derived,(subset(intersection(difference(X1,X2),X2),X3)),inference(spm,[status(thm)],[401,102,theory(equality)])).
+% cnf(13482,negated_conjecture-derived,($false),inference(rw,[status(thm)],[241,13459,theory(equality)])).
+% cnf(13483,negated_conjecture-derived,($false),inference(cn,[status(thm)],[13482,theory(equality)])).
+% cnf(13484,negated_conjecture-derived,($false),13483,['proof']).
+% # Proof object ends here.
+% # ...subsumed                          : 59
+% # ...remaining for further processing  : 894
+% # Other redundant clauses eliminated   : 9
+% # Clauses deleted for lack of memory   : 0
+% # Backward-subsumed                    : 0
+% # Backward-rewritten                   : 55
+% # Generated clauses                    : 12475
+% # ...of the previous two non-trivial   : 11878
+% # Contextual simplify-reflections      : 3
+% # Paramodulations                      : 12454
+% # Factorizations                       : 12
+% # Equation resolutions                 : 9
+% # Current number of processed clauses  : 836
+% #    Positive orientable unit clauses  : 643
+% #    Positive unorientable unit clauses: 0
+% #    Negative unit clauses             : 49
+% #    Non-unit-clauses                  : 144
+% # Current number of unprocessed clauses: 7967
+% # ...number of literals in the above   : 14654
+% # Clause-clause subsumption calls (NU) : 658
+% # Rec. Clause-clause subsumption calls : 627
+% # Unit Clause-clause subsumption calls : 213
+% # Rewrite failures with RHS unbound    : 0
+% 
+% # -------------------------------------------------
+% # User time                : 0.450 s
+% # System time              : 0.020 s
+% # Total time               : 0.470 s
+% # Maximum resident set size: 0 pages
+% 
+%------------------------------------------------------------------------------

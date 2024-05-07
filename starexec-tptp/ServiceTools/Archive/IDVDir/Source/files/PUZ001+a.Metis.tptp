@@ -1,0 +1,76 @@
+%------------------------------------------------------------------------------
+% File       : Metis---2.0
+% Problem    : /tmp/SystemOnTPTPFormReply11569/SOT_cJZwi5 : TPTP v?.?.?
+% Transform  : none
+% Format     : tptp
+% Command    : metis --show proof --show saturated %s
+
+% Computer   : quoll.cs.miami.edu
+% Model      : i686 i686
+% CPU        : Intel(R) Xeon(R) CPU            5140  @ 2.33GHz @ 2327MHz
+% Memory     : 1010.5MB
+% OS         : Linux 2.6.15-1.2054_FC5smp
+% CPULimit   : 100s
+% DateTime   : Wed Jan 30 16:43:56 EST 2008
+
+% Result     : Theorem 0.0s
+% Output     : CNFRefutation 0.0s
+% Verified   : 
+% Statistics : Number of formulae    :    6 (   6 expanded)
+%              Number of clauses     :    4 (   4 expanded)
+%              Number of leaves      :    2 (   2 expanded)
+%              Depth                 :    3
+%              Number of atoms       :    7 (   7 expanded)
+%              Maximal formula depth :    3 (   2 average)
+%              Maximal clause size   :    2 (   2 average)
+%              Maximal term depth    :    1 (   1 average)
+
+% Comments   : 
+%------------------------------------------------------------------------------
+fof(pel55_1,axiom,(
+    ? [X] : 
+      ( lives(X)
+      & killed(X,agatha) ) )).
+
+fof(pel55,conjecture,(
+    ? [X] : killed(X,agatha) )).
+
+cnf(0,plain,
+    ( killed(skolemFOFtoCNF_X,agatha) ),
+    inference(fof_to_cnf,[],[pel55_1])).
+
+cnf(1,plain,
+    ( ~ killed(X,agatha) ),
+    inference(fof_to_cnf,[],[pel55])).
+
+cnf(2,plain,
+    ( ~ killed(skolemFOFtoCNF_X,agatha) ),
+    inference(subst,[[X,$fot(skolemFOFtoCNF_X)]],[1])).
+
+cnf(3,theorem,
+    ( $false ),
+    inference(resolve,[$cnf(killed(skolemFOFtoCNF_X,agatha))],[0,2])).
+%------------------------------------------------------------------------------
+%----ORIGINAL SYSTEM OUTPUT
+% ---------------------------------------------------------------------------
+% SZS status Theorem for /tmp/SystemOnTPTP11577/SOT_cJZwi5.tptp
+% 
+% SZS output start CNFRefutation for /tmp/SystemOnTPTP11577/SOT_cJZwi5.tptp
+% fof(pel55_1, axiom, (? [X] : (lives(X) & killed(X, agatha)))).
+% 
+% fof(pel55, conjecture, (? [X] : killed(X, agatha))).
+% 
+% cnf(0, plain, (killed(skolemFOFtoCNF_X, agatha)),
+%     inference(fof_to_cnf, [], [pel55_1])).
+% 
+% cnf(1, plain, (~ killed(X, agatha)), inference(fof_to_cnf, [], [pel55])).
+% 
+% cnf(2, plain, (~ killed(skolemFOFtoCNF_X, agatha)),
+%     inference(subst, [[X, $fot(skolemFOFtoCNF_X)]], [1])).
+% 
+% cnf(3, theorem, ($false),
+%     inference(resolve, [$cnf(killed(skolemFOFtoCNF_X, agatha))], [0, 2])).
+% SZS output end CNFRefutation for /tmp/SystemOnTPTP11577/SOT_cJZwi5.tptp
+% 
+% 
+%------------------------------------------------------------------------------

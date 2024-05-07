@@ -1,0 +1,259 @@
+fof(1,axiom,(
+    ? [X1] : 
+      ( lives(X1)
+      & killed(X1,agatha) ) ),
+    file('/tmp/SystemOnTPTP1189/PUZ/PUZ001+1.p',pel55_1)).
+
+fof(5,axiom,(
+    ! [X1] : 
+      ( lives(X1)
+     => ( X1 = agatha
+        | X1 = butler
+        | X1 = charles ) ) ),
+    file('/tmp/SystemOnTPTP1189/PUZ/PUZ001+1.p',pel55_3)).
+
+fof(6,axiom,(
+    ! [X1,X2] : 
+      ( killed(X1,X2)
+     => hates(X1,X2) ) ),
+    file('/tmp/SystemOnTPTP1189/PUZ/PUZ001+1.p',pel55_4)).
+
+fof(7,axiom,(
+    ! [X1,X2] : 
+      ( killed(X1,X2)
+     => ~ richer(X1,X2) ) ),
+    file('/tmp/SystemOnTPTP1189/PUZ/PUZ001+1.p',pel55_5)).
+
+fof(8,axiom,(
+    ! [X1] : 
+      ( hates(agatha,X1)
+     => ~ hates(charles,X1) ) ),
+    file('/tmp/SystemOnTPTP1189/PUZ/PUZ001+1.p',pel55_6)).
+
+fof(9,axiom,(
+    ! [X1] : 
+      ( X1 != butler
+     => hates(agatha,X1) ) ),
+    file('/tmp/SystemOnTPTP1189/PUZ/PUZ001+1.p',pel55_7)).
+
+fof(10,axiom,(
+    ! [X1] : 
+      ( ~ richer(X1,agatha)
+     => hates(butler,X1) ) ),
+    file('/tmp/SystemOnTPTP1189/PUZ/PUZ001+1.p',pel55_8)).
+
+fof(11,axiom,(
+    ! [X1] : 
+      ( hates(agatha,X1)
+     => hates(butler,X1) ) ),
+    file('/tmp/SystemOnTPTP1189/PUZ/PUZ001+1.p',pel55_9)).
+
+fof(12,axiom,(
+    ! [X1] : 
+    ? [X2] : ~ hates(X1,X2) ),
+    file('/tmp/SystemOnTPTP1189/PUZ/PUZ001+1.p',pel55_10)).
+
+fof(13,axiom,(
+    agatha != butler ),
+    file('/tmp/SystemOnTPTP1189/PUZ/PUZ001+1.p',pel55_11)).
+
+fof(14,conjecture,(
+    killed(agatha,agatha) ),
+    file('/tmp/SystemOnTPTP1189/PUZ/PUZ001+1.p',pel55)).
+
+fof(15,negated_conjecture,(
+    ~ killed(agatha,agatha) ),
+    inference(assume_negation,[status(cth)],[14])).
+
+fof(16,plain,(
+    ! [X1,X2] : 
+      ( killed(X1,X2)
+     => ~ richer(X1,X2) ) ),
+    inference(fof_simplification,[status(thm)],[7,theory(equality)])).
+
+fof(17,plain,(
+    ! [X1] : 
+      ( hates(agatha,X1)
+     => ~ hates(charles,X1) ) ),
+    inference(fof_simplification,[status(thm)],[8,theory(equality)])).
+
+fof(18,plain,(
+    ! [X1] : 
+      ( ~ richer(X1,agatha)
+     => hates(butler,X1) ) ),
+    inference(fof_simplification,[status(thm)],[10,theory(equality)])).
+
+fof(19,plain,(
+    ! [X1] : 
+    ? [X2] : ~ hates(X1,X2) ),
+    inference(fof_simplification,[status(thm)],[12,theory(equality)])).
+
+fof(20,negated_conjecture,(
+    ~ killed(agatha,agatha) ),
+    inference(fof_simplification,[status(thm)],[15,theory(equality)])).
+
+fof(21,plain,(
+    ? [X2] : 
+      ( lives(X2)
+      & killed(X2,agatha) ) ),
+    inference(variable_rename,[status(thm)],[1])).
+
+fof(22,plain,
+    ( lives(esk1_0)
+    & killed(esk1_0,agatha) ),
+    inference(skolemize,[status(sab)],[21])).
+
+cnf(23,plain,
+    ( killed(esk1_0,agatha) ),
+    inference(split_conjunct,[status(thm)],[22])).
+
+cnf(24,plain,
+    ( lives(esk1_0) ),
+    inference(split_conjunct,[status(thm)],[22])).
+
+fof(28,plain,(
+    ! [X1] : 
+      ( ~ lives(X1)
+      | X1 = agatha
+      | X1 = butler
+      | X1 = charles ) ),
+    inference(fof_nnf,[status(thm)],[5])).
+
+fof(29,plain,(
+    ! [X2] : 
+      ( ~ lives(X2)
+      | X2 = agatha
+      | X2 = butler
+      | X2 = charles ) ),
+    inference(variable_rename,[status(thm)],[28])).
+
+cnf(30,plain,
+    ( X1 = charles
+    | X1 = butler
+    | X1 = agatha
+    | ~ lives(X1) ),
+    inference(split_conjunct,[status(thm)],[29])).
+
+fof(31,plain,(
+    ! [X1,X2] : 
+      ( ~ killed(X1,X2)
+      | hates(X1,X2) ) ),
+    inference(fof_nnf,[status(thm)],[6])).
+
+fof(32,plain,(
+    ! [X3,X4] : 
+      ( ~ killed(X3,X4)
+      | hates(X3,X4) ) ),
+    inference(variable_rename,[status(thm)],[31])).
+
+cnf(33,plain,
+    ( hates(X1,X2)
+    | ~ killed(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[32])).
+
+fof(34,plain,(
+    ! [X1,X2] : 
+      ( ~ killed(X1,X2)
+      | ~ richer(X1,X2) ) ),
+    inference(fof_nnf,[status(thm)],[16])).
+
+fof(35,plain,(
+    ! [X3,X4] : 
+      ( ~ killed(X3,X4)
+      | ~ richer(X3,X4) ) ),
+    inference(variable_rename,[status(thm)],[34])).
+
+cnf(36,plain,
+    ( ~ richer(X1,X2)
+    | ~ killed(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[35])).
+
+fof(37,plain,(
+    ! [X1] : 
+      ( ~ hates(agatha,X1)
+      | ~ hates(charles,X1) ) ),
+    inference(fof_nnf,[status(thm)],[17])).
+
+fof(38,plain,(
+    ! [X2] : 
+      ( ~ hates(agatha,X2)
+      | ~ hates(charles,X2) ) ),
+    inference(variable_rename,[status(thm)],[37])).
+
+cnf(39,plain,
+    ( ~ hates(charles,X1)
+    | ~ hates(agatha,X1) ),
+    inference(split_conjunct,[status(thm)],[38])).
+
+fof(40,plain,(
+    ! [X1] : 
+      ( X1 = butler
+      | hates(agatha,X1) ) ),
+    inference(fof_nnf,[status(thm)],[9])).
+
+fof(41,plain,(
+    ! [X2] : 
+      ( X2 = butler
+      | hates(agatha,X2) ) ),
+    inference(variable_rename,[status(thm)],[40])).
+
+cnf(42,plain,
+    ( hates(agatha,X1)
+    | X1 = butler ),
+    inference(split_conjunct,[status(thm)],[41])).
+
+fof(43,plain,(
+    ! [X1] : 
+      ( richer(X1,agatha)
+      | hates(butler,X1) ) ),
+    inference(fof_nnf,[status(thm)],[18])).
+
+fof(44,plain,(
+    ! [X2] : 
+      ( richer(X2,agatha)
+      | hates(butler,X2) ) ),
+    inference(variable_rename,[status(thm)],[43])).
+
+cnf(45,plain,
+    ( hates(butler,X1)
+    | richer(X1,agatha) ),
+    inference(split_conjunct,[status(thm)],[44])).
+
+fof(46,plain,(
+    ! [X1] : 
+      ( ~ hates(agatha,X1)
+      | hates(butler,X1) ) ),
+    inference(fof_nnf,[status(thm)],[11])).
+
+fof(47,plain,(
+    ! [X2] : 
+      ( ~ hates(agatha,X2)
+      | hates(butler,X2) ) ),
+    inference(variable_rename,[status(thm)],[46])).
+
+cnf(48,plain,
+    ( hates(butler,X1)
+    | ~ hates(agatha,X1) ),
+    inference(split_conjunct,[status(thm)],[47])).
+
+fof(49,plain,(
+    ! [X3] : 
+    ? [X4] : ~ hates(X3,X4) ),
+    inference(variable_rename,[status(thm)],[19])).
+
+fof(50,plain,(
+    ! [X3] : ~ hates(X3,esk2_1(X3)) ),
+    inference(skolemize,[status(sab)],[49])).
+
+cnf(51,plain,
+    ( ~ hates(X1,esk2_1(X1)) ),
+    inference(split_conjunct,[status(thm)],[50])).
+
+cnf(52,plain,
+    ( agatha != butler ),
+    inference(split_conjunct,[status(thm)],[13])).
+
+cnf(53,negated_conjecture,
+    ( ~ killed(agatha,agatha) ),
+    inference(split_conjunct,[status(thm)],[20])).
+

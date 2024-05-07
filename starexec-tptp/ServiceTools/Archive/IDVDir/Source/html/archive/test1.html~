@@ -1,0 +1,9 @@
+<html>
+
+
+<input type=button value="Run IDV in New Window" 
+onclick="window.open('testApplet1.html','mywindow','width=400,height=200')">
+
+
+</html>
+

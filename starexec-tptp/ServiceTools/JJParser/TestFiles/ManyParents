@@ -1,0 +1,14 @@
+fof(t17_matrix11,theorem,(
+     ! [A] :
+       ( v7_ordinal1(A)
+      => ! [B] :
+           ( m3_matrix_2(B,k12_matrix_2(k2_xcmplx_0(A,1)))
+          => ~ ( k1_funct_1(B,k2_xcmplx_0(A,1)) != k2_xcmplx_0(A,1)
+               & ! [C] :
+                   ( m3_matrix_2(C,k12_matrix_2(k2_xcmplx_0(A,1)))
+                  => ~ ( v2_matrix_2(C,k11_matrix_2(k12_matrix_2(k2_xcmplx_0(A,1))))
+                       & k1_funct_1(C,k1_funct_1(B,k2_xcmplx_0(A,1))) = k2_xcmplx_0(A,1)
+                       & k1_funct_1(k1_partfun1(k2_finseq_1(k11_matrix_2(k12_matrix_2(k2_xcmplx_0(A,1)))),k2_finseq_1(k11_matrix_2(k12_matrix_2(k2_xcmplx_0(A,1)))),k2_finseq_1(k11_matrix_2(k12_matrix_2(k2_xcmplx_0(A,1)))),k2_finseq_1(k11_matrix_2(k12_matrix_2(k2_xcmplx_0(A,1)))),B,C),k2_xcmplx_0(A,1)) = k2_xcmplx_0(A,1) ) ) ) ) ) ),
+inference(mizar_proof,[status(thm)],[d11_matrix_2,t67_funct_2,d3_funct_2,t5_finseq_1,d5_funct_1,t3_finseq_1,d5_real_1,t16_matrix11,d11_matrix_2,t67_funct_2,t46_relat_1,t22_funct_1]), 
+[file(matrix11,t17_matrix11),interesting(0.00),obviousness(2),complexity(11),intensity(1.87),surprisingness(47.90),adaptivity(0.00),focus(1.00),weight(54),ancestors(89,70,117,72,83,153,88,87,86,85,84,49,114,90,2,40)]).
+

@@ -1,0 +1,894 @@
+%------------------------------------------------------------------------------
+% File       : Vampire---8.0
+% Problem    : SET647+3 : TPTP v2.2.0
+% Transform  : stdfof
+% Format     : tptp
+% Command    : vampire --mode casc -t %d %s
+
+% Computer   : art07.cs.miami.edu
+% Model      : i686 unknown
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2793MHz
+% Memory     : 1000MB
+% OS         : Linux 2.4.22-21mdk-i686-up-4GB
+% CPULimit   : 600s
+
+% Result     : Theorem 0.0s
+% Output     : Refutation 0.0s
+% Statistics : Number of formulae    :   84 ( 199 expanded)
+%              Number of clauses     :   33 (  82 expanded)
+%              Depth                 :   11
+%              Number of atoms       :  382 ( 680 expanded)
+%              Maximal formula depth :   11 (   6 average)
+%              Maximal clause size   :   10 (  12 average)
+%              Maximal term depth    :    6 (   1 average)
+% Verified   : 
+
+% Comments   : 
+%------------------------------------------------------------------------------
+%----TSTP SOLUTION
+% [26, input]   (! X0)ilf_type(X0,set_type)
+fof(26,initial,
+    (! [X0] : ilf_type(X0,set_type) ),
+    file('SET647+3.p',unknown),
+    []).
+
+% [26->72, skolemization]     ilf_type(X0,set_type)
+cnf(72,derived,
+    ( ilf_type(X0,set_type) ),
+    inference(skolemization,[status(sat)],[26]),
+    [iquote('[26->72, skolemization]')]).
+
+% [72->118, cnf transformation]     ilf_type(X0,set_type)
+cnf(118,derived,
+    ( ilf_type(X0,set_type) ),
+    inference(cnf_transformation,[status(thm)],[72]),
+    [iquote('[72->118, cnf transformation]')]).
+
+% [24, input]   (! X0)(ilf_type(X0,set_type) => (empty(X0) <=> (! X1)(ilf_type(X1,set_type) => ~member(X1,X0))))
+fof(24,initial,
+    (! [X0] : (ilf_type(X0,set_type) => (empty(X0) <=> ! [X1] : (ilf_type(X1,set_type) => ~member(X1,X0)))) ),
+    file('SET647+3.p',unknown),
+    []).
+
+% [24->48, ENNF transformation]     (! X0)(~ilf_type(X0,set_type) \/ (empty(X0) <=> (! X1)(~ilf_type(X1,set_type) \/ ~member(X1,X0))))
+fof(48,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | (empty(X0) <=> ! [X1] : (~ilf_type(X1,set_type) | ~member(X1,X0)))) ),
+    inference(ennf_transformation,[status(thm)],[24]),
+    [iquote('[24->48, ENNF transformation]')]).
+
+% [48->87, NNF transformation]     (! X0)(~ilf_type(X0,set_type) \/ ((~empty(X0) \/ (! X1)(~ilf_type(X1,set_type) \/ ~member(X1,X0))) & ((? X1)(ilf_type(X1,set_type) & member(X1,X0)) \/ empty(X0))))
+fof(87,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ((~empty(X0) | ! [X1] : (~ilf_type(X1,set_type) | ~member(X1,X0))) & (? [X1] : (ilf_type(X1,set_type) & member(X1,X0)) | empty(X0)))) ),
+    inference(nnf_transformation,[status(thm)],[48]),
+    [iquote('[48->87, NNF transformation]')]).
+
+% [87->88, rectify]     (! X0)(~ilf_type(X0,set_type) \/ ((~empty(X0) \/ (! X1)(~ilf_type(X1,set_type) \/ ~member(X1,X0))) & ((? X2)(ilf_type(X2,set_type) & member(X2,X0)) \/ empty(X0))))
+fof(88,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ((~empty(X0) | ! [X1] : (~ilf_type(X1,set_type) | ~member(X1,X0))) & (? [X2] : (ilf_type(X2,set_type) & member(X2,X0)) | empty(X0)))) ),
+    inference(rectify,[status(thm)],[87]),
+    [iquote('[87->88, rectify]')]).
+
+% [88->89, skolemization]     ~ilf_type(X0,set_type) \/ ((~empty(X0) \/ (~ilf_type(X1,set_type) \/ ~member(X1,X0))) & ((ilf_type($s7(X0),set_type) & member($s7(X0),X0)) \/ empty(X0)))
+fof(89,derived,
+    (~ilf_type(X0,set_type) | ((~empty(X0) | (~ilf_type(X1,set_type) | ~member(X1,X0))) & ((ilf_type($s7(X0),set_type) & member($s7(X0),X0)) | empty(X0))) ),
+    inference(skolemization,[status(sat)],[88]),
+    [iquote('[88->89, skolemization]')]).
+
+% [89->137, cnf transformation]     ~member(X1,X0) \/ ~ilf_type(X1,set_type) \/ ~empty(X0) \/ ~ilf_type(X0,set_type)
+cnf(137,derived,
+    ( ~member(X1,X0) | ~ilf_type(X1,set_type) | ~empty(X0) | ~ilf_type(X0,set_type) ),
+    inference(cnf_transformation,[status(thm)],[89]),
+    [iquote('[89->137, cnf transformation]')]).
+
+% [22, input]   (! X0)(ilf_type(X0,set_type) => (! X1)(~empty(X1) & ilf_type(X1,set_type) => (ilf_type(X0,member_type(X1)) <=> member(X0,X1))))
+fof(22,initial,
+    (! [X0] : (ilf_type(X0,set_type) => ! [X1] : (~empty(X1) & ilf_type(X1,set_type) => (ilf_type(X0,member_type(X1)) <=> member(X0,X1)))) ),
+    file('SET647+3.p',unknown),
+    []).
+
+% [22->35, normalize]     (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) & ~empty(X1) => (member(X0,X1) <=> ilf_type(X0,member_type(X1)))))
+fof(35,derived,
+    (! [X0] : (ilf_type(X0,set_type) => ! [X1] : (ilf_type(X1,set_type) & ~empty(X1) => (member(X0,X1) <=> ilf_type(X0,member_type(X1))))) ),
+    inference(normalize,[status(thm)],[22]),
+    [iquote('[22->35, normalize]')]).
+
+% [35->64, ENNF transformation]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)((~ilf_type(X1,set_type) \/ empty(X1)) \/ (member(X0,X1) <=> ilf_type(X0,member_type(X1)))))
+fof(64,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : ((~ilf_type(X1,set_type) | empty(X1)) | (member(X0,X1) <=> ilf_type(X0,member_type(X1))))) ),
+    inference(ennf_transformation,[status(thm)],[35]),
+    [iquote('[35->64, ENNF transformation]')]).
+
+% [64->65, flattening]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ empty(X1) \/ (member(X0,X1) <=> ilf_type(X0,member_type(X1)))))
+fof(65,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | empty(X1) | (member(X0,X1) <=> ilf_type(X0,member_type(X1))))) ),
+    inference(flattening,[status(thm)],[64]),
+    [iquote('[64->65, flattening]')]).
+
+% [65->108, NNF transformation]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ empty(X1) \/ ((~member(X0,X1) \/ ilf_type(X0,member_type(X1))) & (~ilf_type(X0,member_type(X1)) \/ member(X0,X1)))))
+fof(108,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | empty(X1) | ((~member(X0,X1) | ilf_type(X0,member_type(X1))) & (~ilf_type(X0,member_type(X1)) | member(X0,X1))))) ),
+    inference(nnf_transformation,[status(thm)],[65]),
+    [iquote('[65->108, NNF transformation]')]).
+
+% [108->109, skolemization]     ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ empty(X1) \/ ((~member(X0,X1) \/ ilf_type(X0,member_type(X1))) & (~ilf_type(X0,member_type(X1)) \/ member(X0,X1))))
+fof(109,derived,
+    (~ilf_type(X0,set_type) | (~ilf_type(X1,set_type) | empty(X1) | ((~member(X0,X1) | ilf_type(X0,member_type(X1))) & (~ilf_type(X0,member_type(X1)) | member(X0,X1)))) ),
+    inference(skolemization,[status(sat)],[108]),
+    [iquote('[108->109, skolemization]')]).
+
+% [109->162, cnf transformation]     ilf_type(X0,member_type(X1)) \/ ~member(X0,X1) \/ empty(X1) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+cnf(162,derived,
+    ( ilf_type(X0,member_type(X1)) | ~member(X0,X1) | empty(X1) | ~ilf_type(X1,set_type) | ~ilf_type(X0,set_type) ),
+    inference(cnf_transformation,[status(thm)],[109]),
+    [iquote('[109->162, cnf transformation]')]).
+
+% [15, input]   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (ilf_type(X1,subset_type(X0)) <=> ilf_type(X1,member_type(power_set(X0))))))
+fof(15,initial,
+    (! [X0] : (ilf_type(X0,set_type) => ! [X1] : (ilf_type(X1,set_type) => (ilf_type(X1,subset_type(X0)) <=> ilf_type(X1,member_type(power_set(X0)))))) ),
+    file('SET647+3.p',unknown),
+    []).
+
+% [15->32, normalize]     (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (ilf_type(X1,member_type(power_set(X0))) <=> ilf_type(X1,subset_type(X0)))))
+fof(32,derived,
+    (! [X0] : (ilf_type(X0,set_type) => ! [X1] : (ilf_type(X1,set_type) => (ilf_type(X1,member_type(power_set(X0))) <=> ilf_type(X1,subset_type(X0))))) ),
+    inference(normalize,[status(thm)],[15]),
+    [iquote('[15->32, normalize]')]).
+
+% [32->57, ENNF transformation]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (ilf_type(X1,member_type(power_set(X0))) <=> ilf_type(X1,subset_type(X0)))))
+fof(57,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | (ilf_type(X1,member_type(power_set(X0))) <=> ilf_type(X1,subset_type(X0))))) ),
+    inference(ennf_transformation,[status(thm)],[32]),
+    [iquote('[32->57, ENNF transformation]')]).
+
+% [57->102, NNF transformation]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((~ilf_type(X1,member_type(power_set(X0))) \/ ilf_type(X1,subset_type(X0))) & (~ilf_type(X1,subset_type(X0)) \/ ilf_type(X1,member_type(power_set(X0)))))))
+fof(102,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | ((~ilf_type(X1,member_type(power_set(X0))) | ilf_type(X1,subset_type(X0))) & (~ilf_type(X1,subset_type(X0)) | ilf_type(X1,member_type(power_set(X0))))))) ),
+    inference(nnf_transformation,[status(thm)],[57]),
+    [iquote('[57->102, NNF transformation]')]).
+
+% [102->103, skolemization]     ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ ((~ilf_type(X1,member_type(power_set(X0))) \/ ilf_type(X1,subset_type(X0))) & (~ilf_type(X1,subset_type(X0)) \/ ilf_type(X1,member_type(power_set(X0))))))
+fof(103,derived,
+    (~ilf_type(X0,set_type) | (~ilf_type(X1,set_type) | ((~ilf_type(X1,member_type(power_set(X0))) | ilf_type(X1,subset_type(X0))) & (~ilf_type(X1,subset_type(X0)) | ilf_type(X1,member_type(power_set(X0)))))) ),
+    inference(skolemization,[status(sat)],[102]),
+    [iquote('[102->103, skolemization]')]).
+
+% [103->155, cnf transformation]     ilf_type(X1,subset_type(X0)) \/ ~ilf_type(X1,member_type(power_set(X0))) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+cnf(155,derived,
+    ( ilf_type(X1,subset_type(X0)) | ~ilf_type(X1,member_type(power_set(X0))) | ~ilf_type(X1,set_type) | ~ilf_type(X0,set_type) ),
+    inference(cnf_transformation,[status(thm)],[103]),
+    [iquote('[103->155, cnf transformation]')]).
+
+% [4, input]   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (! X2)(ilf_type(X2,subset_type(cross_product(X0,X1))) => ilf_type(X2,relation_type(X0,X1))) & (! X3)(ilf_type(X3,relation_type(X0,X1)) => ilf_type(X3,subset_type(cross_product(X0,X1))))))
+fof(4,initial,
+    (! [X0] : (ilf_type(X0,set_type) => ! [X1] : (ilf_type(X1,set_type) => ! [X2] : (ilf_type(X2,subset_type(cross_product(X0,X1))) => ilf_type(X2,relation_type(X0,X1))) & ! [X3] : (ilf_type(X3,relation_type(X0,X1)) => ilf_type(X3,subset_type(cross_product(X0,X1)))))) ),
+    file('SET647+3.p',unknown),
+    []).
+
+% [4->52, ENNF transformation]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((! X2)(~ilf_type(X2,subset_type(cross_product(X0,X1))) \/ ilf_type(X2,relation_type(X0,X1))) & (! X3)(~ilf_type(X3,relation_type(X0,X1)) \/ ilf_type(X3,subset_type(cross_product(X0,X1)))))))
+fof(52,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | (! [X2] : (~ilf_type(X2,subset_type(cross_product(X0,X1))) | ilf_type(X2,relation_type(X0,X1))) & ! [X3] : (~ilf_type(X3,relation_type(X0,X1)) | ilf_type(X3,subset_type(cross_product(X0,X1))))))) ),
+    inference(ennf_transformation,[status(thm)],[4]),
+    [iquote('[4->52, ENNF transformation]')]).
+
+% [52->95, skolemization]     ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ ((~ilf_type(X2,subset_type(cross_product(X0,X1))) \/ ilf_type(X2,relation_type(X0,X1))) & (~ilf_type(X3,relation_type(X0,X1)) \/ ilf_type(X3,subset_type(cross_product(X0,X1))))))
+fof(95,derived,
+    (~ilf_type(X0,set_type) | (~ilf_type(X1,set_type) | ((~ilf_type(X2,subset_type(cross_product(X0,X1))) | ilf_type(X2,relation_type(X0,X1))) & (~ilf_type(X3,relation_type(X0,X1)) | ilf_type(X3,subset_type(cross_product(X0,X1)))))) ),
+    inference(skolemization,[status(sat)],[52]),
+    [iquote('[52->95, skolemization]')]).
+
+% [95->145, cnf transformation]     ilf_type(X2,relation_type(X0,X1)) \/ ~ilf_type(X2,subset_type(cross_product(X0,X1))) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+cnf(145,derived,
+    ( ilf_type(X2,relation_type(X0,X1)) | ~ilf_type(X2,subset_type(cross_product(X0,X1))) | ~ilf_type(X1,set_type) | ~ilf_type(X0,set_type) ),
+    inference(cnf_transformation,[status(thm)],[95]),
+    [iquote('[95->145, cnf transformation]')]).
+
+% [27, input]   ~(! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,binary_relation_type) => (subset(domain_of(X1),X0) => ilf_type(X1,relation_type(X0,range_of(X1))))))
+fof(27,initial,
+    (~! [X0] : (ilf_type(X0,set_type) => ! [X1] : (ilf_type(X1,binary_relation_type) => (subset(domain_of(X1),X0) => ilf_type(X1,relation_type(X0,range_of(X1)))))) ),
+    file('SET647+3.p',unknown),
+    []).
+
+% [27->37, ENNF transformation]     (? X0)(ilf_type(X0,set_type) & (? X1)(ilf_type(X1,binary_relation_type) & (subset(domain_of(X1),X0) & ~ilf_type(X1,relation_type(X0,range_of(X1))))))
+fof(37,derived,
+    (? [X0] : (ilf_type(X0,set_type) & ? [X1] : (ilf_type(X1,binary_relation_type) & (subset(domain_of(X1),X0) & ~ilf_type(X1,relation_type(X0,range_of(X1)))))) ),
+    inference(ennf_transformation,[status(thm)],[27]),
+    [iquote('[27->37, ENNF transformation]')]).
+
+% [37->38, flattening]     (? X0)(ilf_type(X0,set_type) & (? X1)(ilf_type(X1,binary_relation_type) & subset(domain_of(X1),X0) & ~ilf_type(X1,relation_type(X0,range_of(X1)))))
+fof(38,derived,
+    (? [X0] : (ilf_type(X0,set_type) & ? [X1] : (ilf_type(X1,binary_relation_type) & subset(domain_of(X1),X0) & ~ilf_type(X1,relation_type(X0,range_of(X1))))) ),
+    inference(flattening,[status(thm)],[37]),
+    [iquote('[37->38, flattening]')]).
+
+% [38->71, skolemization]     ilf_type($s0,set_type) & (ilf_type($s1(X0),binary_relation_type) & subset(domain_of($s1(X0)),$s0) & ~ilf_type($s1(X0),relation_type($s0,range_of($s1(X0)))))
+fof(71,derived,
+    (ilf_type($s0,set_type) & (ilf_type($s1(X0),binary_relation_type) & subset(domain_of($s1(X0)),$s0) & ~ilf_type($s1(X0),relation_type($s0,range_of($s1(X0))))) ),
+    inference(skolemization,[status(sat)],[38]),
+    [iquote('[38->71, skolemization]')]).
+
+% [71->117, cnf transformation]     ~ilf_type($s1(X0),relation_type($s0,range_of($s1(X0))))
+cnf(117,derived,
+    ( ~ilf_type($s1(X0),relation_type($s0,range_of($s1(X0)))) ),
+    inference(cnf_transformation,[status(thm)],[71]),
+    [iquote('[71->117, cnf transformation]')]).
+
+% [118,118,145,117->364, resolution, forward subsumption resolution]     ~ilf_type($s1(X1),subset_type(cross_product($s0,range_of($s1(X1)))))
+cnf(364,derived,
+    ( ~ilf_type($s1(X1),subset_type(cross_product($s0,range_of($s1(X1))))) ),
+    inference(resolution__forward_subsumption_resolution,[status(thm)],[118,118,145,117]),
+    [iquote('[118,118,145,117->364, resolution, forward subsumption resolution]')]).
+
+% [118,118,155,364->425, resolution, forward subsumption resolution]     ~ilf_type($s1(X1),member_type(power_set(cross_product($s0,range_of($s1(X1))))))
+cnf(425,derived,
+    ( ~ilf_type($s1(X1),member_type(power_set(cross_product($s0,range_of($s1(X1)))))) ),
+    inference(resolution__forward_subsumption_resolution,[status(thm)],[118,118,155,364]),
+    [iquote('[118,118,155,364->425, resolution, forward subsumption resolution]')]).
+
+% [118,118,137,162,425->447, resolution, forward subsumption resolution]     ~member($s1(X1),power_set(cross_product($s0,range_of($s1(X1)))))
+cnf(447,derived,
+    ( ~member($s1(X1),power_set(cross_product($s0,range_of($s1(X1))))) ),
+    inference(resolution__forward_subsumption_resolution,[status(thm)],[118,118,137,162,425]),
+    [iquote('[118,118,137,162,425->447, resolution, forward subsumption resolution]')]).
+
+% [21, input]   (! X0)(ilf_type(X0,set_type) => ~empty(power_set(X0)) & ilf_type(power_set(X0),set_type))
+fof(21,initial,
+    (! [X0] : (ilf_type(X0,set_type) => ~empty(power_set(X0)) & ilf_type(power_set(X0),set_type)) ),
+    file('SET647+3.p',unknown),
+    []).
+
+% [21->34, normalize]     (! X0)(ilf_type(X0,set_type) => ilf_type(power_set(X0),set_type) & ~empty(power_set(X0)))
+fof(34,derived,
+    (! [X0] : (ilf_type(X0,set_type) => ilf_type(power_set(X0),set_type) & ~empty(power_set(X0))) ),
+    inference(normalize,[status(thm)],[21]),
+    [iquote('[21->34, normalize]')]).
+
+% [34->45, ENNF transformation]     (! X0)(~ilf_type(X0,set_type) \/ (ilf_type(power_set(X0),set_type) & ~empty(power_set(X0))))
+fof(45,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | (ilf_type(power_set(X0),set_type) & ~empty(power_set(X0)))) ),
+    inference(ennf_transformation,[status(thm)],[34]),
+    [iquote('[34->45, ENNF transformation]')]).
+
+% [45->83, skolemization]     ~ilf_type(X0,set_type) \/ (ilf_type(power_set(X0),set_type) & ~empty(power_set(X0)))
+fof(83,derived,
+    (~ilf_type(X0,set_type) | (ilf_type(power_set(X0),set_type) & ~empty(power_set(X0))) ),
+    inference(skolemization,[status(sat)],[45]),
+    [iquote('[45->83, skolemization]')]).
+
+% [83->130, cnf transformation]     ~empty(power_set(X0)) \/ ~ilf_type(X0,set_type)
+cnf(130,derived,
+    ( ~empty(power_set(X0)) | ~ilf_type(X0,set_type) ),
+    inference(cnf_transformation,[status(thm)],[83]),
+    [iquote('[83->130, cnf transformation]')]).
+
+% [109->163, cnf transformation]     member(X0,X1) \/ ~ilf_type(X0,member_type(X1)) \/ empty(X1) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+cnf(163,derived,
+    ( member(X0,X1) | ~ilf_type(X0,member_type(X1)) | empty(X1) | ~ilf_type(X1,set_type) | ~ilf_type(X0,set_type) ),
+    inference(cnf_transformation,[status(thm)],[109]),
+    [iquote('[109->163, cnf transformation]')]).
+
+% [103->156, cnf transformation]     ilf_type(X1,member_type(power_set(X0))) \/ ~ilf_type(X1,subset_type(X0)) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+cnf(156,derived,
+    ( ilf_type(X1,member_type(power_set(X0))) | ~ilf_type(X1,subset_type(X0)) | ~ilf_type(X1,set_type) | ~ilf_type(X0,set_type) ),
+    inference(cnf_transformation,[status(thm)],[103]),
+    [iquote('[103->156, cnf transformation]')]).
+
+% [118,118,118,130,163,156->232, resolution, forward subsumption resolution]     ~ilf_type(X1,subset_type(X2)) \/ member(X1,power_set(X2))
+cnf(232,derived,
+    ( ~ilf_type(X1,subset_type(X2)) | member(X1,power_set(X2)) ),
+    inference(resolution__forward_subsumption_resolution,[status(thm)],[118,118,118,130,163,156]),
+    [iquote('[118,118,118,130,163,156->232, resolution, forward subsumption resolution]')]).
+
+% [118,118,155,232->725, resolution, forward subsumption resolution]     ~ilf_type(X1,member_type(power_set(X2))) \/ member(X1,power_set(X2))
+cnf(725,derived,
+    ( ~ilf_type(X1,member_type(power_set(X2))) | member(X1,power_set(X2)) ),
+    inference(resolution__forward_subsumption_resolution,[status(thm)],[118,118,155,232]),
+    [iquote('[118,118,155,232->725, resolution, forward subsumption resolution]')]).
+
+% [20, input]   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (member(X0,power_set(X1)) <=> (! X2)(ilf_type(X2,set_type) => (member(X2,X0) => member(X2,X1))))))
+fof(20,initial,
+    (! [X0] : (ilf_type(X0,set_type) => ! [X1] : (ilf_type(X1,set_type) => (member(X0,power_set(X1)) <=> ! [X2] : (ilf_type(X2,set_type) => (member(X2,X0) => member(X2,X1)))))) ),
+    file('SET647+3.p',unknown),
+    []).
+
+% [20->53, ENNF transformation]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (member(X0,power_set(X1)) <=> (! X2)(~ilf_type(X2,set_type) \/ (~member(X2,X0) \/ member(X2,X1))))))
+fof(53,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | (member(X0,power_set(X1)) <=> ! [X2] : (~ilf_type(X2,set_type) | (~member(X2,X0) | member(X2,X1)))))) ),
+    inference(ennf_transformation,[status(thm)],[20]),
+    [iquote('[20->53, ENNF transformation]')]).
+
+% [53->54, flattening]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (member(X0,power_set(X1)) <=> (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1)))))
+fof(54,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | (member(X0,power_set(X1)) <=> ! [X2] : (~ilf_type(X2,set_type) | ~member(X2,X0) | member(X2,X1))))) ),
+    inference(flattening,[status(thm)],[53]),
+    [iquote('[53->54, flattening]')]).
+
+% [54->96, NNF transformation]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((~member(X0,power_set(X1)) \/ (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((? X2)(ilf_type(X2,set_type) & member(X2,X0) & ~member(X2,X1)) \/ member(X0,power_set(X1))))))
+fof(96,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | ((~member(X0,power_set(X1)) | ! [X2] : (~ilf_type(X2,set_type) | ~member(X2,X0) | member(X2,X1))) & (? [X2] : (ilf_type(X2,set_type) & member(X2,X0) & ~member(X2,X1)) | member(X0,power_set(X1)))))) ),
+    inference(nnf_transformation,[status(thm)],[54]),
+    [iquote('[54->96, NNF transformation]')]).
+
+% [96->97, rectify]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((~member(X0,power_set(X1)) \/ (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((? X3)(ilf_type(X3,set_type) & member(X3,X0) & ~member(X3,X1)) \/ member(X0,power_set(X1))))))
+fof(97,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | ((~member(X0,power_set(X1)) | ! [X2] : (~ilf_type(X2,set_type) | ~member(X2,X0) | member(X2,X1))) & (? [X3] : (ilf_type(X3,set_type) & member(X3,X0) & ~member(X3,X1)) | member(X0,power_set(X1)))))) ),
+    inference(rectify,[status(thm)],[96]),
+    [iquote('[96->97, rectify]')]).
+
+% [97->98, skolemization]     ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ ((~member(X0,power_set(X1)) \/ (~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((ilf_type($s8(X1,X0),set_type) & member($s8(X1,X0),X0) & ~member($s8(X1,X0),X1)) \/ member(X0,power_set(X1)))))
+fof(98,derived,
+    (~ilf_type(X0,set_type) | (~ilf_type(X1,set_type) | ((~member(X0,power_set(X1)) | (~ilf_type(X2,set_type) | ~member(X2,X0) | member(X2,X1))) & ((ilf_type($s8(X1,X0),set_type) & member($s8(X1,X0),X0) & ~member($s8(X1,X0),X1)) | member(X0,power_set(X1))))) ),
+    inference(skolemization,[status(sat)],[97]),
+    [iquote('[97->98, skolemization]')]).
+
+% [98->150, cnf transformation]     member(X0,power_set(X1)) \/ ~member($s8(X1,X0),X1) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+cnf(150,derived,
+    ( member(X0,power_set(X1)) | ~member($s8(X1,X0),X1) | ~ilf_type(X1,set_type) | ~ilf_type(X0,set_type) ),
+    inference(cnf_transformation,[status(thm)],[98]),
+    [iquote('[98->150, cnf transformation]')]).
+
+% [118,118,118,130,162,150->250, resolution, forward subsumption resolution]     ~member($s8(X1,X2),X1) \/ ilf_type(X2,member_type(power_set(X1)))
+cnf(250,derived,
+    ( ~member($s8(X1,X2),X1) | ilf_type(X2,member_type(power_set(X1))) ),
+    inference(resolution__forward_subsumption_resolution,[status(thm)],[118,118,118,130,162,150]),
+    [iquote('[118,118,118,130,162,150->250, resolution, forward subsumption resolution]')]).
+
+% [12, input]   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (subset(X0,X1) <=> (! X2)(ilf_type(X2,set_type) => (member(X2,X0) => member(X2,X1))))))
+fof(12,initial,
+    (! [X0] : (ilf_type(X0,set_type) => ! [X1] : (ilf_type(X1,set_type) => (subset(X0,X1) <=> ! [X2] : (ilf_type(X2,set_type) => (member(X2,X0) => member(X2,X1)))))) ),
+    file('SET647+3.p',unknown),
+    []).
+
+% [12->55, ENNF transformation]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (subset(X0,X1) <=> (! X2)(~ilf_type(X2,set_type) \/ (~member(X2,X0) \/ member(X2,X1))))))
+fof(55,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | (subset(X0,X1) <=> ! [X2] : (~ilf_type(X2,set_type) | (~member(X2,X0) | member(X2,X1)))))) ),
+    inference(ennf_transformation,[status(thm)],[12]),
+    [iquote('[12->55, ENNF transformation]')]).
+
+% [55->56, flattening]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (subset(X0,X1) <=> (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1)))))
+fof(56,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | (subset(X0,X1) <=> ! [X2] : (~ilf_type(X2,set_type) | ~member(X2,X0) | member(X2,X1))))) ),
+    inference(flattening,[status(thm)],[55]),
+    [iquote('[55->56, flattening]')]).
+
+% [56->99, NNF transformation]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((~subset(X0,X1) \/ (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((? X2)(ilf_type(X2,set_type) & member(X2,X0) & ~member(X2,X1)) \/ subset(X0,X1)))))
+fof(99,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | ((~subset(X0,X1) | ! [X2] : (~ilf_type(X2,set_type) | ~member(X2,X0) | member(X2,X1))) & (? [X2] : (ilf_type(X2,set_type) & member(X2,X0) & ~member(X2,X1)) | subset(X0,X1))))) ),
+    inference(nnf_transformation,[status(thm)],[56]),
+    [iquote('[56->99, NNF transformation]')]).
+
+% [99->100, rectify]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((~subset(X0,X1) \/ (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((? X3)(ilf_type(X3,set_type) & member(X3,X0) & ~member(X3,X1)) \/ subset(X0,X1)))))
+fof(100,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | ((~subset(X0,X1) | ! [X2] : (~ilf_type(X2,set_type) | ~member(X2,X0) | member(X2,X1))) & (? [X3] : (ilf_type(X3,set_type) & member(X3,X0) & ~member(X3,X1)) | subset(X0,X1))))) ),
+    inference(rectify,[status(thm)],[99]),
+    [iquote('[99->100, rectify]')]).
+
+% [100->101, skolemization]     ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ ((~subset(X0,X1) \/ (~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((ilf_type($s9(X1,X0),set_type) & member($s9(X1,X0),X0) & ~member($s9(X1,X0),X1)) \/ subset(X0,X1))))
+fof(101,derived,
+    (~ilf_type(X0,set_type) | (~ilf_type(X1,set_type) | ((~subset(X0,X1) | (~ilf_type(X2,set_type) | ~member(X2,X0) | member(X2,X1))) & ((ilf_type($s9(X1,X0),set_type) & member($s9(X1,X0),X0) & ~member($s9(X1,X0),X1)) | subset(X0,X1)))) ),
+    inference(skolemization,[status(sat)],[100]),
+    [iquote('[100->101, skolemization]')]).
+
+% [101->151, cnf transformation]     member(X2,X1) \/ ~member(X2,X0) \/ ~ilf_type(X2,set_type) \/ ~subset(X0,X1) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+cnf(151,derived,
+    ( member(X2,X1) | ~member(X2,X0) | ~ilf_type(X2,set_type) | ~subset(X0,X1) | ~ilf_type(X1,set_type) | ~ilf_type(X0,set_type) ),
+    inference(cnf_transformation,[status(thm)],[101]),
+    [iquote('[101->151, cnf transformation]')]).
+
+% [98->149, cnf transformation]     member(X0,power_set(X1)) \/ member($s8(X1,X0),X0) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+cnf(149,derived,
+    ( member(X0,power_set(X1)) | member($s8(X1,X0),X0) | ~ilf_type(X1,set_type) | ~ilf_type(X0,set_type) ),
+    inference(cnf_transformation,[status(thm)],[98]),
+    [iquote('[98->149, cnf transformation]')]).
+
+% [118,118,118,118,151,149->254, resolution, forward subsumption resolution]     member($s8(X1,X2),X3) \/ ~subset(X2,X3) \/ member(X2,power_set(X1))
+cnf(254,derived,
+    ( member($s8(X1,X2),X3) | ~subset(X2,X3) | member(X2,power_set(X1)) ),
+    inference(resolution__forward_subsumption_resolution,[status(thm)],[118,118,118,118,151,149]),
+    [iquote('[118,118,118,118,151,149->254, resolution, forward subsumption resolution]')]).
+
+% [725,250,254->2578, resolution, forward subsumption resolution]     member(X1,power_set(X2)) \/ ~subset(X1,X2)
+cnf(2578,derived,
+    ( member(X1,power_set(X2)) | ~subset(X1,X2) ),
+    inference(resolution__forward_subsumption_resolution,[status(thm)],[725,250,254]),
+    [iquote('[725,250,254->2578, resolution, forward subsumption resolution]')]).
+
+% [447,2578->4062, resolution]     ~subset($s1(X1),cross_product($s0,range_of($s1(X1))))
+cnf(4062,derived,
+    ( ~subset($s1(X1),cross_product($s0,range_of($s1(X1)))) ),
+    inference(resolution,[status(thm)],[447,2578]),
+    [iquote('[447,2578->4062, resolution]')]).
+
+% [71->115, cnf transformation]     ilf_type($s1(X0),binary_relation_type)
+cnf(115,derived,
+    ( ilf_type($s1(X0),binary_relation_type) ),
+    inference(cnf_transformation,[status(thm)],[71]),
+    [iquote('[71->115, cnf transformation]')]).
+
+% [3, input]   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (! X2)(ilf_type(X2,set_type) => (subset(X0,X1) => subset(cross_product(X0,X2),cross_product(X1,X2)) & subset(cross_product(X2,X0),cross_product(X2,X1))))))
+fof(3,initial,
+    (! [X0] : (ilf_type(X0,set_type) => ! [X1] : (ilf_type(X1,set_type) => ! [X2] : (ilf_type(X2,set_type) => (subset(X0,X1) => subset(cross_product(X0,X2),cross_product(X1,X2)) & subset(cross_product(X2,X0),cross_product(X2,X1)))))) ),
+    file('SET647+3.p',unknown),
+    []).
+
+% [3->29, normalize]     (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (! X2)(ilf_type(X2,set_type) => (subset(X0,X1) => subset(cross_product(X2,X0),cross_product(X2,X1)) & subset(cross_product(X0,X2),cross_product(X1,X2))))))
+fof(29,derived,
+    (! [X0] : (ilf_type(X0,set_type) => ! [X1] : (ilf_type(X1,set_type) => ! [X2] : (ilf_type(X2,set_type) => (subset(X0,X1) => subset(cross_product(X2,X0),cross_product(X2,X1)) & subset(cross_product(X0,X2),cross_product(X1,X2)))))) ),
+    inference(normalize,[status(thm)],[3]),
+    [iquote('[3->29, normalize]')]).
+
+% [29->58, ENNF transformation]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (! X2)(~ilf_type(X2,set_type) \/ (~subset(X0,X1) \/ (subset(cross_product(X2,X0),cross_product(X2,X1)) & subset(cross_product(X0,X2),cross_product(X1,X2)))))))
+fof(58,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | ! [X2] : (~ilf_type(X2,set_type) | (~subset(X0,X1) | (subset(cross_product(X2,X0),cross_product(X2,X1)) & subset(cross_product(X0,X2),cross_product(X1,X2))))))) ),
+    inference(ennf_transformation,[status(thm)],[29]),
+    [iquote('[29->58, ENNF transformation]')]).
+
+% [58->59, flattening]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (! X2)(~ilf_type(X2,set_type) \/ ~subset(X0,X1) \/ (subset(cross_product(X2,X0),cross_product(X2,X1)) & subset(cross_product(X0,X2),cross_product(X1,X2))))))
+fof(59,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | ! [X2] : (~ilf_type(X2,set_type) | ~subset(X0,X1) | (subset(cross_product(X2,X0),cross_product(X2,X1)) & subset(cross_product(X0,X2),cross_product(X1,X2)))))) ),
+    inference(flattening,[status(thm)],[58]),
+    [iquote('[58->59, flattening]')]).
+
+% [59->104, skolemization]     ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ (~ilf_type(X2,set_type) \/ ~subset(X0,X1) \/ (subset(cross_product(X2,X0),cross_product(X2,X1)) & subset(cross_product(X0,X2),cross_product(X1,X2)))))
+fof(104,derived,
+    (~ilf_type(X0,set_type) | (~ilf_type(X1,set_type) | (~ilf_type(X2,set_type) | ~subset(X0,X1) | (subset(cross_product(X2,X0),cross_product(X2,X1)) & subset(cross_product(X0,X2),cross_product(X1,X2))))) ),
+    inference(skolemization,[status(sat)],[59]),
+    [iquote('[59->104, skolemization]')]).
+
+% [104->158, cnf transformation]     subset(cross_product(X0,X2),cross_product(X1,X2)) \/ ~subset(X0,X1) \/ ~ilf_type(X2,set_type) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+cnf(158,derived,
+    ( subset(cross_product(X0,X2),cross_product(X1,X2)) | ~subset(X0,X1) | ~ilf_type(X2,set_type) | ~ilf_type(X1,set_type) | ~ilf_type(X0,set_type) ),
+    inference(cnf_transformation,[status(thm)],[104]),
+    [iquote('[104->158, cnf transformation]')]).
+
+% [71->116, cnf transformation]     subset(domain_of($s1(X0)),$s0)
+cnf(116,derived,
+    ( subset(domain_of($s1(X0)),$s0) ),
+    inference(cnf_transformation,[status(thm)],[71]),
+    [iquote('[71->116, cnf transformation]')]).
+
+% [118,118,118,158,116->365, resolution, forward subsumption resolution]     subset(cross_product(domain_of($s1(X1)),X2),cross_product($s0,X2))
+cnf(365,derived,
+    ( subset(cross_product(domain_of($s1(X1)),X2),cross_product($s0,X2)) ),
+    inference(resolution__forward_subsumption_resolution,[status(thm)],[118,118,118,158,116]),
+    [iquote('[118,118,118,158,116->365, resolution, forward subsumption resolution]')]).
+
+% [1, input]   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (! X2)(ilf_type(X2,set_type) => (subset(X0,X1) & subset(X1,X2) => subset(X0,X2)))))
+fof(1,initial,
+    (! [X0] : (ilf_type(X0,set_type) => ! [X1] : (ilf_type(X1,set_type) => ! [X2] : (ilf_type(X2,set_type) => (subset(X0,X1) & subset(X1,X2) => subset(X0,X2))))) ),
+    file('SET647+3.p',unknown),
+    []).
+
+% [1->28, normalize]     (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (! X2)(ilf_type(X2,set_type) => (subset(X1,X2) & subset(X0,X1) => subset(X0,X2)))))
+fof(28,derived,
+    (! [X0] : (ilf_type(X0,set_type) => ! [X1] : (ilf_type(X1,set_type) => ! [X2] : (ilf_type(X2,set_type) => (subset(X1,X2) & subset(X0,X1) => subset(X0,X2))))) ),
+    inference(normalize,[status(thm)],[1]),
+    [iquote('[1->28, normalize]')]).
+
+% [28->60, ENNF transformation]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (! X2)(~ilf_type(X2,set_type) \/ ((~subset(X1,X2) \/ ~subset(X0,X1)) \/ subset(X0,X2)))))
+fof(60,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | ! [X2] : (~ilf_type(X2,set_type) | ((~subset(X1,X2) | ~subset(X0,X1)) | subset(X0,X2))))) ),
+    inference(ennf_transformation,[status(thm)],[28]),
+    [iquote('[28->60, ENNF transformation]')]).
+
+% [60->61, flattening]     (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (! X2)(~ilf_type(X2,set_type) \/ ~subset(X1,X2) \/ ~subset(X0,X1) \/ subset(X0,X2))))
+fof(61,derived,
+    (! [X0] : (~ilf_type(X0,set_type) | ! [X1] : (~ilf_type(X1,set_type) | ! [X2] : (~ilf_type(X2,set_type) | ~subset(X1,X2) | ~subset(X0,X1) | subset(X0,X2)))) ),
+    inference(flattening,[status(thm)],[60]),
+    [iquote('[60->61, flattening]')]).
+
+% [61->105, skolemization]     ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ (~ilf_type(X2,set_type) \/ ~subset(X1,X2) \/ ~subset(X0,X1) \/ subset(X0,X2)))
+cnf(105,derived,
+    ( ~ilf_type(X0,set_type) | (~ilf_type(X1,set_type) | (~ilf_type(X2,set_type) | ~subset(X1,X2) | ~subset(X0,X1) | subset(X0,X2))) ),
+    inference(skolemization,[status(sat)],[61]),
+    [iquote('[61->105, skolemization]')]).
+
+% [105->159, cnf transformation]     subset(X0,X2) \/ ~subset(X0,X1) \/ ~subset(X1,X2) \/ ~ilf_type(X2,set_type) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+cnf(159,derived,
+    ( subset(X0,X2) | ~subset(X0,X1) | ~subset(X1,X2) | ~ilf_type(X2,set_type) | ~ilf_type(X1,set_type) | ~ilf_type(X0,set_type) ),
+    inference(cnf_transformation,[status(thm)],[105]),
+    [iquote('[105->159, cnf transformation]')]).
+
+% [159->177, literal permutation]     subset(X1,X2) \/ ~subset(X1,X3) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X3,set_type) \/ ~ilf_type(X2,set_type) \/ ~subset(X3,X2)
+cnf(177,derived,
+    ( subset(X1,X2) | ~subset(X1,X3) | ~ilf_type(X1,set_type) | ~ilf_type(X3,set_type) | ~ilf_type(X2,set_type) | ~subset(X3,X2) ),
+    inference(literal_permutation,[status(thm)],[159]),
+    [iquote('[159->177, literal permutation]')]).
+
+% [2, input]   (! X0)(ilf_type(X0,binary_relation_type) => subset(X0,cross_product(domain_of(X0),range_of(X0))))
+fof(2,initial,
+    (! [X0] : (ilf_type(X0,binary_relation_type) => subset(X0,cross_product(domain_of(X0),range_of(X0)))) ),
+    file('SET647+3.p',unknown),
+    []).
+
+% [2->39, ENNF transformation]     (! X0)(~ilf_type(X0,binary_relation_type) \/ subset(X0,cross_product(domain_of(X0),range_of(X0))))
+fof(39,derived,
+    (! [X0] : (~ilf_type(X0,binary_relation_type) | subset(X0,cross_product(domain_of(X0),range_of(X0)))) ),
+    inference(ennf_transformation,[status(thm)],[2]),
+    [iquote('[2->39, ENNF transformation]')]).
+
+% [39->73, skolemization]     ~ilf_type(X0,binary_relation_type) \/ subset(X0,cross_product(domain_of(X0),range_of(X0)))
+cnf(73,derived,
+    ( ~ilf_type(X0,binary_relation_type) | subset(X0,cross_product(domain_of(X0),range_of(X0))) ),
+    inference(skolemization,[status(sat)],[39]),
+    [iquote('[39->73, skolemization]')]).
+
+% [73->119, cnf transformation]     subset(X0,cross_product(domain_of(X0),range_of(X0))) \/ ~ilf_type(X0,binary_relation_type)
+cnf(119,derived,
+    ( subset(X0,cross_product(domain_of(X0),range_of(X0))) | ~ilf_type(X0,binary_relation_type) ),
+    inference(cnf_transformation,[status(thm)],[73]),
+    [iquote('[73->119, cnf transformation]')]).
+
+% [118,118,118,177,119->350, resolution, forward subsumption resolution]     ~subset(cross_product(domain_of(X1),range_of(X1)),X2) \/ subset(X1,X2) \/ ~ilf_type(X1,binary_relation_type)
+cnf(350,derived,
+    ( ~subset(cross_product(domain_of(X1),range_of(X1)),X2) | subset(X1,X2) | ~ilf_type(X1,binary_relation_type) ),
+    inference(resolution__forward_subsumption_resolution,[status(thm)],[118,118,118,177,119]),
+    [iquote('[118,118,118,177,119->350, resolution, forward subsumption resolution]')]).
+
+% [4062,115,365,350->23686, resolution, forward subsumption resolution]     #
+cnf(23686,derived,
+    ( $false ),
+    inference(resolution__forward_subsumption_resolution,[status(thm)],[4062,115,365,350]),
+    [iquote('[4062,115,365,350->23686, resolution, forward subsumption resolution]')]).
+
+%------------------------------------------------------------------------------
+%----ORIGINAL SYSTEM OUTPUT
+% Running slice lrs+1013_10_ep=exp1_fde=none_nwc=1.6_600 for 473 deciseconds
+% --------------------- PROVED ----------------------
+% =========== Refutation ==========
+% *********** [26, input] ***********
+% (! X0)ilf_type(X0,set_type)
+% *********** [26->72, skolemization] ***********
+%   (! X0)ilf_type(X0,set_type)
+% -----------------------------
+%   ilf_type(X0,set_type)
+% *********** [72->118, cnf transformation] ***********
+%   ilf_type(X0,set_type)
+% -----------------------------
+%   ilf_type(X0,set_type)
+% *********** [24, input] ***********
+% (! X0)(ilf_type(X0,set_type) => (empty(X0) <=> (! X1)(ilf_type(X1,set_type) => ~member(X1,X0))))
+% *********** [24->48, ENNF transformation] ***********
+%   (! X0)(ilf_type(X0,set_type) => (empty(X0) <=> (! X1)(ilf_type(X1,set_type) => ~member(X1,X0))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (empty(X0) <=> (! X1)(~ilf_type(X1,set_type) \/ ~member(X1,X0))))
+% *********** [48->87, NNF transformation] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (empty(X0) <=> (! X1)(~ilf_type(X1,set_type) \/ ~member(X1,X0))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ ((~empty(X0) \/ (! X1)(~ilf_type(X1,set_type) \/ ~member(X1,X0))) & ((? X1)(ilf_type(X1,set_type) & member(X1,X0)) \/ empty(X0))))
+% *********** [87->88, rectify] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ ((~empty(X0) \/ (! X1)(~ilf_type(X1,set_type) \/ ~member(X1,X0))) & ((? X1)(ilf_type(X1,set_type) & member(X1,X0)) \/ empty(X0))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ ((~empty(X0) \/ (! X1)(~ilf_type(X1,set_type) \/ ~member(X1,X0))) & ((? X2)(ilf_type(X2,set_type) & member(X2,X0)) \/ empty(X0))))
+% *********** [88->89, skolemization] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ ((~empty(X0) \/ (! X1)(~ilf_type(X1,set_type) \/ ~member(X1,X0))) & ((? X2)(ilf_type(X2,set_type) & member(X2,X0)) \/ empty(X0))))
+% -----------------------------
+%   ~ilf_type(X0,set_type) \/ ((~empty(X0) \/ (~ilf_type(X1,set_type) \/ ~member(X1,X0))) & ((ilf_type($s7(X0),set_type) & member($s7(X0),X0)) \/ empty(X0)))
+% *********** [89->137, cnf transformation] ***********
+%   ~ilf_type(X0,set_type) \/ ((~empty(X0) \/ (~ilf_type(X1,set_type) \/ ~member(X1,X0))) & ((ilf_type($s7(X0),set_type) & member($s7(X0),X0)) \/ empty(X0)))
+% -----------------------------
+%   ~member(X1,X0) \/ ~ilf_type(X1,set_type) \/ ~empty(X0) \/ ~ilf_type(X0,set_type)
+% *********** [22, input] ***********
+% (! X0)(ilf_type(X0,set_type) => (! X1)(~empty(X1) & ilf_type(X1,set_type) => (ilf_type(X0,member_type(X1)) <=> member(X0,X1))))
+% *********** [22->35, normalize] ***********
+%   (! X0)(ilf_type(X0,set_type) => (! X1)(~empty(X1) & ilf_type(X1,set_type) => (ilf_type(X0,member_type(X1)) <=> member(X0,X1))))
+% -----------------------------
+%   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) & ~empty(X1) => (member(X0,X1) <=> ilf_type(X0,member_type(X1)))))
+% *********** [35->64, ENNF transformation] ***********
+%   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) & ~empty(X1) => (member(X0,X1) <=> ilf_type(X0,member_type(X1)))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)((~ilf_type(X1,set_type) \/ empty(X1)) \/ (member(X0,X1) <=> ilf_type(X0,member_type(X1)))))
+% *********** [64->65, flattening] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)((~ilf_type(X1,set_type) \/ empty(X1)) \/ (member(X0,X1) <=> ilf_type(X0,member_type(X1)))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ empty(X1) \/ (member(X0,X1) <=> ilf_type(X0,member_type(X1)))))
+% *********** [65->108, NNF transformation] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ empty(X1) \/ (member(X0,X1) <=> ilf_type(X0,member_type(X1)))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ empty(X1) \/ ((~member(X0,X1) \/ ilf_type(X0,member_type(X1))) & (~ilf_type(X0,member_type(X1)) \/ member(X0,X1)))))
+% *********** [108->109, skolemization] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ empty(X1) \/ ((~member(X0,X1) \/ ilf_type(X0,member_type(X1))) & (~ilf_type(X0,member_type(X1)) \/ member(X0,X1)))))
+% -----------------------------
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ empty(X1) \/ ((~member(X0,X1) \/ ilf_type(X0,member_type(X1))) & (~ilf_type(X0,member_type(X1)) \/ member(X0,X1))))
+% *********** [109->162, cnf transformation] ***********
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ empty(X1) \/ ((~member(X0,X1) \/ ilf_type(X0,member_type(X1))) & (~ilf_type(X0,member_type(X1)) \/ member(X0,X1))))
+% -----------------------------
+%   ilf_type(X0,member_type(X1)) \/ ~member(X0,X1) \/ empty(X1) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+% *********** [15, input] ***********
+% (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (ilf_type(X1,subset_type(X0)) <=> ilf_type(X1,member_type(power_set(X0))))))
+% *********** [15->32, normalize] ***********
+%   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (ilf_type(X1,subset_type(X0)) <=> ilf_type(X1,member_type(power_set(X0))))))
+% -----------------------------
+%   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (ilf_type(X1,member_type(power_set(X0))) <=> ilf_type(X1,subset_type(X0)))))
+% *********** [32->57, ENNF transformation] ***********
+%   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (ilf_type(X1,member_type(power_set(X0))) <=> ilf_type(X1,subset_type(X0)))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (ilf_type(X1,member_type(power_set(X0))) <=> ilf_type(X1,subset_type(X0)))))
+% *********** [57->102, NNF transformation] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (ilf_type(X1,member_type(power_set(X0))) <=> ilf_type(X1,subset_type(X0)))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((~ilf_type(X1,member_type(power_set(X0))) \/ ilf_type(X1,subset_type(X0))) & (~ilf_type(X1,subset_type(X0)) \/ ilf_type(X1,member_type(power_set(X0)))))))
+% *********** [102->103, skolemization] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((~ilf_type(X1,member_type(power_set(X0))) \/ ilf_type(X1,subset_type(X0))) & (~ilf_type(X1,subset_type(X0)) \/ ilf_type(X1,member_type(power_set(X0)))))))
+% -----------------------------
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ ((~ilf_type(X1,member_type(power_set(X0))) \/ ilf_type(X1,subset_type(X0))) & (~ilf_type(X1,subset_type(X0)) \/ ilf_type(X1,member_type(power_set(X0))))))
+% *********** [103->155, cnf transformation] ***********
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ ((~ilf_type(X1,member_type(power_set(X0))) \/ ilf_type(X1,subset_type(X0))) & (~ilf_type(X1,subset_type(X0)) \/ ilf_type(X1,member_type(power_set(X0))))))
+% -----------------------------
+%   ilf_type(X1,subset_type(X0)) \/ ~ilf_type(X1,member_type(power_set(X0))) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+% *********** [4, input] ***********
+% (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (! X2)(ilf_type(X2,subset_type(cross_product(X0,X1))) => ilf_type(X2,relation_type(X0,X1))) & (! X3)(ilf_type(X3,relation_type(X0,X1)) => ilf_type(X3,subset_type(cross_product(X0,X1))))))
+% *********** [4->52, ENNF transformation] ***********
+%   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (! X2)(ilf_type(X2,subset_type(cross_product(X0,X1))) => ilf_type(X2,relation_type(X0,X1))) & (! X3)(ilf_type(X3,relation_type(X0,X1)) => ilf_type(X3,subset_type(cross_product(X0,X1))))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((! X2)(~ilf_type(X2,subset_type(cross_product(X0,X1))) \/ ilf_type(X2,relation_type(X0,X1))) & (! X3)(~ilf_type(X3,relation_type(X0,X1)) \/ ilf_type(X3,subset_type(cross_product(X0,X1)))))))
+% *********** [52->95, skolemization] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((! X2)(~ilf_type(X2,subset_type(cross_product(X0,X1))) \/ ilf_type(X2,relation_type(X0,X1))) & (! X3)(~ilf_type(X3,relation_type(X0,X1)) \/ ilf_type(X3,subset_type(cross_product(X0,X1)))))))
+% -----------------------------
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ ((~ilf_type(X2,subset_type(cross_product(X0,X1))) \/ ilf_type(X2,relation_type(X0,X1))) & (~ilf_type(X3,relation_type(X0,X1)) \/ ilf_type(X3,subset_type(cross_product(X0,X1))))))
+% *********** [95->145, cnf transformation] ***********
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ ((~ilf_type(X2,subset_type(cross_product(X0,X1))) \/ ilf_type(X2,relation_type(X0,X1))) & (~ilf_type(X3,relation_type(X0,X1)) \/ ilf_type(X3,subset_type(cross_product(X0,X1))))))
+% -----------------------------
+%   ilf_type(X2,relation_type(X0,X1)) \/ ~ilf_type(X2,subset_type(cross_product(X0,X1))) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+% *********** [27, input] ***********
+% ~(! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,binary_relation_type) => (subset(domain_of(X1),X0) => ilf_type(X1,relation_type(X0,range_of(X1))))))
+% *********** [27->37, ENNF transformation] ***********
+%   ~(! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,binary_relation_type) => (subset(domain_of(X1),X0) => ilf_type(X1,relation_type(X0,range_of(X1))))))
+% -----------------------------
+%   (? X0)(ilf_type(X0,set_type) & (? X1)(ilf_type(X1,binary_relation_type) & (subset(domain_of(X1),X0) & ~ilf_type(X1,relation_type(X0,range_of(X1))))))
+% *********** [37->38, flattening] ***********
+%   (? X0)(ilf_type(X0,set_type) & (? X1)(ilf_type(X1,binary_relation_type) & (subset(domain_of(X1),X0) & ~ilf_type(X1,relation_type(X0,range_of(X1))))))
+% -----------------------------
+%   (? X0)(ilf_type(X0,set_type) & (? X1)(ilf_type(X1,binary_relation_type) & subset(domain_of(X1),X0) & ~ilf_type(X1,relation_type(X0,range_of(X1)))))
+% *********** [38->71, skolemization] ***********
+%   (? X0)(ilf_type(X0,set_type) & (? X1)(ilf_type(X1,binary_relation_type) & subset(domain_of(X1),X0) & ~ilf_type(X1,relation_type(X0,range_of(X1)))))
+% -----------------------------
+%   ilf_type($s0,set_type) & (ilf_type($s1(X0),binary_relation_type) & subset(domain_of($s1(X0)),$s0) & ~ilf_type($s1(X0),relation_type($s0,range_of($s1(X0)))))
+% *********** [71->117, cnf transformation] ***********
+%   ilf_type($s0,set_type) & (ilf_type($s1(X0),binary_relation_type) & subset(domain_of($s1(X0)),$s0) & ~ilf_type($s1(X0),relation_type($s0,range_of($s1(X0)))))
+% -----------------------------
+%   ~ilf_type($s1(X0),relation_type($s0,range_of($s1(X0))))
+% *********** [118,118,145,117->364, resolution, forward subsumption resolution] ***********
+%   ilf_type(X0,set_type)
+%   ilf_type(X0,set_type)
+%   ilf_type(X2,relation_type(X0,X1)) \/ ~ilf_type(X2,subset_type(cross_product(X0,X1))) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+%   ~ilf_type($s1(X0),relation_type($s0,range_of($s1(X0))))
+% -----------------------------
+%   ~ilf_type($s1(X1),subset_type(cross_product($s0,range_of($s1(X1)))))
+% *********** [118,118,155,364->425, resolution, forward subsumption resolution] ***********
+%   ilf_type(X0,set_type)
+%   ilf_type(X0,set_type)
+%   ilf_type(X1,subset_type(X0)) \/ ~ilf_type(X1,member_type(power_set(X0))) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+%   ~ilf_type($s1(X1),subset_type(cross_product($s0,range_of($s1(X1)))))
+% -----------------------------
+%   ~ilf_type($s1(X1),member_type(power_set(cross_product($s0,range_of($s1(X1))))))
+% *********** [118,118,137,162,425->447, resolution, forward subsumption resolution] ***********
+%   ilf_type(X0,set_type)
+%   ilf_type(X0,set_type)
+%   ~member(X1,X0) \/ ~ilf_type(X1,set_type) \/ ~empty(X0) \/ ~ilf_type(X0,set_type)
+%   ilf_type(X0,member_type(X1)) \/ ~member(X0,X1) \/ empty(X1) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+%   ~ilf_type($s1(X1),member_type(power_set(cross_product($s0,range_of($s1(X1))))))
+% -----------------------------
+%   ~member($s1(X1),power_set(cross_product($s0,range_of($s1(X1)))))
+% *********** [21, input] ***********
+% (! X0)(ilf_type(X0,set_type) => ~empty(power_set(X0)) & ilf_type(power_set(X0),set_type))
+% *********** [21->34, normalize] ***********
+%   (! X0)(ilf_type(X0,set_type) => ~empty(power_set(X0)) & ilf_type(power_set(X0),set_type))
+% -----------------------------
+%   (! X0)(ilf_type(X0,set_type) => ilf_type(power_set(X0),set_type) & ~empty(power_set(X0)))
+% *********** [34->45, ENNF transformation] ***********
+%   (! X0)(ilf_type(X0,set_type) => ilf_type(power_set(X0),set_type) & ~empty(power_set(X0)))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (ilf_type(power_set(X0),set_type) & ~empty(power_set(X0))))
+% *********** [45->83, skolemization] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (ilf_type(power_set(X0),set_type) & ~empty(power_set(X0))))
+% -----------------------------
+%   ~ilf_type(X0,set_type) \/ (ilf_type(power_set(X0),set_type) & ~empty(power_set(X0)))
+% *********** [83->130, cnf transformation] ***********
+%   ~ilf_type(X0,set_type) \/ (ilf_type(power_set(X0),set_type) & ~empty(power_set(X0)))
+% -----------------------------
+%   ~empty(power_set(X0)) \/ ~ilf_type(X0,set_type)
+% *********** [109->163, cnf transformation] ***********
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ empty(X1) \/ ((~member(X0,X1) \/ ilf_type(X0,member_type(X1))) & (~ilf_type(X0,member_type(X1)) \/ member(X0,X1))))
+% -----------------------------
+%   member(X0,X1) \/ ~ilf_type(X0,member_type(X1)) \/ empty(X1) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+% *********** [103->156, cnf transformation] ***********
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ ((~ilf_type(X1,member_type(power_set(X0))) \/ ilf_type(X1,subset_type(X0))) & (~ilf_type(X1,subset_type(X0)) \/ ilf_type(X1,member_type(power_set(X0))))))
+% -----------------------------
+%   ilf_type(X1,member_type(power_set(X0))) \/ ~ilf_type(X1,subset_type(X0)) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+% *********** [118,118,118,130,163,156->232, resolution, forward subsumption resolution] ***********
+%   ilf_type(X0,set_type)
+%   ilf_type(X0,set_type)
+%   ilf_type(X0,set_type)
+%   ~empty(power_set(X0)) \/ ~ilf_type(X0,set_type)
+%   member(X0,X1) \/ ~ilf_type(X0,member_type(X1)) \/ empty(X1) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+%   ilf_type(X1,member_type(power_set(X0))) \/ ~ilf_type(X1,subset_type(X0)) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+% -----------------------------
+%   ~ilf_type(X1,subset_type(X2)) \/ member(X1,power_set(X2))
+% *********** [118,118,155,232->725, resolution, forward subsumption resolution] ***********
+%   ilf_type(X0,set_type)
+%   ilf_type(X0,set_type)
+%   ilf_type(X1,subset_type(X0)) \/ ~ilf_type(X1,member_type(power_set(X0))) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+%   ~ilf_type(X1,subset_type(X2)) \/ member(X1,power_set(X2))
+% -----------------------------
+%   ~ilf_type(X1,member_type(power_set(X2))) \/ member(X1,power_set(X2))
+% *********** [20, input] ***********
+% (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (member(X0,power_set(X1)) <=> (! X2)(ilf_type(X2,set_type) => (member(X2,X0) => member(X2,X1))))))
+% *********** [20->53, ENNF transformation] ***********
+%   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (member(X0,power_set(X1)) <=> (! X2)(ilf_type(X2,set_type) => (member(X2,X0) => member(X2,X1))))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (member(X0,power_set(X1)) <=> (! X2)(~ilf_type(X2,set_type) \/ (~member(X2,X0) \/ member(X2,X1))))))
+% *********** [53->54, flattening] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (member(X0,power_set(X1)) <=> (! X2)(~ilf_type(X2,set_type) \/ (~member(X2,X0) \/ member(X2,X1))))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (member(X0,power_set(X1)) <=> (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1)))))
+% *********** [54->96, NNF transformation] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (member(X0,power_set(X1)) <=> (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1)))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((~member(X0,power_set(X1)) \/ (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((? X2)(ilf_type(X2,set_type) & member(X2,X0) & ~member(X2,X1)) \/ member(X0,power_set(X1))))))
+% *********** [96->97, rectify] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((~member(X0,power_set(X1)) \/ (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((? X2)(ilf_type(X2,set_type) & member(X2,X0) & ~member(X2,X1)) \/ member(X0,power_set(X1))))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((~member(X0,power_set(X1)) \/ (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((? X3)(ilf_type(X3,set_type) & member(X3,X0) & ~member(X3,X1)) \/ member(X0,power_set(X1))))))
+% *********** [97->98, skolemization] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((~member(X0,power_set(X1)) \/ (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((? X3)(ilf_type(X3,set_type) & member(X3,X0) & ~member(X3,X1)) \/ member(X0,power_set(X1))))))
+% -----------------------------
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ ((~member(X0,power_set(X1)) \/ (~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((ilf_type($s8(X1,X0),set_type) & member($s8(X1,X0),X0) & ~member($s8(X1,X0),X1)) \/ member(X0,power_set(X1)))))
+% *********** [98->150, cnf transformation] ***********
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ ((~member(X0,power_set(X1)) \/ (~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((ilf_type($s8(X1,X0),set_type) & member($s8(X1,X0),X0) & ~member($s8(X1,X0),X1)) \/ member(X0,power_set(X1)))))
+% -----------------------------
+%   member(X0,power_set(X1)) \/ ~member($s8(X1,X0),X1) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+% *********** [118,118,118,130,162,150->250, resolution, forward subsumption resolution] ***********
+%   ilf_type(X0,set_type)
+%   ilf_type(X0,set_type)
+%   ilf_type(X0,set_type)
+%   ~empty(power_set(X0)) \/ ~ilf_type(X0,set_type)
+%   ilf_type(X0,member_type(X1)) \/ ~member(X0,X1) \/ empty(X1) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+%   member(X0,power_set(X1)) \/ ~member($s8(X1,X0),X1) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+% -----------------------------
+%   ~member($s8(X1,X2),X1) \/ ilf_type(X2,member_type(power_set(X1)))
+% *********** [12, input] ***********
+% (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (subset(X0,X1) <=> (! X2)(ilf_type(X2,set_type) => (member(X2,X0) => member(X2,X1))))))
+% *********** [12->55, ENNF transformation] ***********
+%   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (subset(X0,X1) <=> (! X2)(ilf_type(X2,set_type) => (member(X2,X0) => member(X2,X1))))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (subset(X0,X1) <=> (! X2)(~ilf_type(X2,set_type) \/ (~member(X2,X0) \/ member(X2,X1))))))
+% *********** [55->56, flattening] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (subset(X0,X1) <=> (! X2)(~ilf_type(X2,set_type) \/ (~member(X2,X0) \/ member(X2,X1))))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (subset(X0,X1) <=> (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1)))))
+% *********** [56->99, NNF transformation] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (subset(X0,X1) <=> (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1)))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((~subset(X0,X1) \/ (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((? X2)(ilf_type(X2,set_type) & member(X2,X0) & ~member(X2,X1)) \/ subset(X0,X1)))))
+% *********** [99->100, rectify] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((~subset(X0,X1) \/ (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((? X2)(ilf_type(X2,set_type) & member(X2,X0) & ~member(X2,X1)) \/ subset(X0,X1)))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((~subset(X0,X1) \/ (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((? X3)(ilf_type(X3,set_type) & member(X3,X0) & ~member(X3,X1)) \/ subset(X0,X1)))))
+% *********** [100->101, skolemization] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ ((~subset(X0,X1) \/ (! X2)(~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((? X3)(ilf_type(X3,set_type) & member(X3,X0) & ~member(X3,X1)) \/ subset(X0,X1)))))
+% -----------------------------
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ ((~subset(X0,X1) \/ (~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((ilf_type($s9(X1,X0),set_type) & member($s9(X1,X0),X0) & ~member($s9(X1,X0),X1)) \/ subset(X0,X1))))
+% *********** [101->151, cnf transformation] ***********
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ ((~subset(X0,X1) \/ (~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((ilf_type($s9(X1,X0),set_type) & member($s9(X1,X0),X0) & ~member($s9(X1,X0),X1)) \/ subset(X0,X1))))
+% -----------------------------
+%   member(X2,X1) \/ ~member(X2,X0) \/ ~ilf_type(X2,set_type) \/ ~subset(X0,X1) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+% *********** [98->149, cnf transformation] ***********
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ ((~member(X0,power_set(X1)) \/ (~ilf_type(X2,set_type) \/ ~member(X2,X0) \/ member(X2,X1))) & ((ilf_type($s8(X1,X0),set_type) & member($s8(X1,X0),X0) & ~member($s8(X1,X0),X1)) \/ member(X0,power_set(X1)))))
+% -----------------------------
+%   member(X0,power_set(X1)) \/ member($s8(X1,X0),X0) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+% *********** [118,118,118,118,151,149->254, resolution, forward subsumption resolution] ***********
+%   ilf_type(X0,set_type)
+%   ilf_type(X0,set_type)
+%   ilf_type(X0,set_type)
+%   ilf_type(X0,set_type)
+%   member(X2,X1) \/ ~member(X2,X0) \/ ~ilf_type(X2,set_type) \/ ~subset(X0,X1) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+%   member(X0,power_set(X1)) \/ member($s8(X1,X0),X0) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+% -----------------------------
+%   member($s8(X1,X2),X3) \/ ~subset(X2,X3) \/ member(X2,power_set(X1))
+% *********** [725,250,254->2578, resolution, forward subsumption resolution] ***********
+%   ~ilf_type(X1,member_type(power_set(X2))) \/ member(X1,power_set(X2))
+%   ~member($s8(X1,X2),X1) \/ ilf_type(X2,member_type(power_set(X1)))
+%   member($s8(X1,X2),X3) \/ ~subset(X2,X3) \/ member(X2,power_set(X1))
+% -----------------------------
+%   member(X1,power_set(X2)) \/ ~subset(X1,X2)
+% *********** [447,2578->4062, resolution] ***********
+%   ~member($s1(X1),power_set(cross_product($s0,range_of($s1(X1)))))
+%   member(X1,power_set(X2)) \/ ~subset(X1,X2)
+% -----------------------------
+%   ~subset($s1(X1),cross_product($s0,range_of($s1(X1))))
+% *********** [71->115, cnf transformation] ***********
+%   ilf_type($s0,set_type) & (ilf_type($s1(X0),binary_relation_type) & subset(domain_of($s1(X0)),$s0) & ~ilf_type($s1(X0),relation_type($s0,range_of($s1(X0)))))
+% -----------------------------
+%   ilf_type($s1(X0),binary_relation_type)
+% *********** [3, input] ***********
+% (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (! X2)(ilf_type(X2,set_type) => (subset(X0,X1) => subset(cross_product(X0,X2),cross_product(X1,X2)) & subset(cross_product(X2,X0),cross_product(X2,X1))))))
+% *********** [3->29, normalize] ***********
+%   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (! X2)(ilf_type(X2,set_type) => (subset(X0,X1) => subset(cross_product(X0,X2),cross_product(X1,X2)) & subset(cross_product(X2,X0),cross_product(X2,X1))))))
+% -----------------------------
+%   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (! X2)(ilf_type(X2,set_type) => (subset(X0,X1) => subset(cross_product(X2,X0),cross_product(X2,X1)) & subset(cross_product(X0,X2),cross_product(X1,X2))))))
+% *********** [29->58, ENNF transformation] ***********
+%   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (! X2)(ilf_type(X2,set_type) => (subset(X0,X1) => subset(cross_product(X2,X0),cross_product(X2,X1)) & subset(cross_product(X0,X2),cross_product(X1,X2))))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (! X2)(~ilf_type(X2,set_type) \/ (~subset(X0,X1) \/ (subset(cross_product(X2,X0),cross_product(X2,X1)) & subset(cross_product(X0,X2),cross_product(X1,X2)))))))
+% *********** [58->59, flattening] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (! X2)(~ilf_type(X2,set_type) \/ (~subset(X0,X1) \/ (subset(cross_product(X2,X0),cross_product(X2,X1)) & subset(cross_product(X0,X2),cross_product(X1,X2)))))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (! X2)(~ilf_type(X2,set_type) \/ ~subset(X0,X1) \/ (subset(cross_product(X2,X0),cross_product(X2,X1)) & subset(cross_product(X0,X2),cross_product(X1,X2))))))
+% *********** [59->104, skolemization] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (! X2)(~ilf_type(X2,set_type) \/ ~subset(X0,X1) \/ (subset(cross_product(X2,X0),cross_product(X2,X1)) & subset(cross_product(X0,X2),cross_product(X1,X2))))))
+% -----------------------------
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ (~ilf_type(X2,set_type) \/ ~subset(X0,X1) \/ (subset(cross_product(X2,X0),cross_product(X2,X1)) & subset(cross_product(X0,X2),cross_product(X1,X2)))))
+% *********** [104->158, cnf transformation] ***********
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ (~ilf_type(X2,set_type) \/ ~subset(X0,X1) \/ (subset(cross_product(X2,X0),cross_product(X2,X1)) & subset(cross_product(X0,X2),cross_product(X1,X2)))))
+% -----------------------------
+%   subset(cross_product(X0,X2),cross_product(X1,X2)) \/ ~subset(X0,X1) \/ ~ilf_type(X2,set_type) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+% *********** [71->116, cnf transformation] ***********
+%   ilf_type($s0,set_type) & (ilf_type($s1(X0),binary_relation_type) & subset(domain_of($s1(X0)),$s0) & ~ilf_type($s1(X0),relation_type($s0,range_of($s1(X0)))))
+% -----------------------------
+%   subset(domain_of($s1(X0)),$s0)
+% *********** [118,118,118,158,116->365, resolution, forward subsumption resolution] ***********
+%   ilf_type(X0,set_type)
+%   ilf_type(X0,set_type)
+%   ilf_type(X0,set_type)
+%   subset(cross_product(X0,X2),cross_product(X1,X2)) \/ ~subset(X0,X1) \/ ~ilf_type(X2,set_type) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+%   subset(domain_of($s1(X0)),$s0)
+% -----------------------------
+%   subset(cross_product(domain_of($s1(X1)),X2),cross_product($s0,X2))
+% *********** [1, input] ***********
+% (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (! X2)(ilf_type(X2,set_type) => (subset(X0,X1) & subset(X1,X2) => subset(X0,X2)))))
+% *********** [1->28, normalize] ***********
+%   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (! X2)(ilf_type(X2,set_type) => (subset(X0,X1) & subset(X1,X2) => subset(X0,X2)))))
+% -----------------------------
+%   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (! X2)(ilf_type(X2,set_type) => (subset(X1,X2) & subset(X0,X1) => subset(X0,X2)))))
+% *********** [28->60, ENNF transformation] ***********
+%   (! X0)(ilf_type(X0,set_type) => (! X1)(ilf_type(X1,set_type) => (! X2)(ilf_type(X2,set_type) => (subset(X1,X2) & subset(X0,X1) => subset(X0,X2)))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (! X2)(~ilf_type(X2,set_type) \/ ((~subset(X1,X2) \/ ~subset(X0,X1)) \/ subset(X0,X2)))))
+% *********** [60->61, flattening] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (! X2)(~ilf_type(X2,set_type) \/ ((~subset(X1,X2) \/ ~subset(X0,X1)) \/ subset(X0,X2)))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (! X2)(~ilf_type(X2,set_type) \/ ~subset(X1,X2) \/ ~subset(X0,X1) \/ subset(X0,X2))))
+% *********** [61->105, skolemization] ***********
+%   (! X0)(~ilf_type(X0,set_type) \/ (! X1)(~ilf_type(X1,set_type) \/ (! X2)(~ilf_type(X2,set_type) \/ ~subset(X1,X2) \/ ~subset(X0,X1) \/ subset(X0,X2))))
+% -----------------------------
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ (~ilf_type(X2,set_type) \/ ~subset(X1,X2) \/ ~subset(X0,X1) \/ subset(X0,X2)))
+% *********** [105->159, cnf transformation] ***********
+%   ~ilf_type(X0,set_type) \/ (~ilf_type(X1,set_type) \/ (~ilf_type(X2,set_type) \/ ~subset(X1,X2) \/ ~subset(X0,X1) \/ subset(X0,X2)))
+% -----------------------------
+%   subset(X0,X2) \/ ~subset(X0,X1) \/ ~subset(X1,X2) \/ ~ilf_type(X2,set_type) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+% *********** [159->177, literal permutation] ***********
+%   subset(X0,X2) \/ ~subset(X0,X1) \/ ~subset(X1,X2) \/ ~ilf_type(X2,set_type) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X0,set_type)
+% -----------------------------
+%   subset(X1,X2) \/ ~subset(X1,X3) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X3,set_type) \/ ~ilf_type(X2,set_type) \/ ~subset(X3,X2)
+% *********** [2, input] ***********
+% (! X0)(ilf_type(X0,binary_relation_type) => subset(X0,cross_product(domain_of(X0),range_of(X0))))
+% *********** [2->39, ENNF transformation] ***********
+%   (! X0)(ilf_type(X0,binary_relation_type) => subset(X0,cross_product(domain_of(X0),range_of(X0))))
+% -----------------------------
+%   (! X0)(~ilf_type(X0,binary_relation_type) \/ subset(X0,cross_product(domain_of(X0),range_of(X0))))
+% *********** [39->73, skolemization] ***********
+%   (! X0)(~ilf_type(X0,binary_relation_type) \/ subset(X0,cross_product(domain_of(X0),range_of(X0))))
+% -----------------------------
+%   ~ilf_type(X0,binary_relation_type) \/ subset(X0,cross_product(domain_of(X0),range_of(X0)))
+% *********** [73->119, cnf transformation] ***********
+%   ~ilf_type(X0,binary_relation_type) \/ subset(X0,cross_product(domain_of(X0),range_of(X0)))
+% -----------------------------
+%   subset(X0,cross_product(domain_of(X0),range_of(X0))) \/ ~ilf_type(X0,binary_relation_type)
+% *********** [118,118,118,177,119->350, resolution, forward subsumption resolution] ***********
+%   ilf_type(X0,set_type)
+%   ilf_type(X0,set_type)
+%   ilf_type(X0,set_type)
+%   subset(X1,X2) \/ ~subset(X1,X3) \/ ~ilf_type(X1,set_type) \/ ~ilf_type(X3,set_type) \/ ~ilf_type(X2,set_type) \/ ~subset(X3,X2)
+%   subset(X0,cross_product(domain_of(X0),range_of(X0))) \/ ~ilf_type(X0,binary_relation_type)
+% -----------------------------
+%   ~subset(cross_product(domain_of(X1),range_of(X1)),X2) \/ subset(X1,X2) \/ ~ilf_type(X1,binary_relation_type)
+% *********** [4062,115,365,350->23686, resolution, forward subsumption resolution] ***********
+%   ~subset($s1(X1),cross_product($s0,range_of($s1(X1))))
+%   ilf_type($s1(X0),binary_relation_type)
+%   subset(cross_product(domain_of($s1(X1)),X2),cross_product($s0,X2))
+%   ~subset(cross_product(domain_of(X1),range_of(X1)),X2) \/ subset(X1,X2) \/ ~ilf_type(X1,binary_relation_type)
+% -----------------------------
+%   #
+% ======= End of refutation =======
+% 
+%------------------------------------------------------------------------------

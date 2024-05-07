@@ -1,0 +1,142 @@
+#!/bin/tcsh
+
+set DefaultProverTimeLimit = 15
+set QuietFlag = "-q1"
+set NoOutput = "false"
+set DefaultModelTimeLimit = 15
+set DefaultSyntaxTimeLimit = 15
+set DefaultSyntaxChecker = "~tptp/Systems/TPTP4X---0.0/tptp4X -q3 -z"
+set DefaultModelFinder = "~tptp/Systems/iProver---1.0-SAT/iproveropt_run_sat.sh $DefaultModelTimeLimit"
+set DefaultProver = "~tptp/Systems/E---1.8/eprover -s --auto --cpu-limit=$DefaultProverTimeLimit --tstp-format"
+
+@ ArgCount = 1
+foreach arg ($*)
+    @ ArgCount = $ArgCount + 1
+    if ("$arg" == "-p") then
+         set DefaultProver = $argv[$ArgCount]
+    endif
+    if ("$arg" == "-m") then
+        set DefaultModelFinder = $argv[$ArgCount]
+    endif
+    if ("$arg" == "-s") then
+        set DefaultSyntaxChecker = $argv[$ArgCount]
+    endif
+    if ("$arg" == "-pl") then
+        set DefaultProverTimeLimit = $argv[$ArgCount]
+    endif
+    if ("$arg" == "-ml") then
+        set DefaultModelTimeLimit = $argv[$ArgCount]
+    endif
+    if ("$arg" == "-sl") then
+        set DefaultSyntaxTimeLimit = $argv[$ArgCount]
+    endif
+    if ("$arg" == "-q0" || "$arg" == "-q1") then
+        set QuietFlag = $arg
+        set NoOutput = "false"
+    endif
+    if ("$arg" == "-q2") then
+        set QuietFlag = $arg
+        set NoOutput = "true"
+    endif
+end
+@ ArgCount = $ArgCount - 1
+if (! -e $argv[$ArgCount]) then
+    echo
+    echo "%--------------------------------------------------"
+    echo "% The problem file does not exist."
+    echo "%--------------------------------------------------"
+    exit
+endif
+
+tpi clear_DBFile
+tpi unsetenv 'SZS_Syntax'
+tpi unsetenv 'SZS_Satisfiability'
+tpi unsetenv 'SZS_Proof'
+tpi unsetenv 'SZS_Satisfiability_AllFile'
+tpi unsetenv 'SZS_Axiom_Check_2'
+
+tpi input $argv[$ArgCount]
+
+if ("$NoOutput" != "true") then
+    echo
+    echo "%--------------------------------------------------"
+    echo "% Check the syntax ..."
+    echo "% Using: $DefaultSyntaxChecker"
+endif
+tpi execute 'SZS_Syntax' = "$DefaultSyntaxChecker"' $getgroups(tpi)' $QuietFlag
+set SyntaxResult = `tpi write '$getenv(SZS_Syntax)'`
+if ("$SyntaxResult" == "SyntaxError") then
+    echo "% SZS status SyntaxError"
+    echo "%--------------------------------------------------"
+    tpi exit exit
+else
+    if ("$NoOutput" != "true") then
+        echo "% SZS status Success"
+        echo "%--------------------------------------------------"
+        echo "% Check if the axioms are Satisfiable ..."
+        echo "% Using: $DefaultModelFinder"
+    endif
+    tpi execute 'SZS_Satisfiability' = \
+"$DefaultModelFinder"' $getgroups(tpi_premises)' $QuietFlag
+    set SatResult = `tpi write '$getenv(SZS_Satisfiability)'`
+    if ( "$SatResult" == "Satisfiable" ) then
+        echo "% SZS status Satisfiable"
+        repeatedSection:
+        if ("$NoOutput" != "true") then
+            echo "%--------------------------------------------------"
+            echo "% Check if the conjecture is a Theorem  ..."
+            echo "% Using: $DefaultProver"
+        endif
+        tpi execute 'SZS_Proof' = "$DefaultProver"' $getgroups(tpi)' $QuietFlag
+        set ProofResult = `tpi write '$getenv(SZS_Proof)'`
+        if ( "$ProofResult" == "Theorem" || \
+"$ProofResult" == "CounterSatisfiable" ) then
+            echo "% SZS status $ProofResult"
+            echo "%--------------------------------------------------"
+            tpi exit exit
+        else
+            if ("$NoOutput" != "true") then
+                echo "% SZS status Unknown"
+                echo "%--------------------------------------------------"
+                echo "% Check if conjecture is CounterSatisfiable ..."
+                echo "% Using: $DefaultModelFinder"
+            endif
+            tpi execute 'SZS_Satisfiability_AllFile' = \
+"$DefaultModelFinder"' $getgroups(tpi)' $QuietFlag
+            set SatResultAllFile = \
+`tpi write '$getenv('SZS_Satisfiability_AllFile')'`
+            if ( "$SatResultAllFile" == "Theorem" || \
+"$SatResultAllFile" == "CounterSatisfiable") then
+                echo "% SZS status $SatResultAllFile"
+                echo "%--------------------------------------------------"
+                tpi exit exit
+            else
+                echo "% SZS status Unknown"
+                echo "%--------------------------------------------------"
+                tpi exit exit
+            endif
+        endif
+    else 
+        if ( "$SatResult" == "Unsatisfiable" ) then
+            echo "% SZS status Unsatisfiable"
+            echo "%--------------------------------------------------"
+            tpi exit exit
+        else
+            if ("$NoOutput" != "true") then
+                echo "%--------------------------------------------------"
+                echo "% No decision, check if the axioms are Unsatisfiable ..."
+                echo "% Using: $DefaultProver"
+            endif
+            tpi execute 'SZS_Axiom_Check_2' = \
+"$DefaultProver"' $getgroups(tpi_premises)' $QuietFlag
+            set Sat_Check2 = `tpi write '$getenv(SZS_Axiom_Check_2)'`
+            if ( "$Sat_Check2" == "Unsatisfiable" ) then
+                echo "% SZS status Unsatisfiable"
+                echo "%--------------------------------------------------"
+                tpi exit exit
+            else
+                goto repeatedSection
+            endif
+        endif
+    endif
+endif

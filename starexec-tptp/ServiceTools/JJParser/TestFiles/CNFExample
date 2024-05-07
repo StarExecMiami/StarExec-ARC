@@ -1,0 +1,5 @@
+cnf(one,axiom, (
+    p(X) | r(X) | q(X) )).
+
+cnf(two,axiom, (
+    p(X,Y) )).

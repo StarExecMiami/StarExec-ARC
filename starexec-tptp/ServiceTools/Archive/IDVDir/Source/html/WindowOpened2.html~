@@ -1,0 +1,25 @@
+<HTML>
+
+<script type="text/javascript">
+<!--
+  function loadTSTPDump () {  
+    alert("about to load tstp dump");
+    if (window.opener) {
+      var tstp_dump = window.opener.getTSTPDump();
+      alert("dump is: " + tstp_dump);
+      var tstp_textarea = window.document.getElementById("FORMULAEProblemTextBox")
+      tstp_textarea.value = tstp_dump;
+    } else {
+      alert("Window not opened by an Opener Window");
+    }
+  }
+//-->
+</script>
+
+<BODY onload="loadTSTPDump();">
+
+<textarea name="FORMULAEProblem" tabindex="3" rows="8" cols="80" id="FORMULAEProblemTextBox">Insert derivation here!</textarea>
+
+</BODY>
+
+</HTML>

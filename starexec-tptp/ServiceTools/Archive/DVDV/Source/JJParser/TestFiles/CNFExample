@@ -1,0 +1,2 @@
+cnf(one,axiom, (
+    p(X) | r(X) | q(X) )).

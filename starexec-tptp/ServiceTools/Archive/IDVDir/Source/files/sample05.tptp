@@ -1,0 +1,64 @@
+fof(11,axiom,(
+    ! [X1] : 
+      ( hates(agatha,X1)
+     => hates(butler,X1) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp',pel55_9)).
+
+fof(12,axiom,(
+    ! [X1] : 
+    ? [X2] : ~ hates(X1,X2) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp',pel55_10)).
+
+
+
+
+
+fof(44,derived,(
+    ! [X1] : 
+      ( ~ hates(agatha,X1)
+      | hates(butler,X1) ) ),
+    inference(fof_nnf,[status(thm)],[11])).
+
+fof(45,derived,(
+    ! [X2] : 
+      ( ~ hates(agatha,X2)
+      | hates(butler,X2) ) ),
+    inference(variable_rename,[status(thm)],[44])).
+
+cnf(46,derived,
+    ( hates(butler,X1)
+    | ~ hates(agatha,X1) ),
+    inference(split_conjunct,[status(thm)],[45])).
+
+fof(47,derived,(
+    ! [X1] : 
+    ? [X2] : ~ hates(X1,X2) ),
+    inference(fof_simplification,[status(thm)],[12,theory(equality)])).
+
+fof(48,derived,(
+    ! [X3] : 
+    ? [X4] : ~ hates(X3,X4) ),
+    inference(variable_rename,[status(thm)],[47])).
+
+fof(49,derived,(
+    ! [X3] : ~ hates(X3,esk2_1(X3)) ),
+    inference(skolemize,[status(sab)],[48])).
+
+cnf(50,derived,
+    ( ~ hates(X1,esk2_1(X1)) ),
+    inference(split_conjunct,[status(thm)],[49])).
+
+
+cnf(56,derived,
+    ( ~ hates(agatha,esk2_1(butler)) ),
+    inference(spm,[status(thm)],[50,46,theory(equality)])).
+
+
+cnf(67,derived,
+    ( butler = esk2_1(butler) ),
+    inference(spm,[status(thm)],[56,theory(equality)])).
+
+cnf(68,derived,
+    ( ~ hates(butler,butler) ),
+    inference(spm,[status(thm)],[50,67,theory(equality)])).
+

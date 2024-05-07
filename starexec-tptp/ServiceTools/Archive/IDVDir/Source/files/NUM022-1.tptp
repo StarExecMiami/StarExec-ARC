@@ -1,0 +1,173 @@
+%------------------------------------------------------------------------------
+% File       : EP---0.91
+% Problem    : NUM022-1 : TPTP v1.0.0
+% Transform  : none
+% Format     : tptp
+% Command    : eproof --print-statistics -xAuto -tAuto --memory-limit=Auto --tstp-in --tstp-out %s
+
+% Computer   : art03.cs.miami.edu
+% Model      : i686 i686
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2793MHz
+% Memory     : 1003MB
+% OS         : Linux 2.6.11-1.1369_FC4
+% CPULimit   : 600s
+
+% Result     : Unsatisfiable 0.0s
+% Output     : Refutation 0.0s
+% Statistics : Number of clauses     :   19 (  21 expanded)
+%              Depth                 :    8
+%              Number of atoms       :   34 (  36 expanded)
+%              Maximal clause size   :    3 (   2 average)
+%              Maximal term depth    :    4 (   1 average)
+% Verified   : 
+
+% Comments   : 
+%------------------------------------------------------------------------------
+%----TSTP SOLUTION
+cnf(1,axiom,
+    ( less(X1,X2)
+    | ~ less(X3,X2)
+    | ~ less(X1,X3) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM022-1.tptp',transitivity_of_less)).
+
+cnf(2,axiom,
+    ( less(X2,X1)
+    | ~ equalish(add(successor(X3),X2),X1) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM022-1.tptp',smaller_number)).
+
+cnf(3,axiom,
+    ( equalish(add(successor(predecessor_of_1st_minus_2nd(X2,X3)),X3),X2)
+    | ~ less(X3,X2) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM022-1.tptp',less_lemma)).
+
+cnf(4,axiom,
+    ( less(X3,X2)
+    | equalish(X3,X2)
+    | ~ divides(X3,X2) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM022-1.tptp',divides_only_less_or_equal)).
+
+cnf(7,axiom,
+    ( equalish(X1,X2)
+    | ~ equalish(X3,X2)
+    | ~ equalish(X1,X3) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM022-1.tptp',transitivity)).
+
+cnf(8,axiom,
+    ( less(a,b) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM022-1.tptp',a_less_than_b)).
+
+cnf(9,axiom,
+    ( divides(b,d) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM022-1.tptp',b_divides_d)).
+
+cnf(10,negated_conjecture,
+    ( ~ less(a,d) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM022-1.tptp',prove_a_less_than_d)).
+
+cnf(11,plain,
+    ( less(a,X3)
+    | ~ less(b,X3) ),
+    inference(spm,[status(thm)],[1,8,theory(equality)])).
+
+cnf(12,plain,
+    ( equalish(b,d)
+    | less(b,d) ),
+    inference(spm,[status(thm)],[4,9,theory(equality)])).
+
+cnf(16,plain,
+    ( equalish(add(successor(predecessor_of_1st_minus_2nd(X3,X2)),X2),X1)
+    | ~ equalish(X3,X1)
+    | ~ less(X2,X3) ),
+    inference(spm,[status(thm)],[7,3,theory(equality)])).
+
+cnf(17,plain,
+    ( ~ less(b,d) ),
+    inference(spm,[status(thm)],[10,11,theory(equality)])).
+
+cnf(19,plain,
+    ( equalish(b,d) ),
+    inference(sr,[status(thm)],[12,17,theory(equality)])).
+
+cnf(21,plain,
+    ( less(X3,X2)
+    | ~ equalish(X1,X2)
+    | ~ less(X3,X1) ),
+    inference(spm,[status(thm)],[2,16,theory(equality)])).
+
+cnf(23,plain,
+    ( less(X3,d)
+    | ~ less(X3,b) ),
+    inference(spm,[status(thm)],[21,19,theory(equality)])).
+
+cnf(29,plain,
+    ( ~ less(a,b) ),
+    inference(spm,[status(thm)],[10,23,theory(equality)])).
+
+cnf(33,plain,
+    ( $false ),
+    inference(rw,[status(thm)],[29,8,theory(equality)])).
+
+cnf(34,plain,
+    ( $false ),
+    inference(cn,[status(thm)],[33,theory(equality)])).
+
+cnf(35,plain,
+    ( $false ),
+    34,
+    ['proof']).
+%------------------------------------------------------------------------------
+%----ORIGINAL SYSTEM OUTPUT
+% # Problem is unsatisfiable (or provable), constructing proof object
+% # SZS status: Unsatisfiable
+% # Proof object starts here.
+% cnf(1,axiom,(less(X1,X2)|~less(X3,X2)|~less(X1,X3)),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM022-1.tptp', transitivity_of_less)).
+% cnf(2,axiom,(less(X2,X1)|~equalish(add(successor(X3),X2),X1)),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM022-1.tptp', smaller_number)).
+% cnf(3,axiom,(equalish(add(successor(predecessor_of_1st_minus_2nd(X2,X3)),X3),X2)|~less(X3,X2)),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM022-1.tptp', less_lemma)).
+% cnf(4,axiom,(less(X3,X2)|equalish(X3,X2)|~divides(X3,X2)),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM022-1.tptp', divides_only_less_or_equal)).
+% cnf(7,axiom,(equalish(X1,X2)|~equalish(X3,X2)|~equalish(X1,X3)),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM022-1.tptp', transitivity)).
+% cnf(8,axiom,(less(a,b)),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM022-1.tptp', a_less_than_b)).
+% cnf(9,axiom,(divides(b,d)),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM022-1.tptp', b_divides_d)).
+% cnf(10,negated_conjecture,(~less(a,d)),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/NUM/NUM022-1.tptp', prove_a_less_than_d)).
+% cnf(11,plain,(less(a,X3)|~less(b,X3)),inference(spm,[status(thm)],[1,8,theory(equality)])).
+% cnf(12,plain,(equalish(b,d)|less(b,d)),inference(spm,[status(thm)],[4,9,theory(equality)])).
+% cnf(16,plain,(equalish(add(successor(predecessor_of_1st_minus_2nd(X3,X2)),X2),X1)|~equalish(X3,X1)|~less(X2,X3)),inference(spm,[status(thm)],[7,3,theory(equality)])).
+% cnf(17,plain,(~less(b,d)),inference(spm,[status(thm)],[10,11,theory(equality)])).
+% cnf(19,plain,(equalish(b,d)),inference(sr,[status(thm)],[12,17,theory(equality)])).
+% cnf(21,plain,(less(X3,X2)|~equalish(X1,X2)|~less(X3,X1)),inference(spm,[status(thm)],[2,16,theory(equality)])).
+% cnf(23,plain,(less(X3,d)|~less(X3,b)),inference(spm,[status(thm)],[21,19,theory(equality)])).
+% cnf(29,plain,(~less(a,b)),inference(spm,[status(thm)],[10,23,theory(equality)])).
+% cnf(33,plain,($false),inference(rw,[status(thm)],[29,8,theory(equality)])).
+% cnf(34,plain,($false),inference(cn,[status(thm)],[33,theory(equality)])).
+% cnf(35,plain,($false),34,['proof']).
+% # Proof object ends here.
+% # ...subsumed                          : 0
+% # ...remaining for further processing  : 19
+% # Other redundant clauses eliminated   : 0
+% # Clauses deleted for lack of memory   : 0
+% # Backward-subsumed                    : 0
+% # Backward-rewritten                   : 0
+% # Generated clauses                    : 21
+% # ...of the previous two non-trivial   : 14
+% # Contextual simplify-reflections      : 0
+% # Paramodulations                      : 21
+% # Factorizations                       : 0
+% # Equation resolutions                 : 0
+% # Current number of processed clauses  : 19
+% #    Positive orientable unit clauses  : 3
+% #    Positive unorientable unit clauses: 0
+% #    Negative unit clauses             : 2
+% #    Non-unit-clauses                  : 14
+% # Current number of unprocessed clauses: 5
+% # ...number of literals in the above   : 19
+% # Clause-clause subsumption calls (NU) : 13
+% # Rec. Clause-clause subsumption calls : 12
+% # Unit Clause-clause subsumption calls : 0
+% # Rewrite failures with RHS unbound    : 0
+% 
+% # -------------------------------------------------
+% # User time                : 0.008 s
+% # System time              : 0.004 s
+% # Total time               : 0.012 s
+% # Maximum resident set size: 0 pages
+% 
+%------------------------------------------------------------------------------

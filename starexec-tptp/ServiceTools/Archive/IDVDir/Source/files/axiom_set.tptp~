@@ -1,0 +1,57 @@
+cnf(53,negated_conjecture,
+  ~killed(agatha,agatha),
+  inference(split_conjunct,[status(thm)],[20])
+).
+cnf(51,plain,
+  ~hates(X1,esk2_1(X1)),
+  inference(split_conjunct,[status(thm)],[50])
+).
+cnf(48,plain,
+  hates(butler,X1)    |
+  ~hates(agatha,X1),
+  inference(split_conjunct,[status(thm)],[47])
+).
+cnf(42,plain,
+  hates(agatha,X1)    |
+  X1=butler,
+  inference(split_conjunct,[status(thm)],[41])
+).
+cnf(36,plain,
+  ~richer(X1,X2)    |
+  ~killed(X1,X2),
+  inference(split_conjunct,[status(thm)],[35])
+).
+cnf(45,plain,
+  hates(butler,X1)    |
+  richer(X1,agatha),
+  inference(split_conjunct,[status(thm)],[44])
+).
+cnf(23,plain,
+  killed(esk1_0,agatha),
+  inference(split_conjunct,[status(thm)],[22])
+).
+cnf(24,plain,
+  lives(esk1_0),
+  inference(split_conjunct,[status(thm)],[22])
+).
+cnf(33,plain,
+  hates(X1,X2)    |
+  ~killed(X1,X2),
+  inference(split_conjunct,[status(thm)],[32])
+).
+cnf(30,plain,
+  X1=charles    |
+  X1=butler    |
+  X1=agatha    |
+  ~lives(X1),
+  inference(split_conjunct,[status(thm)],[29])
+).
+cnf(39,plain,
+  ~hates(charles,X1)    |
+  ~hates(agatha,X1),
+  inference(split_conjunct,[status(thm)],[38])
+).
+cnf(52,plain,
+  ~agatha=butler,
+  inference(split_conjunct,[status(thm)],[13])
+).

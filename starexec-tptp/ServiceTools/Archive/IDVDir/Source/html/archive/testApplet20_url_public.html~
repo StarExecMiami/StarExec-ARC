@@ -1,0 +1,29 @@
+<HTML>
+<script type="text/javascript">
+<!--
+  function openSoTSTP(tstp_dump) {
+    var tstp_textarea;
+    //var tstp_url = "http://www.cs.miami.edu/~tptp/cgi-bin/SystemOnTSTP";
+    var tstp_url = "http://www.cs.miami.edu/students/strac/test/IDV/testJavaScript2.html";
+    var tstp_browser = window.open(tstp_url, "tstp_browser");
+    tstp_browser.onload = function() {
+      if (tstp_browser.document.getElementsByTagName) {
+        tstp_textarea = tstp_browser.document.getElementsByTagName("textarea")[0];
+        //tstp_browser.document.getElementsByTagName("textarea")[0].firstChild.nodeValue=tstp_dump;
+        if (tstp_textarea) {
+          alert(tstp_textarea.firstChild.nodeValue);
+          tstp_textarea.firstChild.nodeValue = tstp_dump;
+          alert(tstp_textarea.firstChild.nodeValue);
+        }
+      } else alert('Your browser doesnt support the level 1 DOM');
+    }
+  }
+//-->
+</script>
+Here is the applet...
+<APPLET CODE=IDVApplet.class archive="IDV.jar" WIDTH=800 HEIGHT=100>
+<PARAM NAME="URL" VALUE="http://www.cs.miami.edu/students/strac/test/IDV/files/PUZ001+1.tptp">
+
+Hey, you can't see my applet!!!
+</APPLET>
+</HTML>

@@ -1,0 +1,322 @@
+#!/usr/bin/perl -w
+
+use strict "vars";
+#--------------------------------------------------------------------------------------------------
+my $TPTPDirectory = "/home/tptp";
+
+if (exists($ENV{TPTP_HOME})) {
+    $TPTPDirectory = $ENV{TPTP_HOME};
+}
+if (! exists($ENV{TPTP})) {
+    $ENV{TPTP} = "$TPTPDirectory/TPTP";
+}
+if (! -d $ENV{TPTP}) {
+    die("ERROR: Cannot find TPTP directory\n");
+}
+
+my $TPTP4X = "$TPTPDirectory/ServiceTools/tptp4X";
+my $SystemOnTPTP = "$TPTPDirectory/SystemExecution/SystemOnTPTP";
+
+#----Global for use in END statements
+my $GlobalTemporaryDirectory = "/tmp/TryToProve_$$";
+my $GlobalInterrupted = 0;
+my %GlobalOptions;
+
+my $DefaultProver = "Vampire---";
+my $DefaultModelFinder = "Vampire-SAT---";
+my $DefaultCPULimit = 10;
+#--------------------------------------------------------------------------------------------------
+DoMain();
+#--------------------------------------------------------------------------------------------------
+sub DoMain {
+
+#----Kept as strings because -p and -m can be names of systems
+    %GlobalOptions = (
+          "-q" => "1",          #----Quietness
+          "-t" => $DefaultCPULimit,
+          "-b" => "0",          #----Try to prove both ways
+          "-n" => "0",          #----Don't trust negative results
+          "-p" => "1",          #----Use prover
+          "-m" => "0",          #----Use model finder
+          "-k" => undef,        #----Don't keep temporary files
+       );
+    my $Key;
+
+    my $AxiomFile;
+    my $ConjectureFileOrFormula;
+    my $Prover;
+    my $ModelFinder;
+    my $Result;
+
+#----Send QUIT signals to the right place
+    $SIG{'QUIT'} = 'QUITHandler';
+    $SIG{'XCPU'} = 'QUITHandler';
+    $SIG{'INT'}  = 'QUITHandler';
+    $SIG{'ALRM'} = 'QUITHandler';
+
+#----Send STDERR to STDOUT
+    close(STDERR);
+    open(STDERR,">&STDOUT");
+#----Flush output
+    $| = 1;
+
+#----Extract command line arguments
+    while (scalar(@ARGV) >= 2 && $ARGV[0] =~/-[a-z]/) {
+        $Key = shift(@ARGV);
+        if (length($Key) == 2) {
+            if (defined($ARGV[0])) {
+                $GlobalOptions{$Key} = shift(@ARGV);
+            } else {
+                Usage();
+            }
+        } else {
+            $GlobalOptions{substr($Key,0,2)} = substr($Key,2);
+        }
+    }
+
+    if (defined($GlobalOptions{'-k'})) {
+        $GlobalTemporaryDirectory = $GlobalOptions{'-k'};
+    } 
+    system("mkdir -p $GlobalTemporaryDirectory");
+    END {
+        if (!defined($GlobalOptions{'-k'})) {
+            system("rm -rf $GlobalTemporaryDirectory");
+        }
+    }
+
+#----Command line is axiom file, conjecture file or conjecture
+    if (scalar(@ARGV) < 1 || ! -f ($AxiomFile = $ARGV[0])) {
+        Usage();
+        die("\n");
+    }
+    $ConjectureFileOrFormula = $ARGV[1];
+
+#----Choose the prover and model finder
+    if ($GlobalOptions{'-p'} eq "0") {
+        $Prover = undef;
+    } elsif ($GlobalOptions{'-p'} eq "1") {
+        $Prover = $DefaultProver;
+    } else {
+        $Prover = $GlobalOptions{'-p'};
+        $GlobalOptions{'-p'} = "1";
+    }
+    if ($GlobalOptions{'-m'} eq "0") {
+        $ModelFinder = undef;
+    } elsif ($GlobalOptions{'-m'} eq "1") {
+        $ModelFinder = $DefaultModelFinder;
+    } else {
+        $ModelFinder = $GlobalOptions{'-m'};
+        $GlobalOptions{'-m'} = "1";
+    }
+
+#DEBUG print("TRY TRY RunATPs($AxiomFile,$ConjectureFileOrFormula,$Prover,$ModelFinder,$GlobalOptions{'-t'})\n");
+    $Result = RunATPs($AxiomFile,$ConjectureFileOrFormula,$Prover,$ModelFinder,
+$GlobalOptions{'-t'});
+}
+#--------------------------------------------------------------------------------------------------
+sub Usage {
+
+    print("
+Usage 
+    TryToProve [-qN] [-n0/1] [-t N] [-p prover] [-m model_finder] [-k dir] [-bN] model_file conjecture[_file]
+");
+}
+#--------------------------------------------------------------------------------------------------
+sub QUITHandler {
+    my ($Signal) = @_;
+
+    $GlobalInterrupted = 1;
+
+    if ($Signal eq 'INT' || $Signal eq 'QUIT') {
+        die("Terminated by ^C\n");
+    }
+}
+#--------------------------------------------------------------------------------------------------
+sub RunATPs {
+    my ($AxiomFile,$ConjectureFileOrFormula,$Prover,$ModelFinder,$CPULimit) = @_;
+
+    my $TargetFormula;
+    my $AllResult = "Success";
+    my $NumberOfResults;
+
+#----See if it's a file
+    if (defined($ConjectureFileOrFormula) && -f $ConjectureFileOrFormula) {
+        open(PROBLEM,"$TPTP4X -t uniquenames3 -x -c -u machine $ConjectureFileOrFormula |") ||
+die("ERROR, Cannot open $ConjectureFileOrFormula\n");
+        $NumberOfResults = 0;
+#----For each line (formula) in the problem
+        while (!$GlobalInterrupted && defined($TargetFormula = <PROBLEM>)) {
+            chomp($TargetFormula);
+            $NumberOfResults++;
+            if (RunATPsOnOneFormulaAndReport($AxiomFile,$TargetFormula,$Prover,$ModelFinder,
+$CPULimit) eq "Unknown") {
+                $AllResult = "Unknown";
+            }
+        }
+        close(PROBLEM);
+        if ($GlobalInterrupted) {
+            $AllResult = "Unknown";
+        }
+#----Print overall result for a file of formulae, after individual results
+        if ($GlobalInterrupted || $NumberOfResults > 1) {
+            print("% SZS status $AllResult for $ConjectureFileOrFormula");
+            QuietPrint(" from $AxiomFile",0);
+            print("\n");
+        }
+    } else {
+#----For a single formula, just leave the individual SZS result printed
+        RunATPsOnOneFormulaAndReport($AxiomFile,$ConjectureFileOrFormula,$Prover,$ModelFinder,
+$CPULimit);
+    }
+}
+#--------------------------------------------------------------------------------------------------
+sub RunATPsOnOneFormulaAndReport {
+    my ($AxiomFile,$Conjecture,$Prover,$ModelFinder,$CPULimit) = @_;
+
+    my $Result;
+    my $ConjectureName;
+
+    if (defined($Conjecture)) {
+        ($ConjectureName) = ($Conjecture =~ /^...\(([^,]*),/);
+    } else {
+        $ConjectureName = "NO_CONJECTURE";
+    }
+    $Result = RunATPsOnOneFormula($AxiomFile,$Conjecture,$ConjectureName,$Prover,$ModelFinder,
+$CPULimit);
+    print("% SZS status $Result for $ConjectureName");
+    QuietPrint(" from $AxiomFile",0);
+    print("\n");
+
+    return($Result);
+}
+#--------------------------------------------------------------------------------------------------
+sub RunATPsOnOneFormula {
+    my ($AxiomFile,$Conjecture,$ConjectureName,$Prover,$ModelFinder,$CPULimit) = @_;
+
+    my $NegatedConjecture;
+    my $Result = "Unknown";
+    my $CTHResult = "Unknown";
+
+    $NegatedConjecture = $Conjecture;
+    if (defined($NegatedConjecture)) {
+        $NegatedConjecture =~ s/^([^,]*,[^,]*,)(.*)\)\. */$1 ~($2))./;
+    }
+
+    if ($GlobalOptions{'-p'}) {
+        QuietPrint("Trying to prove $ConjectureName",1);
+        if (defined($Conjecture)) {
+            QuietPrint("The conjecture $ConjectureName is $Conjecture",0);
+        }
+        $Result = RunOneATP($AxiomFile,$Conjecture,"THMUNS",$Prover,$CPULimit);
+        if ($Result eq "Theorem" || $Result eq "Unsatisfiable") {
+            return($Result);
+        }
+    }
+    if ($GlobalInterrupted) {
+        return("Unknown");
+    }
+
+#----Try for countertheorem next, first, did we get it above (most unlikely)
+    if ($GlobalOptions{'-b'}) {
+        if ($Result eq "CounterTheorem") {
+            return("CounterTheorem");
+        }
+        if ($GlobalOptions{'-p'} && defined($NegatedConjecture)) {
+            QuietPrint("Trying to prove negated $ConjectureName",1);
+            QuietPrint("The negated $ConjectureName is $NegatedConjecture",0);
+            $CTHResult = RunOneATP($AxiomFile,$NegatedConjecture,"CTH",$Prover,$CPULimit);
+            if ($CTHResult eq "Theorem") {
+                return("CounterTheorem");
+            }
+        }
+    }
+    if ($GlobalInterrupted) {
+        return("Unknown");
+    }
+
+#----If we don't want non-theorem results, bail out now
+    if ($GlobalOptions{'-n'} eq "0") {
+       return("Unknown");
+    }
+
+#----Try for countersatisfiable next, first did we get it above?
+    if ($Result eq "CounterSatisfiable") {
+        return("CounterSatisfiable");
+    }
+#----Try a model finder for countersatisfiable or satisfiable
+    if ($GlobalOptions{'-m'}) {
+        QuietPrint("Trying to disprove $ConjectureName",1);
+        if (defined($Conjecture)) {
+            QuietPrint("The conjecture $ConjectureName is $Conjecture",0);
+        }
+        $Result = RunOneATP($AxiomFile,$Conjecture,"CSASAT",$ModelFinder,$CPULimit);
+        if ($Result eq "CounterSatisfiable" || $Result eq "Satisfiable") {
+            return($Result);
+        }
+    }
+    if ($GlobalInterrupted) {
+        return("Unknown");
+    }
+
+#----Try for satisfiable, first did we get it above?
+    if ($GlobalOptions{'-b'}) {
+        if ($CTHResult eq "CounterSatisfiable") {
+            return("Satisfiable");
+        }
+#----Try a model finder for satisfiable negated conjecture
+        if ($GlobalOptions{'-m'} && defined($NegatedConjecture)) {
+            QuietPrint("Trying to disprove negated $ConjectureName",1);
+            QuietPrint("The negated conjecture $ConjectureName is $NegatedConjecture",0);
+            if (RunOneATP($AxiomFile,$NegatedConjecture,"SAT",$ModelFinder,$CPULimit) eq 
+"CounterSatisfiable") {
+                return("Satisfiable");
+            }
+        }
+    }
+
+    return("Unknown");
+}
+#--------------------------------------------------------------------------------------------------
+sub RunOneATP {
+    my ($AxiomFile,$ConjectureFormula,$SZSTarget,$ATPSystem,$CPULimit) = @_;
+
+    my $ConjectureName;
+    my $ProblemFile;
+    my $OutputFile;
+    my $Result;
+    
+#----Whatever the conjecture role, make it conjecture
+    if (defined($ConjectureFormula)) {
+        $ConjectureFormula =~ s/^(...\([^,]*,)[^,]*(,.*)/$1conjecture$2/;
+        ($ConjectureName) = ($ConjectureFormula =~ /^...\(([^,]*),/);
+    } else {
+        $ConjectureName = "NO_CONJECTURE";
+    }
+#----Combine model axioms and conjecture
+    $ProblemFile = "$GlobalTemporaryDirectory/TryToProve_${$}_${ConjectureName}_${SZSTarget}";
+    $OutputFile = "$ProblemFile.output";
+    system("cp $AxiomFile $ProblemFile");
+    if (defined($ConjectureFormula)) {
+        system("echo '$ConjectureFormula' >> $ProblemFile");
+    }
+#DEBUG print("RUN SoT $SystemOnTPTP -q$GlobalOptions{'-q'} $ATPSystem $CPULimit $ProblemFile > $OutputFile\n");
+    system("$SystemOnTPTP -q$GlobalOptions{'-q'} $ATPSystem $CPULimit $ProblemFile > $OutputFile");
+
+#----grep for RESULT
+    $Result = `grep -m1 'RESULT' $OutputFile`;
+    if (defined($Result) && $Result =~ /RESULT/) {
+        ($Result) = ($Result =~ / says ([^ ]*)/);
+    } else {
+        $Result = "Unknown";
+    }
+    return($Result);
+}
+#--------------------------------------------------------------------------------------------------
+sub QuietPrint {
+    my ($Message,$MaxQuietness) = @_;
+
+    if ($GlobalOptions{'-q'} <= $MaxQuietness) {
+        print("$Message\n");
+    }
+}
+#--------------------------------------------------------------------------------------------------

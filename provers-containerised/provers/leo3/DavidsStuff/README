@@ -1,0 +1,28 @@
+
+Dockerfiles for generating container images for the Leo-III prover. Two folders:
+
+1) build (tag as "leo3-build")
+- Full image for building Leo-III prover from sources (depends on the "scala-build" image, whose Dockerfile is found in the folder: "../../base-build/scala-build").
+- Leo-III executable is generated in: "/bin/leo3" and later copied to "/artifacts/leo3" (same with leo3.jar).
+
+2) distr (tag as "leo3")
+- Image based upon a minimalist Alpine distribution + jre11 for distributing Leo-III prover (depends on the "leo3-build" image).
+- Default entrypoint is "/usr/bin/vampire" (can be overriden with flag "--entrypoint").
+
+
+Build Steps (from scratch):
+>> podman build -t scala-build <PATH_TO_scala-build_FOLDER>
+>> podman build -t leo3-build <PATH_TO_leo3/build_FOLDER>
+>> podman build -t leo3 <PATH_TO_leo3/distr_FOLDER>
+
+
+Example: Solving a proof problem (problems/sur_cantor.p)
+
+Run using "leo3-build" image:
+>> podman run --rm -v $PWD/problems:/problems --entrypoint /artifacts/leo3 leo3-build /problems/sur_cantor.p
+
+Run using "leo3" image:
+>> podman run --rm -v $PWD/problems:/problems leo3 /problems/sur_cantor.p
+
+Or via stdin (FIXME: parsing problem produces GiveUp)
+>> cat problems/sur_cantor.p | podman run --rm leo3 -

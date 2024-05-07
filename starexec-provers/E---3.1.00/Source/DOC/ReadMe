@@ -1,0 +1,64 @@
+This is the required ReadMe file for the CASC competitions.
+-----------------------------------------------------------
+
+For installation, follow the instructions in the main README
+file. Make sure to do a proper install, so that e_ltb_runner can find
+the executables. If you need to rebuild a StarExec version from the
+sources, run "make starexec", which should take care of
+everything. Note that THIS WILL DELETE $(STAREXECPATH), which is by
+default defined as $(HOME)/StarExec. Edit Makefile.vars to choose a
+different directory for building the StarExec distribution.
+
+The strategies for the different divisions are:
+
+THF:           starexec_run_E---_THF
+SLH:           starexec_run_E---_SLH
+FOF UEQ:       starexec_run_E---_FOF_UEQ
+TFN FNT:       starexec_run_E---_FNT
+
+Distinguished strings for the results:
+
+Problem is CNF and unsatisfiable:
+
+# SZS status Unsatisfiable
+
+Problem is CNF and satisfiable:
+
+# SZS status Satisfiable
+
+Problem is FOF and a theorem:
+
+# SZS status Theorem
+or
+# SZS status ContradictoryAxioms
+
+Problem is FOF and not a theorem:
+
+# SZS status CounterSatisfiable
+
+System gave up (usually resource limit)
+
+# Failure:
+
+
+The start of solution output for proofs:
+
+# SZS output start CNFRefutation.
+
+The end of solution output for proofs:
+
+# SZS output end CNFRefutation.
+
+
+The start of solution output for models/saturations:
+
+# SZS output start Saturation.
+
+The end of solution output for models/saturations:
+
+# SZS output end Saturation.
+
+
+LTB Problem processing:
+# SZS status Started for <name>
+# SZS status Ended for <name>

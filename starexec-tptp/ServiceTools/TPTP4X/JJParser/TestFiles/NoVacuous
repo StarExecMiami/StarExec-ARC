@@ -1,0 +1,6 @@
+fof(an_implication,hypothesis,
+    ( ? [X] :
+        ( ~ p(X)
+        | ~ t ) ),
+    file(foo,unknown),
+    []).

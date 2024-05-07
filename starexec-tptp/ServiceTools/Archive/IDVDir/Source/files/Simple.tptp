@@ -1,0 +1,9 @@
+fof(1, axiom,s__p(s__a__m),file('D:\Sigma\tomcat\temp\SIMPLE63562.p', kb_SIMPLE_1)).
+fof(2, conjecture,?[X1]:s__p(X1),file('D:\Sigma\tomcat\temp\SIMPLE63562.p', prove_from_SIMPLE)).
+fof(3, negated_conjecture,~(?[X1]:s__p(X1)),inference(assume_negation,[status(cth)],[2])).
+cnf(4,plain,(s__p(s__a__m)),inference(split_conjunct,[status(thm)],[1])).
+fof(5, negated_conjecture,![X1]:~(s__p(X1)),inference(fof_nnf,[status(thm)],[3])).
+fof(6, negated_conjecture,![X2]:~(s__p(X2)),inference(variable_rename,[status(thm)],[5])).
+cnf(7,negated_conjecture,(~s__p(X1)),inference(split_conjunct,[status(thm)],[6])).
+cnf(8,plain,($false),inference(sr,[status(thm)],[4,7,theory(equality)])).
+cnf(9,plain,($false),8,['proof']).

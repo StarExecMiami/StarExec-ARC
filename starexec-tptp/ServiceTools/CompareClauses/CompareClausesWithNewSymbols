@@ -1,0 +1,256 @@
+#!/usr/bin/perl -w
+
+#----Used to extract a field for each system in a specified division
+#----Usage GetSystemInfo <division> <field>
+
+use strict "vars";
+use IPC::Open2;
+#------------------------------------------------------------------------------
+my $TPTPDirectory = "/home/tptp";
+
+if (exists($ENV{TPTP_HOME})) {
+    $TPTPDirectory = $ENV{TPTP_HOME};
+}
+
+my $GetSymbols = "$TPTPDirectory/ServiceTools/GetSymbols";
+my $CompareClauses = "$TPTPDirectory/ServiceTools/CompareClauses/CompareClauses";
+
+my @GlobalReplacedClauses = ();
+#------------------------------------------------------------------------------
+DoMain();
+#------------------------------------------------------------------------------
+sub DoMain {
+
+    my $Clause1;
+    my $Clause2;
+    my $ProblemFileName;
+    my $Line;
+    my $SymbolsFact1;
+    my $SymbolsFact2;
+    my @Symbols1;
+    my @Symbols2;
+    my @ProblemSymbols;
+    my $Symbol;
+
+    if ($#ARGV != 0) {
+        print("ERROR: Missing problem file name\n");
+        exit;
+    }
+    $ProblemFileName = $ARGV[0];
+
+    $Clause1 = "";
+    $Clause2 = "";
+
+    while (($Line = <STDIN>) !~ /^ *EOF__ *$/) {
+        $Clause1 .= $Line;
+    }
+    chomp($Clause1);
+    while (defined($Line = <STDIN>)) {
+        $Clause2 .= $Line;
+    }
+    chomp($Clause2);
+
+#DEBUG print("---------------------\n");
+#DEBUG print("$Clause1");
+#DEBUG print("---------------------\n");
+#DEBUG print("$Clause2");
+#DEBUG print("---------------------\n");
+#DEBUG print("$ProblemFileName\n");
+#DEBUG print("---------------------\n");
+
+#----Check if they are identical without changes
+    ExitIfObviouslyEquivalent($Clause1,$Clause2);
+
+#----Get the symbols fact in Prolog format
+    $SymbolsFact1 = ExtractSymbolsFact($Clause1);
+    $SymbolsFact2 = ExtractSymbolsFact($Clause2);
+
+#----Check if they have the same predicate usage
+    @Symbols1 = ExtractPredicatesWithArityAndUse($SymbolsFact1);
+    @Symbols2 = ExtractPredicatesWithArityAndUse($SymbolsFact2);
+    if (join(',',@Symbols1) ne join(',',@Symbols2)) {
+        print("}{\n");
+        exit;
+    }
+
+#----Extract function symbols for changing
+    @Symbols1 = ExtractFunctionsWithArity($SymbolsFact1);
+    @Symbols2 = ExtractFunctionsWithArity($SymbolsFact2);
+    @ProblemSymbols = ExtractFunctionsWithArity(
+`$GetSymbols -all $ProblemFileName`);
+    @Symbols1 = Difference(\@Symbols1,\@ProblemSymbols);
+    @Symbols2 = Difference(\@Symbols2,\@ProblemSymbols);
+
+#DEBUG print("---------------------\n");
+#DEBUG print("@Symbols1\n");
+#DEBUG print("---------------------\n");
+#DEBUG print("@Symbols2\n");
+#DEBUG print("---------------------\n");
+#DEBUG print("@ProblemSymbols\n");
+#DEBUG print("=====================\n");
+
+    ComparePermutations($Clause1,$Clause2,[],\@Symbols1,\@Symbols2);
+
+#----By default the clauses are unrelated
+    print("}{\n");
+}
+#------------------------------------------------------------------------------
+sub ComparePermutations {
+    my ($Clause1,$Clause2,$AddedSymbolsRef1,$SymbolsRef1,$SymbolsRef2) = @_;
+
+    my @AddedSymbols1 = @$AddedSymbolsRef1;
+    my @Symbols1 = @$SymbolsRef1;
+    my @Symbols2 = @$SymbolsRef2;
+    my $ReplacedClause1;
+    my $ReplaceSymbolAndArity;
+    my $ReplaceSymbol;
+    my $ReplaceSymbolArity;
+    my $ReplaceIndex;
+    my $ReplaceWithSymbolAndArity;
+    my $ReplaceWithSymbol;
+    my $ReplaceWithSymbolArity;
+    my $ReplaceWithIndex;
+    my @RemainingSymbols1;
+    my @RemainingSymbols2;
+    my @NewAddedSymbols1;
+
+#DEBUG print("AS=@AddedSymbols1\nS1=(@Symbols1)\nS2=(@Symbols2)\n");
+#----Take a symbol to replace
+    $ReplaceIndex = -1;
+#DEBUG print("S1 loop start (@Symbols1)\n");
+    foreach $ReplaceSymbolAndArity (@Symbols1) {
+        $ReplaceIndex++;
+        @RemainingSymbols1 = @Symbols1;
+        splice(@RemainingSymbols1,$ReplaceIndex,1);
+#DEBUG print("RSAA=$ReplaceSymbolAndArity\nRS1=(@RemainingSymbols1)\n");
+
+#----Compare without changing this symbol
+#DEBUG print("---- upper enter\n");
+        @NewAddedSymbols1 = @AddedSymbols1;
+        push(@NewAddedSymbols1,($ReplaceSymbolAndArity));
+        ComparePermutations($Clause1,$Clause2,\@NewAddedSymbols1,
+\@RemainingSymbols1,$SymbolsRef2);
+#DEBUG print("---- upper exit\n");
+
+#----Compare with changing this symbol
+        ($ReplaceSymbol,$ReplaceSymbolArity) = ($ReplaceSymbolAndArity =~
+/(.+)\/([0-9]+)/);
+#----For each possible replacement
+        $ReplaceWithIndex = -1;
+#DEBUG print("S2 loop start (@Symbols2) ... RSAA=$ReplaceSymbolAndArity RS1=(@RemainingSymbols1) AS=@AddedSymbols1\n");
+        foreach $ReplaceWithSymbolAndArity (@Symbols2) {
+            $ReplaceWithIndex++;
+            @RemainingSymbols2 = @Symbols2;
+            splice(@RemainingSymbols2,$ReplaceWithIndex,1);
+#DEBUG print("RWAA=$ReplaceWithSymbolAndArity\nRS2=(@RemainingSymbols2)\n");
+
+            ($ReplaceWithSymbol,$ReplaceWithSymbolArity) =
+($ReplaceWithSymbolAndArity =~ /(.+)\/([0-9]+)/);
+            if ($ReplaceSymbol ne $ReplaceWithSymbol &&
+$ReplaceSymbolArity == $ReplaceWithSymbolArity &&
+!grep(/^\Q$ReplaceWithSymbolAndArity\E$/,@RemainingSymbols1) &&
+!grep(/^\Q$ReplaceWithSymbolAndArity\E$/,@AddedSymbols1)) {
+#DEBUG print("**** $ReplaceSymbol <- $ReplaceWithSymbol\n");
+                $ReplacedClause1 = $Clause1;
+                $ReplacedClause1 =~ 
+s/([,\(])\Q$ReplaceSymbol\E/$1$ReplaceWithSymbol/gs;
+                if (!grep(/^\Q$ReplacedClause1\E$/s,@GlobalReplacedClauses)) {
+                     ExitIfObviouslyEquivalent($ReplacedClause1,$Clause2);
+#DEBUG print("Compare \n$ReplacedClause1\n$Clause2\n");
+                    push(@GlobalReplacedClauses,($ReplacedClause1));
+                } else {
+#DEBUG print("Already compared\n$ReplacedClause1\n$Clause2\n");
+                }
+                if (scalar(@RemainingSymbols2) > 0) {
+                    @NewAddedSymbols1 = @AddedSymbols1;
+                    push(@NewAddedSymbols1,($ReplaceWithSymbolAndArity));
+#DEBUG print("---- lower enter\n");
+                    ComparePermutations($ReplacedClause1,$Clause2,
+\@NewAddedSymbols1,\@RemainingSymbols1,\@RemainingSymbols2);
+#DEBUG print("---- lower exit\n");
+                }
+            } else {
+#DEBUG print("No * $ReplaceSymbol <- $ReplaceWithSymbol\n");
+            }
+        }
+#DEBUG print("S2 loop end (@Symbols2)\n");
+    }
+#DEBUG print("S1 loop end (@Symbols1)\n");
+}
+#------------------------------------------------------------------------------
+sub Difference {
+    my ($AllSymbolsRef,$SubsetRef) = @_;
+
+    my @DifferenceList;
+    my $Symbol;
+
+    foreach $Symbol (@$AllSymbolsRef) {
+        if (!grep(/^\Q$Symbol\E$/,@$SubsetRef)) {
+            push(@DifferenceList,($Symbol));
+        }
+    }
+    return(@DifferenceList);
+}
+#------------------------------------------------------------------------------
+sub ExtractSymbolsFact {
+    my ($Clause) = @_;
+
+    my $Symbols;
+
+    open2(\*OUTPUT,\*INPUT,"$GetSymbols -all --");
+    print(INPUT $Clause);
+    close(INPUT);
+    $Symbols = <OUTPUT>;
+    close(OUTPUT);
+    chomp($Symbols);
+    return($Symbols);
+}
+#------------------------------------------------------------------------------
+sub ExtractFunctionsWithArity {
+    my ($SymbolsFact) = @_;
+
+    my $Symbol;
+    my $Symbols;
+    my @Symbols;
+
+    ($Symbols) = ($SymbolsFact =~ /symbols\(all,\[(.*)\],\[.*/);
+    @Symbols = split(/,/,$Symbols);
+    foreach $Symbol (@Symbols) {
+        $Symbol =~ s/\/[0-9]+$//;
+    }
+    return(sort(@Symbols));
+}
+#------------------------------------------------------------------------------
+sub ExtractPredicatesWithArityAndUse {
+    my ($SymbolsFact) = @_;
+
+    my $Symbol;
+    my $Symbols;
+    my @Symbols;
+
+    ($Symbols) = ($SymbolsFact =~ /symbols\(all,\[.*\],\[(.*)\]/);
+    @Symbols = split(/,/,$Symbols);
+    return(sort(@Symbols));
+}
+#------------------------------------------------------------------------------
+sub ExitIfObviouslyEquivalent {
+    my ($Clause1,$Clause2) = @_;
+
+    my $Result;
+
+#DEBUG print("Compare \n$Clause1\n$Clause2\n");
+    open2(\*OUTPUT,\*INPUT,"$CompareClauses");
+    print(INPUT "$Clause1\n");
+    print(INPUT "$Clause2\n");
+    close(INPUT);
+    $Result = <OUTPUT>;
+    close(OUTPUT);
+    chomp($Result);
+#DEBUG print("Result is $Result\n");
+
+    if ($Result =~ /^same\(/) {
+        print("==\n");
+        exit;
+    }
+}
+#------------------------------------------------------------------------------

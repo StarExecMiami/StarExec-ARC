@@ -1,0 +1,14 @@
+//*****************************************************************************
+//*****************************************************************************
+/* 
+   Steven Trac
+   Edge Class, for graph proof tree
+*/
+
+public class Edge {
+    private Node start, end;
+    
+    public Edge (Node start, Node end) {
+	start = start; end = end;
+    }
+}

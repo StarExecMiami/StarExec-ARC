@@ -1,0 +1,211 @@
+#!/usr/bin/perl -w
+
+use strict "vars";
+#-----------------------------------------------------------------------------
+my $TPTPDirectory = "/home/tptp";
+
+if (exists($ENV{TPTP_HOME})) {
+    $TPTPDirectory = $ENV{TPTP_HOME};
+}
+if (! exists($ENV{TPTP})) {
+    $ENV{TPTP} = "$TPTPDirectory/TPTP";
+}
+if (! -d $ENV{TPTP}) {
+    die("ERROR: Cannot find TPTP directory\n");
+}
+
+my $TryToProve = "$TPTPDirectory/ServiceTools/TryToProve";
+
+#----Global for use in END statements
+my $GlobalTemporaryDirectory = "/tmp/InterpretByATP_$$";
+my $GlobalInterrupted = 0;
+my %GlobalOptions;
+
+my $DefaultProver = "Vampire---4.0";
+my $DefaultModelFinder = "iProver---SAT-2.0";
+my $DefaultCPULimit = 10;
+#-----------------------------------------------------------------------------
+DoMain();
+#-----------------------------------------------------------------------------
+sub DoMain {
+
+    %GlobalOptions = (
+          "-q" => "1",          #----Quietness
+          "-c" => "0",          #----Be default the model is not complete
+          "-t" => $DefaultCPULimit,
+          "-p" => "1",          #----Use prover
+          "-m" => "0",          #----Use model finder
+          "-k" => undef,        #----Don't keep temporary files
+       );
+    my $Key;
+
+    my $ModelFile;
+    my $ConjectureFileOrFormula;
+    my $Prover;
+    my $ModelFinder;
+
+#----Send QUIT signals to the right place
+    $SIG{'QUIT'} = 'QUITHandler';
+    $SIG{'XCPU'} = 'QUITHandler';
+    $SIG{'INT'}  = 'QUITHandler';
+    $SIG{'ALRM'} = 'QUITHandler';
+
+#----Send STDERR to STDOUT
+    close(STDERR);
+    open(STDERR,">&STDOUT");
+#----Flush output
+    $| = 1;
+
+#----Extract command line arguments
+    while (scalar(@ARGV) >= 2 && $ARGV[0] =~/-[a-z]/) {
+        $Key = shift(@ARGV);
+        if (length($Key) == 2) {
+            if (defined($ARGV[0])) {
+                $GlobalOptions{$Key} = shift(@ARGV);
+            } else {
+                Usage();
+            }
+        } else {
+            $GlobalOptions{substr($Key,0,2)} = substr($Key,2);
+        }
+    }
+
+    if (defined($GlobalOptions{'-k'})) {
+        $GlobalTemporaryDirectory = $GlobalOptions{'-k'};
+    } 
+    system("mkdir -p $GlobalTemporaryDirectory");
+    END {
+        if (!defined($GlobalOptions{'-k'})) {
+            system("rm -rf $GlobalTemporaryDirectory");
+        }
+    }
+
+#----Command line is model file, problem file, optional ATP system
+    if (scalar(@ARGV) < 2 || ! -f ($ModelFile = $ARGV[0])) {
+        Usage();
+        die("\n");
+    }
+    $ConjectureFileOrFormula = $ARGV[1];
+
+#----Choose the prover and model finder
+    if ($GlobalOptions{'-p'} eq "0") {
+        $Prover = undef;
+    } elsif ($GlobalOptions{'-p'} eq "1") {
+        $Prover = $DefaultProver;
+    } else {
+        $Prover = $GlobalOptions{'-p'};
+        $GlobalOptions{'-p'} = "1";
+    }
+    if ($GlobalOptions{'-m'} eq "0") {
+        $ModelFinder = undef;
+    } elsif ($GlobalOptions{'-m'} eq "1") {
+        $ModelFinder = $DefaultModelFinder;
+    } else {
+        $ModelFinder = $GlobalOptions{'-m'};
+        $GlobalOptions{'-m'} = "1";
+    }
+
+    Interpret($ModelFile,$ConjectureFileOrFormula,$Prover,$ModelFinder,
+$GlobalOptions{'-t'});
+}
+#-----------------------------------------------------------------------------
+sub Usage {
+
+    print("
+Usage 
+    InterpretByATP [-qN] [-c0/1] [-t N] [-p prover] [-m model_finder] [-k dir] model_file conjecture[_file]
+");
+}
+#-----------------------------------------------------------------------------
+sub QUITHandler {
+    my ($Signal) = @_;
+
+    $GlobalInterrupted = 1;
+
+    if ($Signal eq 'INT' || $Signal eq 'QUIT') {
+        die("Terminated by ^C\n");
+    }
+}
+#-----------------------------------------------------------------------------
+sub Interpret {
+    my ($ModelFile,$FileOrFormula,$Prover,$ModelFinder,$CPULimit) = @_;
+
+    my $FormulaName;
+    my $TryToProveCommand;
+    my $TryingLine;
+    my $ATPResult;
+    my $Result;
+    my $FromWhat;
+    my $AllResult = "Unknown";
+    my $NumberOfResults;
+
+#----Set the role to conjecture
+    $TryToProveCommand = "$TryToProve -q0 -b1 -t $CPULimit ";
+    if (defined($Prover)) {
+        $TryToProveCommand .= " -p $Prover";
+    }
+    if (defined($ModelFinder)) {
+        $TryToProveCommand .= " -m $ModelFinder";
+    }
+#----If complete then trust negative results
+    if ($GlobalOptions{'-c'}) {
+        $TryToProveCommand .= " -n 1";
+    }
+    $TryToProveCommand .= " $ModelFile '$FileOrFormula'";
+    open(TRYTOPROVE,"$TryToProveCommand |") ||
+die("ERROR: Cannot start $TryToProveCommand\n");
+    $NumberOfResults = 0;
+    while (!$GlobalInterrupted && defined($TryingLine = <TRYTOPROVE>)) {
+        chomp($TryingLine);
+        QuietPrint($TryingLine,0);
+#DEBUG print(">>>>=$TryingLine====\n");
+        if ($TryingLine =~ /SZS status/) {
+            $NumberOfResults++;
+            ($ATPResult,$FormulaName,$FromWhat) =
+($TryingLine =~ / SZS status ([^ ]*) for ([^ ]*) from ([^ ]*)/);
+            $Result = InterpretATPResult($ATPResult);
+            if ($FileOrFormula eq $FormulaName) {
+                $AllResult = $ATPResult;
+            } else {
+                QuietPrint("Proving result for $FormulaName is $Result",0);
+                print("% SZS status $Result for $FormulaName");
+                QuietPrint(" from $ModelFile",0);
+                print("\n");
+            }
+        }
+    }
+    close(TRYTOPROVE);
+    if ($GlobalInterrupted) {
+        $AllResult = "Unknown";
+    }
+    if ($GlobalInterrupted || $NumberOfResults > 1) {
+        print("% SZS status $AllResult for $FileOrFormula");
+        QuietPrint(" from $ModelFile",0);
+        print("\n");
+    }
+}
+#-----------------------------------------------------------------------------
+sub InterpretATPResult {
+    my ($Result) = @_;
+
+    if ($Result eq "Theorem") {
+        return("\$true");
+    } elsif ($Result eq "CounterSatisfiable" && $GlobalOptions{'-c'}) {
+        return("\$false");
+    } elsif ($Result eq "CounterTheorem") {
+        return("\$false");
+    } elsif ($Result eq "Satisfiable" && $GlobalOptions{'-c'}) {
+        return("\$true");
+    } else {
+        return("Unknown");
+    }
+}
+#-----------------------------------------------------------------------------
+sub QuietPrint {
+    my ($Message,$MaxQuietness) = @_;
+
+    if ($GlobalOptions{'-q'} <= $MaxQuietness) {
+        print("$Message\n");
+    }
+}
+#-----------------------------------------------------------------------------

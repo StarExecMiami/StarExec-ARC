@@ -1,0 +1,471 @@
+<!DOCTYPE html
+htmlPUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+EN "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+<title>System Results</title>
+<meta name="ROBOTS" content="INDEX,NOFOLLOW" />
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+</head>
+<body>
+
+<PRE>
+</PRE>
+Loading IDV ...
+<APPLET CODE="IDVApplet.class" ARCHIVE="IDV.jar,TptpParser.jar,antlr-2.7.5.jar" WIDTH=100 HEIGHT=1>
+<PARAM NAME="TPTP" VALUE="
+fof(1,axiom,(
+    ? [X1] : 
+      ( lives(X1)
+      & killed(X1,agatha) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp',pel55_1)).
+
+fof(5,axiom,(
+    ! [X1] : 
+      ( lives(X1)
+     => ( X1 = agatha
+        | X1 = butler
+        | X1 = charles ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp',pel55_3)).
+
+fof(6,axiom,(
+    ! [X1,X2] : 
+      ( killed(X1,X2)
+     => hates(X1,X2) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp',pel55_4)).
+
+fof(7,axiom,(
+    ! [X1,X2] : 
+      ( killed(X1,X2)
+     => ~ richer(X1,X2) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp',pel55_5)).
+
+fof(8,axiom,(
+    ! [X1] : 
+      ( hates(agatha,X1)
+     => ~ hates(charles,X1) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp',pel55_6)).
+
+fof(9,axiom,(
+    ! [X1] : 
+      ( X1 != butler
+     => hates(agatha,X1) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp',pel55_7)).
+
+fof(10,axiom,(
+    ! [X1] : 
+      ( ~ richer(X1,agatha)
+     => hates(butler,X1) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp',pel55_8)).
+
+fof(11,axiom,(
+    ! [X1] : 
+      ( hates(agatha,X1)
+     => hates(butler,X1) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp',pel55_9)).
+
+fof(12,axiom,(
+    ! [X1] : 
+    ? [X2] : ~ hates(X1,X2) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp',pel55_10)).
+
+fof(13,axiom,(
+    agatha != butler ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp',pel55_11)).
+
+fof(14,conjecture,(
+    killed(agatha,agatha) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp',pel55)).
+
+fof(15,negated_conjecture,(
+    ~ killed(agatha,agatha) ),
+    inference(assume_negation,[status(cth)],[14])).
+
+fof(16,plain,(
+    ? [X2] : 
+      ( lives(X2)
+      & killed(X2,agatha) ) ),
+    inference(variable_rename,[status(thm)],[1])).
+
+fof(17,plain,
+    ( lives(esk1_0)
+    & killed(esk1_0,agatha) ),
+    inference(skolemize,[status(sab)],[16])).
+
+cnf(18,plain,
+    ( killed(esk1_0,agatha) ),
+    inference(split_conjunct,[status(thm)],[17])).
+
+cnf(19,plain,
+    ( lives(esk1_0) ),
+    inference(split_conjunct,[status(thm)],[17])).
+
+fof(23,plain,(
+    ! [X1] : 
+      ( ~ lives(X1)
+      | X1 = agatha
+      | X1 = butler
+      | X1 = charles ) ),
+    inference(fof_nnf,[status(thm)],[5])).
+
+fof(24,plain,(
+    ! [X2] : 
+      ( ~ lives(X2)
+      | X2 = agatha
+      | X2 = butler
+      | X2 = charles ) ),
+    inference(variable_rename,[status(thm)],[23])).
+
+cnf(25,plain,
+    ( X1 = charles
+    | X1 = butler
+    | X1 = agatha
+    | ~ lives(X1) ),
+    inference(split_conjunct,[status(thm)],[24])).
+
+fof(26,plain,(
+    ! [X1,X2] : 
+      ( ~ killed(X1,X2)
+      | hates(X1,X2) ) ),
+    inference(fof_nnf,[status(thm)],[6])).
+
+fof(27,plain,(
+    ! [X3,X4] : 
+      ( ~ killed(X3,X4)
+      | hates(X3,X4) ) ),
+    inference(variable_rename,[status(thm)],[26])).
+
+cnf(28,plain,
+    ( hates(X1,X2)
+    | ~ killed(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[27])).
+
+fof(29,plain,(
+    ! [X1,X2] : 
+      ( killed(X1,X2)
+     => ~ richer(X1,X2) ) ),
+    inference(fof_simplification,[status(thm)],[7,theory(equality)])).
+
+fof(30,plain,(
+    ! [X1,X2] : 
+      ( ~ killed(X1,X2)
+      | ~ richer(X1,X2) ) ),
+    inference(fof_nnf,[status(thm)],[29])).
+
+fof(31,plain,(
+    ! [X3,X4] : 
+      ( ~ killed(X3,X4)
+      | ~ richer(X3,X4) ) ),
+    inference(variable_rename,[status(thm)],[30])).
+
+cnf(32,plain,
+    ( ~ richer(X1,X2)
+    | ~ killed(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[31])).
+
+fof(33,plain,(
+    ! [X1] : 
+      ( hates(agatha,X1)
+     => ~ hates(charles,X1) ) ),
+    inference(fof_simplification,[status(thm)],[8,theory(equality)])).
+
+fof(34,plain,(
+    ! [X1] : 
+      ( ~ hates(agatha,X1)
+      | ~ hates(charles,X1) ) ),
+    inference(fof_nnf,[status(thm)],[33])).
+
+fof(35,plain,(
+    ! [X2] : 
+      ( ~ hates(agatha,X2)
+      | ~ hates(charles,X2) ) ),
+    inference(variable_rename,[status(thm)],[34])).
+
+cnf(36,plain,
+    ( ~ hates(charles,X1)
+    | ~ hates(agatha,X1) ),
+    inference(split_conjunct,[status(thm)],[35])).
+
+fof(37,plain,(
+    ! [X1] : 
+      ( X1 = butler
+      | hates(agatha,X1) ) ),
+    inference(fof_nnf,[status(thm)],[9])).
+
+fof(38,plain,(
+    ! [X2] : 
+      ( X2 = butler
+      | hates(agatha,X2) ) ),
+    inference(variable_rename,[status(thm)],[37])).
+
+cnf(39,plain,
+    ( hates(agatha,X1)
+    | X1 = butler ),
+    inference(split_conjunct,[status(thm)],[38])).
+
+fof(40,plain,(
+    ! [X1] : 
+      ( ~ richer(X1,agatha)
+     => hates(butler,X1) ) ),
+    inference(fof_simplification,[status(thm)],[10,theory(equality)])).
+
+fof(41,plain,(
+    ! [X1] : 
+      ( richer(X1,agatha)
+      | hates(butler,X1) ) ),
+    inference(fof_nnf,[status(thm)],[40])).
+
+fof(42,plain,(
+    ! [X2] : 
+      ( richer(X2,agatha)
+      | hates(butler,X2) ) ),
+    inference(variable_rename,[status(thm)],[41])).
+
+cnf(43,plain,
+    ( hates(butler,X1)
+    | richer(X1,agatha) ),
+    inference(split_conjunct,[status(thm)],[42])).
+
+fof(44,plain,(
+    ! [X1] : 
+      ( ~ hates(agatha,X1)
+      | hates(butler,X1) ) ),
+    inference(fof_nnf,[status(thm)],[11])).
+
+fof(45,plain,(
+    ! [X2] : 
+      ( ~ hates(agatha,X2)
+      | hates(butler,X2) ) ),
+    inference(variable_rename,[status(thm)],[44])).
+
+cnf(46,plain,
+    ( hates(butler,X1)
+    | ~ hates(agatha,X1) ),
+    inference(split_conjunct,[status(thm)],[45])).
+
+fof(47,plain,(
+    ! [X1] : 
+    ? [X2] : ~ hates(X1,X2) ),
+    inference(fof_simplification,[status(thm)],[12,theory(equality)])).
+
+fof(48,plain,(
+    ! [X3] : 
+    ? [X4] : ~ hates(X3,X4) ),
+    inference(variable_rename,[status(thm)],[47])).
+
+fof(49,plain,(
+    ! [X3] : ~ hates(X3,esk2_1(X3)) ),
+    inference(skolemize,[status(sab)],[48])).
+
+cnf(50,plain,
+    ( ~ hates(X1,esk2_1(X1)) ),
+    inference(split_conjunct,[status(thm)],[49])).
+
+cnf(51,plain,
+    ( agatha != butler ),
+    inference(split_conjunct,[status(thm)],[13])).
+
+fof(52,negated_conjecture,(
+    ~ killed(agatha,agatha) ),
+    inference(fof_simplification,[status(thm)],[15,theory(equality)])).
+
+cnf(53,negated_conjecture,
+    ( ~ killed(agatha,agatha) ),
+    inference(split_conjunct,[status(thm)],[52])).
+
+cnf(54,plain,
+    ( charles = esk1_0
+    | butler = esk1_0
+    | agatha = esk1_0 ),
+    inference(spm,[status(thm)],[25,19,theory(equality)])).
+
+cnf(56,plain,
+    ( ~ hates(agatha,esk2_1(butler)) ),
+    inference(spm,[status(thm)],[50,46,theory(equality)])).
+
+cnf(58,plain,
+    ( hates(butler,X1)
+    | ~ killed(X1,agatha) ),
+    inference(spm,[status(thm)],[32,43,theory(equality)])).
+
+cnf(63,plain,
+    ( killed(charles,agatha)
+    | esk1_0 = agatha
+    | esk1_0 = butler ),
+    inference(spm,[status(thm)],[18,54,theory(equality)])).
+
+cnf(67,plain,
+    ( butler = esk2_1(butler) ),
+    inference(spm,[status(thm)],[56,39,theory(equality)])).
+
+cnf(68,plain,
+    ( ~ hates(butler,butler) ),
+    inference(spm,[status(thm)],[50,67,theory(equality)])).
+
+cnf(83,plain,
+    ( hates(butler,esk1_0) ),
+    inference(spm,[status(thm)],[58,18,theory(equality)])).
+
+cnf(107,plain,
+    ( hates(charles,agatha)
+    | esk1_0 = butler
+    | esk1_0 = agatha ),
+    inference(spm,[status(thm)],[28,63,theory(equality)])).
+
+cnf(109,plain,
+    ( esk1_0 = agatha
+    | esk1_0 = butler
+    | ~ hates(agatha,agatha) ),
+    inference(spm,[status(thm)],[36,107,theory(equality)])).
+
+cnf(110,plain,
+    ( esk1_0 = butler
+    | esk1_0 = agatha
+    | butler = agatha ),
+    inference(spm,[status(thm)],[109,39,theory(equality)])).
+
+cnf(112,plain,
+    ( esk1_0 = butler
+    | esk1_0 = agatha ),
+    inference(sr,[status(thm)],[110,51,theory(equality)])).
+
+cnf(117,plain,
+    ( hates(butler,butler)
+    | esk1_0 = agatha ),
+    inference(spm,[status(thm)],[83,112,theory(equality)])).
+
+cnf(121,plain,
+    ( esk1_0 = agatha ),
+    inference(sr,[status(thm)],[117,68,theory(equality)])).
+
+cnf(126,plain,
+    ( killed(agatha,agatha) ),
+    inference(rw,[status(thm)],[18,121,theory(equality)])).
+
+cnf(127,plain,
+    ( $false ),
+    inference(sr,[status(thm)],[126,53,theory(equality)])).
+
+cnf(128,plain,
+    ( $false ),
+    127,
+    ['proof']).
+">
+<PARAM NAME="COORD" VALUE="1,0,1280,0,0,0,
+5,0,1471,0,0,0,
+6,0,1653,0,0,0,
+7,0,724,0,0,0,
+8,0,1834,0,0,0,
+9,0,1079,0,0,0,
+10,0,898,0,0,0,
+11,0,542,0,0,0,
+12,0,368,0,0,0,
+13,0,2015,0,0,0,
+14,0,181,0,0,0,
+15,1,181,200,1,10,1,10,
+16,1,1280,200,1,0,1,0,
+17,2,1280,400,1,12,1,12,
+18,4,1199,800,1,13,1,66,
+19,4,1348,800,1,13,1,66,
+23,1,1471,200,1,1,1,1,
+24,2,1471,400,1,16,1,16,
+25,4,1471,800,1,17,1,75,
+26,1,1653,200,1,2,1,2,
+27,2,1653,400,1,19,1,19,
+28,4,1653,800,1,20,1,76,
+29,1,724,200,1,3,1,3,
+30,2,724,400,1,22,1,22,
+31,3,724,600,1,23,1,23,
+32,4,724,800,1,24,1,24,
+33,1,1834,200,1,4,1,4,
+34,2,1834,400,1,26,1,26,
+35,3,1834,600,1,27,1,27,
+36,4,1834,800,1,28,1,28,
+37,1,1079,200,1,5,1,5,
+38,2,1079,400,1,30,1,30,
+39,4,1079,800,1,31,1,82,
+40,1,898,200,1,6,1,6,
+41,2,898,400,1,33,1,33,
+42,3,898,600,1,34,1,34,
+43,4,898,800,1,35,1,35,
+44,1,542,200,1,7,1,7,
+45,2,542,400,1,37,1,37,
+46,4,542,800,1,38,1,87,
+47,1,368,200,1,8,1,8,
+48,2,368,400,1,40,1,40,
+49,3,368,600,1,41,1,41,
+50,4,368,800,1,42,1,42,
+51,4,2015,800,1,9,1,65,
+52,2,181,400,1,11,1,11,
+53,4,181,800,1,45,1,95,
+54,5,1405,1000,2,18,15,2,15,18,
+56,5,560,1000,2,43,39,2,39,43,
+58,5,797,1000,2,25,36,2,25,36,
+63,6,1385,1200,2,14,47,2,67,47,
+67,6,620,1200,2,48,32,2,83,48,
+68,7,503,1400,2,43,51,2,89,51,
+83,6,831,1200,2,49,14,2,67,49,
+107,7,1495,1400,2,21,50,2,78,50,
+109,8,1623,1600,2,29,54,2,81,54,
+110,9,1568,1800,2,55,32,2,86,55,
+112,10,1790,2000,2,56,44,2,94,56,
+117,11,1697,2200,2,53,57,2,112,57,
+121,12,1581,2400,2,58,52,2,108,58,
+126,13,1408,2600,2,14,59,2,74,59,
+127,14,1099,2800,2,60,46,2,104,60,
+128,15,1099,3000,1,61,1,61,
+V63,1,2015,200,0,1,9,
+V64,2,2015,400,0,1,63,
+V65,3,2015,600,0,1,64,
+V66,3,1278,600,0,1,13,
+V67,5,1186,1000,0,1,14,
+V68,6,1203,1200,0,1,67,
+V69,7,1237,1400,0,1,68,
+V70,8,1337,1600,0,1,69,
+V71,9,1298,1800,0,1,70,
+V72,10,1413,2000,0,1,71,
+V73,11,1311,2200,0,1,72,
+V74,12,1173,2400,0,1,73,
+V75,3,1471,600,0,1,17,
+V76,3,1653,600,0,1,20,
+V77,5,1610,1000,0,1,21,
+V78,6,1582,1200,0,1,77,
+V79,5,1806,1000,0,1,29,
+V80,6,1786,1200,0,1,79,
+V81,7,1709,1400,0,1,80,
+V82,3,1079,600,0,1,31,
+V83,5,965,1000,0,1,32,
+V84,6,994,1200,0,1,83,
+V85,7,1000,1400,0,1,84,
+V86,8,1129,1600,0,1,85,
+V87,3,542,600,0,1,38,
+V88,5,394,1000,0,1,43,
+V89,6,414,1200,0,1,88,
+V90,5,2002,1000,0,1,44,
+V91,6,1992,1200,0,1,90,
+V92,7,1954,1400,0,1,91,
+V93,8,1922,1600,0,1,92,
+V94,9,1878,1800,0,1,93,
+V95,3,181,600,0,1,45,
+V96,5,196,1000,0,1,46,
+V97,6,206,1200,0,1,96,
+V98,7,242,1400,0,1,97,
+V99,8,276,1600,0,1,98,
+V100,9,316,1800,0,1,99,
+V101,10,370,2000,0,1,100,
+V102,11,446,2200,0,1,101,
+V103,12,560,2400,0,1,102,
+V104,13,748,2600,0,1,103,
+V105,8,553,1600,0,1,52,
+V106,9,632,1800,0,1,105,
+V107,10,740,2000,0,1,106,
+V108,11,911,2200,0,1,107,
+V109,7,760,1400,0,1,53,
+V110,8,830,1600,0,1,109,
+V111,9,949,1800,0,1,110,
+V112,10,1126,2000,0,1,111,
+"
+</APPLET>
+
+</body>
+</html>

@@ -1,0 +1,71 @@
+fof(1,axiom,
+    ( ! [X1] : 
+        ( p(X1)
+       => q(X1) ) ),
+    unknown).
+
+fof(2,axiom,
+    ( ? [X2] : p(X2) ),
+    unknown).
+
+fof(3,conjecture,
+    ( ? [X1] : q(X1) ),
+    unknown).
+
+fof(4,assumption-derived,
+    ( ~ ( ? [X1] : q(X1) ) ),
+    inference(assume_negation,[status(cth)],[3])).
+
+fof(5,plain-derived,
+    ( ! [X1] : 
+        ( ~ p(X1)
+        | q(X1) ) ),
+    inference(fof_nnf,[status(thm)],[1])).
+
+fof(6,plain-derived,
+    ( ! [X2] : 
+        ( ~ p(X2)
+        | q(X2) ) ),
+    inference(variable_rename,[status(thm)],[5])).
+
+cnf(7,plain-derived,
+    ( q(X2)
+    | ~ p(X2) ),
+    inference(split_conjunct,[status(thm)],[6])).
+
+fof(8,plain-derived,
+    ( ? [X3] : p(X3) ),
+    inference(variable_rename,[status(thm)],[2])).
+
+fof(9,plain-derived,
+    ( p(esk1_0) ),
+    inference(skolemize,[status(sab)],[8])).
+
+cnf(10,plain-derived,
+    ( p(esk1_0) ),
+    inference(split_conjunct,[status(thm)],[9])).
+
+fof(11,assumption-derived,
+    ( ! [X1] : ~ q(X1) ),
+    inference(fof_nnf,[status(thm)],[4])).
+
+fof(12,assumption-derived,
+    ( ! [X2] : ~ q(X2) ),
+    inference(variable_rename,[status(thm)],[11])).
+
+cnf(13,conjecture-derived,
+    ( ~ q(X2) ),
+    inference(split_conjunct,[status(thm)],[12])).
+
+cnf(14,plain-derived,
+    ( ~ p(X2) ),
+    inference(sr,[status(thm)],[7,13,theory(equality)])).
+
+cnf(15,plain-derived,
+    ( false ),
+    inference(sr,[status(thm)],[10,14,theory(equality)])).
+
+cnf(16,plain-derived,
+    ( false ),
+    15,
+    ['proof']).

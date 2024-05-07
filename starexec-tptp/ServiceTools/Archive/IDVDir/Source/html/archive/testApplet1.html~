@@ -1,0 +1,23 @@
+<HTML>
+
+Here is the applet...
+<APPLET CODE=IDVApplet.class archive="IDV.jar" WIDTH=800 HEIGHT=100>
+<PARAM NAME="TPTP" VALUE="
+cnf(1,hypothesis,\
+    ( equalish(subtract(add(X0,X1),X1),X0) ),\
+    file('NUM001-1.p',unknown),\
+    []).\
+\
+cnf(3,lemma,\
+    ( equalish(subtract(add(X0,X1),X1),X0) ),\
+    inference(resolution,[status(thm)],[1]),\
+    []).\
+\
+cnf(28,derived,\
+    ( $false ),\
+    inference(resolution,[status(thm)],[3]),\
+    [iquote('[11,1->28, resolution]')]).\
+">
+Hey, you can't see my applet!!!
+</APPLET>
+</HTML>

@@ -1,0 +1,898 @@
+%------------------------------------------------------------------------------
+% File       : EP---0.99
+% Problem    : /tmp/SystemOnTPTPFormReply5079/SOT_zwTQXw : TPTP v?.?.?
+% Transform  : none
+% Format     : tptp
+% Command    : eproof --print-statistics -xAuto -tAuto --cpu-limit=%d --memory-limit=Auto --tstp-in --tstp-out %s
+
+% Computer   : wombat.cs.miami.edu
+% Model      : i686 i686
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2794MHz
+% Memory     : 1009MB
+% OS         : Linux 2.6.11-1.1369_FC4
+% CPULimit   : 30s
+
+% Result     : Theorem 4.2s
+% Output     : Refutation 4.2s
+% Verified   :
+% Statistics : Number of formulae    :   17 (  17 expanded)
+%              Number of clauses     :    6 (   6 expanded)
+%              Number of leaves      :    3 (   3 expanded)
+%              Depth                 :    9
+%              Number of atoms       :  705 ( 705 expanded)
+%              Maximal formula depth :  129 (  21 average)
+%              Maximal clause size   :  189 ( 118 average)
+%              Maximal term depth    :    3 (   1 average)
+
+% Comments   :
+%------------------------------------------------------------------------------
+fof(115,axiom,(
+   holds_3__(instance,powerSetFn,totalValuedRelation) ),
+   file('/tmp/SystemOnTPTP5087/SOT_zwTQXw.p',kb_Merge_192)).
+
+fof(341,axiom,
+   ( ! [X24,X17] :
+       ( holds_3__(instance,X24,totalValuedRelation)
+     <=> ? [X93] :
+           ( holds_3__(instance,X24,relation)
+           & holds_3__(valence,X24,X93)
+           & ( ! [X16,X50,X2] :
+                 ( ( $less(X16,X93)
+                   & holds_4__(domain,X24,X16,X2)
+                   & X50 = apply_3__(listOrderFn,apply_2__(listFn,X17),X16) )
+                => holds_3__(instance,X50,X2) )
+            => ? [X94] : holds_3__(X24,X17,X94) ) ) )
+   & ! [X24,X17,X18] :
+       ( holds_3__(instance,X24,totalValuedRelation)
+     <=> ? [X93] :
+           ( holds_3__(instance,X24,relation)
+           & holds_3__(valence,X24,X93)
+           & ( ! [X16,X50,X2] :
+                 ( ( $less(X16,X93)
+                   & holds_4__(domain,X24,X16,X2)
+                   & X50 = apply_3__(listOrderFn,apply_3__(listFn,X17,X18),X16) )
+                => holds_3__(instance,X50,X2) )
+            => ? [X94] : holds_4__(X24,X17,X18,X94) ) ) )
+   & ! [X24,X17,X18,X19] :
+       ( holds_3__(instance,X24,totalValuedRelation)
+     <=> ? [X93] :
+           ( holds_3__(instance,X24,relation)
+           & holds_3__(valence,X24,X93)
+           & ( ! [X16,X50,X2] :
+                 ( ( $less(X16,X93)
+                   & holds_4__(domain,X24,X16,X2)
+                   & X50 = apply_3__(listOrderFn,apply_4__(listFn,X17,X18,X19),X16) )
+                => holds_3__(instance,X50,X2) )
+            => ? [X94] : holds_5__(X24,X17,X18,X19,X94) ) ) )
+   & ! [X24,X17,X18,X19,X20] :
+       ( holds_3__(instance,X24,totalValuedRelation)
+     <=> ? [X93] :
+           ( holds_3__(instance,X24,relation)
+           & holds_3__(valence,X24,X93)
+           & ( ! [X16,X50,X2] :
+                 ( ( $less(X16,X93)
+                   & holds_4__(domain,X24,X16,X2)
+                   & X50 = apply_3__(listOrderFn,apply_5__(listFn,X17,X18,X19,X20),X16) )
+                => holds_3__(instance,X50,X2) )
+            => ? [X94] : holds_6__(X24,X17,X18,X19,X20,X94) ) ) )
+   & ! [X24,X17,X18,X19,X20,X21] :
+       ( holds_3__(instance,X24,totalValuedRelation)
+     <=> ? [X93] :
+           ( holds_3__(instance,X24,relation)
+           & holds_3__(valence,X24,X93)
+           & ( ! [X16,X50,X2] :
+                 ( ( $less(X16,X93)
+                   & holds_4__(domain,X24,X16,X2)
+                   & X50 = apply_3__(listOrderFn,apply_6__(listFn,X17,X18,X19,X20,X21),X16) )
+                => holds_3__(instance,X50,X2) )
+            => ? [X94] : holds_7__(X24,X17,X18,X19,X20,X21,X94) ) ) )
+   & ! [X24,X17,X18,X19,X20,X21,X22] :
+       ( holds_3__(instance,X24,totalValuedRelation)
+     <=> ? [X93] :
+           ( holds_3__(instance,X24,relation)
+           & holds_3__(valence,X24,X93)
+           & ( ! [X16,X50,X2] :
+                 ( ( $less(X16,X93)
+                   & holds_4__(domain,X24,X16,X2)
+                   & X50 = apply_3__(listOrderFn,apply_7__(listFn,X17,X18,X19,X20,X21,X22),X16) )
+                => holds_3__(instance,X50,X2) )
+            => ? [X94] : holds_8__(X24,X17,X18,X19,X20,X21,X22,X94) ) ) )
+   & ! [X24,X17,X18,X19,X20,X21,X22,X23] :
+       ( holds_3__(instance,X24,totalValuedRelation)
+     <=> ? [X93] :
+           ( holds_3__(instance,X24,relation)
+           & holds_3__(valence,X24,X93)
+           & ( ! [X16,X50,X2] :
+                 ( ( $less(X16,X93)
+                   & holds_4__(domain,X24,X16,X2)
+                   & X50 = apply_3__(listOrderFn,apply_8__(listFn,X17,X18,X19,X20,X21,X22,X23),X16) )
+                => holds_3__(instance,X50,X2) )
+            => ? [X94] : holds_9__(X24,X17,X18,X19,X20,X21,X22,X23,X94) ) ) ) ),
+   file('/tmp/SystemOnTPTP5087/SOT_zwTQXw.p',kb_Merge_563)).
+
+fof(2622,conjecture,(
+   ? [X8] : holds_3__(instance,X8,relation) ),
+   file('/tmp/SystemOnTPTP5087/SOT_zwTQXw.p',prove_from_Merge)).
+
+fof(2623,negated_conjecture,(
+   ~ ? [X8] : holds_3__(instance,X8,relation) ),
+   inference(assume_negation,[status(cth)],[2622])).
+
+cnf(3262,plain,
+   ( holds_3__(instance,powerSetFn,totalValuedRelation) ),
+   inference(split_conjunct,[status(thm)],[115])).
+
+fof(3667,plain,
+   ( ! [X24,X17] :
+       ( ( ~ holds_3__(instance,X24,totalValuedRelation)
+         | ? [X93] :
+             ( holds_3__(instance,X24,relation)
+             & holds_3__(valence,X24,X93)
+             & ( ? [X16,X50,X2] :
+                   ( $less(X16,X93)
+                   & holds_4__(domain,X24,X16,X2)
+                   & X50 = apply_3__(listOrderFn,apply_2__(listFn,X17),X16)
+                   & ~ holds_3__(instance,X50,X2) )
+               | ? [X94] : holds_3__(X24,X17,X94) ) ) )
+       & ( ! [X93] :
+             ( ~ holds_3__(instance,X24,relation)
+             | ~ holds_3__(valence,X24,X93)
+             | ( ! [X16,X50,X2] :
+                   ( ~ $less(X16,X93)
+                   | ~ holds_4__(domain,X24,X16,X2)
+                   | X50 != apply_3__(listOrderFn,apply_2__(listFn,X17),X16)
+                   | holds_3__(instance,X50,X2) )
+               & ! [X94] : ~ holds_3__(X24,X17,X94) ) )
+         | holds_3__(instance,X24,totalValuedRelation) ) )
+   & ! [X24,X17,X18] :
+       ( ( ~ holds_3__(instance,X24,totalValuedRelation)
+         | ? [X93] :
+             ( holds_3__(instance,X24,relation)
+             & holds_3__(valence,X24,X93)
+             & ( ? [X16,X50,X2] :
+                   ( $less(X16,X93)
+                   & holds_4__(domain,X24,X16,X2)
+                   & X50 = apply_3__(listOrderFn,apply_3__(listFn,X17,X18),X16)
+                   & ~ holds_3__(instance,X50,X2) )
+               | ? [X94] : holds_4__(X24,X17,X18,X94) ) ) )
+       & ( ! [X93] :
+             ( ~ holds_3__(instance,X24,relation)
+             | ~ holds_3__(valence,X24,X93)
+             | ( ! [X16,X50,X2] :
+                   ( ~ $less(X16,X93)
+                   | ~ holds_4__(domain,X24,X16,X2)
+                   | X50 != apply_3__(listOrderFn,apply_3__(listFn,X17,X18),X16)
+                   | holds_3__(instance,X50,X2) )
+               & ! [X94] : ~ holds_4__(X24,X17,X18,X94) ) )
+         | holds_3__(instance,X24,totalValuedRelation) ) )
+   & ! [X24,X17,X18,X19] :
+       ( ( ~ holds_3__(instance,X24,totalValuedRelation)
+         | ? [X93] :
+             ( holds_3__(instance,X24,relation)
+             & holds_3__(valence,X24,X93)
+             & ( ? [X16,X50,X2] :
+                   ( $less(X16,X93)
+                   & holds_4__(domain,X24,X16,X2)
+                   & X50 = apply_3__(listOrderFn,apply_4__(listFn,X17,X18,X19),X16)
+                   & ~ holds_3__(instance,X50,X2) )
+               | ? [X94] : holds_5__(X24,X17,X18,X19,X94) ) ) )
+       & ( ! [X93] :
+             ( ~ holds_3__(instance,X24,relation)
+             | ~ holds_3__(valence,X24,X93)
+             | ( ! [X16,X50,X2] :
+                   ( ~ $less(X16,X93)
+                   | ~ holds_4__(domain,X24,X16,X2)
+                   | X50 != apply_3__(listOrderFn,apply_4__(listFn,X17,X18,X19),X16)
+                   | holds_3__(instance,X50,X2) )
+               & ! [X94] : ~ holds_5__(X24,X17,X18,X19,X94) ) )
+         | holds_3__(instance,X24,totalValuedRelation) ) )
+   & ! [X24,X17,X18,X19,X20] :
+       ( ( ~ holds_3__(instance,X24,totalValuedRelation)
+         | ? [X93] :
+             ( holds_3__(instance,X24,relation)
+             & holds_3__(valence,X24,X93)
+             & ( ? [X16,X50,X2] :
+                   ( $less(X16,X93)
+                   & holds_4__(domain,X24,X16,X2)
+                   & X50 = apply_3__(listOrderFn,apply_5__(listFn,X17,X18,X19,X20),X16)
+                   & ~ holds_3__(instance,X50,X2) )
+               | ? [X94] : holds_6__(X24,X17,X18,X19,X20,X94) ) ) )
+       & ( ! [X93] :
+             ( ~ holds_3__(instance,X24,relation)
+             | ~ holds_3__(valence,X24,X93)
+             | ( ! [X16,X50,X2] :
+                   ( ~ $less(X16,X93)
+                   | ~ holds_4__(domain,X24,X16,X2)
+                   | X50 != apply_3__(listOrderFn,apply_5__(listFn,X17,X18,X19,X20),X16)
+                   | holds_3__(instance,X50,X2) )
+               & ! [X94] : ~ holds_6__(X24,X17,X18,X19,X20,X94) ) )
+         | holds_3__(instance,X24,totalValuedRelation) ) )
+   & ! [X24,X17,X18,X19,X20,X21] :
+       ( ( ~ holds_3__(instance,X24,totalValuedRelation)
+         | ? [X93] :
+             ( holds_3__(instance,X24,relation)
+             & holds_3__(valence,X24,X93)
+             & ( ? [X16,X50,X2] :
+                   ( $less(X16,X93)
+                   & holds_4__(domain,X24,X16,X2)
+                   & X50 = apply_3__(listOrderFn,apply_6__(listFn,X17,X18,X19,X20,X21),X16)
+                   & ~ holds_3__(instance,X50,X2) )
+               | ? [X94] : holds_7__(X24,X17,X18,X19,X20,X21,X94) ) ) )
+       & ( ! [X93] :
+             ( ~ holds_3__(instance,X24,relation)
+             | ~ holds_3__(valence,X24,X93)
+             | ( ! [X16,X50,X2] :
+                   ( ~ $less(X16,X93)
+                   | ~ holds_4__(domain,X24,X16,X2)
+                   | X50 != apply_3__(listOrderFn,apply_6__(listFn,X17,X18,X19,X20,X21),X16)
+                   | holds_3__(instance,X50,X2) )
+               & ! [X94] : ~ holds_7__(X24,X17,X18,X19,X20,X21,X94) ) )
+         | holds_3__(instance,X24,totalValuedRelation) ) )
+   & ! [X24,X17,X18,X19,X20,X21,X22] :
+       ( ( ~ holds_3__(instance,X24,totalValuedRelation)
+         | ? [X93] :
+             ( holds_3__(instance,X24,relation)
+             & holds_3__(valence,X24,X93)
+             & ( ? [X16,X50,X2] :
+                   ( $less(X16,X93)
+                   & holds_4__(domain,X24,X16,X2)
+                   & X50 = apply_3__(listOrderFn,apply_7__(listFn,X17,X18,X19,X20,X21,X22),X16)
+                   & ~ holds_3__(instance,X50,X2) )
+               | ? [X94] : holds_8__(X24,X17,X18,X19,X20,X21,X22,X94) ) ) )
+       & ( ! [X93] :
+             ( ~ holds_3__(instance,X24,relation)
+             | ~ holds_3__(valence,X24,X93)
+             | ( ! [X16,X50,X2] :
+                   ( ~ $less(X16,X93)
+                   | ~ holds_4__(domain,X24,X16,X2)
+                   | X50 != apply_3__(listOrderFn,apply_7__(listFn,X17,X18,X19,X20,X21,X22),X16)
+                   | holds_3__(instance,X50,X2) )
+               & ! [X94] : ~ holds_8__(X24,X17,X18,X19,X20,X21,X22,X94) ) )
+         | holds_3__(instance,X24,totalValuedRelation) ) )
+   & ! [X24,X17,X18,X19,X20,X21,X22,X23] :
+       ( ( ~ holds_3__(instance,X24,totalValuedRelation)
+         | ? [X93] :
+             ( holds_3__(instance,X24,relation)
+             & holds_3__(valence,X24,X93)
+             & ( ? [X16,X50,X2] :
+                   ( $less(X16,X93)
+                   & holds_4__(domain,X24,X16,X2)
+                   & X50 = apply_3__(listOrderFn,apply_8__(listFn,X17,X18,X19,X20,X21,X22,X23),X16)
+                   & ~ holds_3__(instance,X50,X2) )
+               | ? [X94] : holds_9__(X24,X17,X18,X19,X20,X21,X22,X23,X94) ) ) )
+       & ( ! [X93] :
+             ( ~ holds_3__(instance,X24,relation)
+             | ~ holds_3__(valence,X24,X93)
+             | ( ! [X16,X50,X2] :
+                   ( ~ $less(X16,X93)
+                   | ~ holds_4__(domain,X24,X16,X2)
+                   | X50 != apply_3__(listOrderFn,apply_8__(listFn,X17,X18,X19,X20,X21,X22,X23),X16)
+                   | holds_3__(instance,X50,X2) )
+               & ! [X94] : ~ holds_9__(X24,X17,X18,X19,X20,X21,X22,X23,X94) ) )
+         | holds_3__(instance,X24,totalValuedRelation) ) ) ),
+   inference(fof_nnf,[status(thm)],[341])).
+
+fof(3668,plain,
+   ( ! [X95,X96] :
+       ( ( ~ holds_3__(instance,X95,totalValuedRelation)
+         | ? [X97] :
+             ( holds_3__(instance,X95,relation)
+             & holds_3__(valence,X95,X97)
+             & ( ? [X98,X99,X100] :
+                   ( $less(X98,X97)
+                   & holds_4__(domain,X95,X98,X100)
+                   & X99 = apply_3__(listOrderFn,apply_2__(listFn,X96),X98)
+                   & ~ holds_3__(instance,X99,X100) )
+               | ? [X101] : holds_3__(X95,X96,X101) ) ) )
+       & ( ! [X102] :
+             ( ~ holds_3__(instance,X95,relation)
+             | ~ holds_3__(valence,X95,X102)
+             | ( ! [X103,X104,X105] :
+                   ( ~ $less(X103,X102)
+                   | ~ holds_4__(domain,X95,X103,X105)
+                   | X104 != apply_3__(listOrderFn,apply_2__(listFn,X96),X103)
+                   | holds_3__(instance,X104,X105) )
+               & ! [X106] : ~ holds_3__(X95,X96,X106) ) )
+         | holds_3__(instance,X95,totalValuedRelation) ) )
+   & ! [X107,X108,X109] :
+       ( ( ~ holds_3__(instance,X107,totalValuedRelation)
+         | ? [X110] :
+             ( holds_3__(instance,X107,relation)
+             & holds_3__(valence,X107,X110)
+             & ( ? [X111,X112,X113] :
+                   ( $less(X111,X110)
+                   & holds_4__(domain,X107,X111,X113)
+                   & X112 = apply_3__(listOrderFn,apply_3__(listFn,X108,X109),X111)
+                   & ~ holds_3__(instance,X112,X113) )
+               | ? [X114] : holds_4__(X107,X108,X109,X114) ) ) )
+       & ( ! [X115] :
+             ( ~ holds_3__(instance,X107,relation)
+             | ~ holds_3__(valence,X107,X115)
+             | ( ! [X116,X117,X118] :
+                   ( ~ $less(X116,X115)
+                   | ~ holds_4__(domain,X107,X116,X118)
+                   | X117 != apply_3__(listOrderFn,apply_3__(listFn,X108,X109),X116)
+                   | holds_3__(instance,X117,X118) )
+               & ! [X119] : ~ holds_4__(X107,X108,X109,X119) ) )
+         | holds_3__(instance,X107,totalValuedRelation) ) )
+   & ! [X120,X121,X122,X123] :
+       ( ( ~ holds_3__(instance,X120,totalValuedRelation)
+         | ? [X124] :
+             ( holds_3__(instance,X120,relation)
+             & holds_3__(valence,X120,X124)
+             & ( ? [X125,X126,X127] :
+                   ( $less(X125,X124)
+                   & holds_4__(domain,X120,X125,X127)
+                   & X126 = apply_3__(listOrderFn,apply_4__(listFn,X121,X122,X123),X125)
+                   & ~ holds_3__(instance,X126,X127) )
+               | ? [X128] : holds_5__(X120,X121,X122,X123,X128) ) ) )
+       & ( ! [X129] :
+             ( ~ holds_3__(instance,X120,relation)
+             | ~ holds_3__(valence,X120,X129)
+             | ( ! [X130,X131,X132] :
+                   ( ~ $less(X130,X129)
+                   | ~ holds_4__(domain,X120,X130,X132)
+                   | X131 != apply_3__(listOrderFn,apply_4__(listFn,X121,X122,X123),X130)
+                   | holds_3__(instance,X131,X132) )
+               & ! [X133] : ~ holds_5__(X120,X121,X122,X123,X133) ) )
+         | holds_3__(instance,X120,totalValuedRelation) ) )
+   & ! [X134,X135,X136,X137,X138] :
+       ( ( ~ holds_3__(instance,X134,totalValuedRelation)
+         | ? [X139] :
+             ( holds_3__(instance,X134,relation)
+             & holds_3__(valence,X134,X139)
+             & ( ? [X140,X141,X142] :
+                   ( $less(X140,X139)
+                   & holds_4__(domain,X134,X140,X142)
+                   & X141 = apply_3__(listOrderFn,apply_5__(listFn,X135,X136,X137,X138),X140)
+                   & ~ holds_3__(instance,X141,X142) )
+               | ? [X143] : holds_6__(X134,X135,X136,X137,X138,X143) ) ) )
+       & ( ! [X144] :
+             ( ~ holds_3__(instance,X134,relation)
+             | ~ holds_3__(valence,X134,X144)
+             | ( ! [X145,X146,X147] :
+                   ( ~ $less(X145,X144)
+                   | ~ holds_4__(domain,X134,X145,X147)
+                   | X146 != apply_3__(listOrderFn,apply_5__(listFn,X135,X136,X137,X138),X145)
+                   | holds_3__(instance,X146,X147) )
+               & ! [X148] : ~ holds_6__(X134,X135,X136,X137,X138,X148) ) )
+         | holds_3__(instance,X134,totalValuedRelation) ) )
+   & ! [X149,X150,X151,X152,X153,X154] :
+       ( ( ~ holds_3__(instance,X149,totalValuedRelation)
+         | ? [X155] :
+             ( holds_3__(instance,X149,relation)
+             & holds_3__(valence,X149,X155)
+             & ( ? [X156,X157,X158] :
+                   ( $less(X156,X155)
+                   & holds_4__(domain,X149,X156,X158)
+                   & X157 = apply_3__(listOrderFn,apply_6__(listFn,X150,X151,X152,X153,X154),X156)
+                   & ~ holds_3__(instance,X157,X158) )
+               | ? [X159] : holds_7__(X149,X150,X151,X152,X153,X154,X159) ) ) )
+       & ( ! [X160] :
+             ( ~ holds_3__(instance,X149,relation)
+             | ~ holds_3__(valence,X149,X160)
+             | ( ! [X161,X162,X163] :
+                   ( ~ $less(X161,X160)
+                   | ~ holds_4__(domain,X149,X161,X163)
+                   | X162 != apply_3__(listOrderFn,apply_6__(listFn,X150,X151,X152,X153,X154),X161)
+                   | holds_3__(instance,X162,X163) )
+               & ! [X164] : ~ holds_7__(X149,X150,X151,X152,X153,X154,X164) ) )
+         | holds_3__(instance,X149,totalValuedRelation) ) )
+   & ! [X165,X166,X167,X168,X169,X170,X171] :
+       ( ( ~ holds_3__(instance,X165,totalValuedRelation)
+         | ? [X172] :
+             ( holds_3__(instance,X165,relation)
+             & holds_3__(valence,X165,X172)
+             & ( ? [X173,X174,X175] :
+                   ( $less(X173,X172)
+                   & holds_4__(domain,X165,X173,X175)
+                   & X174 = apply_3__(listOrderFn,apply_7__(listFn,X166,X167,X168,X169,X170,X171),X173)
+                   & ~ holds_3__(instance,X174,X175) )
+               | ? [X176] : holds_8__(X165,X166,X167,X168,X169,X170,X171,X176) ) ) )
+       & ( ! [X177] :
+             ( ~ holds_3__(instance,X165,relation)
+             | ~ holds_3__(valence,X165,X177)
+             | ( ! [X178,X179,X180] :
+                   ( ~ $less(X178,X177)
+                   | ~ holds_4__(domain,X165,X178,X180)
+                   | X179 != apply_3__(listOrderFn,apply_7__(listFn,X166,X167,X168,X169,X170,X171),X178)
+                   | holds_3__(instance,X179,X180) )
+               & ! [X181] : ~ holds_8__(X165,X166,X167,X168,X169,X170,X171,X181) ) )
+         | holds_3__(instance,X165,totalValuedRelation) ) )
+   & ! [X182,X183,X184,X185,X186,X187,X188,X189] :
+       ( ( ~ holds_3__(instance,X182,totalValuedRelation)
+         | ? [X190] :
+             ( holds_3__(instance,X182,relation)
+             & holds_3__(valence,X182,X190)
+             & ( ? [X191,X192,X193] :
+                   ( $less(X191,X190)
+                   & holds_4__(domain,X182,X191,X193)
+                   & X192 = apply_3__(listOrderFn,apply_8__(listFn,X183,X184,X185,X186,X187,X188,X189),X191)
+                   & ~ holds_3__(instance,X192,X193) )
+               | ? [X194] : holds_9__(X182,X183,X184,X185,X186,X187,X188,X189,X194) ) ) )
+       & ( ! [X195] :
+             ( ~ holds_3__(instance,X182,relation)
+             | ~ holds_3__(valence,X182,X195)
+             | ( ! [X196,X197,X198] :
+                   ( ~ $less(X196,X195)
+                   | ~ holds_4__(domain,X182,X196,X198)
+                   | X197 != apply_3__(listOrderFn,apply_8__(listFn,X183,X184,X185,X186,X187,X188,X189),X196)
+                   | holds_3__(instance,X197,X198) )
+               & ! [X199] : ~ holds_9__(X182,X183,X184,X185,X186,X187,X188,X189,X199) ) )
+         | holds_3__(instance,X182,totalValuedRelation) ) ) ),
+   inference(variable_rename,[status(thm)],[3667])).
+
+fof(3669,plain,
+   ( ! [X95,X96] :
+       ( ( ~ holds_3__(instance,X95,totalValuedRelation)
+         | ( holds_3__(instance,X95,relation)
+           & holds_3__(valence,X95,esk34_2(X95,X96))
+           & ( ( $less(esk35_2(X95,X96),esk34_2(X95,X96))
+               & holds_4__(domain,X95,esk35_2(X95,X96),esk37_2(X95,X96))
+               & esk36_2(X95,X96) = apply_3__(listOrderFn,apply_2__(listFn,X96),esk35_2(X95,X96))
+               & ~ holds_3__(instance,esk36_2(X95,X96),esk37_2(X95,X96)) )
+             | holds_3__(X95,X96,esk38_2(X95,X96)) ) ) )
+       & ( ! [X102] :
+             ( ~ holds_3__(instance,X95,relation)
+             | ~ holds_3__(valence,X95,X102)
+             | ( ! [X103,X104,X105] :
+                   ( ~ $less(X103,X102)
+                   | ~ holds_4__(domain,X95,X103,X105)
+                   | X104 != apply_3__(listOrderFn,apply_2__(listFn,X96),X103)
+                   | holds_3__(instance,X104,X105) )
+               & ! [X106] : ~ holds_3__(X95,X96,X106) ) )
+         | holds_3__(instance,X95,totalValuedRelation) ) )
+   & ! [X107,X108,X109] :
+       ( ( ~ holds_3__(instance,X107,totalValuedRelation)
+         | ( holds_3__(instance,X107,relation)
+           & holds_3__(valence,X107,esk39_3(X107,X108,X109))
+           & ( ( $less(esk40_3(X107,X108,X109),esk39_3(X107,X108,X109))
+               & holds_4__(domain,X107,esk40_3(X107,X108,X109),esk42_3(X107,X108,X109))
+               & esk41_3(X107,X108,X109) = apply_3__(listOrderFn,apply_3__(listFn,X108,X109),esk40_3(X107,X108,X109))
+               & ~ holds_3__(instance,esk41_3(X107,X108,X109),esk42_3(X107,X108,X109)) )
+             | holds_4__(X107,X108,X109,esk43_3(X107,X108,X109)) ) ) )
+       & ( ! [X115] :
+             ( ~ holds_3__(instance,X107,relation)
+             | ~ holds_3__(valence,X107,X115)
+             | ( ! [X116,X117,X118] :
+                   ( ~ $less(X116,X115)
+                   | ~ holds_4__(domain,X107,X116,X118)
+                   | X117 != apply_3__(listOrderFn,apply_3__(listFn,X108,X109),X116)
+                   | holds_3__(instance,X117,X118) )
+               & ! [X119] : ~ holds_4__(X107,X108,X109,X119) ) )
+         | holds_3__(instance,X107,totalValuedRelation) ) )
+   & ! [X120,X121,X122,X123] :
+       ( ( ~ holds_3__(instance,X120,totalValuedRelation)
+         | ( holds_3__(instance,X120,relation)
+           & holds_3__(valence,X120,esk44_4(X120,X121,X122,X123))
+           & ( ( $less(esk45_4(X120,X121,X122,X123),esk44_4(X120,X121,X122,X123))
+               & holds_4__(domain,X120,esk45_4(X120,X121,X122,X123),esk47_4(X120,X121,X122,X123))
+               & esk46_4(X120,X121,X122,X123) = apply_3__(listOrderFn,apply_4__(listFn,X121,X122,X123),esk45_4(X120,X121,X122,X123))
+               & ~ holds_3__(instance,esk46_4(X120,X121,X122,X123),esk47_4(X120,X121,X122,X123)) )
+             | holds_5__(X120,X121,X122,X123,esk48_4(X120,X121,X122,X123)) ) ) )
+       & ( ! [X129] :
+             ( ~ holds_3__(instance,X120,relation)
+             | ~ holds_3__(valence,X120,X129)
+             | ( ! [X130,X131,X132] :
+                   ( ~ $less(X130,X129)
+                   | ~ holds_4__(domain,X120,X130,X132)
+                   | X131 != apply_3__(listOrderFn,apply_4__(listFn,X121,X122,X123),X130)
+                   | holds_3__(instance,X131,X132) )
+               & ! [X133] : ~ holds_5__(X120,X121,X122,X123,X133) ) )
+         | holds_3__(instance,X120,totalValuedRelation) ) )
+   & ! [X134,X135,X136,X137,X138] :
+       ( ( ~ holds_3__(instance,X134,totalValuedRelation)
+         | ( holds_3__(instance,X134,relation)
+           & holds_3__(valence,X134,esk49_5(X134,X135,X136,X137,X138))
+           & ( ( $less(esk50_5(X134,X135,X136,X137,X138),esk49_5(X134,X135,X136,X137,X138))
+               & holds_4__(domain,X134,esk50_5(X134,X135,X136,X137,X138),esk52_5(X134,X135,X136,X137,X138))
+               & esk51_5(X134,X135,X136,X137,X138) = apply_3__(listOrderFn,apply_5__(listFn,X135,X136,X137,X138),esk50_5(X134,X135,X136,X137,X138))
+               & ~ holds_3__(instance,esk51_5(X134,X135,X136,X137,X138),esk52_5(X134,X135,X136,X137,X138)) )
+             | holds_6__(X134,X135,X136,X137,X138,esk53_5(X134,X135,X136,X137,X138)) ) ) )
+       & ( ! [X144] :
+             ( ~ holds_3__(instance,X134,relation)
+             | ~ holds_3__(valence,X134,X144)
+             | ( ! [X145,X146,X147] :
+                   ( ~ $less(X145,X144)
+                   | ~ holds_4__(domain,X134,X145,X147)
+                   | X146 != apply_3__(listOrderFn,apply_5__(listFn,X135,X136,X137,X138),X145)
+                   | holds_3__(instance,X146,X147) )
+               & ! [X148] : ~ holds_6__(X134,X135,X136,X137,X138,X148) ) )
+         | holds_3__(instance,X134,totalValuedRelation) ) )
+   & ! [X149,X150,X151,X152,X153,X154] :
+       ( ( ~ holds_3__(instance,X149,totalValuedRelation)
+         | ( holds_3__(instance,X149,relation)
+           & holds_3__(valence,X149,esk54_6(X149,X150,X151,X152,X153,X154))
+           & ( ( $less(esk55_6(X149,X150,X151,X152,X153,X154),esk54_6(X149,X150,X151,X152,X153,X154))
+               & holds_4__(domain,X149,esk55_6(X149,X150,X151,X152,X153,X154),esk57_6(X149,X150,X151,X152,X153,X154))
+               & esk56_6(X149,X150,X151,X152,X153,X154) = apply_3__(listOrderFn,apply_6__(listFn,X150,X151,X152,X153,X154),esk55_6(X149,X150,X151,X152,X153,X154))
+               & ~ holds_3__(instance,esk56_6(X149,X150,X151,X152,X153,X154),esk57_6(X149,X150,X151,X152,X153,X154)) )
+             | holds_7__(X149,X150,X151,X152,X153,X154,esk58_6(X149,X150,X151,X152,X153,X154)) ) ) )
+       & ( ! [X160] :
+             ( ~ holds_3__(instance,X149,relation)
+             | ~ holds_3__(valence,X149,X160)
+             | ( ! [X161,X162,X163] :
+                   ( ~ $less(X161,X160)
+                   | ~ holds_4__(domain,X149,X161,X163)
+                   | X162 != apply_3__(listOrderFn,apply_6__(listFn,X150,X151,X152,X153,X154),X161)
+                   | holds_3__(instance,X162,X163) )
+               & ! [X164] : ~ holds_7__(X149,X150,X151,X152,X153,X154,X164) ) )
+         | holds_3__(instance,X149,totalValuedRelation) ) )
+   & ! [X165,X166,X167,X168,X169,X170,X171] :
+       ( ( ~ holds_3__(instance,X165,totalValuedRelation)
+         | ( holds_3__(instance,X165,relation)
+           & holds_3__(valence,X165,esk59_7(X165,X166,X167,X168,X169,X170,X171))
+           & ( ( $less(esk60_7(X165,X166,X167,X168,X169,X170,X171),esk59_7(X165,X166,X167,X168,X169,X170,X171))
+               & holds_4__(domain,X165,esk60_7(X165,X166,X167,X168,X169,X170,X171),esk62_7(X165,X166,X167,X168,X169,X170,X171))
+               & esk61_7(X165,X166,X167,X168,X169,X170,X171) = apply_3__(listOrderFn,apply_7__(listFn,X166,X167,X168,X169,X170,X171),esk60_7(X165,X166,X167,X168,X169,X170,X171))
+               & ~ holds_3__(instance,esk61_7(X165,X166,X167,X168,X169,X170,X171),esk62_7(X165,X166,X167,X168,X169,X170,X171)) )
+             | holds_8__(X165,X166,X167,X168,X169,X170,X171,esk63_7(X165,X166,X167,X168,X169,X170,X171)) ) ) )
+       & ( ! [X177] :
+             ( ~ holds_3__(instance,X165,relation)
+             | ~ holds_3__(valence,X165,X177)
+             | ( ! [X178,X179,X180] :
+                   ( ~ $less(X178,X177)
+                   | ~ holds_4__(domain,X165,X178,X180)
+                   | X179 != apply_3__(listOrderFn,apply_7__(listFn,X166,X167,X168,X169,X170,X171),X178)
+                   | holds_3__(instance,X179,X180) )
+               & ! [X181] : ~ holds_8__(X165,X166,X167,X168,X169,X170,X171,X181) ) )
+         | holds_3__(instance,X165,totalValuedRelation) ) )
+   & ! [X182,X183,X184,X185,X186,X187,X188,X189] :
+       ( ( ~ holds_3__(instance,X182,totalValuedRelation)
+         | ( holds_3__(instance,X182,relation)
+           & holds_3__(valence,X182,esk64_8(X182,X183,X184,X185,X186,X187,X188,X189))
+           & ( ( $less(esk65_8(X182,X183,X184,X185,X186,X187,X188,X189),esk64_8(X182,X183,X184,X185,X186,X187,X188,X189))
+               & holds_4__(domain,X182,esk65_8(X182,X183,X184,X185,X186,X187,X188,X189),esk67_8(X182,X183,X184,X185,X186,X187,X188,X189))
+               & esk66_8(X182,X183,X184,X185,X186,X187,X188,X189) = apply_3__(listOrderFn,apply_8__(listFn,X183,X184,X185,X186,X187,X188,X189),esk65_8(X182,X183,X184,X185,X186,X187,X188,X189))
+               & ~ holds_3__(instance,esk66_8(X182,X183,X184,X185,X186,X187,X188,X189),esk67_8(X182,X183,X184,X185,X186,X187,X188,X189)) )
+             | holds_9__(X182,X183,X184,X185,X186,X187,X188,X189,esk68_8(X182,X183,X184,X185,X186,X187,X188,X189)) ) ) )
+       & ( ! [X195] :
+             ( ~ holds_3__(instance,X182,relation)
+             | ~ holds_3__(valence,X182,X195)
+             | ( ! [X196,X197,X198] :
+                   ( ~ $less(X196,X195)
+                   | ~ holds_4__(domain,X182,X196,X198)
+                   | X197 != apply_3__(listOrderFn,apply_8__(listFn,X183,X184,X185,X186,X187,X188,X189),X196)
+                   | holds_3__(instance,X197,X198) )
+               & ! [X199] : ~ holds_9__(X182,X183,X184,X185,X186,X187,X188,X189,X199) ) )
+         | holds_3__(instance,X182,totalValuedRelation) ) ) ),
+   inference(skolemize,[status(sab)],[3668])).
+
+fof(3670,plain,(
+   ! [X95,X96,X102,X103,X104,X105,X106,X107,X108,X109,X115,X116,X117,X118,X119,X120,X121,X122,X123,X129,X130,X131,X132,X133,X134,X135,X136,X137,X138,X144,X145,X146,X147,X148,X149,X150,X151,X152,X153,X154,X160,X161,X162,X163,X164,X165,X166,X167,X168,X169,X170,X171,X177,X178,X179,X180,X181,X182,X183,X184,X185,X186,X187,X188,X189,X195,X196,X197,X198,X199] :
+     ( ( ( ~ holds_9__(X182,X183,X184,X185,X186,X187,X188,X189,X199)
+         & ( ~ $less(X196,X195)
+           | ~ holds_4__(domain,X182,X196,X198)
+           | X197 != apply_3__(listOrderFn,apply_8__(listFn,X183,X184,X185,X186,X187,X188,X189),X196)
+           | holds_3__(instance,X197,X198) ) )
+       | ~ holds_3__(instance,X182,relation)
+       | ~ holds_3__(valence,X182,X195)
+       | holds_3__(instance,X182,totalValuedRelation) )
+     & ( ~ holds_3__(instance,X182,totalValuedRelation)
+       | ( holds_3__(instance,X182,relation)
+         & holds_3__(valence,X182,esk64_8(X182,X183,X184,X185,X186,X187,X188,X189))
+         & ( ( $less(esk65_8(X182,X183,X184,X185,X186,X187,X188,X189),esk64_8(X182,X183,X184,X185,X186,X187,X188,X189))
+             & holds_4__(domain,X182,esk65_8(X182,X183,X184,X185,X186,X187,X188,X189),esk67_8(X182,X183,X184,X185,X186,X187,X188,X189))
+             & esk66_8(X182,X183,X184,X185,X186,X187,X188,X189) = apply_3__(listOrderFn,apply_8__(listFn,X183,X184,X185,X186,X187,X188,X189),esk65_8(X182,X183,X184,X185,X186,X187,X188,X189))
+             & ~ holds_3__(instance,esk66_8(X182,X183,X184,X185,X186,X187,X188,X189),esk67_8(X182,X183,X184,X185,X186,X187,X188,X189)) )
+           | holds_9__(X182,X183,X184,X185,X186,X187,X188,X189,esk68_8(X182,X183,X184,X185,X186,X187,X188,X189)) ) ) )
+     & ( ( ~ holds_8__(X165,X166,X167,X168,X169,X170,X171,X181)
+         & ( ~ $less(X178,X177)
+           | ~ holds_4__(domain,X165,X178,X180)
+           | X179 != apply_3__(listOrderFn,apply_7__(listFn,X166,X167,X168,X169,X170,X171),X178)
+           | holds_3__(instance,X179,X180) ) )
+       | ~ holds_3__(instance,X165,relation)
+       | ~ holds_3__(valence,X165,X177)
+       | holds_3__(instance,X165,totalValuedRelation) )
+     & ( ~ holds_3__(instance,X165,totalValuedRelation)
+       | ( holds_3__(instance,X165,relation)
+         & holds_3__(valence,X165,esk59_7(X165,X166,X167,X168,X169,X170,X171))
+         & ( ( $less(esk60_7(X165,X166,X167,X168,X169,X170,X171),esk59_7(X165,X166,X167,X168,X169,X170,X171))
+             & holds_4__(domain,X165,esk60_7(X165,X166,X167,X168,X169,X170,X171),esk62_7(X165,X166,X167,X168,X169,X170,X171))
+             & esk61_7(X165,X166,X167,X168,X169,X170,X171) = apply_3__(listOrderFn,apply_7__(listFn,X166,X167,X168,X169,X170,X171),esk60_7(X165,X166,X167,X168,X169,X170,X171))
+             & ~ holds_3__(instance,esk61_7(X165,X166,X167,X168,X169,X170,X171),esk62_7(X165,X166,X167,X168,X169,X170,X171)) )
+           | holds_8__(X165,X166,X167,X168,X169,X170,X171,esk63_7(X165,X166,X167,X168,X169,X170,X171)) ) ) )
+     & ( ( ~ holds_7__(X149,X150,X151,X152,X153,X154,X164)
+         & ( ~ $less(X161,X160)
+           | ~ holds_4__(domain,X149,X161,X163)
+           | X162 != apply_3__(listOrderFn,apply_6__(listFn,X150,X151,X152,X153,X154),X161)
+           | holds_3__(instance,X162,X163) ) )
+       | ~ holds_3__(instance,X149,relation)
+       | ~ holds_3__(valence,X149,X160)
+       | holds_3__(instance,X149,totalValuedRelation) )
+     & ( ~ holds_3__(instance,X149,totalValuedRelation)
+       | ( holds_3__(instance,X149,relation)
+         & holds_3__(valence,X149,esk54_6(X149,X150,X151,X152,X153,X154))
+         & ( ( $less(esk55_6(X149,X150,X151,X152,X153,X154),esk54_6(X149,X150,X151,X152,X153,X154))
+             & holds_4__(domain,X149,esk55_6(X149,X150,X151,X152,X153,X154),esk57_6(X149,X150,X151,X152,X153,X154))
+             & esk56_6(X149,X150,X151,X152,X153,X154) = apply_3__(listOrderFn,apply_6__(listFn,X150,X151,X152,X153,X154),esk55_6(X149,X150,X151,X152,X153,X154))
+             & ~ holds_3__(instance,esk56_6(X149,X150,X151,X152,X153,X154),esk57_6(X149,X150,X151,X152,X153,X154)) )
+           | holds_7__(X149,X150,X151,X152,X153,X154,esk58_6(X149,X150,X151,X152,X153,X154)) ) ) )
+     & ( ( ~ holds_6__(X134,X135,X136,X137,X138,X148)
+         & ( ~ $less(X145,X144)
+           | ~ holds_4__(domain,X134,X145,X147)
+           | X146 != apply_3__(listOrderFn,apply_5__(listFn,X135,X136,X137,X138),X145)
+           | holds_3__(instance,X146,X147) ) )
+       | ~ holds_3__(instance,X134,relation)
+       | ~ holds_3__(valence,X134,X144)
+       | holds_3__(instance,X134,totalValuedRelation) )
+     & ( ~ holds_3__(instance,X134,totalValuedRelation)
+       | ( holds_3__(instance,X134,relation)
+         & holds_3__(valence,X134,esk49_5(X134,X135,X136,X137,X138))
+         & ( ( $less(esk50_5(X134,X135,X136,X137,X138),esk49_5(X134,X135,X136,X137,X138))
+             & holds_4__(domain,X134,esk50_5(X134,X135,X136,X137,X138),esk52_5(X134,X135,X136,X137,X138))
+             & esk51_5(X134,X135,X136,X137,X138) = apply_3__(listOrderFn,apply_5__(listFn,X135,X136,X137,X138),esk50_5(X134,X135,X136,X137,X138))
+             & ~ holds_3__(instance,esk51_5(X134,X135,X136,X137,X138),esk52_5(X134,X135,X136,X137,X138)) )
+           | holds_6__(X134,X135,X136,X137,X138,esk53_5(X134,X135,X136,X137,X138)) ) ) )
+     & ( ( ~ holds_5__(X120,X121,X122,X123,X133)
+         & ( ~ $less(X130,X129)
+           | ~ holds_4__(domain,X120,X130,X132)
+           | X131 != apply_3__(listOrderFn,apply_4__(listFn,X121,X122,X123),X130)
+           | holds_3__(instance,X131,X132) ) )
+       | ~ holds_3__(instance,X120,relation)
+       | ~ holds_3__(valence,X120,X129)
+       | holds_3__(instance,X120,totalValuedRelation) )
+     & ( ~ holds_3__(instance,X120,totalValuedRelation)
+       | ( holds_3__(instance,X120,relation)
+         & holds_3__(valence,X120,esk44_4(X120,X121,X122,X123))
+         & ( ( $less(esk45_4(X120,X121,X122,X123),esk44_4(X120,X121,X122,X123))
+             & holds_4__(domain,X120,esk45_4(X120,X121,X122,X123),esk47_4(X120,X121,X122,X123))
+             & esk46_4(X120,X121,X122,X123) = apply_3__(listOrderFn,apply_4__(listFn,X121,X122,X123),esk45_4(X120,X121,X122,X123))
+             & ~ holds_3__(instance,esk46_4(X120,X121,X122,X123),esk47_4(X120,X121,X122,X123)) )
+           | holds_5__(X120,X121,X122,X123,esk48_4(X120,X121,X122,X123)) ) ) )
+     & ( ( ~ holds_4__(X107,X108,X109,X119)
+         & ( ~ $less(X116,X115)
+           | ~ holds_4__(domain,X107,X116,X118)
+           | X117 != apply_3__(listOrderFn,apply_3__(listFn,X108,X109),X116)
+           | holds_3__(instance,X117,X118) ) )
+       | ~ holds_3__(instance,X107,relation)
+       | ~ holds_3__(valence,X107,X115)
+       | holds_3__(instance,X107,totalValuedRelation) )
+     & ( ~ holds_3__(instance,X107,totalValuedRelation)
+       | ( holds_3__(instance,X107,relation)
+         & holds_3__(valence,X107,esk39_3(X107,X108,X109))
+         & ( ( $less(esk40_3(X107,X108,X109),esk39_3(X107,X108,X109))
+             & holds_4__(domain,X107,esk40_3(X107,X108,X109),esk42_3(X107,X108,X109))
+             & esk41_3(X107,X108,X109) = apply_3__(listOrderFn,apply_3__(listFn,X108,X109),esk40_3(X107,X108,X109))
+             & ~ holds_3__(instance,esk41_3(X107,X108,X109),esk42_3(X107,X108,X109)) )
+           | holds_4__(X107,X108,X109,esk43_3(X107,X108,X109)) ) ) )
+     & ( ( ~ holds_3__(X95,X96,X106)
+         & ( ~ $less(X103,X102)
+           | ~ holds_4__(domain,X95,X103,X105)
+           | X104 != apply_3__(listOrderFn,apply_2__(listFn,X96),X103)
+           | holds_3__(instance,X104,X105) ) )
+       | ~ holds_3__(instance,X95,relation)
+       | ~ holds_3__(valence,X95,X102)
+       | holds_3__(instance,X95,totalValuedRelation) )
+     & ( ~ holds_3__(instance,X95,totalValuedRelation)
+       | ( holds_3__(instance,X95,relation)
+         & holds_3__(valence,X95,esk34_2(X95,X96))
+         & ( ( $less(esk35_2(X95,X96),esk34_2(X95,X96))
+             & holds_4__(domain,X95,esk35_2(X95,X96),esk37_2(X95,X96))
+             & esk36_2(X95,X96) = apply_3__(listOrderFn,apply_2__(listFn,X96),esk35_2(X95,X96))
+             & ~ holds_3__(instance,esk36_2(X95,X96),esk37_2(X95,X96)) )
+           | holds_3__(X95,X96,esk38_2(X95,X96)) ) ) ) ) ),
+   inference(shift_quantors,[status(thm)],[3669])).
+
+fof(3671,plain,(
+   ! [X95,X96,X102,X103,X104,X105,X106,X107,X108,X109,X115,X116,X117,X118,X119,X120,X121,X122,X123,X129,X130,X131,X132,X133,X134,X135,X136,X137,X138,X144,X145,X146,X147,X148,X149,X150,X151,X152,X153,X154,X160,X161,X162,X163,X164,X165,X166,X167,X168,X169,X170,X171,X177,X178,X179,X180,X181,X182,X183,X184,X185,X186,X187,X188,X189,X195,X196,X197,X198,X199] :
+     ( ( ~ holds_9__(X182,X183,X184,X185,X186,X187,X188,X189,X199)
+       | ~ holds_3__(instance,X182,relation)
+       | ~ holds_3__(valence,X182,X195)
+       | holds_3__(instance,X182,totalValuedRelation) )
+     & ( ~ $less(X196,X195)
+       | ~ holds_4__(domain,X182,X196,X198)
+       | X197 != apply_3__(listOrderFn,apply_8__(listFn,X183,X184,X185,X186,X187,X188,X189),X196)
+       | holds_3__(instance,X197,X198)
+       | ~ holds_3__(instance,X182,relation)
+       | ~ holds_3__(valence,X182,X195)
+       | holds_3__(instance,X182,totalValuedRelation) )
+     & ( holds_3__(instance,X182,relation)
+       | ~ holds_3__(instance,X182,totalValuedRelation) )
+     & ( holds_3__(valence,X182,esk64_8(X182,X183,X184,X185,X186,X187,X188,X189))
+       | ~ holds_3__(instance,X182,totalValuedRelation) )
+     & ( $less(esk65_8(X182,X183,X184,X185,X186,X187,X188,X189),esk64_8(X182,X183,X184,X185,X186,X187,X188,X189))
+       | holds_9__(X182,X183,X184,X185,X186,X187,X188,X189,esk68_8(X182,X183,X184,X185,X186,X187,X188,X189))
+       | ~ holds_3__(instance,X182,totalValuedRelation) )
+     & ( holds_4__(domain,X182,esk65_8(X182,X183,X184,X185,X186,X187,X188,X189),esk67_8(X182,X183,X184,X185,X186,X187,X188,X189))
+       | holds_9__(X182,X183,X184,X185,X186,X187,X188,X189,esk68_8(X182,X183,X184,X185,X186,X187,X188,X189))
+       | ~ holds_3__(instance,X182,totalValuedRelation) )
+     & ( esk66_8(X182,X183,X184,X185,X186,X187,X188,X189) = apply_3__(listOrderFn,apply_8__(listFn,X183,X184,X185,X186,X187,X188,X189),esk65_8(X182,X183,X184,X185,X186,X187,X188,X189))
+       | holds_9__(X182,X183,X184,X185,X186,X187,X188,X189,esk68_8(X182,X183,X184,X185,X186,X187,X188,X189))
+       | ~ holds_3__(instance,X182,totalValuedRelation) )
+     & ( ~ holds_3__(instance,esk66_8(X182,X183,X184,X185,X186,X187,X188,X189),esk67_8(X182,X183,X184,X185,X186,X187,X188,X189))
+       | holds_9__(X182,X183,X184,X185,X186,X187,X188,X189,esk68_8(X182,X183,X184,X185,X186,X187,X188,X189))
+       | ~ holds_3__(instance,X182,totalValuedRelation) )
+     & ( ~ holds_8__(X165,X166,X167,X168,X169,X170,X171,X181)
+       | ~ holds_3__(instance,X165,relation)
+       | ~ holds_3__(valence,X165,X177)
+       | holds_3__(instance,X165,totalValuedRelation) )
+     & ( ~ $less(X178,X177)
+       | ~ holds_4__(domain,X165,X178,X180)
+       | X179 != apply_3__(listOrderFn,apply_7__(listFn,X166,X167,X168,X169,X170,X171),X178)
+       | holds_3__(instance,X179,X180)
+       | ~ holds_3__(instance,X165,relation)
+       | ~ holds_3__(valence,X165,X177)
+       | holds_3__(instance,X165,totalValuedRelation) )
+     & ( holds_3__(instance,X165,relation)
+       | ~ holds_3__(instance,X165,totalValuedRelation) )
+     & ( holds_3__(valence,X165,esk59_7(X165,X166,X167,X168,X169,X170,X171))
+       | ~ holds_3__(instance,X165,totalValuedRelation) )
+     & ( $less(esk60_7(X165,X166,X167,X168,X169,X170,X171),esk59_7(X165,X166,X167,X168,X169,X170,X171))
+       | holds_8__(X165,X166,X167,X168,X169,X170,X171,esk63_7(X165,X166,X167,X168,X169,X170,X171))
+       | ~ holds_3__(instance,X165,totalValuedRelation) )
+     & ( holds_4__(domain,X165,esk60_7(X165,X166,X167,X168,X169,X170,X171),esk62_7(X165,X166,X167,X168,X169,X170,X171))
+       | holds_8__(X165,X166,X167,X168,X169,X170,X171,esk63_7(X165,X166,X167,X168,X169,X170,X171))
+       | ~ holds_3__(instance,X165,totalValuedRelation) )
+     & ( esk61_7(X165,X166,X167,X168,X169,X170,X171) = apply_3__(listOrderFn,apply_7__(listFn,X166,X167,X168,X169,X170,X171),esk60_7(X165,X166,X167,X168,X169,X170,X171))
+       | holds_8__(X165,X166,X167,X168,X169,X170,X171,esk63_7(X165,X166,X167,X168,X169,X170,X171))
+       | ~ holds_3__(instance,X165,totalValuedRelation) )
+     & ( ~ holds_3__(instance,esk61_7(X165,X166,X167,X168,X169,X170,X171),esk62_7(X165,X166,X167,X168,X169,X170,X171))
+       | holds_8__(X165,X166,X167,X168,X169,X170,X171,esk63_7(X165,X166,X167,X168,X169,X170,X171))
+       | ~ holds_3__(instance,X165,totalValuedRelation) )
+     & ( ~ holds_7__(X149,X150,X151,X152,X153,X154,X164)
+       | ~ holds_3__(instance,X149,relation)
+       | ~ holds_3__(valence,X149,X160)
+       | holds_3__(instance,X149,totalValuedRelation) )
+     & ( ~ $less(X161,X160)
+       | ~ holds_4__(domain,X149,X161,X163)
+       | X162 != apply_3__(listOrderFn,apply_6__(listFn,X150,X151,X152,X153,X154),X161)
+       | holds_3__(instance,X162,X163)
+       | ~ holds_3__(instance,X149,relation)
+       | ~ holds_3__(valence,X149,X160)
+       | holds_3__(instance,X149,totalValuedRelation) )
+     & ( holds_3__(instance,X149,relation)
+       | ~ holds_3__(instance,X149,totalValuedRelation) )
+     & ( holds_3__(valence,X149,esk54_6(X149,X150,X151,X152,X153,X154))
+       | ~ holds_3__(instance,X149,totalValuedRelation) )
+     & ( $less(esk55_6(X149,X150,X151,X152,X153,X154),esk54_6(X149,X150,X151,X152,X153,X154))
+       | holds_7__(X149,X150,X151,X152,X153,X154,esk58_6(X149,X150,X151,X152,X153,X154))
+       | ~ holds_3__(instance,X149,totalValuedRelation) )
+     & ( holds_4__(domain,X149,esk55_6(X149,X150,X151,X152,X153,X154),esk57_6(X149,X150,X151,X152,X153,X154))
+       | holds_7__(X149,X150,X151,X152,X153,X154,esk58_6(X149,X150,X151,X152,X153,X154))
+       | ~ holds_3__(instance,X149,totalValuedRelation) )
+     & ( esk56_6(X149,X150,X151,X152,X153,X154) = apply_3__(listOrderFn,apply_6__(listFn,X150,X151,X152,X153,X154),esk55_6(X149,X150,X151,X152,X153,X154))
+       | holds_7__(X149,X150,X151,X152,X153,X154,esk58_6(X149,X150,X151,X152,X153,X154))
+       | ~ holds_3__(instance,X149,totalValuedRelation) )
+     & ( ~ holds_3__(instance,esk56_6(X149,X150,X151,X152,X153,X154),esk57_6(X149,X150,X151,X152,X153,X154))
+       | holds_7__(X149,X150,X151,X152,X153,X154,esk58_6(X149,X150,X151,X152,X153,X154))
+       | ~ holds_3__(instance,X149,totalValuedRelation) )
+     & ( ~ holds_6__(X134,X135,X136,X137,X138,X148)
+       | ~ holds_3__(instance,X134,relation)
+       | ~ holds_3__(valence,X134,X144)
+       | holds_3__(instance,X134,totalValuedRelation) )
+     & ( ~ $less(X145,X144)
+       | ~ holds_4__(domain,X134,X145,X147)
+       | X146 != apply_3__(listOrderFn,apply_5__(listFn,X135,X136,X137,X138),X145)
+       | holds_3__(instance,X146,X147)
+       | ~ holds_3__(instance,X134,relation)
+       | ~ holds_3__(valence,X134,X144)
+       | holds_3__(instance,X134,totalValuedRelation) )
+     & ( holds_3__(instance,X134,relation)
+       | ~ holds_3__(instance,X134,totalValuedRelation) )
+     & ( holds_3__(valence,X134,esk49_5(X134,X135,X136,X137,X138))
+       | ~ holds_3__(instance,X134,totalValuedRelation) )
+     & ( $less(esk50_5(X134,X135,X136,X137,X138),esk49_5(X134,X135,X136,X137,X138))
+       | holds_6__(X134,X135,X136,X137,X138,esk53_5(X134,X135,X136,X137,X138))
+       | ~ holds_3__(instance,X134,totalValuedRelation) )
+     & ( holds_4__(domain,X134,esk50_5(X134,X135,X136,X137,X138),esk52_5(X134,X135,X136,X137,X138))
+       | holds_6__(X134,X135,X136,X137,X138,esk53_5(X134,X135,X136,X137,X138))
+       | ~ holds_3__(instance,X134,totalValuedRelation) )
+     & ( esk51_5(X134,X135,X136,X137,X138) = apply_3__(listOrderFn,apply_5__(listFn,X135,X136,X137,X138),esk50_5(X134,X135,X136,X137,X138))
+       | holds_6__(X134,X135,X136,X137,X138,esk53_5(X134,X135,X136,X137,X138))
+       | ~ holds_3__(instance,X134,totalValuedRelation) )
+     & ( ~ holds_3__(instance,esk51_5(X134,X135,X136,X137,X138),esk52_5(X134,X135,X136,X137,X138))
+       | holds_6__(X134,X135,X136,X137,X138,esk53_5(X134,X135,X136,X137,X138))
+       | ~ holds_3__(instance,X134,totalValuedRelation) )
+     & ( ~ holds_5__(X120,X121,X122,X123,X133)
+       | ~ holds_3__(instance,X120,relation)
+       | ~ holds_3__(valence,X120,X129)
+       | holds_3__(instance,X120,totalValuedRelation) )
+     & ( ~ $less(X130,X129)
+       | ~ holds_4__(domain,X120,X130,X132)
+       | X131 != apply_3__(listOrderFn,apply_4__(listFn,X121,X122,X123),X130)
+       | holds_3__(instance,X131,X132)
+       | ~ holds_3__(instance,X120,relation)
+       | ~ holds_3__(valence,X120,X129)
+       | holds_3__(instance,X120,totalValuedRelation) )
+     & ( holds_3__(instance,X120,relation)
+       | ~ holds_3__(instance,X120,totalValuedRelation) )
+     & ( holds_3__(valence,X120,esk44_4(X120,X121,X122,X123))
+       | ~ holds_3__(instance,X120,totalValuedRelation) )
+     & ( $less(esk45_4(X120,X121,X122,X123),esk44_4(X120,X121,X122,X123))
+       | holds_5__(X120,X121,X122,X123,esk48_4(X120,X121,X122,X123))
+       | ~ holds_3__(instance,X120,totalValuedRelation) )
+     & ( holds_4__(domain,X120,esk45_4(X120,X121,X122,X123),esk47_4(X120,X121,X122,X123))
+       | holds_5__(X120,X121,X122,X123,esk48_4(X120,X121,X122,X123))
+       | ~ holds_3__(instance,X120,totalValuedRelation) )
+     & ( esk46_4(X120,X121,X122,X123) = apply_3__(listOrderFn,apply_4__(listFn,X121,X122,X123),esk45_4(X120,X121,X122,X123))
+       | holds_5__(X120,X121,X122,X123,esk48_4(X120,X121,X122,X123))
+       | ~ holds_3__(instance,X120,totalValuedRelation) )
+     & ( ~ holds_3__(instance,esk46_4(X120,X121,X122,X123),esk47_4(X120,X121,X122,X123))
+       | holds_5__(X120,X121,X122,X123,esk48_4(X120,X121,X122,X123))
+       | ~ holds_3__(instance,X120,totalValuedRelation) )
+     & ( ~ holds_4__(X107,X108,X109,X119)
+       | ~ holds_3__(instance,X107,relation)
+       | ~ holds_3__(valence,X107,X115)
+       | holds_3__(instance,X107,totalValuedRelation) )
+     & ( ~ $less(X116,X115)
+       | ~ holds_4__(domain,X107,X116,X118)
+       | X117 != apply_3__(listOrderFn,apply_3__(listFn,X108,X109),X116)
+       | holds_3__(instance,X117,X118)
+       | ~ holds_3__(instance,X107,relation)
+       | ~ holds_3__(valence,X107,X115)
+       | holds_3__(instance,X107,totalValuedRelation) )
+     & ( holds_3__(instance,X107,relation)
+       | ~ holds_3__(instance,X107,totalValuedRelation) )
+     & ( holds_3__(valence,X107,esk39_3(X107,X108,X109))
+       | ~ holds_3__(instance,X107,totalValuedRelation) )
+     & ( $less(esk40_3(X107,X108,X109),esk39_3(X107,X108,X109))
+       | holds_4__(X107,X108,X109,esk43_3(X107,X108,X109))
+       | ~ holds_3__(instance,X107,totalValuedRelation) )
+     & ( holds_4__(domain,X107,esk40_3(X107,X108,X109),esk42_3(X107,X108,X109))
+       | holds_4__(X107,X108,X109,esk43_3(X107,X108,X109))
+       | ~ holds_3__(instance,X107,totalValuedRelation) )
+     & ( esk41_3(X107,X108,X109) = apply_3__(listOrderFn,apply_3__(listFn,X108,X109),esk40_3(X107,X108,X109))
+       | holds_4__(X107,X108,X109,esk43_3(X107,X108,X109))
+       | ~ holds_3__(instance,X107,totalValuedRelation) )
+     & ( ~ holds_3__(instance,esk41_3(X107,X108,X109),esk42_3(X107,X108,X109))
+       | holds_4__(X107,X108,X109,esk43_3(X107,X108,X109))
+       | ~ holds_3__(instance,X107,totalValuedRelation) )
+     & ( ~ holds_3__(X95,X96,X106)
+       | ~ holds_3__(instance,X95,relation)
+       | ~ holds_3__(valence,X95,X102)
+       | holds_3__(instance,X95,totalValuedRelation) )
+     & ( ~ $less(X103,X102)
+       | ~ holds_4__(domain,X95,X103,X105)
+       | X104 != apply_3__(listOrderFn,apply_2__(listFn,X96),X103)
+       | holds_3__(instance,X104,X105)
+       | ~ holds_3__(instance,X95,relation)
+       | ~ holds_3__(valence,X95,X102)
+       | holds_3__(instance,X95,totalValuedRelation) )
+     & ( holds_3__(instance,X95,relation)
+       | ~ holds_3__(instance,X95,totalValuedRelation) )
+     & ( holds_3__(valence,X95,esk34_2(X95,X96))
+       | ~ holds_3__(instance,X95,totalValuedRelation) )
+     & ( $less(esk35_2(X95,X96),esk34_2(X95,X96))
+       | holds_3__(X95,X96,esk38_2(X95,X96))
+       | ~ holds_3__(instance,X95,totalValuedRelation) )
+     & ( holds_4__(domain,X95,esk35_2(X95,X96),esk37_2(X95,X96))
+       | holds_3__(X95,X96,esk38_2(X95,X96))
+       | ~ holds_3__(instance,X95,totalValuedRelation) )
+     & ( esk36_2(X95,X96) = apply_3__(listOrderFn,apply_2__(listFn,X96),esk35_2(X95,X96))
+       | holds_3__(X95,X96,esk38_2(X95,X96))
+       | ~ holds_3__(instance,X95,totalValuedRelation) )
+     & ( ~ holds_3__(instance,esk36_2(X95,X96),esk37_2(X95,X96))
+       | holds_3__(X95,X96,esk38_2(X95,X96))
+       | ~ holds_3__(instance,X95,totalValuedRelation) ) ) ),
+   inference(distribute,[status(thm)],[3670])).
+
+cnf(3677,plain,
+   ( holds_3__(instance,X1,relation)
+   | ~ holds_3__(instance,X1,totalValuedRelation) ),
+   inference(split_conjunct,[status(thm)],[3671])).
+
+fof(8394,negated_conjecture,(
+   ! [X8] : ~ holds_3__(instance,X8,relation) ),
+   inference(fof_nnf,[status(thm)],[2623])).
+
+fof(8395,negated_conjecture,(
+   ! [X9] : ~ holds_3__(instance,X9,relation) ),
+   inference(variable_rename,[status(thm)],[8394])).
+
+cnf(8396,negated_conjecture,
+   ( ~ holds_3__(instance,X1,relation) ),
+   inference(split_conjunct,[status(thm)],[8395])).
+
+cnf(8408,plain,
+   ( ~ holds_3__(instance,X1,totalValuedRelation) ),
+   inference(sr,[status(thm)],[3677,8396,theory(equality)])).
+
+cnf(8409,plain,
+   ( $false ),
+   inference(sr,[status(thm)],[3262,8408,theory(equality)])).
+
+cnf(8410,plain,
+   ( $false ),
+   8409,
+   [proof]).

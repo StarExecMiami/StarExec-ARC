@@ -1,0 +1,513 @@
+#!/usr/bin/perl -w
+
+use strict "vars";
+use Getopt::Std;
+#-----------------------------------------------------------------------------
+my $TPTPDirectory = "/home/tptp";
+
+if (exists($ENV{TPTP_HOME})) {
+    $TPTPDirectory = $ENV{TPTP_HOME};
+}
+
+my $GetComputerInfoCommand = "$TPTPDirectory/SystemExecution/GetComputerInfo";
+my $AvailableComputersFile = "$TPTPDirectory/SystemExecution/AvailableComputers";
+
+#----For my account at starexec
+# my $GetComputerInfoCommand = "$ENV{'HOME'}/SystemExecution/GetComputerInfo";
+# my $AvailableComputersFile = "$ENV{'HOME'}/SystemExecution/AvailableComputers";
+
+#----For central installation at starexec
+# my $GetComputerInfoCommand = "/home/starexec/bin/GetComputerInfo";
+# my $AvailableComputersFile = "NOT EXISTING";
+#-----------------------------------------------------------------------------
+my $OperatingSystemInfo;
+my $RemoteShellCommand;
+my $nslookupCommand;
+my $getentCommand;
+my $pingCommand;
+my $psrinfoCommand;
+my $topCommand;
+my $freeCommand;
+my $hostnameCommand;
+my $unameCommand;
+my $unameGetComputerModelCommand;
+my $unameGetOperatingSystemCommand;
+my $catCommand;
+
+#----Select one only
+my $OSX = 0;  #----Doesn't work
+my $LINUX = 0;
+
+#----If user has not specified, try detect OS
+if (!$OSX && !$LINUX) {
+    $OperatingSystemInfo = `uname -sr`;
+    if (defined($OperatingSystemInfo) && $OperatingSystemInfo =~ /Darwin/) {
+        $OSX = 1;
+        printf("ERROR: Cannot detect Mac info yet\n");
+        die("\n");
+    } elsif (defined($OperatingSystemInfo) && $OperatingSystemInfo =~ /Linux/) {
+        $LINUX = 1;
+    } else {
+        printf("ERROR: Cannot detect operating system\n");
+        die("\n");
+    }
+}
+
+if ($LINUX) {
+    $RemoteShellCommand = "/usr/bin/ssh";
+    $nslookupCommand = "/usr/bin/nslookup -sil";
+    $getentCommand = "/usr/bin/getent hosts";
+    $pingCommand = "/bin/ping -c1";
+    $psrinfoCommand = "";
+    $topCommand = "/usr/bin/top -d0 -n1 -b -p0";
+    $freeCommand = "/bin/free -m";
+    $hostnameCommand = "/bin/hostname";
+    $unameCommand = "/bin/uname";
+    $unameGetComputerModelCommand = "$unameCommand -mp";
+    $unameGetOperatingSystemCommand = "$unameCommand -sr";
+    $catCommand = "/bin/cat";
+    $hostnameCommand = "/bin/hostname";
+}
+
+if ($OSX) {
+    $RemoteShellCommand = "/usr/bin/rsh";
+    $nslookupCommand = "/usr/bin/nslookup -sil";
+    $pingCommand = "/sbin/ping -c1";
+    $psrinfoCommand = "";
+    $topCommand = "/usr/bin/top -C -d0 -n6 -b -p0";
+    $hostnameCommand = "/bin/hostname";
+    $unameCommand = "/usr/bin/uname";
+    $unameGetComputerModelCommand = "$unameCommand -mp";
+    $unameGetOperatingSystemCommand = "$unameCommand -sr";
+    $catCommand = "/bin/cat";
+    $hostnameCommand = "/bin/hostname";
+}
+#-----------------------------------------------------------------------------
+
+    my $Flags;
+    my $PrettyPrint;
+    my @Computers;
+    my @AllComputers;
+    my $Computer;
+    my $ThisComputer;
+    my $TargetComputer;
+    my @Fields;
+    my %Options;
+
+    if (scalar(@ARGV) < 1) {
+        die("Usage: TBA\n");
+    }
+
+    $PrettyPrint = 0;
+    $Flags = "";
+
+    getopts("a:prsh",\%Options);
+    if (exists($Options{'h'})) {
+        Usage();
+        exit;
+    }
+    if (exists($Options{'a'})) {
+        $AvailableComputersFile = $Options{'a'};
+    }
+    if (exists($Options{'p'})) {
+        $PrettyPrint = 1;
+        $Flags = "$Flags -p ";
+    }
+    if (exists($Options{'r'})) {
+        $RemoteShellCommand =~ s/.sh/rsh/;
+    }
+    if (exists($Options{'s'})) {
+        $RemoteShellCommand =~ s/.sh/ssh/;
+    }
+
+    if (scalar(@ARGV) < 1) {
+        Usage();
+        exit;
+    }
+
+#----Get the name of the computer
+    $Computer = shift(@ARGV);
+    if ($Computer eq "ALL") {
+        if (-e $AvailableComputersFile) {
+            @AllComputers = `$catCommand $AvailableComputersFile`;
+            foreach $Computer (@AllComputers) {
+                if ($Computer !~ /^#/) {
+                    chomp($Computer);
+                    push(@Computers,($Computer));
+                }
+            }
+        } else {
+            @Computers = ();
+        }
+    } elsif ($Computer eq "THIS") {
+        @Computers = `$hostnameCommand`;
+    } else {
+        @Computers = ($Computer);
+    }
+#----Get the required fields
+    @Fields = @ARGV;
+
+#DEBUG printf("Computers @Computers\n");
+#DEBUG printf("Fields @Fields\n");
+
+#----Find out who I am
+    ($ThisComputer) = `$hostnameCommand`;
+    chomp($ThisComputer);
+    $ThisComputer = GetFullyQualifiedName($ThisComputer);
+
+    foreach $Computer (@Computers) {
+        chomp($Computer);
+        if ("$Computer.local" eq $ThisComputer) {
+            $TargetComputer = $ThisComputer;
+        } else {
+            $TargetComputer = GetFullyQualifiedName($Computer);
+        }
+        if ($ThisComputer eq $TargetComputer) {
+            GetComputerInfo($TargetComputer,$PrettyPrint,@Fields);
+        } else {
+#DEBUG print("Move to the target $TargetComputer\n");
+#DEBUG print("$RemoteShellCommand $TargetComputer $GetComputerInfoCommand
+#DEBUG $Flags $TargetComputer @Fields\n");
+            system("$RemoteShellCommand $TargetComputer $GetComputerInfoCommand $Flags $TargetComputer @Fields");
+        }
+    }
+#-----------------------------------------------------------------------------
+sub Usage {
+
+print("
+    GetComputerInfo Options ComputerName RequiredFields
+
+    Options are -h                        = Print this help
+                -a AvailableComputersFile = Take computer names from file
+                -p                        = Pretty print
+                -r                        = Use rsh
+                -s                        = Use ssh
+
+    ComputerName                          = Computer name or ALL
+
+    Fields are  Model                     = Computer model
+                CPUModel                  = CPU model
+                NumberOfCPUs              = Number of CPUs
+                SpareCPUs                 = Idle percentage
+                RAMPerCPU                 = RAM per CPU
+                FreeRAM                   = Free RAM
+                SwapInUse                 = Swap space in use
+                FreeSwap                  = Free swap space
+                OS                        = Operating system
+                ALL                       = All fields
+");
+}
+#-----------------------------------------------------------------------------
+sub GetComputerInfo {
+    my ($Computer,$PrettyPrint,@Fields) = @_;
+
+    my @PingReply;
+    my %OneMachine;
+    my $Field;
+
+    $OneMachine{"Computer"} = $Computer;
+
+#----Check that the machine is reachable
+    @PingReply = `$pingCommand $Computer`;
+    if (!grep(/is alive/,@PingReply) && !grep(/0% loss/,@PingReply) &&
+!grep(/0% packet loss/,@PingReply)) {
+        print("ERROR: $Computer does not respond to ping\n");
+        exit(1);
+    }
+
+#----Get machine information
+    $OneMachine{"Model"} = GetComputerModel($Computer);
+
+#----Get CPU information
+    ($OneMachine{"CPUModel"},$OneMachine{"NumberOfCPUs"}) =
+GetCPUModel($Computer);
+
+#----Get memory information
+    ($OneMachine{"TotalRAM"},$OneMachine{"FreeRAM"},$OneMachine{"SwapInUse"},
+$OneMachine{"FreeSwap"}) = GetMemory($Computer);
+    $OneMachine{"RAMPerCPU"} = $OneMachine{"TotalRAM"}/
+$OneMachine{"NumberOfCPUs"};
+    $OneMachine{"TotalRAM"} .= "MB";
+    $OneMachine{"RAMPerCPU"} .= "MB";
+    $OneMachine{"FreeRAM"} .= "MB";
+    $OneMachine{"SwapInUse"} .= "MB";
+    $OneMachine{"FreeSwap"} .= "MB";
+
+#----Get OS information
+    $OneMachine{"OS"} = GetOperatingSystem($Computer);
+
+#----Get load as percentage
+    $OneMachine{"SpareCPUs"} = $OneMachine{"NumberOfCPUs"} *
+GetIdlePercentage($Computer,$OneMachine{"NumberOfCPUs"}) / 100;
+
+#----Print it out
+    if (scalar(@Fields) == 1 && $Fields[0] eq "ALL") {
+        @Fields = ();
+        foreach $Field (keys(%OneMachine)) {
+            if ($Field ne "Computer") {
+                push(@Fields,($Field));
+            }
+        }
+    }
+
+    if ($PrettyPrint) {
+        printf("%-12s : %s\n","Computer",$OneMachine{"Computer"});
+    } else {
+        printf("%-20s => ",$OneMachine{"Computer"});
+    }
+    foreach $Field (@Fields) {
+        if ($PrettyPrint) {
+            printf("%-12s : ",$Field);
+        }
+        if (exists($OneMachine{$Field})) {
+            printf("%s",$OneMachine{$Field});
+        } else {
+            printf("NO INFORMATION");
+        }
+        if ($PrettyPrint) {
+            printf("\n");
+        } else {
+            printf("; ");
+        }
+    }
+    if (!$PrettyPrint) {
+        printf("\n");
+    }
+}
+#-----------------------------------------------------------------------------
+sub GetFullyQualifiedName {
+    my ($Computer) = @_;
+
+    my @InfoLines;
+
+#DEBUG print("Get fully qualified name for $Computer\n");
+    if ($Computer !~ /\.local$/) {
+        if (0 && $LINUX) {
+            @InfoLines = `$getentCommand $Computer`;
+            $Computer =~ /[0-9\. ]*(.*)/;
+#DEBUG print("getent Computer name is ==$Computer==\n");
+        } else {
+            @InfoLines = `$nslookupCommand $Computer`;
+#DEBUG print("nslookupCommand lines are ==@InfoLines==\n");
+            ($Computer) = SelectNLines("Name:",1,@InfoLines);
+            ($Computer) = ($Computer =~ /Name:\s*(.*)/);
+#DEBUG print("nslookup Computer name is ==$Computer==\n");
+        }
+    }
+#DEBUG print("Computer name is ==$Computer==\n");
+
+    return($Computer);
+}
+#-----------------------------------------------------------------------------
+sub GetComputerModel {
+    my ($Computer) = @_;
+
+    my @InfoLines;
+    my $ComputerModel;
+
+    @InfoLines = `$unameGetComputerModelCommand`;
+    ($ComputerModel) = SelectNLines(".",1,@InfoLines);
+#DEBUG print("Computer model ==$ComputerModel==\n");
+
+    return($ComputerModel);
+}
+#-----------------------------------------------------------------------------
+sub GetCPUModel {
+    my ($Computer) = @_;
+
+    my @InfoLines;
+    my $InfoLine;
+    my @CPUModels;
+    my $CPUModel;
+    my @CPUSpeeds;
+    my $CPUSpeed;
+    my $AnotherCPUModel;
+    my $AnotherCPUSpeed;
+    my $NumberOfCPUs;
+
+    if ($LINUX) {
+        @InfoLines = `$catCommand /proc/cpuinfo`;
+        @CPUModels = SelectNLines("model name",undef,@InfoLines);
+        $NumberOfCPUs = scalar(@CPUModels);
+        if ($NumberOfCPUs <= 0) {
+            print("ERROR: No CPU models found for $Computer\n");
+            exit(-1);
+        }
+        ($CPUModel) = ($CPUModels[0] =~ /model name\s*:\s*(.*)/);
+        foreach $InfoLine (@CPUModels) {
+            ($AnotherCPUModel) = ($InfoLine =~ /model name\s*:\s*(.*)/);
+            if ($AnotherCPUModel ne $CPUModel) {
+                print("ERROR: Mixed CPU types for $Computer ===@CPUModels===\n");
+                exit(-1);
+            }
+        }
+#----Cannot use CPU speeds now because modern OS uses dynamic clock speed
+#----control to save energy and heat
+#        @CPUSpeeds = SelectNLines("cpu MHz",undef,@InfoLines);
+#        if (scalar(@CPUSpeeds) <= 0) {
+#            print("ERROR: No CPU speeds found for $Computer\n");
+#            exit(-1);
+#        }
+#        ($CPUSpeed) = ($CPUSpeeds[0] =~ /cpu MHz\s*:\s*(\d*)/);
+#        foreach $InfoLine (@CPUSpeeds) {
+#            ($AnotherCPUSpeed) = ($InfoLine =~ /cpu MHz\s*:\s*(\d*)/);
+#            if ($AnotherCPUSpeed ne $CPUSpeed) {
+#                print("ERROR: Mixed CPU speeds for $Computer ===@CPUSpeeds===\n");
+#                exit(-1);
+#            }
+#        }
+#        $CPUSpeed = "${CPUSpeed}MHz";
+    }
+
+#DEBUG print("# of CPUs ==$NumberOfCPUs==\n");
+#DEBUG print("CPU model ==$CPUModel==\n");
+#DEBUG print("CPU speed ==$CPUSpeed==\n");
+    return($CPUModel,$NumberOfCPUs);
+}
+#-----------------------------------------------------------------------------
+sub GetMemory {
+    my ($Computer) = @_;
+
+    my @InfoLines;
+    my $MemoryLine;
+    my $Memory;
+    my $FreeMemory;
+    my $SwapInUse;
+    my $FreeSwap;
+
+    if ($LINUX) {
+        @InfoLines = `$freeCommand 2>&1`;
+#DEBUG print("=========\n");
+#DEBUG print("@InfoLines\n");
+#DEBUG print("=========\n");
+        ($MemoryLine) = SelectNLines("Mem *:",undef,@InfoLines);
+        ($Memory,$FreeMemory) = ($MemoryLine =~ /Mem *:\s*(\d+)\s+\d+\s+(\d+)/);
+#DEBUG print("Memory = $Memory\n");
+#DEBUG print("FreeMemory = $FreeMemory\n");
+        ($MemoryLine) = SelectNLines("Swap:",undef,@InfoLines);
+        ($SwapInUse,$FreeSwap) = ($MemoryLine =~ /Swap *:\s*\d+\s+(\d+)\s+(\d+)/);
+#DEBUG print("SwapInUse = $SwapInUse\n");
+#DEBUG print("FreeSwap = $FreeSwap\n");
+    }
+
+    return($Memory,$FreeMemory,$SwapInUse,$FreeSwap);
+}
+#-----------------------------------------------------------------------------
+sub GetMemoryOld {
+    my ($Computer) = @_;
+
+    my @InfoLines;
+    my $MemoryLine;
+    my $Memory;
+    my $FreeMemory;
+    my $SwapInUse;
+    my $FreeSwap;
+
+    if ($LINUX) {
+        @InfoLines = `$topCommand 2>&1`;
+#DEBUG print("=========\n");
+#DEBUG print("@InfoLines\n");
+#DEBUG print("=========\n");
+        ($MemoryLine) = SelectNLines("Mem *:",undef,@InfoLines);
+        ($Memory) = ($MemoryLine =~ /Mem *:\s*(\d+)/);
+        ($FreeMemory) = ($MemoryLine =~ /Mem *:.* (\d+) free/);
+        $Memory = int($Memory/1024);
+        $FreeMemory = int($FreeMemory/(1024*1));
+#DEBUG print("Memory = $Memory\n");
+#DEBUG print("FreeMemory = $FreeMemory\n");
+        ($MemoryLine) = SelectNLines("Swap:",undef,@InfoLines);
+        ($SwapInUse) = ($MemoryLine =~ /Swap *:.* (\d*) used/);
+        ($FreeSwap) = ($MemoryLine =~ /Swap *:.* (\d*) free/);
+        $SwapInUse = int($SwapInUse/(1024*1));
+        $FreeSwap = int($FreeSwap/(1024*1));
+#DEBUG print("SwapInUse = $SwapInUse\n");
+#DEBUG print("FreeSwap = $FreeSwap\n");
+    }
+
+    return($Memory,$FreeMemory,$SwapInUse,$FreeSwap);
+}
+#-----------------------------------------------------------------------------
+sub GetOperatingSystem {
+    my ($Computer) = @_;
+
+    my @InfoLines;
+    my $OperatingSystem;
+
+    @InfoLines = `$unameGetOperatingSystemCommand -sr`;
+    ($OperatingSystem) = SelectNLines(".",1,@InfoLines);
+#DEBUG print("OS ==$OperatingSystem==\n");
+
+    return($OperatingSystem);
+}
+#-----------------------------------------------------------------------------
+sub GetIdlePercentage {
+    my ($Computer,$NumberOfCPUs) = @_;
+
+    my @InfoLines;
+    my $TwoLineVersionOfTop;
+    my $FirstIdlePercentage;
+    my @IdleLines;
+    my $IdleLine;
+    my $IdlePercentage;
+    my $NicePercentage;
+    my $MinIdlePercentage;
+    my $Try;
+
+    if ($LINUX) {
+        $MinIdlePercentage = 100;
+        @InfoLines = `$topCommand 2>&1`;
+#DEBUG print("=========\n");
+#DEBUG print("@InfoLines\n");
+#DEBUG print("=========\n");
+        @IdleLines = SelectNLines('C[Pp][Uu].+:',undef,@InfoLines);
+#-----Check if it's the new top from RedhAt Enterprise
+        if ($IdleLines[0] =~ /CPU states:  cpu    user    nice  system/) {
+            $TwoLineVersionOfTop = 1;
+            @IdleLines = SelectNLines(' total ',undef,@InfoLines);
+        } else {
+            $TwoLineVersionOfTop = 0;
+        }
+#----Get rid the first one with nice processes
+        shift(@IdleLines);
+        foreach $IdleLine (@IdleLines) {
+            if ($TwoLineVersionOfTop) {
+                ($NicePercentage,$IdlePercentage) = ($IdleLine =~
+/total\s+\d+\.\d+\%\s+(\d+\.\d+)\%\s+\d+\.\d+\%\s+\d+\.\d+\%\s+\d+\.\d+\%\s+\d+\.\d+\%\s+(\d+\.\d+)\%/);
+            } else {
+                ($NicePercentage,$IdlePercentage) = ($IdleLine =~
+/C[Pp][Uu].+:.*\s+(\d+\.\d+)\% nice.*\s+(\d+\.\d+)\% idle/);
+            }
+#DEBUG print(STDERR "$IdleLine => $NicePercentage and $IdlePercentage\n");
+            $IdlePercentage += ($NicePercentage/4);
+            $IdlePercentage /= $NumberOfCPUs;
+            if ($IdlePercentage < $MinIdlePercentage) {
+#DEBUG print(STDERR "Min idle down to $IdlePercentage\n");
+                $MinIdlePercentage = $IdlePercentage;
+            }
+        }
+        $IdlePercentage = $MinIdlePercentage;
+    }
+
+#DEBUG print("IdlePercentage ==$IdlePercentage==\n");
+    return($IdlePercentage);
+}
+#-----------------------------------------------------------------------------
+sub SelectNLines {
+    my ($SelectBy,$SelectNumber,@Lines) = @_;
+
+    my @SelectedLines;
+    my $SelectedLine;
+
+    @SelectedLines = grep(/$SelectBy/,@Lines);
+    if (scalar(@SelectedLines) == 0 ||
+(defined($SelectNumber) && scalar(@SelectedLines) != $SelectNumber)) {
+        print("ERROR: Not the right \"$SelectBy\" line(s)\n");
+        exit(1);
+    }
+    foreach $SelectedLine (@SelectedLines) {
+        chomp($SelectedLine);
+    }
+
+    return(@SelectedLines);
+}
+#-----------------------------------------------------------------------------

@@ -1,0 +1,520 @@
+%------------------------------------------------------------------------------
+% File       : Metis---2.0
+% Problem    : PUZ001+1 : TPTP v2.0.0
+% Transform  : none
+% Format     : tptp
+% Command    : metis --show proof --show saturated %s
+
+% Computer   : art03.cs.miami.edu
+% Model      : i686 i686
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2793MHz
+% Memory     : 1003MB
+% OS         : Linux 2.6.17-1.2142_FC4
+% CPULimit   : 600s
+% DateTime   : Tue Jan  8 21:43:11 EST 2008
+
+% Result     : Theorem 0.0s
+% Output     : CNFRefutation 0.0s
+% Verified   : 
+% Statistics : Number of formulae    :   57 (  67 expanded)
+%              Number of clauses     :   46 (  51 expanded)
+%              Number of leaves      :   15 (  20 expanded)
+%              Depth                 :   14
+%              Number of atoms       :  111 ( 126 expanded)
+%              Maximal formula depth :    5 (   3 average)
+%              Maximal clause size   :    4 (   2 average)
+%              Maximal term depth    :    2 (   1 average)
+
+% Comments   : 
+%------------------------------------------------------------------------------
+fof(pel55_1,axiom,(
+    ? [X] : 
+      ( lives(X)
+      & killed(X,agatha) ) )).
+
+fof(pel55_3,axiom,(
+    ! [X] : 
+      ( lives(X)
+     => ( X = agatha
+        | X = butler
+        | X = charles ) ) )).
+
+fof(pel55_4,axiom,(
+    ! [X,Y] : 
+      ( killed(X,Y)
+     => hates(X,Y) ) )).
+
+fof(pel55_5,axiom,(
+    ! [X,Y] : 
+      ( killed(X,Y)
+     => ~ richer(X,Y) ) )).
+
+fof(pel55_6,axiom,(
+    ! [X] : 
+      ( hates(agatha,X)
+     => ~ hates(charles,X) ) )).
+
+fof(pel55_7,axiom,(
+    ! [X] : 
+      ( X != butler
+     => hates(agatha,X) ) )).
+
+fof(pel55_8,axiom,(
+    ! [X] : 
+      ( ~ richer(X,agatha)
+     => hates(butler,X) ) )).
+
+fof(pel55_9,axiom,(
+    ! [X] : 
+      ( hates(agatha,X)
+     => hates(butler,X) ) )).
+
+fof(pel55_10,axiom,(
+    ! [X] : 
+    ? [Y] : ~ hates(X,Y) )).
+
+fof(pel55_11,axiom,(
+    agatha != butler )).
+
+fof(pel55,conjecture,(
+    killed(agatha,agatha) )).
+
+cnf(0,axiom,
+    ( X = butler
+    | hates(agatha,X) ),
+    inference(fof_to_cnf,[],[pel55_7])).
+
+cnf(1,plain,
+    ( agatha = butler
+    | hates(agatha,agatha) ),
+    inference(subst,[[X,$fot(agatha)]],[0])).
+
+cnf(2,axiom,
+    ( ~ hates(agatha,X)
+    | ~ hates(charles,X) ),
+    inference(fof_to_cnf,[],[pel55_6])).
+
+cnf(3,plain,
+    ( ~ hates(agatha,agatha)
+    | ~ hates(charles,agatha) ),
+    inference(subst,[[X,$fot(agatha)]],[2])).
+
+cnf(4,axiom,
+    ( killed(skolemFOFtoCNF_X,agatha) ),
+    inference(fof_to_cnf,[],[pel55_1])).
+
+cnf(5,axiom,
+    ( ~ killed(X,Y)
+    | hates(X,Y) ),
+    inference(fof_to_cnf,[],[pel55_4])).
+
+cnf(6,plain,
+    ( ~ killed(skolemFOFtoCNF_X,agatha)
+    | hates(skolemFOFtoCNF_X,agatha) ),
+    inference(subst,[[X,$fot(skolemFOFtoCNF_X)],[Y,$fot(agatha)]],[5])).
+
+cnf(7,plain,
+    ( hates(skolemFOFtoCNF_X,agatha) ),
+    inference(resolve,[$cnf(killed(skolemFOFtoCNF_X,agatha))],[4,6])).
+
+cnf(8,axiom,
+    ( hates(butler,X)
+    | richer(X,agatha) ),
+    inference(fof_to_cnf,[],[pel55_8])).
+
+cnf(9,plain,
+    ( hates(butler,X0)
+    | richer(X0,agatha) ),
+    inference(subst,[[X,$fot(X0)]],[8])).
+
+cnf(10,axiom,
+    ( ~ killed(X,Y)
+    | ~ richer(X,Y) ),
+    inference(fof_to_cnf,[],[pel55_5])).
+
+cnf(11,plain,
+    ( ~ killed(X0,agatha)
+    | ~ richer(X0,agatha) ),
+    inference(subst,[[X,$fot(X0)],[Y,$fot(agatha)]],[10])).
+
+cnf(12,plain,
+    ( ~ killed(X0,agatha)
+    | hates(butler,X0) ),
+    inference(resolve,[$cnf(richer(X0,agatha))],[9,11])).
+
+cnf(13,plain,
+    ( ~ killed(skolemFOFtoCNF_X,agatha)
+    | hates(butler,skolemFOFtoCNF_X) ),
+    inference(subst,[[X0,$fot(skolemFOFtoCNF_X)]],[12])).
+
+cnf(14,plain,
+    ( hates(butler,skolemFOFtoCNF_X) ),
+    inference(resolve,[$cnf(killed(skolemFOFtoCNF_X,agatha))],[4,13])).
+
+cnf(15,axiom,
+    ( lives(skolemFOFtoCNF_X) ),
+    inference(fof_to_cnf,[],[pel55_1])).
+
+cnf(16,axiom,
+    ( ~ lives(X)
+    | X = agatha
+    | X = butler
+    | X = charles ),
+    inference(fof_to_cnf,[],[pel55_3])).
+
+cnf(17,plain,
+    ( ~ lives(skolemFOFtoCNF_X)
+    | skolemFOFtoCNF_X = agatha
+    | skolemFOFtoCNF_X = butler
+    | skolemFOFtoCNF_X = charles ),
+    inference(subst,[[X,$fot(skolemFOFtoCNF_X)]],[16])).
+
+cnf(18,plain,
+    ( skolemFOFtoCNF_X = agatha
+    | skolemFOFtoCNF_X = butler
+    | skolemFOFtoCNF_X = charles ),
+    inference(resolve,[$cnf(lives(skolemFOFtoCNF_X))],[15,17])).
+
+cnf(19,plain,
+    ( skolemFOFtoCNF_X != agatha
+    | ~ killed(skolemFOFtoCNF_X,agatha)
+    | killed(agatha,agatha) ),
+    introduced(tautology,[equality,[$cnf(killed(skolemFOFtoCNF_X,agatha)),[0],$fot(agatha)]])).
+
+cnf(20,plain,
+    ( ~ killed(skolemFOFtoCNF_X,agatha)
+    | skolemFOFtoCNF_X = butler
+    | skolemFOFtoCNF_X = charles
+    | killed(agatha,agatha) ),
+    inference(resolve,[$cnf(skolemFOFtoCNF_X = agatha)],[18,19])).
+
+cnf(21,plain,
+    ( skolemFOFtoCNF_X = butler
+    | skolemFOFtoCNF_X = charles
+    | killed(agatha,agatha) ),
+    inference(resolve,[$cnf(killed(skolemFOFtoCNF_X,agatha))],[4,20])).
+
+cnf(22,axiom,
+    ( ~ killed(agatha,agatha) ),
+    inference(fof_to_cnf,[],[pel55])).
+
+cnf(23,plain,
+    ( skolemFOFtoCNF_X = butler
+    | skolemFOFtoCNF_X = charles ),
+    inference(resolve,[$cnf(killed(agatha,agatha))],[21,22])).
+
+cnf(24,plain,
+    ( skolemFOFtoCNF_X != butler
+    | ~ hates(butler,skolemFOFtoCNF_X)
+    | hates(butler,butler) ),
+    introduced(tautology,[equality,[$cnf(hates(butler,skolemFOFtoCNF_X)),[1],$fot(butler)]])).
+
+cnf(25,plain,
+    ( ~ hates(butler,skolemFOFtoCNF_X)
+    | skolemFOFtoCNF_X = charles
+    | hates(butler,butler) ),
+    inference(resolve,[$cnf(skolemFOFtoCNF_X = butler)],[23,24])).
+
+cnf(26,plain,
+    ( skolemFOFtoCNF_X = charles
+    | hates(butler,butler) ),
+    inference(resolve,[$cnf(hates(butler,skolemFOFtoCNF_X))],[14,25])).
+
+cnf(27,axiom,
+    ( ~ hates(X,skolemFOFtoCNF_Y(X)) ),
+    inference(fof_to_cnf,[],[pel55_10])).
+
+cnf(28,plain,
+    ( ~ hates(butler,skolemFOFtoCNF_Y(butler)) ),
+    inference(subst,[[X,$fot(butler)]],[27])).
+
+cnf(29,plain,
+    ( X1 = butler
+    | hates(agatha,X1) ),
+    inference(subst,[[X,$fot(X1)]],[0])).
+
+cnf(30,axiom,
+    ( ~ hates(agatha,X)
+    | hates(butler,X) ),
+    inference(fof_to_cnf,[],[pel55_9])).
+
+cnf(31,plain,
+    ( ~ hates(agatha,X1)
+    | hates(butler,X1) ),
+    inference(subst,[[X,$fot(X1)]],[30])).
+
+cnf(32,plain,
+    ( X1 = butler
+    | hates(butler,X1) ),
+    inference(resolve,[$cnf(hates(agatha,X1))],[29,31])).
+
+cnf(33,plain,
+    ( skolemFOFtoCNF_Y(butler) = butler
+    | hates(butler,skolemFOFtoCNF_Y(butler)) ),
+    inference(subst,[[X1,$fot(skolemFOFtoCNF_Y(butler))]],[32])).
+
+cnf(34,plain,
+    ( skolemFOFtoCNF_Y(butler) = butler ),
+    inference(resolve,[$cnf(hates(butler,skolemFOFtoCNF_Y(butler)))],[33,28])).
+
+cnf(35,plain,
+    ( skolemFOFtoCNF_Y(butler) != butler
+    | ~ hates(butler,butler)
+    | hates(butler,skolemFOFtoCNF_Y(butler)) ),
+    introduced(tautology,[equality,[$cnf(~ hates(butler,skolemFOFtoCNF_Y(butler))),[1],$fot(butler)]])).
+
+cnf(36,plain,
+    ( ~ hates(butler,butler)
+    | hates(butler,skolemFOFtoCNF_Y(butler)) ),
+    inference(resolve,[$cnf(skolemFOFtoCNF_Y(butler) = butler)],[34,35])).
+
+cnf(37,plain,
+    ( ~ hates(butler,butler) ),
+    inference(resolve,[$cnf(hates(butler,skolemFOFtoCNF_Y(butler)))],[36,28])).
+
+cnf(38,plain,
+    ( skolemFOFtoCNF_X = charles ),
+    inference(resolve,[$cnf(hates(butler,butler))],[26,37])).
+
+cnf(39,plain,
+    ( skolemFOFtoCNF_X != charles
+    | ~ hates(skolemFOFtoCNF_X,agatha)
+    | hates(charles,agatha) ),
+    introduced(tautology,[equality,[$cnf(hates(skolemFOFtoCNF_X,agatha)),[0],$fot(charles)]])).
+
+cnf(40,plain,
+    ( ~ hates(skolemFOFtoCNF_X,agatha)
+    | hates(charles,agatha) ),
+    inference(resolve,[$cnf(skolemFOFtoCNF_X = charles)],[38,39])).
+
+cnf(41,plain,
+    ( hates(charles,agatha) ),
+    inference(resolve,[$cnf(hates(skolemFOFtoCNF_X,agatha))],[7,40])).
+
+cnf(42,plain,
+    ( ~ hates(agatha,agatha) ),
+    inference(resolve,[$cnf(hates(charles,agatha))],[41,3])).
+
+cnf(43,plain,
+    ( agatha = butler ),
+    inference(resolve,[$cnf(hates(agatha,agatha))],[1,42])).
+
+cnf(44,axiom,
+    ( agatha != butler ),
+    inference(fof_to_cnf,[],[pel55_11])).
+
+cnf(45,theorem,
+    ( $false ),
+    inference(resolve,[$cnf(agatha = butler)],[43,44])).
+%------------------------------------------------------------------------------
+%----ORIGINAL SYSTEM OUTPUT
+% ---------------------------------------------------------------------------
+% SZS status Theorem for /home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp
+% 
+% SZS output start CNFRefutation for /home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp
+% fof(pel55_1, axiom, (? [X] : (lives(X) & killed(X, agatha)))).
+% 
+% fof(pel55_3, axiom,
+%     (! [X] : (lives(X) => (X = agatha | X = butler | X = charles)))).
+% 
+% fof(pel55_4, axiom, (! [X, Y] : (killed(X, Y) => hates(X, Y)))).
+% 
+% fof(pel55_5, axiom, (! [X, Y] : (killed(X, Y) => ~ richer(X, Y)))).
+% 
+% fof(pel55_6, axiom, (! [X] : (hates(agatha, X) => ~ hates(charles, X)))).
+% 
+% fof(pel55_7, axiom, (! [X] : (X != butler => hates(agatha, X)))).
+% 
+% fof(pel55_8, axiom, (! [X] : (~ richer(X, agatha) => hates(butler, X)))).
+% 
+% fof(pel55_9, axiom, (! [X] : (hates(agatha, X) => hates(butler, X)))).
+% 
+% fof(pel55_10, axiom, (! [X] : ? [Y] : ~ hates(X, Y))).
+% 
+% fof(pel55_11, axiom, (agatha != butler)).
+% 
+% fof(pel55, conjecture, (killed(agatha, agatha))).
+% 
+% cnf(0, axiom, (X = butler | hates(agatha, X)),
+%     inference(fof_to_cnf, [], [pel55_7])).
+% 
+% cnf(1, plain, (agatha = butler | hates(agatha, agatha)),
+%     inference(subst, [[X, $fot(agatha)]], [0])).
+% 
+% cnf(2, axiom, (~ hates(agatha, X) | ~ hates(charles, X)),
+%     inference(fof_to_cnf, [], [pel55_6])).
+% 
+% cnf(3, plain, (~ hates(agatha, agatha) | ~ hates(charles, agatha)),
+%     inference(subst, [[X, $fot(agatha)]], [2])).
+% 
+% cnf(4, axiom, (killed(skolemFOFtoCNF_X, agatha)),
+%     inference(fof_to_cnf, [], [pel55_1])).
+% 
+% cnf(5, axiom, (~ killed(X, Y) | hates(X, Y)),
+%     inference(fof_to_cnf, [], [pel55_4])).
+% 
+% cnf(6, plain,
+%     (~ killed(skolemFOFtoCNF_X, agatha) | hates(skolemFOFtoCNF_X, agatha)),
+%     inference(subst, [[X, $fot(skolemFOFtoCNF_X)], [Y, $fot(agatha)]],
+%               [5])).
+% 
+% cnf(7, plain, (hates(skolemFOFtoCNF_X, agatha)),
+%     inference(resolve, [$cnf(killed(skolemFOFtoCNF_X, agatha))], [4, 6])).
+% 
+% cnf(8, axiom, (hates(butler, X) | richer(X, agatha)),
+%     inference(fof_to_cnf, [], [pel55_8])).
+% 
+% cnf(9, plain, (hates(butler, X0) | richer(X0, agatha)),
+%     inference(subst, [[X, $fot(X0)]], [8])).
+% 
+% cnf(10, axiom, (~ killed(X, Y) | ~ richer(X, Y)),
+%     inference(fof_to_cnf, [], [pel55_5])).
+% 
+% cnf(11, plain, (~ killed(X0, agatha) | ~ richer(X0, agatha)),
+%     inference(subst, [[X, $fot(X0)], [Y, $fot(agatha)]], [10])).
+% 
+% cnf(12, plain, (~ killed(X0, agatha) | hates(butler, X0)),
+%     inference(resolve, [$cnf(richer(X0, agatha))], [9, 11])).
+% 
+% cnf(13, plain,
+%     (~ killed(skolemFOFtoCNF_X, agatha) | hates(butler, skolemFOFtoCNF_X)),
+%     inference(subst, [[X0, $fot(skolemFOFtoCNF_X)]], [12])).
+% 
+% cnf(14, plain, (hates(butler, skolemFOFtoCNF_X)),
+%     inference(resolve, [$cnf(killed(skolemFOFtoCNF_X, agatha))], [4, 13])).
+% 
+% cnf(15, axiom, (lives(skolemFOFtoCNF_X)),
+%     inference(fof_to_cnf, [], [pel55_1])).
+% 
+% cnf(16, axiom, (~ lives(X) | X = agatha | X = butler | X = charles),
+%     inference(fof_to_cnf, [], [pel55_3])).
+% 
+% cnf(17, plain,
+%     (~ lives(skolemFOFtoCNF_X) | skolemFOFtoCNF_X = agatha |
+%      skolemFOFtoCNF_X = butler | skolemFOFtoCNF_X = charles),
+%     inference(subst, [[X, $fot(skolemFOFtoCNF_X)]], [16])).
+% 
+% cnf(18, plain,
+%     (skolemFOFtoCNF_X = agatha | skolemFOFtoCNF_X = butler |
+%      skolemFOFtoCNF_X = charles),
+%     inference(resolve, [$cnf(lives(skolemFOFtoCNF_X))], [15, 17])).
+% 
+% cnf(19, plain,
+%     (skolemFOFtoCNF_X != agatha | ~ killed(skolemFOFtoCNF_X, agatha) |
+%      killed(agatha, agatha)),
+%     introduced(tautology,
+%                [equality,
+%                 [$cnf(killed(skolemFOFtoCNF_X, agatha)), [0],
+%                  $fot(agatha)]])).
+% 
+% cnf(20, plain,
+%     (~ killed(skolemFOFtoCNF_X, agatha) | skolemFOFtoCNF_X = butler |
+%      skolemFOFtoCNF_X = charles | killed(agatha, agatha)),
+%     inference(resolve, [$cnf($equal(skolemFOFtoCNF_X, agatha))],
+%               [18, 19])).
+% 
+% cnf(21, plain,
+%     (skolemFOFtoCNF_X = butler | skolemFOFtoCNF_X = charles |
+%      killed(agatha, agatha)),
+%     inference(resolve, [$cnf(killed(skolemFOFtoCNF_X, agatha))], [4, 20])).
+% 
+% cnf(22, axiom, (~ killed(agatha, agatha)),
+%     inference(fof_to_cnf, [], [pel55])).
+% 
+% cnf(23, plain, (skolemFOFtoCNF_X = butler | skolemFOFtoCNF_X = charles),
+%     inference(resolve, [$cnf(killed(agatha, agatha))], [21, 22])).
+% 
+% cnf(24, plain,
+%     (skolemFOFtoCNF_X != butler | ~ hates(butler, skolemFOFtoCNF_X) |
+%      hates(butler, butler)),
+%     introduced(tautology,
+%                [equality,
+%                 [$cnf(hates(butler, skolemFOFtoCNF_X)), [1],
+%                  $fot(butler)]])).
+% 
+% cnf(25, plain,
+%     (~ hates(butler, skolemFOFtoCNF_X) | skolemFOFtoCNF_X = charles |
+%      hates(butler, butler)),
+%     inference(resolve, [$cnf($equal(skolemFOFtoCNF_X, butler))],
+%               [23, 24])).
+% 
+% cnf(26, plain, (skolemFOFtoCNF_X = charles | hates(butler, butler)),
+%     inference(resolve, [$cnf(hates(butler, skolemFOFtoCNF_X))], [14, 25])).
+% 
+% cnf(27, axiom, (~ hates(X, skolemFOFtoCNF_Y(X))),
+%     inference(fof_to_cnf, [], [pel55_10])).
+% 
+% cnf(28, plain, (~ hates(butler, skolemFOFtoCNF_Y(butler))),
+%     inference(subst, [[X, $fot(butler)]], [27])).
+% 
+% cnf(29, plain, (X1 = butler | hates(agatha, X1)),
+%     inference(subst, [[X, $fot(X1)]], [0])).
+% 
+% cnf(30, axiom, (~ hates(agatha, X) | hates(butler, X)),
+%     inference(fof_to_cnf, [], [pel55_9])).
+% 
+% cnf(31, plain, (~ hates(agatha, X1) | hates(butler, X1)),
+%     inference(subst, [[X, $fot(X1)]], [30])).
+% 
+% cnf(32, plain, (X1 = butler | hates(butler, X1)),
+%     inference(resolve, [$cnf(hates(agatha, X1))], [29, 31])).
+% 
+% cnf(33, plain,
+%     (skolemFOFtoCNF_Y(butler) = butler |
+%      hates(butler, skolemFOFtoCNF_Y(butler))),
+%     inference(subst, [[X1, $fot(skolemFOFtoCNF_Y(butler))]], [32])).
+% 
+% cnf(34, plain, (skolemFOFtoCNF_Y(butler) = butler),
+%     inference(resolve, [$cnf(hates(butler, skolemFOFtoCNF_Y(butler)))],
+%               [33, 28])).
+% 
+% cnf(35, plain,
+%     (skolemFOFtoCNF_Y(butler) != butler | ~ hates(butler, butler) |
+%      hates(butler, skolemFOFtoCNF_Y(butler))),
+%     introduced(tautology,
+%                [equality,
+%                 [$cnf(~ hates(butler, skolemFOFtoCNF_Y(butler))), [1],
+%                  $fot(butler)]])).
+% 
+% cnf(36, plain,
+%     (~ hates(butler, butler) | hates(butler, skolemFOFtoCNF_Y(butler))),
+%     inference(resolve, [$cnf($equal(skolemFOFtoCNF_Y(butler), butler))],
+%               [34, 35])).
+% 
+% cnf(37, plain, (~ hates(butler, butler)),
+%     inference(resolve, [$cnf(hates(butler, skolemFOFtoCNF_Y(butler)))],
+%               [36, 28])).
+% 
+% cnf(38, plain, (skolemFOFtoCNF_X = charles),
+%     inference(resolve, [$cnf(hates(butler, butler))], [26, 37])).
+% 
+% cnf(39, plain,
+%     (skolemFOFtoCNF_X != charles | ~ hates(skolemFOFtoCNF_X, agatha) |
+%      hates(charles, agatha)),
+%     introduced(tautology,
+%                [equality,
+%                 [$cnf(hates(skolemFOFtoCNF_X, agatha)), [0],
+%                  $fot(charles)]])).
+% 
+% cnf(40, plain,
+%     (~ hates(skolemFOFtoCNF_X, agatha) | hates(charles, agatha)),
+%     inference(resolve, [$cnf($equal(skolemFOFtoCNF_X, charles))],
+%               [38, 39])).
+% 
+% cnf(41, plain, (hates(charles, agatha)),
+%     inference(resolve, [$cnf(hates(skolemFOFtoCNF_X, agatha))], [7, 40])).
+% 
+% cnf(42, plain, (~ hates(agatha, agatha)),
+%     inference(resolve, [$cnf(hates(charles, agatha))], [41, 3])).
+% 
+% cnf(43, plain, (agatha = butler),
+%     inference(resolve, [$cnf(hates(agatha, agatha))], [1, 42])).
+% 
+% cnf(44, axiom, (agatha != butler), inference(fof_to_cnf, [], [pel55_11])).
+% 
+% cnf(45, theorem, ($false),
+%     inference(resolve, [$cnf($equal(agatha, butler))], [43, 44])).
+% SZS output end CNFRefutation for /home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001+1.tptp
+% 
+% 
+%------------------------------------------------------------------------------

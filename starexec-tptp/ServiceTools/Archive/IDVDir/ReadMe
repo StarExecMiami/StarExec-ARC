@@ -1,0 +1,39 @@
+My notes on how to build IDV ...
+
+1. IDV.jar relies on an updated TptpParser.jar in Source/parser. Note that
+   Source/parser/tptp_parser is a symbolic link to my development source.
+   > cd Source/parser
+   > make
+   > cp TptpParser ../..    # Not sure if this is even required
+2. Now make a new IDV.jar
+   > cd Source
+   > make
+   > cp IDV.jar ..
+3. Now put the new .jars onto the web
+   > cp IDV.jar TptpParser.jar ~/public_html/JARS
+===========================================================================
+Steven's old notes to me ...
+----------------------------------------------------------------------------
+But here is the tgz'd:
+
+http://web.cs.miami.edu/home/strac/geoff/IDV-2008.10.31b.tgz
+
+just tar xzvf,
+and then cross your fingers and make.
+
+This should create and IDV.jar located in the main directory.  This
+also compiles a fresh tptp_praser.jar in the parser directory.  That
+directory also includes the antlr.jar file.
+----------------------------------------------------------------------------
+> Which source file does the work of retrieving the TPTP formulae from
+> the parameter, parsing, etc.
+
+The file is TPTPReader.java, it resides in the main directory.
+
+The function that reads it is called readTPTP (BufferedReader in,
+BufferedReader coord, IDV idv);
+
+"in" is the tptp stream
+"coord" is the possible coordinate stream supplied by CLayout
+"idv" is just a link back to the idv window object.
+----------------------------------------------------------------------------

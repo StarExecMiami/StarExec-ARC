@@ -1,0 +1,327 @@
+fof(115,plain,(
+    killed(agatha,agatha) ),
+    inference(rw,[status(thm)],[23,110,theory(equality)]),
+    [interesting(1.00),verified(thm)]).
+
+fof(110,plain,(
+    esk1_0 = agatha ),
+    inference(sr,[status(thm)],[107,70,theory(equality)]),
+    [interesting(0.99),verified(thm)]).
+
+fof(57,plain,(
+    ! [X1] : 
+      ( hates(butler,X1)
+      | ~ killed(X1,agatha) ) ),
+    inference(spm,[status(thm)],[36,45,theory(equality)]),
+    [interesting(0.67),verified(thm)]).
+
+fof(67,plain,(
+    hates(butler,esk1_0) ),
+    inference(spm,[status(thm)],[57,23,theory(equality)]),
+    [interesting(0.61),verified(thm)]).
+
+fof(55,plain,(
+    hates(esk1_0,agatha) ),
+    inference(spm,[status(thm)],[33,23,theory(equality)]),
+    [interesting(0.57),verified(thm)]).
+
+fof(69,plain,(
+    butler = esk2_1(butler) ),
+    inference(spm,[status(thm)],[58,42,theory(equality)]),
+    [interesting(0.57),verified(thm)]).
+
+fof(102,plain,
+    ( esk1_0 = agatha
+    | esk1_0 = butler ),
+    inference(sr,[status(thm)],[101,52,theory(equality)]),
+    [interesting(0.52),verified(thm)]).
+
+fof(107,plain,
+    ( hates(butler,butler)
+    | esk1_0 = agatha ),
+    inference(spm,[status(thm)],[67,102,theory(equality)]),
+    [interesting(0.51),verified(thm)]).
+
+fof(70,plain,(
+    ~ hates(butler,butler) ),
+    inference(spm,[status(thm)],[51,69,theory(equality)]),
+    [interesting(0.48),verified(thm)]).
+
+fof(58,plain,(
+    ~ hates(agatha,esk2_1(butler)) ),
+    inference(spm,[status(thm)],[51,48,theory(equality)]),
+    [interesting(0.46),verified(thm)]).
+
+fof(101,plain,
+    ( esk1_0 = agatha
+    | esk1_0 = butler
+    | butler = agatha ),
+    inference(spm,[status(thm)],[100,42,theory(equality)]),
+    [interesting(0.31),verified(thm)]).
+
+fof(100,plain,
+    ( esk1_0 = butler
+    | esk1_0 = agatha
+    | ~ hates(agatha,agatha) ),
+    inference(spm,[status(thm)],[39,64,theory(equality)]),
+    [interesting(0.17),verified(thm)]).
+
+fof(54,plain,
+    ( charles = esk1_0
+    | butler = esk1_0
+    | agatha = esk1_0 ),
+    inference(spm,[status(thm)],[30,24,theory(equality)]),
+    [interesting(0.08),verified(thm)]).
+
+fof(64,plain,
+    ( hates(charles,agatha)
+    | esk1_0 = agatha
+    | esk1_0 = butler ),
+    inference(spm,[status(thm)],[55,54,theory(equality)]),
+    [interesting(0.00),verified(thm)]).
+
+fof(116,plain,(
+    $false ),
+    inference(sr,[status(thm)],[115,53,theory(equality)]),
+    [interesting(0.00),verified(thm)]).
+
+fof(36,plain,(
+    ! [X2,X1] : 
+      ( ~ richer(X1,X2)
+      | ~ killed(X1,X2) ) ),
+    inference(split_conjunct,[status(thm)],[35]),
+    [interesting(-0.09),verified(thm)]).
+
+fof(33,plain,(
+    ! [X2,X1] : 
+      ( hates(X1,X2)
+      | ~ killed(X1,X2) ) ),
+    inference(split_conjunct,[status(thm)],[32]),
+    [interesting(-0.10),verified(thm)]).
+
+fof(51,plain,(
+    ! [X1] : ~ hates(X1,esk2_1(X1)) ),
+    inference(split_conjunct,[status(thm)],[50]),
+    [interesting(-0.10),verified(thm)]).
+
+fof(48,plain,(
+    ! [X1] : 
+      ( hates(butler,X1)
+      | ~ hates(agatha,X1) ) ),
+    inference(split_conjunct,[status(thm)],[47]),
+    [interesting(-0.24),verified(thm)]).
+
+fof(39,plain,(
+    ! [X1] : 
+      ( ~ hates(charles,X1)
+      | ~ hates(agatha,X1) ) ),
+    inference(split_conjunct,[status(thm)],[38]),
+    [interesting(-0.25),verified(thm)]).
+
+fof(49,plain,(
+    ! [X4,X3,X3] : 
+    ? [X4] : ~ hates(X3,X4) ),
+    inference(variable_rename,[status(thm)],[19]),
+    [interesting(-0.26),verified(thm)]).
+
+fof(19,plain,(
+    ! [X2,X1,X1] : 
+    ? [X2] : ~ hates(X1,X2) ),
+    inference(fof_simplification,[status(thm)],[12,theory(equality)]),
+    [interesting(-0.27),verified(thm)]).
+
+fof(42,plain,(
+    ! [X1] : 
+      ( hates(agatha,X1)
+      | X1 = butler ) ),
+    inference(split_conjunct,[status(thm)],[41]),
+    [interesting(-0.34),verified(thm)]).
+
+fof(45,plain,(
+    ! [X1] : 
+      ( hates(butler,X1)
+      | richer(X1,agatha) ) ),
+    inference(split_conjunct,[status(thm)],[44]),
+    [interesting(-0.36),verified(thm)]).
+
+fof(16,plain,(
+    ! [X2,X1,X1,X2] : 
+      ( killed(X1,X2)
+     => ~ richer(X1,X2) ) ),
+    inference(fof_simplification,[status(thm)],[7,theory(equality)]),
+    [interesting(-0.37),verified(thm)]).
+
+fof(24,plain,(
+    lives(esk1_0) ),
+    inference(split_conjunct,[status(thm)],[22]),
+    [interesting(-0.37),verified(thm)]).
+
+fof(32,plain,(
+    ! [X4,X3,X3,X4] : 
+      ( ~ killed(X3,X4)
+      | hates(X3,X4) ) ),
+    inference(variable_rename,[status(thm)],[31]),
+    [interesting(-0.37),verified(thm)]).
+
+fof(34,plain,(
+    ! [X2,X1,X1,X2] : 
+      ( ~ killed(X1,X2)
+      | ~ richer(X1,X2) ) ),
+    inference(fof_nnf,[status(thm)],[16]),
+    [interesting(-0.37),verified(thm)]).
+
+fof(35,plain,(
+    ! [X4,X3,X3,X4] : 
+      ( ~ killed(X3,X4)
+      | ~ richer(X3,X4) ) ),
+    inference(variable_rename,[status(thm)],[34]),
+    [interesting(-0.37),verified(thm)]).
+
+fof(50,plain,(
+    ! [X3,X3] : ~ hates(X3,esk2_1(X3)) ),
+    inference(skolemize,[status(sab)],[49]),
+    [interesting(-0.37),verified(sab)]).
+
+fof(15,negated_conjecture,(
+    ~ killed(agatha,agatha) ),
+    inference(assume_negation,[status(cth)],[14]),
+    [interesting(-0.38),verified(cth)]).
+
+fof(20,negated_conjecture,(
+    ~ killed(agatha,agatha) ),
+    inference(fof_simplification,[status(thm)],[15,theory(equality)]),
+    [interesting(-0.38),verified(thm)]).
+
+fof(31,plain,(
+    ! [X2,X1,X1,X2] : 
+      ( ~ killed(X1,X2)
+      | hates(X1,X2) ) ),
+    inference(fof_nnf,[status(thm)],[6]),
+    [interesting(-0.38),verified(thm)]).
+
+fof(53,negated_conjecture,(
+    ~ killed(agatha,agatha) ),
+    inference(split_conjunct,[status(thm)],[20]),
+    [interesting(-0.38),verified(thm)]).
+
+fof(52,plain,(
+    agatha != butler ),
+    inference(split_conjunct,[status(thm)],[13]),
+    [interesting(-0.48),verified(thm)]).
+
+fof(21,plain,(
+    ! [X2] : 
+    ? [X2] : 
+      ( lives(X2)
+      & killed(X2,agatha) ) ),
+    inference(variable_rename,[status(thm)],[1]),
+    [interesting(-0.51),verified(thm)]).
+
+fof(23,plain,(
+    killed(esk1_0,agatha) ),
+    inference(split_conjunct,[status(thm)],[22]),
+    [interesting(-0.51),verified(thm)]).
+
+fof(47,plain,(
+    ! [X2,X2] : 
+      ( ~ hates(agatha,X2)
+      | hates(butler,X2) ) ),
+    inference(variable_rename,[status(thm)],[46]),
+    [interesting(-0.51),verified(thm)]).
+
+fof(46,plain,(
+    ! [X1,X1] : 
+      ( ~ hates(agatha,X1)
+      | hates(butler,X1) ) ),
+    inference(fof_nnf,[status(thm)],[11]),
+    [interesting(-0.52),verified(thm)]).
+
+fof(17,plain,(
+    ! [X1,X1] : 
+      ( hates(agatha,X1)
+     => ~ hates(charles,X1) ) ),
+    inference(fof_simplification,[status(thm)],[8,theory(equality)]),
+    [interesting(-0.53),verified(thm)]).
+
+fof(37,plain,(
+    ! [X1,X1] : 
+      ( ~ hates(agatha,X1)
+      | ~ hates(charles,X1) ) ),
+    inference(fof_nnf,[status(thm)],[17]),
+    [interesting(-0.53),verified(thm)]).
+
+fof(38,plain,(
+    ! [X2,X2] : 
+      ( ~ hates(agatha,X2)
+      | ~ hates(charles,X2) ) ),
+    inference(variable_rename,[status(thm)],[37]),
+    [interesting(-0.53),verified(thm)]).
+
+fof(40,plain,(
+    ! [X1,X1] : 
+      ( X1 = butler
+      | hates(agatha,X1) ) ),
+    inference(fof_nnf,[status(thm)],[9]),
+    [interesting(-0.62),verified(thm)]).
+
+fof(41,plain,(
+    ! [X2,X2] : 
+      ( X2 = butler
+      | hates(agatha,X2) ) ),
+    inference(variable_rename,[status(thm)],[40]),
+    [interesting(-0.62),verified(thm)]).
+
+fof(44,plain,(
+    ! [X2,X2] : 
+      ( richer(X2,agatha)
+      | hates(butler,X2) ) ),
+    inference(variable_rename,[status(thm)],[43]),
+    [interesting(-0.63),verified(thm)]).
+
+fof(18,plain,(
+    ! [X1,X1] : 
+      ( ~ richer(X1,agatha)
+     => hates(butler,X1) ) ),
+    inference(fof_simplification,[status(thm)],[10,theory(equality)]),
+    [interesting(-0.64),verified(thm)]).
+
+fof(43,plain,(
+    ! [X1,X1] : 
+      ( richer(X1,agatha)
+      | hates(butler,X1) ) ),
+    inference(fof_nnf,[status(thm)],[18]),
+    [interesting(-0.64),verified(thm)]).
+
+fof(22,plain,
+    ( lives(esk1_0)
+    & killed(esk1_0,agatha) ),
+    inference(skolemize,[status(sab)],[21]),
+    [interesting(-0.72),verified(sab)]).
+
+fof(29,plain,(
+    ! [X2,X2] : 
+      ( ~ lives(X2)
+      | X2 = agatha
+      | X2 = butler
+      | X2 = charles ) ),
+    inference(variable_rename,[status(thm)],[28]),
+    [interesting(-0.86),verified(thm)]).
+
+fof(28,plain,(
+    ! [X1,X1] : 
+      ( ~ lives(X1)
+      | X1 = agatha
+      | X1 = butler
+      | X1 = charles ) ),
+    inference(fof_nnf,[status(thm)],[5]),
+    [interesting(-0.87),verified(thm)]).
+
+fof(30,plain,(
+    ! [X1] : 
+      ( X1 = charles
+      | X1 = butler
+      | X1 = agatha
+      | ~ lives(X1) ) ),
+    inference(split_conjunct,[status(thm)],[29]),
+    [interesting(-0.99),verified(thm)]).
+

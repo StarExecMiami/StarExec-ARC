@@ -1,0 +1,75 @@
+cnf(54,plain,
+  charles=esk1_0    |
+  butler=esk1_0    |
+  agatha=esk1_0,
+  inference(spm,[status(thm)],[30,24,theory(equality)])
+).
+cnf(55,plain,
+  hates(esk1_0,agatha),
+  inference(spm,[status(thm)],[33,23,theory(equality)])
+).
+cnf(57,plain,
+  hates(butler,X1)    |
+  ~killed(X1,agatha),
+  inference(spm,[status(thm)],[36,45,theory(equality)])
+).
+cnf(58,plain,
+  ~hates(agatha,esk2_1(butler)),
+  inference(spm,[status(thm)],[51,48,theory(equality)])
+).
+cnf(64,plain,
+  hates(charles,agatha)    |
+  esk1_0=agatha    |
+  esk1_0=butler,
+  inference(spm,[status(thm)],[55,54,theory(equality)])
+).
+cnf(67,plain,
+  hates(butler,esk1_0),
+  inference(spm,[status(thm)],[57,23,theory(equality)])
+).
+cnf(69,plain,
+  butler=esk2_1(butler),
+  inference(spm,[status(thm)],[58,42,theory(equality)])
+).
+cnf(70,plain,
+  ~hates(butler,butler),
+  inference(spm,[status(thm)],[51,69,theory(equality)])
+).
+cnf(100,plain,
+  esk1_0=butler    |
+  esk1_0=agatha    |
+  ~hates(agatha,agatha),
+  inference(spm,[status(thm)],[39,64,theory(equality)])
+).
+cnf(101,plain,
+  esk1_0=agatha    |
+  esk1_0=butler    |
+  butler=agatha,
+  inference(spm,[status(thm)],[100,42,theory(equality)])
+).
+cnf(102,plain,
+  esk1_0=agatha    |
+  esk1_0=butler,
+  inference(sr,[status(thm)],[101,52,theory(equality)])
+).
+cnf(107,plain,
+  hates(butler,butler)    |
+  esk1_0=agatha,
+  inference(spm,[status(thm)],[67,102,theory(equality)])
+).
+cnf(110,plain,
+  esk1_0=agatha,
+  inference(sr,[status(thm)],[107,70,theory(equality)])
+).
+cnf(115,plain,
+  killed(agatha,agatha),
+  inference(rw,[status(thm)],[23,110,theory(equality)])
+).
+cnf(116,false,
+  $false,
+  inference(sr,[status(thm)],[115,53,theory(equality)])
+).
+cnf(117,false,
+  $false,
+  116, [proof]
+).

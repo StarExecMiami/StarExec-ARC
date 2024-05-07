@@ -1,0 +1,43 @@
+%------------------------------------------------------------------------------
+% File       : Vampire---8.0
+% Problem    : NUM001-1 : TPTP v1.0.0
+% Transform  : stdfof
+% Format     : tptp
+% Command    : vampire --mode casc -t %d %s
+
+% Computer   : art06.cs.miami.edu
+% Model      : i686 unknown
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2793MHz
+% Memory     : 1000MB
+% OS         : Linux 2.4.22-21mdk-i686-up-4GB
+% CPULimit   : 600s
+
+% Result     : Unsatisfiable 0.0s
+% Output     : Refutation 0.0s
+% Statistics : Number of clauses     :   32 (  68 expanded)
+%              Depth                 :    8
+%              Number of atoms       :   61 ( 146 expanded)
+%              Maximal clause size   :    3 (   2 average)
+%              Maximal term depth    :    4 (   2 average)
+% Verified   : 
+
+% Comments   : 
+%------------------------------------------------------------------------------
+%----TSTP SOLUTION
+% [1, input]   equalish(subtract(add(X0,X1),X1),X0)
+cnf(1,initial,
+    ( equalish(subtract(add(X0,X1),X1),X0) ),
+    file('NUM001-1.p',unknown),
+    []).
+
+% [11, input]   ~equalish(X0,X1) \/ ~equalish(X1,X2) \/ equalish(X0,X2)
+%cnf(11,initial,
+%    ( ~equalish(X0,X1) | ~equalish(X1,X2) | equalish(X0,X2) ),
+%    file('NUM001-1.p',unknown),
+%    []).
+
+% [11,1->28, resolution]     equalish(subtract(X1,X2),subtract(X3,X2)) \/ ~equalish(X1,X3)
+cnf(28,derived,
+    ( $false ),
+    inference(resolution,[status(thm)],[1]),
+    [iquote('[11,1->28, resolution]')]).

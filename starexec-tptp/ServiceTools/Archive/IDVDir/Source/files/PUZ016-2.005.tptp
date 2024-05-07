@@ -1,0 +1,1466 @@
+cnf(3,negated_conjecture,
+    ( ~ vertical_1_2 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',uncovered2_1_2)).
+
+cnf(5,negated_conjecture,
+    ( ~ horizontal_1_1 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',uncovered3_1_2)).
+
+cnf(7,negated_conjecture,
+    ( horizontal_1_1
+    | vertical_1_1 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',covered_1_1)).
+
+cnf(9,negated_conjecture,
+    ( vertical_1_5
+    | horizontal_1_4 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',covered_1_5)).
+
+cnf(11,negated_conjecture,
+    ( horizontal_2_2
+    | vertical_2_2
+    | horizontal_2_1
+    | vertical_1_2 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',covered_2_2)).
+
+cnf(13,negated_conjecture,
+    ( horizontal_2_4
+    | vertical_2_4
+    | horizontal_2_3
+    | vertical_1_4 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',covered_2_4)).
+
+cnf(15,negated_conjecture,
+    ( horizontal_3_1
+    | vertical_3_1
+    | vertical_2_1 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',covered_3_1)).
+
+cnf(17,negated_conjecture,
+    ( horizontal_3_3
+    | vertical_3_3
+    | horizontal_3_2
+    | vertical_2_3 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',covered_3_3)).
+
+cnf(19,negated_conjecture,
+    ( vertical_3_5
+    | horizontal_3_4
+    | vertical_2_5 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',covered_3_5)).
+
+cnf(21,negated_conjecture,
+    ( horizontal_4_2
+    | vertical_4_2
+    | horizontal_4_1
+    | vertical_3_2 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',covered_4_2)).
+
+cnf(23,negated_conjecture,
+    ( horizontal_4_4
+    | vertical_4_4
+    | horizontal_4_3
+    | vertical_3_4 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',covered_4_4)).
+
+cnf(25,negated_conjecture,
+    ( horizontal_5_1
+    | vertical_4_1 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',covered_5_1)).
+
+cnf(27,negated_conjecture,
+    ( horizontal_5_3
+    | horizontal_5_2
+    | vertical_4_3 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',covered_5_3)).
+
+cnf(29,negated_conjecture,
+    ( horizontal_5_4
+    | vertical_4_5 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',covered_5_5)).
+
+cnf(31,negated_conjecture,
+    ( ~ horizontal_1_4
+    | ~ vertical_1_4 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover1_1_4)).
+
+cnf(36,negated_conjecture,
+    ( ~ horizontal_2_1
+    | ~ vertical_1_1 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover3_2_1)).
+
+cnf(37,negated_conjecture,
+    ( ~ vertical_2_1
+    | ~ vertical_1_1 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover5_2_1)).
+
+cnf(44,negated_conjecture,
+    ( ~ horizontal_2_3
+    | ~ vertical_2_3 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover1_2_3)).
+
+cnf(45,negated_conjecture,
+    ( ~ horizontal_2_3
+    | ~ horizontal_2_2 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover2_2_3)).
+
+cnf(47,negated_conjecture,
+    ( ~ vertical_2_3
+    | ~ horizontal_2_2 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover4_2_3)).
+
+cnf(56,negated_conjecture,
+    ( ~ vertical_2_5
+    | ~ horizontal_2_4 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover4_2_5)).
+
+cnf(57,negated_conjecture,
+    ( ~ vertical_2_5
+    | ~ vertical_1_5 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover5_2_5)).
+
+cnf(62,negated_conjecture,
+    ( ~ horizontal_3_2
+    | ~ vertical_3_2 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover1_3_2)).
+
+cnf(63,negated_conjecture,
+    ( ~ horizontal_3_2
+    | ~ horizontal_3_1 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover2_3_2)).
+
+cnf(64,negated_conjecture,
+    ( ~ horizontal_3_2
+    | ~ vertical_2_2 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover3_3_2)).
+
+cnf(65,negated_conjecture,
+    ( ~ vertical_3_2
+    | ~ horizontal_3_1 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover4_3_2)).
+
+cnf(66,negated_conjecture,
+    ( ~ vertical_3_2
+    | ~ vertical_2_2 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover5_3_2)).
+
+cnf(67,negated_conjecture,
+    ( ~ horizontal_3_1
+    | ~ vertical_2_2 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover6_3_2)).
+
+cnf(74,negated_conjecture,
+    ( ~ horizontal_3_4
+    | ~ vertical_3_4 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover1_3_4)).
+
+cnf(75,negated_conjecture,
+    ( ~ horizontal_3_4
+    | ~ horizontal_3_3 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover2_3_4)).
+
+cnf(77,negated_conjecture,
+    ( ~ vertical_3_4
+    | ~ horizontal_3_3 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover4_3_4)).
+
+cnf(78,negated_conjecture,
+    ( ~ vertical_3_4
+    | ~ vertical_2_4 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover5_3_4)).
+
+cnf(79,negated_conjecture,
+    ( ~ horizontal_3_3
+    | ~ vertical_2_4 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover6_3_4)).
+
+cnf(83,negated_conjecture,
+    ( ~ horizontal_4_1
+    | ~ vertical_4_1 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover1_4_1)).
+
+cnf(84,negated_conjecture,
+    ( ~ horizontal_4_1
+    | ~ vertical_3_1 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover3_4_1)).
+
+cnf(85,negated_conjecture,
+    ( ~ vertical_4_1
+    | ~ vertical_3_1 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover5_4_1)).
+
+cnf(92,negated_conjecture,
+    ( ~ horizontal_4_3
+    | ~ vertical_4_3 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover1_4_3)).
+
+cnf(93,negated_conjecture,
+    ( ~ horizontal_4_3
+    | ~ horizontal_4_2 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover2_4_3)).
+
+cnf(94,negated_conjecture,
+    ( ~ horizontal_4_3
+    | ~ vertical_3_3 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover3_4_3)).
+
+cnf(95,negated_conjecture,
+    ( ~ vertical_4_3
+    | ~ horizontal_4_2 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover4_4_3)).
+
+cnf(96,negated_conjecture,
+    ( ~ vertical_4_3
+    | ~ vertical_3_3 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover5_4_3)).
+
+cnf(97,negated_conjecture,
+    ( ~ horizontal_4_2
+    | ~ vertical_3_3 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover6_4_3)).
+
+cnf(104,negated_conjecture,
+    ( ~ vertical_4_5
+    | ~ horizontal_4_4 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover4_4_5)).
+
+cnf(105,negated_conjecture,
+    ( ~ vertical_4_5
+    | ~ vertical_3_5 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover5_4_5)).
+
+cnf(106,negated_conjecture,
+    ( ~ horizontal_4_4
+    | ~ vertical_3_5 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover6_4_5)).
+
+cnf(108,negated_conjecture,
+    ( ~ horizontal_5_2
+    | ~ horizontal_5_1 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover2_5_2)).
+
+cnf(109,negated_conjecture,
+    ( ~ horizontal_5_2
+    | ~ vertical_4_2 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover3_5_2)).
+
+cnf(110,negated_conjecture,
+    ( ~ horizontal_5_1
+    | ~ vertical_4_2 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover6_5_2)).
+
+cnf(114,negated_conjecture,
+    ( ~ horizontal_5_4
+    | ~ horizontal_5_3 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover2_5_4)).
+
+cnf(115,negated_conjecture,
+    ( ~ horizontal_5_4
+    | ~ vertical_4_4 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover3_5_4)).
+
+cnf(116,negated_conjecture,
+    ( ~ horizontal_5_3
+    | ~ vertical_4_4 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ016-2.005.tptp',unique_cover6_5_4)).
+
+cnf(118,negated_conjecture,
+    ( vertical_1_1 ),
+    inference(sr,[status(thm)],[7,5,theory(equality)])).
+
+cnf(125,negated_conjecture,
+    ( horizontal_2_1
+    | horizontal_2_2
+    | vertical_2_2 ),
+    inference(sr,[status(thm)],[11,3,theory(equality)])).
+
+cnf(128,negated_conjecture,
+    ( horizontal_1_4
+    | ~ vertical_2_5 ),
+    inference(spm,[status(thm)],[57,9,theory(equality)])).
+
+cnf(156,negated_conjecture,
+    ( horizontal_3_4
+    | vertical_2_5
+    | ~ horizontal_4_4 ),
+    inference(spm,[status(thm)],[106,19,theory(equality)])).
+
+cnf(164,negated_conjecture,
+    ( vertical_4_1
+    | ~ vertical_4_2 ),
+    inference(spm,[status(thm)],[110,25,theory(equality)])).
+
+cnf(171,negated_conjecture,
+    ( horizontal_5_2
+    | vertical_4_3
+    | ~ vertical_4_4 ),
+    inference(spm,[status(thm)],[116,27,theory(equality)])).
+
+cnf(172,negated_conjecture,
+    ( vertical_4_5
+    | ~ vertical_4_4 ),
+    inference(spm,[status(thm)],[115,29,theory(equality)])).
+
+cnf(176,negated_conjecture,
+    ( vertical_4_1
+    | ~ horizontal_5_2 ),
+    inference(spm,[status(thm)],[108,25,theory(equality)])).
+
+cnf(179,negated_conjecture,
+    ( vertical_4_5
+    | ~ horizontal_5_3 ),
+    inference(spm,[status(thm)],[114,29,theory(equality)])).
+
+cnf(181,negated_conjecture,
+    ( ~ vertical_2_1
+    | $false ),
+    inference(rw,[status(thm)],[37,118,theory(equality)])).
+
+cnf(182,negated_conjecture,
+    ( ~ vertical_2_1 ),
+    inference(cn,[status(thm)],[181,theory(equality)])).
+
+cnf(183,negated_conjecture,
+    ( ~ horizontal_2_1
+    | $false ),
+    inference(rw,[status(thm)],[36,118,theory(equality)])).
+
+cnf(184,negated_conjecture,
+    ( ~ horizontal_2_1 ),
+    inference(cn,[status(thm)],[183,theory(equality)])).
+
+cnf(185,negated_conjecture,
+    ( vertical_3_1
+    | horizontal_3_1 ),
+    inference(sr,[status(thm)],[15,182,theory(equality)])).
+
+cnf(186,negated_conjecture,
+    ( vertical_2_2
+    | horizontal_2_2 ),
+    inference(sr,[status(thm)],[125,184,theory(equality)])).
+
+cnf(189,negated_conjecture,
+    ( ~ vertical_1_4
+    | ~ vertical_2_5 ),
+    inference(spm,[status(thm)],[31,128,theory(equality)])).
+
+cnf(190,negated_conjecture,
+    ( ~ vertical_3_1
+    | ~ vertical_4_2 ),
+    inference(spm,[status(thm)],[85,164,theory(equality)])).
+
+cnf(194,negated_conjecture,
+    ( horizontal_3_1
+    | ~ horizontal_4_1 ),
+    inference(spm,[status(thm)],[84,185,theory(equality)])).
+
+cnf(198,negated_conjecture,
+    ( ~ vertical_3_5
+    | ~ vertical_4_4 ),
+    inference(spm,[status(thm)],[105,172,theory(equality)])).
+
+cnf(200,negated_conjecture,
+    ( ~ vertical_3_1
+    | ~ horizontal_5_2 ),
+    inference(spm,[status(thm)],[85,176,theory(equality)])).
+
+cnf(201,negated_conjecture,
+    ( ~ horizontal_4_1
+    | ~ horizontal_5_2 ),
+    inference(spm,[status(thm)],[83,176,theory(equality)])).
+
+cnf(202,negated_conjecture,
+    ( ~ vertical_3_5
+    | ~ horizontal_5_3 ),
+    inference(spm,[status(thm)],[105,179,theory(equality)])).
+
+cnf(203,negated_conjecture,
+    ( ~ horizontal_4_4
+    | ~ horizontal_5_3 ),
+    inference(spm,[status(thm)],[104,179,theory(equality)])).
+
+cnf(208,negated_conjecture,
+    ( horizontal_3_4
+    | ~ horizontal_2_4
+    | ~ horizontal_4_4 ),
+    inference(spm,[status(thm)],[56,156,theory(equality)])).
+
+cnf(210,negated_conjecture,
+    ( horizontal_3_4
+    | ~ vertical_1_4
+    | ~ horizontal_4_4 ),
+    inference(spm,[status(thm)],[189,156,theory(equality)])).
+
+cnf(211,negated_conjecture,
+    ( horizontal_3_1
+    | ~ vertical_4_2 ),
+    inference(spm,[status(thm)],[190,185,theory(equality)])).
+
+cnf(212,negated_conjecture,
+    ( horizontal_3_4
+    | vertical_2_5
+    | ~ vertical_4_4 ),
+    inference(spm,[status(thm)],[198,19,theory(equality)])).
+
+cnf(213,negated_conjecture,
+    ( horizontal_3_1
+    | horizontal_4_2
+    | horizontal_4_1
+    | vertical_3_2 ),
+    inference(spm,[status(thm)],[211,21,theory(equality)])).
+
+cnf(217,negated_conjecture,
+    ( vertical_4_3
+    | ~ vertical_4_2
+    | ~ vertical_4_4 ),
+    inference(spm,[status(thm)],[109,171,theory(equality)])).
+
+cnf(219,negated_conjecture,
+    ( vertical_4_3
+    | ~ vertical_3_1
+    | ~ vertical_4_4 ),
+    inference(spm,[status(thm)],[200,171,theory(equality)])).
+
+cnf(223,negated_conjecture,
+    ( vertical_4_3
+    | ~ horizontal_4_1
+    | ~ vertical_4_4 ),
+    inference(spm,[status(thm)],[201,171,theory(equality)])).
+
+cnf(224,negated_conjecture,
+    ( horizontal_5_2
+    | vertical_4_3
+    | ~ vertical_3_5 ),
+    inference(spm,[status(thm)],[202,27,theory(equality)])).
+
+cnf(225,negated_conjecture,
+    ( horizontal_5_2
+    | vertical_4_3
+    | ~ horizontal_4_4 ),
+    inference(spm,[status(thm)],[203,27,theory(equality)])).
+
+cnf(227,negated_conjecture,
+    ( horizontal_3_4
+    | ~ horizontal_2_4
+    | ~ vertical_4_4 ),
+    inference(spm,[status(thm)],[56,212,theory(equality)])).
+
+cnf(229,negated_conjecture,
+    ( horizontal_3_4
+    | ~ vertical_1_4
+    | ~ vertical_4_4 ),
+    inference(spm,[status(thm)],[189,212,theory(equality)])).
+
+cnf(230,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_4_4
+    | horizontal_4_3
+    | vertical_3_4
+    | ~ vertical_4_2 ),
+    inference(spm,[status(thm)],[217,23,theory(equality)])).
+
+cnf(231,negated_conjecture,
+    ( horizontal_4_2
+    | vertical_3_2
+    | horizontal_3_1 ),
+    inference(csr,[status(thm)],[213,194])).
+
+cnf(232,negated_conjecture,
+    ( horizontal_4_2
+    | vertical_3_2
+    | ~ vertical_2_2 ),
+    inference(spm,[status(thm)],[67,231,theory(equality)])).
+
+cnf(233,negated_conjecture,
+    ( horizontal_4_2
+    | vertical_3_2
+    | ~ horizontal_3_2 ),
+    inference(spm,[status(thm)],[63,231,theory(equality)])).
+
+cnf(235,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_3_1
+    | ~ vertical_4_4 ),
+    inference(spm,[status(thm)],[219,185,theory(equality)])).
+
+cnf(236,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_4_4
+    | horizontal_4_3
+    | vertical_3_4
+    | ~ horizontal_4_1 ),
+    inference(spm,[status(thm)],[223,23,theory(equality)])).
+
+cnf(237,negated_conjecture,
+    ( vertical_4_3
+    | ~ vertical_4_2
+    | ~ vertical_3_5 ),
+    inference(spm,[status(thm)],[109,224,theory(equality)])).
+
+cnf(239,negated_conjecture,
+    ( vertical_4_3
+    | ~ vertical_3_1
+    | ~ vertical_3_5 ),
+    inference(spm,[status(thm)],[200,224,theory(equality)])).
+
+cnf(240,negated_conjecture,
+    ( vertical_4_3
+    | ~ horizontal_4_1
+    | ~ vertical_3_5 ),
+    inference(spm,[status(thm)],[201,224,theory(equality)])).
+
+cnf(241,negated_conjecture,
+    ( vertical_4_3
+    | ~ vertical_4_2
+    | ~ horizontal_4_4 ),
+    inference(spm,[status(thm)],[109,225,theory(equality)])).
+
+cnf(243,negated_conjecture,
+    ( vertical_4_3
+    | ~ vertical_3_1
+    | ~ horizontal_4_4 ),
+    inference(spm,[status(thm)],[200,225,theory(equality)])).
+
+cnf(244,negated_conjecture,
+    ( vertical_4_3
+    | ~ horizontal_4_1
+    | ~ horizontal_4_4 ),
+    inference(spm,[status(thm)],[201,225,theory(equality)])).
+
+cnf(245,negated_conjecture,
+    ( horizontal_3_4
+    | horizontal_4_4
+    | horizontal_4_3
+    | vertical_3_4
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[227,23,theory(equality)])).
+
+cnf(246,negated_conjecture,
+    ( horizontal_3_4
+    | horizontal_4_4
+    | horizontal_4_3
+    | vertical_3_4
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[229,23,theory(equality)])).
+
+cnf(247,negated_conjecture,
+    ( horizontal_4_2
+    | ~ vertical_2_2 ),
+    inference(csr,[status(thm)],[232,66])).
+
+cnf(249,negated_conjecture,
+    ( ~ vertical_3_3
+    | ~ vertical_2_2 ),
+    inference(spm,[status(thm)],[97,247,theory(equality)])).
+
+cnf(254,negated_conjecture,
+    ( horizontal_3_3
+    | horizontal_3_2
+    | vertical_2_3
+    | ~ vertical_2_2 ),
+    inference(spm,[status(thm)],[249,17,theory(equality)])).
+
+cnf(255,negated_conjecture,
+    ( horizontal_4_2
+    | ~ horizontal_3_2 ),
+    inference(csr,[status(thm)],[233,62])).
+
+cnf(258,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_3_1
+    | horizontal_4_4
+    | horizontal_4_3
+    | vertical_3_4 ),
+    inference(spm,[status(thm)],[235,23,theory(equality)])).
+
+cnf(259,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_3_4
+    | vertical_2_5
+    | ~ vertical_4_2 ),
+    inference(spm,[status(thm)],[237,19,theory(equality)])).
+
+cnf(260,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_3_4
+    | vertical_2_5
+    | ~ vertical_3_1 ),
+    inference(spm,[status(thm)],[239,19,theory(equality)])).
+
+cnf(261,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_3_4
+    | vertical_2_5
+    | ~ horizontal_4_1 ),
+    inference(spm,[status(thm)],[240,19,theory(equality)])).
+
+cnf(270,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_3_1
+    | ~ horizontal_4_4 ),
+    inference(spm,[status(thm)],[243,185,theory(equality)])).
+
+cnf(292,negated_conjecture,
+    ( horizontal_3_3
+    | vertical_2_3
+    | ~ vertical_2_2 ),
+    inference(csr,[status(thm)],[254,64])).
+
+cnf(296,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_4_3
+    | vertical_3_4
+    | ~ vertical_4_2 ),
+    inference(csr,[status(thm)],[230,241])).
+
+cnf(297,negated_conjecture,
+    ( horizontal_4_3
+    | vertical_3_4
+    | ~ vertical_3_3
+    | ~ vertical_4_2 ),
+    inference(spm,[status(thm)],[96,296,theory(equality)])).
+
+cnf(301,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_3_4
+    | ~ horizontal_2_4
+    | ~ vertical_4_2 ),
+    inference(spm,[status(thm)],[56,259,theory(equality)])).
+
+cnf(303,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_3_4
+    | ~ vertical_1_4
+    | ~ vertical_4_2 ),
+    inference(spm,[status(thm)],[189,259,theory(equality)])).
+
+cnf(304,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_3_4
+    | vertical_2_5
+    | horizontal_3_1 ),
+    inference(spm,[status(thm)],[260,185,theory(equality)])).
+
+cnf(306,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_3_4
+    | horizontal_3_1
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[56,304,theory(equality)])).
+
+cnf(308,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_3_4
+    | horizontal_3_1
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[189,304,theory(equality)])).
+
+cnf(309,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_3_4
+    | ~ horizontal_2_4
+    | ~ horizontal_4_1 ),
+    inference(spm,[status(thm)],[56,261,theory(equality)])).
+
+cnf(311,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_3_4
+    | ~ vertical_1_4
+    | ~ horizontal_4_1 ),
+    inference(spm,[status(thm)],[189,261,theory(equality)])).
+
+cnf(323,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_4_3
+    | vertical_3_4
+    | ~ horizontal_4_1 ),
+    inference(csr,[status(thm)],[236,244])).
+
+cnf(324,negated_conjecture,
+    ( horizontal_4_3
+    | vertical_3_4
+    | ~ vertical_3_3
+    | ~ horizontal_4_1 ),
+    inference(spm,[status(thm)],[96,323,theory(equality)])).
+
+cnf(333,negated_conjecture,
+    ( vertical_3_4
+    | ~ vertical_4_2
+    | ~ vertical_3_3 ),
+    inference(csr,[status(thm)],[297,94])).
+
+cnf(334,negated_conjecture,
+    ( vertical_3_4
+    | horizontal_4_2
+    | horizontal_4_1
+    | vertical_3_2
+    | ~ vertical_3_3 ),
+    inference(spm,[status(thm)],[333,21,theory(equality)])).
+
+cnf(337,negated_conjecture,
+    ( horizontal_3_4
+    | ~ vertical_3_3
+    | ~ vertical_4_2
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[96,301,theory(equality)])).
+
+cnf(339,negated_conjecture,
+    ( horizontal_3_4
+    | ~ horizontal_4_3
+    | ~ vertical_4_2
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[92,301,theory(equality)])).
+
+cnf(341,negated_conjecture,
+    ( horizontal_3_4
+    | ~ vertical_3_3
+    | ~ vertical_4_2
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[96,303,theory(equality)])).
+
+cnf(343,negated_conjecture,
+    ( horizontal_3_4
+    | ~ horizontal_4_3
+    | ~ vertical_4_2
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[92,303,theory(equality)])).
+
+cnf(345,negated_conjecture,
+    ( horizontal_3_4
+    | horizontal_3_1
+    | ~ vertical_3_3
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[96,306,theory(equality)])).
+
+cnf(346,negated_conjecture,
+    ( horizontal_3_4
+    | horizontal_3_1
+    | ~ horizontal_4_2
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[95,306,theory(equality)])).
+
+cnf(347,negated_conjecture,
+    ( horizontal_3_4
+    | horizontal_3_1
+    | ~ horizontal_4_3
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[92,306,theory(equality)])).
+
+cnf(349,negated_conjecture,
+    ( horizontal_3_4
+    | horizontal_3_1
+    | ~ vertical_3_3
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[96,308,theory(equality)])).
+
+cnf(350,negated_conjecture,
+    ( horizontal_3_4
+    | horizontal_3_1
+    | ~ horizontal_4_2
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[95,308,theory(equality)])).
+
+cnf(351,negated_conjecture,
+    ( horizontal_3_4
+    | horizontal_3_1
+    | ~ horizontal_4_3
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[92,308,theory(equality)])).
+
+cnf(353,negated_conjecture,
+    ( horizontal_3_4
+    | ~ vertical_3_3
+    | ~ horizontal_4_1
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[96,309,theory(equality)])).
+
+cnf(355,negated_conjecture,
+    ( horizontal_3_4
+    | ~ horizontal_4_3
+    | ~ horizontal_4_1
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[92,309,theory(equality)])).
+
+cnf(357,negated_conjecture,
+    ( horizontal_4_3
+    | vertical_3_4
+    | horizontal_3_4
+    | ~ horizontal_2_4 ),
+    inference(csr,[status(thm)],[245,208])).
+
+cnf(359,negated_conjecture,
+    ( horizontal_4_3
+    | vertical_3_4
+    | ~ horizontal_3_3
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[75,357,theory(equality)])).
+
+cnf(362,negated_conjecture,
+    ( horizontal_3_4
+    | ~ vertical_3_3
+    | ~ horizontal_4_1
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[96,311,theory(equality)])).
+
+cnf(364,negated_conjecture,
+    ( horizontal_3_4
+    | ~ horizontal_4_3
+    | ~ horizontal_4_1
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[92,311,theory(equality)])).
+
+cnf(380,negated_conjecture,
+    ( vertical_3_4
+    | ~ horizontal_4_1
+    | ~ vertical_3_3 ),
+    inference(csr,[status(thm)],[324,94])).
+
+cnf(383,negated_conjecture,
+    ( horizontal_3_4
+    | horizontal_4_2
+    | horizontal_4_1
+    | vertical_3_2
+    | ~ vertical_3_3
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[337,21,theory(equality)])).
+
+cnf(386,negated_conjecture,
+    ( horizontal_3_4
+    | horizontal_4_2
+    | horizontal_4_1
+    | vertical_3_2
+    | ~ horizontal_4_3
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[339,21,theory(equality)])).
+
+cnf(387,negated_conjecture,
+    ( horizontal_4_3
+    | vertical_3_4
+    | horizontal_3_4
+    | ~ vertical_1_4 ),
+    inference(csr,[status(thm)],[246,210])).
+
+cnf(389,negated_conjecture,
+    ( horizontal_4_3
+    | vertical_3_4
+    | ~ horizontal_3_3
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[75,387,theory(equality)])).
+
+cnf(392,negated_conjecture,
+    ( horizontal_3_4
+    | horizontal_4_2
+    | horizontal_4_1
+    | vertical_3_2
+    | ~ vertical_3_3
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[341,21,theory(equality)])).
+
+cnf(395,negated_conjecture,
+    ( horizontal_3_4
+    | horizontal_4_2
+    | horizontal_4_1
+    | vertical_3_2
+    | ~ horizontal_4_3
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[343,21,theory(equality)])).
+
+cnf(398,negated_conjecture,
+    ( horizontal_3_1
+    | ~ vertical_3_4
+    | ~ vertical_3_3
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[74,345,theory(equality)])).
+
+cnf(402,negated_conjecture,
+    ( horizontal_3_1
+    | ~ vertical_3_4
+    | ~ horizontal_4_2
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[74,346,theory(equality)])).
+
+cnf(405,negated_conjecture,
+    ( horizontal_3_1
+    | ~ horizontal_3_3
+    | ~ horizontal_4_3
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[75,347,theory(equality)])).
+
+cnf(410,negated_conjecture,
+    ( horizontal_3_1
+    | ~ vertical_3_4
+    | ~ vertical_3_3
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[74,349,theory(equality)])).
+
+cnf(414,negated_conjecture,
+    ( horizontal_3_1
+    | ~ vertical_3_4
+    | ~ horizontal_4_2
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[74,350,theory(equality)])).
+
+cnf(416,negated_conjecture,
+    ( vertical_4_3
+    | horizontal_4_3
+    | vertical_3_4
+    | horizontal_3_1 ),
+    inference(csr,[status(thm)],[258,270])).
+
+cnf(417,negated_conjecture,
+    ( horizontal_4_3
+    | vertical_3_4
+    | horizontal_3_1
+    | ~ vertical_3_3 ),
+    inference(spm,[status(thm)],[96,416,theory(equality)])).
+
+cnf(418,negated_conjecture,
+    ( horizontal_4_3
+    | vertical_3_4
+    | horizontal_3_1
+    | ~ horizontal_4_2 ),
+    inference(spm,[status(thm)],[95,416,theory(equality)])).
+
+cnf(422,negated_conjecture,
+    ( horizontal_3_1
+    | ~ horizontal_3_3
+    | ~ horizontal_4_3
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[75,351,theory(equality)])).
+
+cnf(429,negated_conjecture,
+    ( horizontal_4_3
+    | ~ horizontal_3_3
+    | ~ horizontal_2_4 ),
+    inference(csr,[status(thm)],[359,77])).
+
+cnf(442,negated_conjecture,
+    ( horizontal_4_3
+    | ~ horizontal_3_3
+    | ~ vertical_1_4 ),
+    inference(csr,[status(thm)],[389,77])).
+
+cnf(449,negated_conjecture,
+    ( ~ vertical_3_2
+    | ~ vertical_3_4
+    | ~ vertical_3_3
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[65,398,theory(equality)])).
+
+cnf(460,negated_conjecture,
+    ( ~ vertical_2_2
+    | ~ horizontal_4_2
+    | ~ vertical_3_4
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[67,402,theory(equality)])).
+
+cnf(461,negated_conjecture,
+    ( ~ horizontal_3_2
+    | ~ horizontal_4_2
+    | ~ vertical_3_4
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[63,402,theory(equality)])).
+
+cnf(465,negated_conjecture,
+    ( horizontal_3_1
+    | ~ horizontal_3_3
+    | ~ horizontal_2_4 ),
+    inference(csr,[status(thm)],[405,429])).
+
+cnf(468,negated_conjecture,
+    ( ~ vertical_3_2
+    | ~ horizontal_3_3
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[65,465,theory(equality)])).
+
+cnf(489,negated_conjecture,
+    ( ~ vertical_3_2
+    | ~ vertical_3_4
+    | ~ vertical_3_3
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[65,410,theory(equality)])).
+
+cnf(495,negated_conjecture,
+    ( ~ vertical_2_2
+    | ~ horizontal_4_2
+    | ~ vertical_3_4
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[67,414,theory(equality)])).
+
+cnf(496,negated_conjecture,
+    ( ~ horizontal_3_2
+    | ~ horizontal_4_2
+    | ~ vertical_3_4
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[63,414,theory(equality)])).
+
+cnf(508,negated_conjecture,
+    ( vertical_3_4
+    | horizontal_3_1
+    | ~ vertical_3_3 ),
+    inference(csr,[status(thm)],[417,94])).
+
+cnf(511,negated_conjecture,
+    ( vertical_3_4
+    | ~ vertical_3_2
+    | ~ vertical_3_3 ),
+    inference(spm,[status(thm)],[65,508,theory(equality)])).
+
+cnf(516,negated_conjecture,
+    ( vertical_3_4
+    | horizontal_3_1
+    | ~ horizontal_4_2 ),
+    inference(csr,[status(thm)],[418,93])).
+
+cnf(517,negated_conjecture,
+    ( vertical_3_4
+    | ~ vertical_2_2
+    | ~ horizontal_4_2 ),
+    inference(spm,[status(thm)],[67,516,theory(equality)])).
+
+cnf(518,negated_conjecture,
+    ( vertical_3_4
+    | ~ horizontal_3_2
+    | ~ horizontal_4_2 ),
+    inference(spm,[status(thm)],[63,516,theory(equality)])).
+
+cnf(520,negated_conjecture,
+    ( vertical_3_4
+    | ~ vertical_2_2 ),
+    inference(csr,[status(thm)],[517,247])).
+
+cnf(521,negated_conjecture,
+    ( ~ vertical_2_4
+    | ~ vertical_2_2 ),
+    inference(spm,[status(thm)],[78,520,theory(equality)])).
+
+cnf(522,negated_conjecture,
+    ( ~ horizontal_3_3
+    | ~ vertical_2_2 ),
+    inference(spm,[status(thm)],[77,520,theory(equality)])).
+
+cnf(523,negated_conjecture,
+    ( vertical_3_4
+    | ~ horizontal_3_2 ),
+    inference(csr,[status(thm)],[518,255])).
+
+cnf(524,negated_conjecture,
+    ( ~ vertical_2_4
+    | ~ horizontal_3_2 ),
+    inference(spm,[status(thm)],[78,523,theory(equality)])).
+
+cnf(526,negated_conjecture,
+    ( horizontal_4_2
+    | horizontal_4_1
+    | vertical_3_4
+    | ~ vertical_3_3 ),
+    inference(csr,[status(thm)],[334,511])).
+
+cnf(527,negated_conjecture,
+    ( horizontal_4_2
+    | vertical_3_4
+    | ~ vertical_3_3 ),
+    inference(csr,[status(thm)],[526,380])).
+
+cnf(528,negated_conjecture,
+    ( vertical_3_4
+    | ~ vertical_3_3 ),
+    inference(csr,[status(thm)],[527,97])).
+
+cnf(529,negated_conjecture,
+    ( ~ vertical_2_4
+    | ~ vertical_3_3 ),
+    inference(spm,[status(thm)],[78,528,theory(equality)])).
+
+cnf(531,negated_conjecture,
+    ( vertical_2_3
+    | ~ vertical_2_2 ),
+    inference(spm,[status(thm)],[522,292,theory(equality)])).
+
+cnf(534,negated_conjecture,
+    ( ~ horizontal_2_3
+    | ~ vertical_2_2 ),
+    inference(spm,[status(thm)],[44,531,theory(equality)])).
+
+cnf(546,negated_conjecture,
+    ( horizontal_3_1
+    | ~ horizontal_3_3
+    | ~ vertical_1_4 ),
+    inference(csr,[status(thm)],[422,442])).
+
+cnf(549,negated_conjecture,
+    ( ~ vertical_3_2
+    | ~ horizontal_3_3
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[65,546,theory(equality)])).
+
+cnf(561,negated_conjecture,
+    ( horizontal_4_2
+    | horizontal_3_4
+    | vertical_3_2
+    | ~ vertical_3_3
+    | ~ horizontal_2_4 ),
+    inference(csr,[status(thm)],[383,353])).
+
+cnf(562,negated_conjecture,
+    ( horizontal_3_4
+    | vertical_3_2
+    | ~ vertical_3_3
+    | ~ horizontal_2_4 ),
+    inference(csr,[status(thm)],[561,97])).
+
+cnf(565,negated_conjecture,
+    ( vertical_3_2
+    | ~ vertical_3_4
+    | ~ vertical_3_3
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[74,562,theory(equality)])).
+
+cnf(577,negated_conjecture,
+    ( horizontal_4_2
+    | horizontal_3_4
+    | vertical_3_2
+    | ~ horizontal_4_3
+    | ~ horizontal_2_4 ),
+    inference(csr,[status(thm)],[386,355])).
+
+cnf(578,negated_conjecture,
+    ( horizontal_3_4
+    | vertical_3_2
+    | ~ horizontal_4_3
+    | ~ horizontal_2_4 ),
+    inference(csr,[status(thm)],[577,93])).
+
+cnf(580,negated_conjecture,
+    ( vertical_3_2
+    | ~ horizontal_3_3
+    | ~ horizontal_4_3
+    | ~ horizontal_2_4 ),
+    inference(spm,[status(thm)],[75,578,theory(equality)])).
+
+cnf(585,negated_conjecture,
+    ( ~ vertical_3_3
+    | ~ vertical_3_2
+    | ~ horizontal_2_4 ),
+    inference(csr,[status(thm)],[449,528])).
+
+cnf(588,negated_conjecture,
+    ( ~ horizontal_4_2
+    | ~ horizontal_2_4
+    | ~ vertical_2_2 ),
+    inference(csr,[status(thm)],[460,520])).
+
+cnf(589,negated_conjecture,
+    ( ~ horizontal_2_4
+    | ~ vertical_2_2 ),
+    inference(csr,[status(thm)],[588,247])).
+
+cnf(590,negated_conjecture,
+    ( vertical_2_4
+    | horizontal_2_3
+    | vertical_1_4
+    | ~ vertical_2_2 ),
+    inference(spm,[status(thm)],[589,13,theory(equality)])).
+
+cnf(592,negated_conjecture,
+    ( ~ horizontal_4_2
+    | ~ horizontal_3_2
+    | ~ horizontal_2_4 ),
+    inference(csr,[status(thm)],[461,523])).
+
+cnf(593,negated_conjecture,
+    ( ~ horizontal_3_2
+    | ~ horizontal_2_4 ),
+    inference(csr,[status(thm)],[592,255])).
+
+cnf(598,negated_conjecture,
+    ( vertical_3_2
+    | ~ vertical_3_3
+    | ~ horizontal_2_4 ),
+    inference(csr,[status(thm)],[565,528])).
+
+cnf(599,negated_conjecture,
+    ( ~ vertical_3_3
+    | ~ horizontal_2_4 ),
+    inference(csr,[status(thm)],[598,585])).
+
+cnf(606,negated_conjecture,
+    ( horizontal_4_2
+    | horizontal_3_4
+    | vertical_3_2
+    | ~ vertical_3_3
+    | ~ vertical_1_4 ),
+    inference(csr,[status(thm)],[392,362])).
+
+cnf(607,negated_conjecture,
+    ( horizontal_3_4
+    | vertical_3_2
+    | ~ vertical_3_3
+    | ~ vertical_1_4 ),
+    inference(csr,[status(thm)],[606,97])).
+
+cnf(610,negated_conjecture,
+    ( vertical_3_2
+    | ~ vertical_3_4
+    | ~ vertical_3_3
+    | ~ vertical_1_4 ),
+    inference(spm,[status(thm)],[74,607,theory(equality)])).
+
+cnf(616,negated_conjecture,
+    ( ~ vertical_3_3
+    | ~ vertical_3_2
+    | ~ vertical_1_4 ),
+    inference(csr,[status(thm)],[489,528])).
+
+cnf(617,negated_conjecture,
+    ( ~ horizontal_4_2
+    | ~ vertical_2_2
+    | ~ vertical_1_4 ),
+    inference(csr,[status(thm)],[495,520])).
+
+cnf(618,negated_conjecture,
+    ( ~ vertical_2_2
+    | ~ vertical_1_4 ),
+    inference(csr,[status(thm)],[617,247])).
+
+cnf(619,negated_conjecture,
+    ( vertical_3_2
+    | ~ horizontal_3_3
+    | ~ horizontal_2_4 ),
+    inference(csr,[status(thm)],[580,429])).
+
+cnf(620,negated_conjecture,
+    ( ~ horizontal_3_3
+    | ~ horizontal_2_4 ),
+    inference(csr,[status(thm)],[619,468])).
+
+cnf(625,negated_conjecture,
+    ( vertical_2_4
+    | horizontal_2_3
+    | ~ vertical_2_2 ),
+    inference(csr,[status(thm)],[590,618])).
+
+cnf(626,negated_conjecture,
+    ( vertical_2_4
+    | ~ vertical_2_2 ),
+    inference(csr,[status(thm)],[625,534])).
+
+cnf(627,negated_conjecture,
+    ( ~ vertical_2_2 ),
+    inference(csr,[status(thm)],[626,521])).
+
+cnf(629,negated_conjecture,
+    ( horizontal_2_2 ),
+    inference(sr,[status(thm)],[186,627,theory(equality)])).
+
+cnf(630,negated_conjecture,
+    ( ~ vertical_2_3
+    | $false ),
+    inference(rw,[status(thm)],[47,629,theory(equality)])).
+
+cnf(631,negated_conjecture,
+    ( ~ vertical_2_3 ),
+    inference(cn,[status(thm)],[630,theory(equality)])).
+
+cnf(632,negated_conjecture,
+    ( ~ horizontal_2_3
+    | $false ),
+    inference(rw,[status(thm)],[45,629,theory(equality)])).
+
+cnf(633,negated_conjecture,
+    ( ~ horizontal_2_3 ),
+    inference(cn,[status(thm)],[632,theory(equality)])).
+
+cnf(643,negated_conjecture,
+    ( vertical_3_3
+    | horizontal_3_3
+    | horizontal_3_2 ),
+    inference(sr,[status(thm)],[17,631,theory(equality)])).
+
+cnf(644,negated_conjecture,
+    ( vertical_2_4
+    | horizontal_2_4
+    | vertical_1_4 ),
+    inference(sr,[status(thm)],[13,633,theory(equality)])).
+
+cnf(651,negated_conjecture,
+    ( horizontal_3_3
+    | horizontal_3_2
+    | ~ vertical_2_4 ),
+    inference(spm,[status(thm)],[529,643,theory(equality)])).
+
+cnf(659,negated_conjecture,
+    ( horizontal_4_2
+    | horizontal_3_4
+    | vertical_3_2
+    | ~ horizontal_4_3
+    | ~ vertical_1_4 ),
+    inference(csr,[status(thm)],[395,364])).
+
+cnf(660,negated_conjecture,
+    ( horizontal_3_4
+    | vertical_3_2
+    | ~ horizontal_4_3
+    | ~ vertical_1_4 ),
+    inference(csr,[status(thm)],[659,93])).
+
+cnf(669,negated_conjecture,
+    ( horizontal_3_3
+    | ~ vertical_2_4 ),
+    inference(csr,[status(thm)],[651,524])).
+
+cnf(670,negated_conjecture,
+    ( ~ vertical_2_4 ),
+    inference(csr,[status(thm)],[669,79])).
+
+cnf(672,negated_conjecture,
+    ( horizontal_2_4
+    | vertical_1_4 ),
+    inference(sr,[status(thm)],[644,670,theory(equality)])).
+
+cnf(677,negated_conjecture,
+    ( vertical_1_4
+    | ~ horizontal_3_2 ),
+    inference(spm,[status(thm)],[593,672,theory(equality)])).
+
+cnf(678,negated_conjecture,
+    ( vertical_1_4
+    | ~ vertical_3_3 ),
+    inference(spm,[status(thm)],[599,672,theory(equality)])).
+
+cnf(679,negated_conjecture,
+    ( vertical_1_4
+    | ~ horizontal_3_3 ),
+    inference(spm,[status(thm)],[620,672,theory(equality)])).
+
+cnf(703,negated_conjecture,
+    ( ~ vertical_3_3
+    | ~ vertical_3_2 ),
+    inference(spm,[status(thm)],[616,678,theory(equality)])).
+
+cnf(707,negated_conjecture,
+    ( horizontal_4_3
+    | ~ horizontal_3_3 ),
+    inference(spm,[status(thm)],[442,679,theory(equality)])).
+
+cnf(708,negated_conjecture,
+    ( ~ horizontal_3_3
+    | ~ vertical_3_2 ),
+    inference(spm,[status(thm)],[549,679,theory(equality)])).
+
+cnf(725,negated_conjecture,
+    ( horizontal_3_3
+    | horizontal_3_2
+    | ~ vertical_3_2 ),
+    inference(spm,[status(thm)],[703,643,theory(equality)])).
+
+cnf(726,negated_conjecture,
+    ( horizontal_3_3
+    | ~ vertical_3_2 ),
+    inference(csr,[status(thm)],[725,62])).
+
+cnf(733,negated_conjecture,
+    ( vertical_3_2
+    | ~ vertical_3_4
+    | ~ vertical_3_3 ),
+    inference(csr,[status(thm)],[610,678])).
+
+cnf(734,negated_conjecture,
+    ( vertical_3_2
+    | ~ vertical_3_3 ),
+    inference(csr,[status(thm)],[733,528])).
+
+cnf(735,negated_conjecture,
+    ( ~ vertical_3_3 ),
+    inference(csr,[status(thm)],[734,703])).
+
+cnf(737,negated_conjecture,
+    ( horizontal_3_3
+    | horizontal_3_2 ),
+    inference(sr,[status(thm)],[643,735,theory(equality)])).
+
+cnf(746,negated_conjecture,
+    ( ~ vertical_3_2 ),
+    inference(csr,[status(thm)],[708,726])).
+
+cnf(769,negated_conjecture,
+    ( ~ horizontal_4_2
+    | ~ vertical_3_4
+    | ~ horizontal_3_2 ),
+    inference(csr,[status(thm)],[496,677])).
+
+cnf(770,negated_conjecture,
+    ( ~ horizontal_4_2
+    | ~ horizontal_3_2 ),
+    inference(csr,[status(thm)],[769,523])).
+
+cnf(771,negated_conjecture,
+    ( ~ horizontal_3_2 ),
+    inference(csr,[status(thm)],[770,255])).
+
+cnf(772,negated_conjecture,
+    ( horizontal_3_3 ),
+    inference(sr,[status(thm)],[737,771,theory(equality)])).
+
+cnf(776,negated_conjecture,
+    ( horizontal_4_3
+    | $false ),
+    inference(rw,[status(thm)],[707,772,theory(equality)])).
+
+cnf(777,negated_conjecture,
+    ( horizontal_4_3 ),
+    inference(cn,[status(thm)],[776,theory(equality)])).
+
+cnf(778,negated_conjecture,
+    ( vertical_1_4
+    | $false ),
+    inference(rw,[status(thm)],[679,772,theory(equality)])).
+
+cnf(779,negated_conjecture,
+    ( vertical_1_4 ),
+    inference(cn,[status(thm)],[778,theory(equality)])).
+
+cnf(792,negated_conjecture,
+    ( ~ horizontal_3_4
+    | $false ),
+    inference(rw,[status(thm)],[75,772,theory(equality)])).
+
+cnf(793,negated_conjecture,
+    ( ~ horizontal_3_4 ),
+    inference(cn,[status(thm)],[792,theory(equality)])).
+
+cnf(834,negated_conjecture,
+    ( horizontal_3_4
+    | vertical_3_2
+    | $false
+    | ~ vertical_1_4 ),
+    inference(rw,[status(thm)],[660,777,theory(equality)])).
+
+cnf(835,negated_conjecture,
+    ( horizontal_3_4
+    | vertical_3_2
+    | ~ vertical_1_4 ),
+    inference(cn,[status(thm)],[834,theory(equality)])).
+
+cnf(836,negated_conjecture,
+    ( horizontal_3_4
+    | ~ vertical_1_4 ),
+    inference(sr,[status(thm)],[835,746,theory(equality)])).
+
+cnf(909,negated_conjecture,
+    ( horizontal_3_4
+    | $false ),
+    inference(rw,[status(thm)],[836,779,theory(equality)])).
+
+cnf(910,negated_conjecture,
+    ( horizontal_3_4 ),
+    inference(cn,[status(thm)],[909,theory(equality)])).
+
+cnf(911,negated_conjecture,
+    ( $false ),
+    inference(sr,[status(thm)],[910,793,theory(equality)])).
+
+cnf(912,negated_conjecture,
+    ( $false ),
+    911,
+    [proof]).

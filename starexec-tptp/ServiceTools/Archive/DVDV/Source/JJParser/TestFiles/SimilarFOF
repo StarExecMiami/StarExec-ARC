@@ -1,0 +1,16 @@
+fof(freddy,axiom,
+    ( ! [X,Y] : 
+        ( q(X)
+       => ( ~ p(X)
+          & (f(X,cat) = X => X != god)
+          & ($false | $true)
+          & p(X,f(X,cat,g(cat))) ) ) )).
+
+fof(frog,axiom,
+    ( ! [Z,Y] : 
+        ( q(Z)
+       => ( ~ p(Z)
+          & (f(Z,cat) = Z => Z != god)
+          & ($false | $true)
+          & p(Z,f(Z,cat,g(cat))) ) ) )).
+

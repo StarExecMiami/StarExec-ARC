@@ -1,0 +1,467 @@
+%------------------------------------------------------------------------------
+% File       : EP---0.99
+% Problem    : /home/graph/tptp/TPTP-v3.2.0/Problems/PUZ/PUZ001+1.p : TPTP v2.0.0
+% Transform  : none
+% Format     : tptp
+% Command    : eproof --print-statistics -xAuto -tAuto --memory-limit=Auto --tstp-in --tstp-out %s
+
+% Computer   : wombat.cs.miami.edu
+% Model      : i686 i686
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2794MHz
+% Memory     : 1009MB
+% OS         : Linux 2.6.11-1.1369_FC4
+% CPULimit   : 100s
+
+% Result     : Theorem 0.1s
+% Output     : Refutation 0.1s
+% Statistics : Number of formulae    :   63 (  83 expanded)
+%              Number of clauses     :   28 (  32 expanded)
+%              Depth                 :   13
+%              Number of atoms       :  116 ( 149 expanded)
+%              Maximal formula depth :    5 (   3 average)
+%              Maximal clause size   :    4 (   4 average)
+%              Maximal term depth    :    2 (   1 average)
+% Verified   : 
+
+% Comments   : 
+%------------------------------------------------------------------------------
+fof(1,axiom,(
+    ? [X1] : 
+      ( lives(X1)
+      & killed(X1,agatha) ) ),
+    file('/tmp/SystemOnTPTP7598/PUZ001+1.p',pel55_1)).
+
+fof(5,hypothesis,(
+    ! [X1] : 
+      ( lives(X1)
+     => ( X1 = agatha
+        | X1 = butler
+        | X1 = charles ) ) ),
+    file('/tmp/SystemOnTPTP7598/PUZ001+1.p',pel55_3)).
+
+fof(6,theorem,(
+    ! [X1,X2] : 
+      ( killed(X1,X2)
+     => hates(X1,X2) ) ),
+    file('/tmp/SystemOnTPTP7598/PUZ001+1.p',pel55_4)).
+
+fof(7,lemma,(
+    ! [X1,X2] : 
+      ( killed(X1,X2)
+     => ~ richer(X1,X2) ) ),
+    file('/tmp/SystemOnTPTP7598/PUZ001+1.p',pel55_5)).
+
+fof(8,axiom,(
+    ! [X1] : 
+      ( hates(agatha,X1)
+     => ~ hates(charles,X1) ) ),
+    file('/tmp/SystemOnTPTP7598/PUZ001+1.p',pel55_6)).
+
+fof(9,axiom,(
+    ! [X1] : 
+      ( X1 != butler
+     => hates(agatha,X1) ) ),
+    file('/tmp/SystemOnTPTP7598/PUZ001+1.p',pel55_7)).
+
+fof(10,axiom,(
+    ! [X1] : 
+      ( ~ richer(X1,agatha)
+     => hates(butler,X1) ) ),
+    file('/tmp/SystemOnTPTP7598/PUZ001+1.p',pel55_8)).
+
+fof(11,axiom,(
+    ! [X1] : 
+      ( hates(agatha,X1)
+     => hates(butler,X1) ) ),
+    file('/tmp/SystemOnTPTP7598/PUZ001+1.p',pel55_9)).
+
+fof(12,axiom,(
+    ! [X1] : 
+    ? [X2] : ~ hates(X1,X2) ),
+    file('/tmp/SystemOnTPTP7598/PUZ001+1.p',pel55_10)).
+
+fof(13,axiom,(
+    agatha != butler ),
+    file('/tmp/SystemOnTPTP7598/PUZ001+1.p',pel55_11)).
+
+fof(14,conjecture,(
+    killed(agatha,agatha) ),
+    file('/tmp/SystemOnTPTP7598/PUZ001+1.p',pel55)).
+
+fof(15,negated_conjecture,(
+    ~ killed(agatha,agatha) ),
+    inference(assume_negation,[status(cth)],[14])).
+
+fof(16,plain,(
+    ! [X1,X2] : 
+      ( killed(X1,X2)
+     => ~ richer(X1,X2) ) ),
+    inference(fof_simplification,[status(thm)],[7,theory(equality)])).
+
+fof(17,plain,(
+    ! [X1] : 
+      ( hates(agatha,X1)
+     => ~ hates(charles,X1) ) ),
+    inference(fof_simplification,[status(thm)],[8,theory(equality)])).
+
+fof(18,plain,(
+    ! [X1] : 
+      ( ~ richer(X1,agatha)
+     => hates(butler,X1) ) ),
+    inference(fof_simplification,[status(thm)],[10,theory(equality)])).
+
+fof(19,plain,(
+    ! [X1] : 
+    ? [X2] : ~ hates(X1,X2) ),
+    inference(fof_simplification,[status(thm)],[12,theory(equality)])).
+
+fof(20,negated_conjecture,(
+    ~ killed(agatha,agatha) ),
+    inference(fof_simplification,[status(thm)],[15,theory(equality)])).
+
+fof(21,plain,(
+    ? [X2] : 
+      ( lives(X2)
+      & killed(X2,agatha) ) ),
+    inference(variable_rename,[status(thm)],[1])).
+
+fof(22,plain,
+    ( lives(esk1_0)
+    & killed(esk1_0,agatha) ),
+    inference(skolemize,[status(sab)],[21])).
+
+cnf(23,plain,
+    ( killed(esk1_0,agatha) ),
+    inference(split_conjunct,[status(thm)],[22])).
+
+cnf(24,plain,
+    ( lives(esk1_0) ),
+    inference(split_conjunct,[status(thm)],[22])).
+
+fof(28,plain,(
+    ! [X1] : 
+      ( ~ lives(X1)
+      | X1 = agatha
+      | X1 = butler
+      | X1 = charles ) ),
+    inference(fof_nnf,[status(thm)],[5])).
+
+fof(29,plain,(
+    ! [X2] : 
+      ( ~ lives(X2)
+      | X2 = agatha
+      | X2 = butler
+      | X2 = charles ) ),
+    inference(variable_rename,[status(thm)],[28])).
+
+cnf(30,plain,
+    ( X1 = charles
+    | X1 = butler
+    | X1 = agatha
+    | ~ lives(X1) ),
+    inference(split_conjunct,[status(thm)],[29])).
+
+fof(31,plain,(
+    ! [X1,X2] : 
+      ( ~ killed(X1,X2)
+      | hates(X1,X2) ) ),
+    inference(fof_nnf,[status(thm)],[6])).
+
+fof(32,plain,(
+    ! [X3,X4] : 
+      ( ~ killed(X3,X4)
+      | hates(X3,X4) ) ),
+    inference(variable_rename,[status(thm)],[31])).
+
+cnf(33,plain,
+    ( hates(X1,X2)
+    | ~ killed(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[32])).
+
+fof(34,plain,(
+    ! [X1,X2] : 
+      ( ~ killed(X1,X2)
+      | ~ richer(X1,X2) ) ),
+    inference(fof_nnf,[status(thm)],[16])).
+
+fof(35,plain,(
+    ! [X3,X4] : 
+      ( ~ killed(X3,X4)
+      | ~ richer(X3,X4) ) ),
+    inference(variable_rename,[status(thm)],[34])).
+
+cnf(36,plain,
+    ( ~ richer(X1,X2)
+    | ~ killed(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[35])).
+
+fof(37,plain,(
+    ! [X1] : 
+      ( ~ hates(agatha,X1)
+      | ~ hates(charles,X1) ) ),
+    inference(fof_nnf,[status(thm)],[17])).
+
+fof(38,plain,(
+    ! [X2] : 
+      ( ~ hates(agatha,X2)
+      | ~ hates(charles,X2) ) ),
+    inference(variable_rename,[status(thm)],[37])).
+
+cnf(39,plain,
+    ( ~ hates(charles,X1)
+    | ~ hates(agatha,X1) ),
+    inference(split_conjunct,[status(thm)],[38])).
+
+fof(40,plain,(
+    ! [X1] : 
+      ( X1 = butler
+      | hates(agatha,X1) ) ),
+    inference(fof_nnf,[status(thm)],[9])).
+
+fof(41,plain,(
+    ! [X2] : 
+      ( X2 = butler
+      | hates(agatha,X2) ) ),
+    inference(variable_rename,[status(thm)],[40])).
+
+cnf(42,plain,
+    ( hates(agatha,X1)
+    | X1 = butler ),
+    inference(split_conjunct,[status(thm)],[41])).
+
+fof(43,plain,(
+    ! [X1] : 
+      ( richer(X1,agatha)
+      | hates(butler,X1) ) ),
+    inference(fof_nnf,[status(thm)],[18])).
+
+fof(44,plain,(
+    ! [X2] : 
+      ( richer(X2,agatha)
+      | hates(butler,X2) ) ),
+    inference(variable_rename,[status(thm)],[43])).
+
+cnf(45,plain,
+    ( hates(butler,X1)
+    | richer(X1,agatha) ),
+    inference(split_conjunct,[status(thm)],[44])).
+
+fof(46,plain,(
+    ! [X1] : 
+      ( ~ hates(agatha,X1)
+      | hates(butler,X1) ) ),
+    inference(fof_nnf,[status(thm)],[11])).
+
+fof(47,plain,(
+    ! [X2] : 
+      ( ~ hates(agatha,X2)
+      | hates(butler,X2) ) ),
+    inference(variable_rename,[status(thm)],[46])).
+
+cnf(48,plain,
+    ( hates(butler,X1)
+    | ~ hates(agatha,X1) ),
+    inference(split_conjunct,[status(thm)],[47])).
+
+fof(49,plain,(
+    ! [X3] : 
+    ? [X4] : ~ hates(X3,X4) ),
+    inference(variable_rename,[status(thm)],[19])).
+
+fof(50,plain,(
+    ! [X3] : ~ hates(X3,esk2_1(X3)) ),
+    inference(skolemize,[status(sab)],[49])).
+
+cnf(51,plain,
+    ( ~ hates(X1,esk2_1(X1)) ),
+    inference(split_conjunct,[status(thm)],[50])).
+
+cnf(52,plain,
+    ( agatha != butler ),
+    inference(split_conjunct,[status(thm)],[13])).
+
+cnf(53,negated_conjecture,
+    ( ~ killed(agatha,agatha) ),
+    inference(split_conjunct,[status(thm)],[20])).
+
+cnf(54,plain,
+    ( charles = esk1_0
+    | butler = esk1_0
+    | agatha = esk1_0 ),
+    inference(spm,[status(thm)],[30,24,theory(equality)])).
+
+cnf(55,plain,
+    ( hates(esk1_0,agatha) ),
+    inference(spm,[status(thm)],[33,23,theory(equality)])).
+
+cnf(57,plain,
+    ( hates(butler,X1)
+    | ~ killed(X1,agatha) ),
+    inference(spm,[status(thm)],[36,45,theory(equality)])).
+
+cnf(58,plain,
+    ( ~ hates(agatha,esk2_1(butler)) ),
+    inference(spm,[status(thm)],[51,48,theory(equality)])).
+
+cnf(64,plain,
+    ( hates(charles,agatha)
+    | esk1_0 = agatha
+    | esk1_0 = butler ),
+    inference(spm,[status(thm)],[55,54,theory(equality)])).
+
+cnf(67,plain,
+    ( hates(butler,esk1_0) ),
+    inference(spm,[status(thm)],[57,23,theory(equality)])).
+
+cnf(69,plain,
+    ( butler = esk2_1(butler) ),
+    inference(spm,[status(thm)],[58,42,theory(equality)])).
+
+cnf(70,plain,
+    ( ~ hates(butler,butler) ),
+    inference(spm,[status(thm)],[51,69,theory(equality)])).
+
+cnf(100,plain,
+    ( esk1_0 = butler
+    | esk1_0 = agatha
+    | ~ hates(agatha,agatha) ),
+    inference(spm,[status(thm)],[39,64,theory(equality)])).
+
+cnf(101,plain,
+    ( esk1_0 = agatha
+    | esk1_0 = butler
+    | butler = agatha ),
+    inference(spm,[status(thm)],[100,42,theory(equality)])).
+
+cnf(102,plain,
+    ( esk1_0 = agatha
+    | esk1_0 = butler ),
+    inference(sr,[status(thm)],[101,52,theory(equality)])).
+
+cnf(107,plain,
+    ( hates(butler,butler)
+    | esk1_0 = agatha ),
+    inference(spm,[status(thm)],[67,102,theory(equality)])).
+
+cnf(110,plain,
+    ( esk1_0 = agatha ),
+    inference(sr,[status(thm)],[107,70,theory(equality)])).
+
+cnf(115,plain,
+    ( killed(agatha,agatha) ),
+    inference(rw,[status(thm)],[23,110,theory(equality)])).
+
+cnf(116,plain,
+    ( $false ),
+    inference(sr,[status(thm)],[115,53,theory(equality)])).
+
+cnf(117,plain,
+    ( $false ),
+    116,
+    [proof]).
+%------------------------------------------------------------------------------
+%----ORIGINAL SYSTEM OUTPUT
+% # Problem is unsatisfiable (or provable), constructing proof object
+% # SZS status: Theorem
+% # Proof object starts here.
+% fof(1, axiom,?[X1]:(lives(X1)&killed(X1,agatha)),file('/tmp/SystemOnTPTP7598/PUZ001+1.p', pel55_1)).
+% fof(5, axiom,![X1]:(lives(X1)=>((equal(X1, agatha)|equal(X1, butler))|equal(X1, charles))),file('/tmp/SystemOnTPTP7598/PUZ001+1.p', pel55_3)).
+% fof(6, axiom,![X1]:![X2]:(killed(X1,X2)=>hates(X1,X2)),file('/tmp/SystemOnTPTP7598/PUZ001+1.p', pel55_4)).
+% fof(7, axiom,![X1]:![X2]:(killed(X1,X2)=>~(richer(X1,X2))),file('/tmp/SystemOnTPTP7598/PUZ001+1.p', pel55_5)).
+% fof(8, axiom,![X1]:(hates(agatha,X1)=>~(hates(charles,X1))),file('/tmp/SystemOnTPTP7598/PUZ001+1.p', pel55_6)).
+% fof(9, axiom,![X1]:(~(equal(X1, butler))=>hates(agatha,X1)),file('/tmp/SystemOnTPTP7598/PUZ001+1.p', pel55_7)).
+% fof(10, axiom,![X1]:(~(richer(X1,agatha))=>hates(butler,X1)),file('/tmp/SystemOnTPTP7598/PUZ001+1.p', pel55_8)).
+% fof(11, axiom,![X1]:(hates(agatha,X1)=>hates(butler,X1)),file('/tmp/SystemOnTPTP7598/PUZ001+1.p', pel55_9)).
+% fof(12, axiom,![X1]:?[X2]:~(hates(X1,X2)),file('/tmp/SystemOnTPTP7598/PUZ001+1.p', pel55_10)).
+% fof(13, axiom,~(equal(agatha, butler)),file('/tmp/SystemOnTPTP7598/PUZ001+1.p', pel55_11)).
+% fof(14, conjecture,killed(agatha,agatha),file('/tmp/SystemOnTPTP7598/PUZ001+1.p', pel55)).
+% fof(15, negated_conjecture,~(killed(agatha,agatha)),inference(assume_negation,[status(cth)],[14])).
+% fof(16, plain,![X1]:![X2]:(killed(X1,X2)=>~(richer(X1,X2))),inference(fof_simplification,[status(thm)],[7,theory(equality)])).
+% fof(17, plain,![X1]:(hates(agatha,X1)=>~(hates(charles,X1))),inference(fof_simplification,[status(thm)],[8,theory(equality)])).
+% fof(18, plain,![X1]:(~(richer(X1,agatha))=>hates(butler,X1)),inference(fof_simplification,[status(thm)],[10,theory(equality)])).
+% fof(19, plain,![X1]:?[X2]:~(hates(X1,X2)),inference(fof_simplification,[status(thm)],[12,theory(equality)])).
+% fof(20, negated_conjecture,~(killed(agatha,agatha)),inference(fof_simplification,[status(thm)],[15,theory(equality)])).
+% fof(21, plain,?[X2]:(lives(X2)&killed(X2,agatha)),inference(variable_rename,[status(thm)],[1])).
+% fof(22, plain,(lives(esk1_0)&killed(esk1_0,agatha)),inference(skolemize,[status(sab)],[21])).
+% cnf(23,plain,(killed(esk1_0,agatha)),inference(split_conjunct,[status(thm)],[22])).
+% cnf(24,plain,(lives(esk1_0)),inference(split_conjunct,[status(thm)],[22])).
+% fof(28, plain,![X1]:(~(lives(X1))|((equal(X1, agatha)|equal(X1, butler))|equal(X1, charles))),inference(fof_nnf,[status(thm)],[5])).
+% fof(29, plain,![X2]:(~(lives(X2))|((equal(X2, agatha)|equal(X2, butler))|equal(X2, charles))),inference(variable_rename,[status(thm)],[28])).
+% cnf(30,plain,(X1=charles|X1=butler|X1=agatha|~lives(X1)),inference(split_conjunct,[status(thm)],[29])).
+% fof(31, plain,![X1]:![X2]:(~(killed(X1,X2))|hates(X1,X2)),inference(fof_nnf,[status(thm)],[6])).
+% fof(32, plain,![X3]:![X4]:(~(killed(X3,X4))|hates(X3,X4)),inference(variable_rename,[status(thm)],[31])).
+% cnf(33,plain,(hates(X1,X2)|~killed(X1,X2)),inference(split_conjunct,[status(thm)],[32])).
+% fof(34, plain,![X1]:![X2]:(~(killed(X1,X2))|~(richer(X1,X2))),inference(fof_nnf,[status(thm)],[16])).
+% fof(35, plain,![X3]:![X4]:(~(killed(X3,X4))|~(richer(X3,X4))),inference(variable_rename,[status(thm)],[34])).
+% cnf(36,plain,(~richer(X1,X2)|~killed(X1,X2)),inference(split_conjunct,[status(thm)],[35])).
+% fof(37, plain,![X1]:(~(hates(agatha,X1))|~(hates(charles,X1))),inference(fof_nnf,[status(thm)],[17])).
+% fof(38, plain,![X2]:(~(hates(agatha,X2))|~(hates(charles,X2))),inference(variable_rename,[status(thm)],[37])).
+% cnf(39,plain,(~hates(charles,X1)|~hates(agatha,X1)),inference(split_conjunct,[status(thm)],[38])).
+% fof(40, plain,![X1]:(equal(X1, butler)|hates(agatha,X1)),inference(fof_nnf,[status(thm)],[9])).
+% fof(41, plain,![X2]:(equal(X2, butler)|hates(agatha,X2)),inference(variable_rename,[status(thm)],[40])).
+% cnf(42,plain,(hates(agatha,X1)|X1=butler),inference(split_conjunct,[status(thm)],[41])).
+% fof(43, plain,![X1]:(richer(X1,agatha)|hates(butler,X1)),inference(fof_nnf,[status(thm)],[18])).
+% fof(44, plain,![X2]:(richer(X2,agatha)|hates(butler,X2)),inference(variable_rename,[status(thm)],[43])).
+% cnf(45,plain,(hates(butler,X1)|richer(X1,agatha)),inference(split_conjunct,[status(thm)],[44])).
+% fof(46, plain,![X1]:(~(hates(agatha,X1))|hates(butler,X1)),inference(fof_nnf,[status(thm)],[11])).
+% fof(47, plain,![X2]:(~(hates(agatha,X2))|hates(butler,X2)),inference(variable_rename,[status(thm)],[46])).
+% cnf(48,plain,(hates(butler,X1)|~hates(agatha,X1)),inference(split_conjunct,[status(thm)],[47])).
+% fof(49, plain,![X3]:?[X4]:~(hates(X3,X4)),inference(variable_rename,[status(thm)],[19])).
+% fof(50, plain,![X3]:~(hates(X3,esk2_1(X3))),inference(skolemize,[status(sab)],[49])).
+% cnf(51,plain,(~hates(X1,esk2_1(X1))),inference(split_conjunct,[status(thm)],[50])).
+% cnf(52,plain,(agatha!=butler),inference(split_conjunct,[status(thm)],[13])).
+% cnf(53,negated_conjecture,(~killed(agatha,agatha)),inference(split_conjunct,[status(thm)],[20])).
+% cnf(54,plain,(charles=esk1_0|butler=esk1_0|agatha=esk1_0),inference(spm,[status(thm)],[30,24,theory(equality)])).
+% cnf(55,plain,(hates(esk1_0,agatha)),inference(spm,[status(thm)],[33,23,theory(equality)])).
+% cnf(57,plain,(hates(butler,X1)|~killed(X1,agatha)),inference(spm,[status(thm)],[36,45,theory(equality)])).
+% cnf(58,plain,(~hates(agatha,esk2_1(butler))),inference(spm,[status(thm)],[51,48,theory(equality)])).
+% cnf(64,plain,(hates(charles,agatha)|esk1_0=agatha|esk1_0=butler),inference(spm,[status(thm)],[55,54,theory(equality)])).
+% cnf(67,plain,(hates(butler,esk1_0)),inference(spm,[status(thm)],[57,23,theory(equality)])).
+% cnf(69,plain,(butler=esk2_1(butler)),inference(spm,[status(thm)],[58,42,theory(equality)])).
+% cnf(70,plain,(~hates(butler,butler)),inference(spm,[status(thm)],[51,69,theory(equality)])).
+% cnf(100,plain,(esk1_0=butler|esk1_0=agatha|~hates(agatha,agatha)),inference(spm,[status(thm)],[39,64,theory(equality)])).
+% cnf(101,plain,(esk1_0=agatha|esk1_0=butler|butler=agatha),inference(spm,[status(thm)],[100,42,theory(equality)])).
+% cnf(102,plain,(esk1_0=agatha|esk1_0=butler),inference(sr,[status(thm)],[101,52,theory(equality)])).
+% cnf(107,plain,(hates(butler,butler)|esk1_0=agatha),inference(spm,[status(thm)],[67,102,theory(equality)])).
+% cnf(110,plain,(esk1_0=agatha),inference(sr,[status(thm)],[107,70,theory(equality)])).
+% cnf(115,plain,(killed(agatha,agatha)),inference(rw,[status(thm)],[23,110,theory(equality)])).
+% cnf(116,plain,($false),inference(sr,[status(thm)],[115,53,theory(equality)])).
+% cnf(117,plain,($false),116,['proof']).
+% # Proof object ends here.
+% # SZS status: Theorem
+% # Initial clauses:                     : 15
+% # Removed in preprocessing             : 0
+% # Initial clauses in saturation        : 15
+% # Processed clauses                    : 41
+% # ...of these trivial                  : 0
+% # ...subsumed                          : 7
+% # ...remaining for further processing  : 34
+% # Other redundant clauses eliminated   : 0
+% # Clauses deleted for lack of memory   : 0
+% # Backward-subsumed                    : 8
+% # Backward-rewritten                   : 6
+% # Generated clauses                    : 45
+% # ...of the previous two non-trivial   : 40
+% # Contextual simplify-reflections      : 1
+% # Paramodulations                      : 40
+% # Factorizations                       : 5
+% # Equation resolutions                 : 0
+% # Current number of processed clauses  : 20
+% #    Positive orientable unit clauses  : 6
+% #    Positive unorientable unit clauses: 0
+% #    Negative unit clauses             : 6
+% #    Non-unit-clauses                  : 8
+% # Current number of unprocessed clauses: 2
+% # ...number of literals in the above   : 2
+% # Clause-clause subsumption calls (NU) : 21
+% # Rec. Clause-clause subsumption calls : 19
+% # Unit Clause-clause subsumption calls : 6
+% # Rewrite failures with RHS unbound    : 0
+% 
+% # -------------------------------------------------
+% # User time                : 0.010 s
+% # System time              : 0.004 s
+% # Total time               : 0.014 s
+% # Maximum resident set size: 0 pages
+% 
+%------------------------------------------------------------------------------

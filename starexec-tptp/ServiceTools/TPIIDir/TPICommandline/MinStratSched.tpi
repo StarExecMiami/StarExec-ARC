@@ -1,0 +1,58 @@
+#!/bin/tcsh
+
+set Problem = "";
+set TimeLimit = 100
+set Epsilon = 10
+
+@ ArgCount = 1
+foreach arg ($*)
+    @ ArgCount = $ArgCount + 1
+    if ("$arg" == "-p") then
+        set Problem = $argv[$ArgCount]
+    endif
+    if ("$arg" == "-tl") then
+        set TimeLimit = $argv[$ArgCount]
+    endif
+    if ("$arg" == "-e") then
+        set Epsilon = $argv[$ArgCount]
+    endif
+end
+
+if (! -e $Problem) then
+    echo
+    echo "%--------------------------------------------------"
+    echo "% The problem file does not exist."
+    echo "%--------------------------------------------------"
+    exit
+endif
+
+set LowerBound = 0
+set UpperBound = $TimeLimit
+set System =  "~tptp/Systems/E---1.8/eprover -s --auto-schedule --cpu-limit=$TimeLimit --tstp-format "
+
+tpi unsetenv 'SZS_Scheduling'
+echo "Initial time limit: $TimeLimit"
+tpi execute -q2 'SZS_Scheduling' = "$System $Problem"
+set ProofResult = `tpi write '$getenv(SZS_Scheduling)'`
+echo "% SZS status $ProofResult : Time limit is: $TimeLimit"
+
+if ("$ProofResult" != "ResourceOut") then
+    set FinalResult = "$ProofResult"
+    while (($UpperBound - $LowerBound) > $Epsilon)
+        @ TimeLimit = ($UpperBound + $LowerBound) / 2
+        echo "New time limit: $TimeLimit"
+        set System =  "~tptp/Systems/E---1.8/eprover -s --auto-schedule --cpu-limit=$TimeLimit --tstp-format "
+        tpi execute -q2 'SZS_Scheduling' = "$System $Problem"''
+        set ProofResult = `tpi write '$getenv(SZS_Scheduling)'`
+        echo "% SZS status $ProofResult : Time limit is: $TimeLimit"
+        if ("$ProofResult" == "ResourceOut" ) then
+            set LowerBound = $TimeLimit;
+        else
+            set FinalResult = "$ProofResult"
+            set UpperBound = $TimeLimit
+        endif
+    end
+    echo "% SZS status $ProofResult : Final time limit is: $UpperBound"
+else
+    echo "% SZS status $ProofResult : Final time limit is: $TimeLimit"
+endif

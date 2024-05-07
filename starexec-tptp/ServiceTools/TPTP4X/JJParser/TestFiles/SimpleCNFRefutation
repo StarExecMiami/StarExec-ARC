@@ -1,0 +1,6 @@
+cnf(1,axiom,p(X)).
+
+cnf(2,axiom,~p(a)).
+
+cnf(3,plain,$false,
+    inference(resolution,[status(thm),[X,$fot(X),a]],[1,2])).

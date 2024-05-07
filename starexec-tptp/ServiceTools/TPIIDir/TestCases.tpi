@@ -1,0 +1,207 @@
+fof(an,axiom,p).
+fof(another,axiom,p => q).
+fof(a,conjecture,q).
+tpi(1,output,stdout).
+% tpi(2,execute,'SZS_VAR' = 'E---1.8 300 $getgroups(tpi)').
+tpi(2,execute,'SZS_VAR' = '/home/tptp/Systems/E---1.8/eprover --auto --cpu-limit=300 --tstp-format $getgroups(tpi)').
+tpi(3,write,'The SZS status is' & $getenv('SZS_VAR')).
+tpi(4,exit,exit).
+
+% fof(an,axiom,( p )).
+% fof(another,axiom, ( p => q )).
+% tpi(1,execute_async,'ASYNC_SZS_STATUS' = '/home/tptp/Systems/Paradox---4.0/paradox --time 300 --tstp $getgroups(tpi)').
+% fof(a,conjecture,( q )).
+% tpi(2,execute,'SZS_STATUS' = '/home/tptp/Systems/E---1.8/eprover --auto --cpu-limit=300 --tstp-format $getgroups(tpi)').
+% tpi(3,waitenv,'ASYNC_SZS_STATUS').
+% tpi(4,write,'Axioms status: ' & $getenv('ASYNC_SZS_STATUS') & ' Conjecture status: ' & $getenv('SZS_STATUS')).
+% tpi(5,exit,exit).
+
+% fof(not1,axiom,not1).
+% tpi(1,input,ingroup = 'SomeFormulae.p').
+% % tpi(1,input,'SomeFormulae.p').
+% fof(not2,axiom,not2).
+% tpi(2,output,stdout = ingroup).
+% tpi(3,exit,exit).
+
+% tpi(1,start_group,blah).
+% fof(an,axiom,in_blah).
+% tpi(2,start_group,foo).
+% fof(atwoface,axiom,in_blah_and_foo).
+% tpi(3,end_group,blah).
+% fof(aoneface,axiom,in_foo).
+% tpi(4,end_group,foo).
+% tpi(5,write,'OUTPUT BLAH').
+% tpi(6,output,stdout = blah).
+% tpi(7,write,'OUTPUT FOO').
+% tpi(8,output,stdout = foo).
+% tpi(9,write,'OUTPUT ALL').
+% tpi(10,output,stdout).
+% tpi(11,exit,exit).
+
+% fof(a,axiom,a).
+% tpi(1,start_group,imply_group).
+% fof(ab,axiom,a=>b).
+% fof(bc,axiom,b=>c).
+% tpi(2,end_group,imply_group).
+% fof(b,conjecture,b).
+% tpi(3,output,stdout).
+% tpi(4,execute,'SZS_STATUS' = 'E---1.8 300 $getgroups(tpi)').
+% tpi(5,write,'SZS_STATUS for b is ' & '$getenv(SZS_STATUS)').
+% tpi(6,deactivate,ab).
+% tpi(7,output,stdout).
+% tpi(8,execute,'SZS_STATUS' = 'E---1.8 300 $getgroups(tpi)').
+% tpi(9,write,'SZS_STATUS for b is ' & '$getenv(SZS_STATUS)').
+% tpi(10,activate,ab).
+% tpi(11,output,stdout).
+% tpi(12,execute,'SZS_STATUS' = 'E---1.8 300 $getgroups(tpi)').
+% tpi(13,write,'SZS_STATUS for b is ' & '$getenv(SZS_STATUS)').
+% tpi(14,deactivate_group,imply_group).
+% tpi(15,output,stdout).
+% tpi(16,execute,'SZS_STATUS' = 'E---1.8 300 $getgroups(tpi)').
+% tpi(17,write,'SZS_STATUS for b is ' & '$getenv(SZS_STATUS)').
+% tpi(18,activate_group,imply_group).
+% tpi(19,output,stdout).
+% tpi(20,execute,'SZS_STATUS' = 'E---1.8 300 $getgroups(tpi)').
+% tpi(21,write,'SZS_STATUS for b is ' & '$getenv(SZS_STATUS)').
+% tpi(22,exit,exit).
+
+% fof(a,axiom,a).
+% fof(ab,axiom,a=>b).
+% fof(bc,axiom,b=>c).
+% fof(b,conjecture,b).
+% tpi(1,execute,'SZS_STATUS' = 'E---1.8 300 $getgroups(tpi)').
+% tpi(2,write,'SZS_STATUS for b is ' & '$getenv(SZS_STATUS)').
+% tpi(3,assert,$getenv('SZS_STATUS') = 'Theorem').
+% tpi(4,set_role,b = lemma).
+% fof(c,conjecture,c).
+% tpi(5,execute,'SZS_STATUS' = 'E---1.8 300 $getgroups(tpi)').
+% tpi(6,write,'SZS_STATUS for c is ' & '$getenv(SZS_STATUS)').
+% tpi(7,exit,exit).
+
+% tpi(1,input,$getargv(3)).
+% tpi(2,execute_async,'SZS_RESULT_1' = '$getargv(0) $getargv(2)').
+% tpi(3,execute_async,'SZS_RESULT_2' = '$getargv(1) $getargv(2)').
+% tpi(4,waitenv,'SZS_RESULT_1' | 'SZS_RESULT_2').
+% tpi(5,write,'$getargv(0) SZS_RESULT = $getenv(SZS_RESULT_1) '
+%          &  '$getargv(1) SZS_RESULT = $getenv(SZS_RESULT_2)').
+% tpi(6,exit,exit).
+
+% tpi(1,input,'/home/tptp/TPTP/Problems/KLE/KLE078+1.p').
+% %Vampire wins tpi(1,input,'/home/tptp/TPTP/Problems/AGT/AGT023+1.p').
+% % tpi(2,execute_async,'EP_SZS' = 'EP--- 60').
+% % tpi(3,execute_async,'VAMPIRE_SZS' = 'Vampire--- 60').
+% tpi(2,execute_async,'EP_SZS' = '$TPTP_HOME/Systems/E---1.6/eprover -s --auto --cpu-limit=300 --tstp-format %s').
+% tpi(3,execute_async,'VAMPIRE_SZS' = '$TPTP_HOME/Systems/Vampire---2.6/vampire_rel --proof tptp --output_axiom_names on --mode casc -t 300 %s').
+% tpi(4,waitenv,'EP_SZS' | 'VAMPIRE_SZS').
+% tpi(5,write,'EP_SZS = $getenv(EP_SZS)  VAMPIRE_SZS = $getenv(VAMPIRE_SZS)').
+% tpi(6,exit,exit).
+
+% fof(crazy,axiom,crazy).
+% tpi(0,output,stdout).
+% tpi(1,generate,'foo.p').
+% tpi(4,exit,exit).
+
+% tpi(1,input,$getargv(2)).
+% tpi(2,execute,'SZS_VAR' = '$getargv(0) $getargv(1)').
+% tpi(3,write,'The SZS status is' & $getenv('SZS_VAR')).
+% tpi(4,exit,exit).
+
+% tpi(0,input,$getargv(0)).
+% tpi(1,output,stdout).
+% tpi(2,execute,'SZS_VAR' = 'E---1.8 300 $getgroups(tpi)').
+% tpi(3,write,'The SZS status is' & $getenv('SZS_VAR')).
+% tpi(4,exit,exit).
+
+% tpi(0,input,$getargv(0)).
+% tpi(1,output,stdout).
+% tpi(2,execute,'SZS_VAR' = '/$TPTP_HOME/Systems/E---1.8/eprover -s --auto --cpu-limit=300 --tstp-format $getgroups(tpi)').
+% tpi(3,write,'The SZS status is' & $getenv('SZS_VAR')).
+% tpi(4,exit,exit).
+
+%----Test deleting formulae that are in multiple groups
+% tpi(0,start_group,groupAAB).
+% fof(a,axiom,a).
+% tpi(1,start_group,groupAB).
+% fof(ab,axiom,a=>b).
+% tpi(2,end_group,groupAAB).
+% tpi(3,end_group,groupAB).
+% tpi(4,start_group,groupB).
+% fof(b,conjecture,b).
+% tpi(5,end_group,groupB).
+% tpi(55,output,stdout).
+% tpi(6,filter,'SZS_STATUS' = '$TPTP_HOME/Systems/E---1.8/eprover -s --auto --cpu-limit=300 --tstp-format $getgroups(   groupAAB   )').
+% tpi(66,output,stdout).
+% tpi(12,exit,exit).
+
+% fof(an,axiom,p).
+% fof(another,axiom,p => q).
+% tpi(1,execute,'SZS_STATUS' = '$TPTP_HOME/Systems/Paradox---4.0/paradox --time 300 --tstp %s').
+% tpi(2,write,'Axiom status:' & $getenv('SZS_STATUS')).
+% tpi(3,assert,$getenv('SZS_STATUS') = 'Satisfiable').
+% fof(a,conjecture,q).
+% tpi(4,execute,'SZS_STATUS' = '$TPTP_HOME/Systems/E---1.6/eprover -s --auto --cpu-limit=300 --tstp-format %s').
+% tpi(5,write,'Conjecture status:' & $getenv('SZS_STATUS')).
+% tpi(6,exit,exit).
+
+% fof(an,axiom,p).
+% fof(another,axiom,p => q).
+% tpi(1,execute_async,'ASYNC_SZS_STATUS' = '$TPTP_HOME/Systems/Paradox---4.0/paradox --time 300 --tstp %s').
+% fof(a,conjecture,p).
+% tpi(2,execute,'SZS_STATUS' = '$TPTP_HOME/Systems/E---1.6/eprover -s --auto --cpu-limit=300 --tstp-format %s').
+% tpi(3,waitenv,'ASYNC_SZS_STATUS').
+% tpi(4,write,'Axioms status: ' & $getenv('ASYNC_SZS_STATUS') & ' Conjecture status: ' & $getenv('SZS_STATUS')).
+% tpi(5,exit,exit(1)).
+
+% include('Axioms/SET006+0.ax').
+% fof(thI14,conjecture,
+%     ( ! [A] : equal_set(union(A,A),A) )).
+% tpi(1,execute,'SZS_STATUS' = '$TPTP_HOME/Systems/E---1.6/eprover -s --auto --cpu-limit=300 --tstp-format %s').
+% tpi(2,write,'thI14 status:' & $getenv('SZS_STATUS')).
+% tpi(3,delete,thI14).
+% fof(thI06,conjecture,
+%     ( ! [A,B] : equal_set(intersection(A,B),intersection(B,A)) )).
+% tpi(4,execute,'SZS_STATUS' = '$TPTP_HOME/Systems/E---1.6/eprover -s --auto --cpu-limit=300 --tstp-format %s').
+% tpi(5,write,'thI06 status:' & $getenv('SZS_STATUS')).
+% tpi(6,exit,exit(1)).
+
+% tpi(1,input,'LTProblem.p').
+% tpi(2,execute_async,'ASYNC_SZS_STATUS' = '$TPTP_HOME/Systems/E---1.6/eprover -s --satauto --cpu-limit=30 --tstp-format %s').
+% tpi(3,filter,'$TPTP_HOME/Systems/SInESelect---1.8/run_sine_select --mode axiom_selection %s').
+% tpi(4,execute_async,'SZS_STATUS' = '$TPTP_HOME/Systems/E---1.6/eprover -s --auto --cpu-limit=300 --tstp-format %s').
+% tpi(5,waitenv,'ASYNC_SZS_STATUS').
+% tpi(6,write,'Conjecture status with all axioms:' & $getenv('ASYNC_SZS_STATUS')).
+% tpi(7,write,'Conjecture status with selected axioms:' & $getenv('SZS_STATUS')).
+% tpi(8,exit,exit).
+
+% tpi(1,input,'LTProblem.p').
+% tpi(2,execute_async,'ASYNC_SZS_STATUS' = 'E---1.6 300').
+% tpi(3,mktemp,'TEMP_FILENAME').
+% tpi(4,execute,'SInESelect---1.8 300 $TEMP_FILENAME').
+% tpi(5,delete_group,tpi).
+% tpi(6,input,$getenv('TEMP_FILENAME')).
+% tpi(7,execute,'SZS_STATUS' = 'E---1.6 300').
+% tpi(8,waitenv,'ASYNC_SZS_STATUS').
+% tpi(9,write,'Conjecture status with all axioms:' & $getenv('ASYNC_SZS_STATUS')).
+% tpi(10,write,'Conjecture status with selected axioms:' & $getenv('SZS_STATUS')).
+% tpi(11,exit,exit).
+
+% tpi(1,input,'LTProblem.p').
+% tpi(2,mktemp,'TEMP_FILENAME').
+% tpi(3,execute,'SInESelect---1.8 300 $TEMP_FILENAME').
+% tpi(4,delete_group,tpi).
+% tpi(5,input,$getenv('TEMP_FILENAME')).
+% tpi(6,execute,'SZS_STATUS' = 'E---1.6 300').
+% tpi(7,write,'Conjecture status with selected axioms:' & $getenv('SZS_STATUS')).
+% tpi(9,exit,exit).
+
+% fof(1,axiom,p).
+% tpi(2,start_group,to_be_deleted).
+% fof(2,axiom,p_delete).
+% fof(3,axiom,p_delete).
+% tpi(2,end_group,to_be_deleted).
+% fof(4,axiom,p).
+% tpi(5,output,stdout).
+% tpi(6,write,'---------------------------- NOW DELETE ---------------').
+% tpi(7,delete_group,to_be_deleted).
+% tpi(5,output,stdout).
+% tpi(4,exit,exit).

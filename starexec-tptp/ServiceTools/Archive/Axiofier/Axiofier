@@ -1,0 +1,10 @@
+#!/bin/tcsh
+
+set AxiofyC = "/home/graph/tptp/ServiceTools/Axiofier/AxiofyC"
+set TemporaryFile = "/tmp/Axiofier$$"
+set SystemOnTPTP = "/home/graph/tptp/SystemExecution/SystemOnTPTP -q0 Otter---3.3-A $2 -S $TemporaryFile"
+
+$AxiofyC $1 | sed -e "s/,lemma,/,hints2,/" -e "s/,negated_conjecture,/,passive,/" > $TemporaryFile
+$SystemOnTPTP
+
+rm -f $TemporaryFile

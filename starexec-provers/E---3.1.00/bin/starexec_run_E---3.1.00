@@ -1,0 +1,48 @@
+#!/bin/tcsh
+
+setenv HERE `dirname $0`
+setenv TPTP `dirname $1`
+setenv TEMPDIR `mktemp -d`
+setenv PROBLEMFILE $TEMPDIR/E_$$
+onintr cleanup
+
+$HERE/tptp4X -x $1 > $PROBLEMFILE
+
+set FileLine = `grep -m 1 '^% File ' $PROBLEMFILE`
+if ("$FileLine" != "") then
+    set Problem = `expr "$FileLine" : "^% File *: *\(.*\)"`
+else
+    set Problem = `basename $PROBLEMFILE`" : TPTP v0.0.0. Released v0.0.0."
+endif
+echo    "% Problem    : $Problem"
+set SPCLine=`grep "^% SPC " $PROBLEMFILE`
+if ("$SPCLine" != "") then
+    set ProblemSPC = `expr "$SPCLine" : "^% SPC  *: *\([^ ]*\)"`
+else
+    set ProblemSPC = ""
+endif
+if ("$ProblemSPC" == "" || \
+    `expr "$ProblemSPC" : "TH0_.*NAR"` || \
+    `expr "$ProblemSPC" : "TX0_.*NAR"` || \
+    `expr "$ProblemSPC" : "TF0_.*NAR"` || \
+    `expr "$ProblemSPC" : "FOF_.*"` || \
+    `expr "$ProblemSPC" : "CNF_.*"`) then
+    echo -n "% Command    : " ; echo "run_E %s %d THM"
+    /home/starexec/bin/GetComputerInfo -p THIS Model CPUModel RAMPerCPU OS | \
+    sed -e "s/Computer   /% Computer /" \
+        -e "s/Model      /% Model    /" \
+        -e "s/CPUModel   /% CPU      /" \
+        -e "s/RAMPerCPU  /% Memory   /" \
+        -e "s/OS         /% OS       /"
+    echo -n "% CPULimit   : " ; echo "$STAREXEC_CPU_LIMIT"
+    echo -n "% WCLimit    : " ; echo "$STAREXEC_WALLCLOCK_LIMIT"
+    echo -n "% DateTime   : " ; date
+    echo "% CPUTime    : "
+    $HERE/run_E $PROBLEMFILE $STAREXEC_WALLCLOCK_LIMIT THM
+else
+    echo "% SZS status Inappropriate"
+endif
+
+cleanup:
+    echo "% E exiting"
+    rm -rf $TEMPDIR

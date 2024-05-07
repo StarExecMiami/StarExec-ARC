@@ -1,0 +1,167 @@
+%------------------------------------------------------------------------------
+% File       : EP---0.99
+% Problem    : PUZ001-1 : TPTP v1.0.0
+% Transform  : none
+% Format     : tptp
+% Command    : eproof --print-statistics -xAuto -tAuto --memory-limit=Auto --tstp-in --tstp-out %s
+
+% Computer   : art09.cs.miami.edu
+% Model      : i686 i686
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2793MHz
+% Memory     : 1003MB
+% OS         : Linux 2.6.11-1.1369_FC4
+% CPULimit   : 600s
+
+% Result     : Unsatisfiable 0.1s
+% Output     : Refutation 0.1s
+% Statistics : Number of clauses     :   29 (  35 expanded)
+%              Depth                 :   12
+%              Number of atoms       :   55 (  66 expanded)
+%              Maximal clause size   :    3 (   2 average)
+%              Maximal term depth    :    1 (   1 average)
+% Verified   : 
+
+% Comments   : 
+%------------------------------------------------------------------------------
+cnf(2,axiom,
+    ( lives(butler) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001-1.tptp',butler)).
+
+cnf(4,axiom,
+    ( ~ killed(X1,X2)
+    | ~ richer(X1,X2) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001-1.tptp',poorer_killer)).
+
+cnf(5,axiom,
+    ( ~ hates(agatha,X1)
+    | ~ hates(charles,X1) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001-1.tptp',different_hates)).
+
+cnf(6,axiom,
+    ( ~ hates(X1,agatha)
+    | ~ hates(X1,butler)
+    | ~ hates(X1,charles) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001-1.tptp',no_one_hates_everyone)).
+
+cnf(7,axiom,
+    ( hates(agatha,agatha) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001-1.tptp',agatha_hates_agatha)).
+
+cnf(8,axiom,
+    ( hates(agatha,charles) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001-1.tptp',agatha_hates_charles)).
+
+cnf(9,axiom,
+    ( hates(X1,X2)
+    | ~ killed(X1,X2) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001-1.tptp',killer_hates_victim)).
+
+cnf(10,axiom,
+    ( hates(butler,X1)
+    | ~ hates(agatha,X1) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001-1.tptp',same_hates)).
+
+cnf(11,axiom,
+    ( richer(X1,agatha)
+    | hates(butler,X1)
+    | ~ lives(X1) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001-1.tptp',butler_hates_poor)).
+
+cnf(12,negated_conjecture,
+    ( killed(butler,agatha)
+    | killed(charles,agatha) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ001-1.tptp',prove_neither_charles_nor_butler_did_it)).
+
+cnf(13,negated_conjecture,
+    ( hates(charles,agatha)
+    | killed(butler,agatha) ),
+    inference(spm,[status(thm)],[9,12,theory(equality)])).
+
+cnf(14,plain,
+    ( hates(butler,X1)
+    | ~ killed(X1,agatha)
+    | ~ lives(X1) ),
+    inference(spm,[status(thm)],[4,11,theory(equality)])).
+
+cnf(16,plain,
+    ( ~ hates(butler,agatha)
+    | ~ hates(butler,butler)
+    | ~ hates(agatha,charles) ),
+    inference(spm,[status(thm)],[6,10,theory(equality)])).
+
+cnf(19,plain,
+    ( ~ hates(butler,agatha)
+    | ~ hates(butler,butler)
+    | $false ),
+    inference(rw,[status(thm)],[16,8,theory(equality)])).
+
+cnf(20,plain,
+    ( ~ hates(butler,agatha)
+    | ~ hates(butler,butler) ),
+    inference(cn,[status(thm)],[19,theory(equality)])).
+
+cnf(21,negated_conjecture,
+    ( hates(butler,agatha)
+    | hates(charles,agatha) ),
+    inference(spm,[status(thm)],[9,13,theory(equality)])).
+
+cnf(22,negated_conjecture,
+    ( hates(butler,agatha)
+    | ~ hates(agatha,agatha) ),
+    inference(spm,[status(thm)],[5,21,theory(equality)])).
+
+cnf(23,negated_conjecture,
+    ( hates(butler,agatha)
+    | $false ),
+    inference(rw,[status(thm)],[22,7,theory(equality)])).
+
+cnf(24,negated_conjecture,
+    ( hates(butler,agatha) ),
+    inference(cn,[status(thm)],[23,theory(equality)])).
+
+cnf(26,plain,
+    ( $false
+    | ~ hates(butler,butler) ),
+    inference(rw,[status(thm)],[20,24,theory(equality)])).
+
+cnf(27,plain,
+    ( ~ hates(butler,butler) ),
+    inference(cn,[status(thm)],[26,theory(equality)])).
+
+cnf(30,negated_conjecture,
+    ( hates(butler,butler)
+    | hates(charles,agatha)
+    | ~ lives(butler) ),
+    inference(spm,[status(thm)],[14,13,theory(equality)])).
+
+cnf(33,negated_conjecture,
+    ( hates(butler,butler)
+    | hates(charles,agatha)
+    | $false ),
+    inference(rw,[status(thm)],[30,2,theory(equality)])).
+
+cnf(34,negated_conjecture,
+    ( hates(butler,butler)
+    | hates(charles,agatha) ),
+    inference(cn,[status(thm)],[33,theory(equality)])).
+
+cnf(35,negated_conjecture,
+    ( hates(charles,agatha) ),
+    inference(sr,[status(thm)],[34,27,theory(equality)])).
+
+cnf(36,negated_conjecture,
+    ( ~ hates(agatha,agatha) ),
+    inference(spm,[status(thm)],[5,35,theory(equality)])).
+
+cnf(38,negated_conjecture,
+    ( $false ),
+    inference(rw,[status(thm)],[36,7,theory(equality)])).
+
+cnf(39,negated_conjecture,
+    ( $false ),
+    inference(cn,[status(thm)],[38,theory(equality)])).
+
+cnf(40,negated_conjecture,
+    ( $false ),
+    39,
+    [proof]).

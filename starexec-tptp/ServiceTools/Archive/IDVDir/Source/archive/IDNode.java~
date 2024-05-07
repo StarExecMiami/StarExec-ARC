@@ -1,0 +1,29 @@
+//*****************************************************************************
+//*****************************************************************************
+/* 
+   Steven Trac
+   IDNode - Interactive Derivation Node
+*/
+//*****************************************************************************
+import java.util.*;
+import java.io.*;
+//*****************************************************************************
+public class IDNode extends Node {
+  public static final String
+    FORMULA_FORMAT_FOF = "fof",
+    FORMULA_FORMAT_CNF = "cnf",
+
+    FORMULA_TYPE_INITIAL = "initial",
+    FORMULA_TYPE_AXIOM   = "axiom",
+    FORMULA_TYPE_PLAIN   = "plain",
+    FORMULA_TYPE_CONJ    = "conjecture",
+    FORMULA_TYPE_NEG_CONJ_D = "negatedconjecturederived",
+    FORMULA_TYPE_NEG_CONJ   = "negatedconjecture",
+    FORMULA_TYPE_FALSE   = "false",
+    FORMULA_TYPE_HYP     = "hypothesis",
+    FORMULA_TYPE_LEMMA   = "lemma";
+  
+  Color fofColor = Color.black;
+  Color cnfColor = Color.orange;
+
+}

@@ -1,0 +1,9 @@
+fof(dv,axiom, (
+    ! [X,Y] :
+      ( p(X,Y)
+     => ( ? [X,Y] : 
+            ( ! [X] : p(X,X)
+            | p(Y,Y) )
+        & ? [Y] : q(Y,Y) ) ) ),
+    inference(blah,[status(thm)],[10,theory(equality,[s])]),
+    [useless(2,2),useful(2),useless(3,cat),useless(hat),useful(1),useless(rat)]).

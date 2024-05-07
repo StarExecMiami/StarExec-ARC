@@ -1,0 +1,15 @@
+fof(a,axiom,~p).
+
+fof(b,axiom,~ (p | q)).
+
+fof(c,axiom,~ ! [X] : p(X)).
+
+fof(d,axiom,~ ~ p).
+
+fof(e,axiom,
+    ~ ! [X] :
+      ? [Y] :
+        ( p(X)
+       => ~ ? [Z] :
+             ~ ( p(Y)
+               | q(Z) ) )  ).

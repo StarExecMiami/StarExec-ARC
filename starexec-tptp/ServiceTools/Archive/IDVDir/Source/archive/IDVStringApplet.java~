@@ -1,0 +1,49 @@
+import java.applet.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.*;
+
+/**
+ * Generic applet application.  A small front-end is needed to get around the
+ * problem of no multiple inheritance.  This class should be subclassed to 
+ * choose the proper editor and converter or to add additional functionality.
+ *
+ */
+
+import javax.swing.*;
+
+public class GraphProofTreeApplet extends JApplet {
+    GraphProofTree win;
+    int h;
+    int w;
+
+    public void init(){
+      //String in = getParameter("TREE");
+      String url = getParameter("URL");
+     
+      /*
+      System.out.println("Hi there: " + in);
+
+      StringReader r = new StringReader(in);
+      StreamTokenizer tok = new StreamTokenizer(r);
+      try {
+        tok.nextToken();
+      }
+      catch (IOException e) {}
+      System.out.println("TOK: " + tok.toString());
+
+      StringBufferInputStream sis = new StringBufferInputStream(in);
+      StreamTokenizer st = new StreamTokenizer(sis);
+      try {
+      st.nextToken();
+      }
+      catch (IOException e) {}
+      System.out.println("STOK: " + st.toString());
+      */
+     win = new GraphProofTree();
+     //win.loadString(in);
+     win.loadURL(url);
+     win.setVisible(true);
+    }
+}

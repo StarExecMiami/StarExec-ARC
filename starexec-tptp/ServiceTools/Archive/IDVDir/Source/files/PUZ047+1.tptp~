@@ -1,0 +1,606 @@
+%------------------------------------------------------------------------------
+% File       : EP---0.91
+% Problem    : PUZ047+1 : TPTP v2.5.0
+% Transform  : none
+% Format     : tptp
+% Command    : eproof --print-statistics -xAuto -tAuto --memory-limit=Auto --tstp-in --tstp-out %s
+
+% Computer   : art03.cs.miami.edu
+% Model      : i686 i686
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2793MHz
+% Memory     : 1003MB
+% OS         : Linux 2.6.11-1.1369_FC4
+% CPULimit   : 600s
+
+% Result     : Theorem 0.0s
+% Output     : Refutation 0.0s
+% Statistics : Number of formulae    :   43 ( 145 expanded)
+%              Number of clauses     :   32 (  42 expanded)
+%              Depth                 :   17
+%              Number of atoms       :  296 (2273 expanded)
+%              Maximal formula depth :   36 (   6 average)
+%              Maximal clause size   :   44 (   9 average)
+%              Maximal term depth    :    2 (   1 average)
+% Verified   : 
+
+% Comments   : 
+%------------------------------------------------------------------------------
+%----TSTP SOLUTION
+fof(1,conjecture,
+    ( ( p(south,south,south,south,start)
+      & ! [X1] : 
+          ( p(south,north,south,north,X1)
+         => p(north,north,south,north,go_alone(X1)) )
+      & ! [X2] : 
+          ( p(north,north,south,north,X2)
+         => p(south,north,south,north,go_alone(X2)) )
+      & ! [X3] : 
+          ( p(south,south,north,south,X3)
+         => p(north,south,north,south,go_alone(X3)) )
+      & ! [X4] : 
+          ( p(north,south,north,south,X4)
+         => p(south,south,north,south,go_alone(X4)) )
+      & ! [X5] : 
+          ( p(south,south,south,north,X5)
+         => p(north,north,south,north,take_wolf(X5)) )
+      & ! [X6] : 
+          ( p(north,north,south,north,X6)
+         => p(south,south,south,north,take_wolf(X6)) )
+      & ! [X7] : 
+          ( p(south,south,north,south,X7)
+         => p(north,north,north,south,take_wolf(X7)) )
+      & ! [X8] : 
+          ( p(north,north,north,south,X8)
+         => p(south,south,north,south,take_wolf(X8)) )
+      & ! [X9,X10,X11] : 
+          ( p(south,X9,south,X10,X11)
+         => p(north,X9,north,X10,take_goat(X11)) )
+      & ! [X12,X13,X14] : 
+          ( p(north,X12,north,X13,X14)
+         => p(south,X12,south,X13,take_goat(X14)) )
+      & ! [X15] : 
+          ( p(south,north,south,south,X15)
+         => p(north,north,south,north,take_cabbage(X15)) )
+      & ! [X16] : 
+          ( p(north,north,south,north,X16)
+         => p(south,north,south,south,take_cabbage(X16)) )
+      & ! [X17] : 
+          ( p(south,south,north,south,X17)
+         => p(north,south,north,north,take_cabbage(X17)) )
+      & ! [X18] : 
+          ( p(north,south,north,north,X18)
+         => p(south,south,north,south,take_cabbage(X18)) ) )
+   => ? [X19] : p(north,north,north,north,X19) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ047+1.tptp',thm100)).
+
+fof(2,negated_conjecture,(
+    ~ ( ( p(south,south,south,south,start)
+        & ! [X1] : 
+            ( p(south,north,south,north,X1)
+           => p(north,north,south,north,go_alone(X1)) )
+        & ! [X2] : 
+            ( p(north,north,south,north,X2)
+           => p(south,north,south,north,go_alone(X2)) )
+        & ! [X3] : 
+            ( p(south,south,north,south,X3)
+           => p(north,south,north,south,go_alone(X3)) )
+        & ! [X4] : 
+            ( p(north,south,north,south,X4)
+           => p(south,south,north,south,go_alone(X4)) )
+        & ! [X5] : 
+            ( p(south,south,south,north,X5)
+           => p(north,north,south,north,take_wolf(X5)) )
+        & ! [X6] : 
+            ( p(north,north,south,north,X6)
+           => p(south,south,south,north,take_wolf(X6)) )
+        & ! [X7] : 
+            ( p(south,south,north,south,X7)
+           => p(north,north,north,south,take_wolf(X7)) )
+        & ! [X8] : 
+            ( p(north,north,north,south,X8)
+           => p(south,south,north,south,take_wolf(X8)) )
+        & ! [X9,X10,X11] : 
+            ( p(south,X9,south,X10,X11)
+           => p(north,X9,north,X10,take_goat(X11)) )
+        & ! [X12,X13,X14] : 
+            ( p(north,X12,north,X13,X14)
+           => p(south,X12,south,X13,take_goat(X14)) )
+        & ! [X15] : 
+            ( p(south,north,south,south,X15)
+           => p(north,north,south,north,take_cabbage(X15)) )
+        & ! [X16] : 
+            ( p(north,north,south,north,X16)
+           => p(south,north,south,south,take_cabbage(X16)) )
+        & ! [X17] : 
+            ( p(south,south,north,south,X17)
+           => p(north,south,north,north,take_cabbage(X17)) )
+        & ! [X18] : 
+            ( p(north,south,north,north,X18)
+           => p(south,south,north,south,take_cabbage(X18)) ) )
+     => ? [X19] : p(north,north,north,north,X19) ) ),
+    inference(assume_negation,[status(cth)],[1])).
+
+fof(3,plain,
+    ( epred1_0
+   => ( p(south,south,south,south,start)
+      & ! [X1] : 
+          ( p(south,north,south,north,X1)
+         => p(north,north,south,north,go_alone(X1)) )
+      & ! [X2] : 
+          ( p(north,north,south,north,X2)
+         => p(south,north,south,north,go_alone(X2)) )
+      & ! [X3] : 
+          ( p(south,south,north,south,X3)
+         => p(north,south,north,south,go_alone(X3)) )
+      & ! [X4] : 
+          ( p(north,south,north,south,X4)
+         => p(south,south,north,south,go_alone(X4)) )
+      & ! [X5] : 
+          ( p(south,south,south,north,X5)
+         => p(north,north,south,north,take_wolf(X5)) )
+      & ! [X6] : 
+          ( p(north,north,south,north,X6)
+         => p(south,south,south,north,take_wolf(X6)) )
+      & ! [X7] : 
+          ( p(south,south,north,south,X7)
+         => p(north,north,north,south,take_wolf(X7)) )
+      & ! [X8] : 
+          ( p(north,north,north,south,X8)
+         => p(south,south,north,south,take_wolf(X8)) )
+      & ! [X9,X10,X11] : 
+          ( p(south,X9,south,X10,X11)
+         => p(north,X9,north,X10,take_goat(X11)) )
+      & ! [X12,X13,X14] : 
+          ( p(north,X12,north,X13,X14)
+         => p(south,X12,south,X13,take_goat(X14)) )
+      & ! [X15] : 
+          ( p(south,north,south,south,X15)
+         => p(north,north,south,north,take_cabbage(X15)) )
+      & ! [X16] : 
+          ( p(north,north,south,north,X16)
+         => p(south,north,south,south,take_cabbage(X16)) )
+      & ! [X17] : 
+          ( p(south,south,north,south,X17)
+         => p(north,south,north,north,take_cabbage(X17)) )
+      & ! [X18] : 
+          ( p(north,south,north,north,X18)
+         => p(south,south,north,south,take_cabbage(X18)) ) ) ),
+    introduced(definition)).
+
+fof(4,negated_conjecture,(
+    ~ ( epred1_0
+     => ? [X19] : p(north,north,north,north,X19) ) ),
+    inference(apply_def,[status(sab)],[2,3,theory(equality)])).
+
+fof(5,negated_conjecture,
+    ( epred1_0
+    & ! [X19] : ~ p(north,north,north,north,X19) ),
+    inference(fof_nnf,[status(thm)],[4])).
+
+fof(6,negated_conjecture,
+    ( epred1_0
+    & ! [X20] : ~ p(north,north,north,north,X20) ),
+    inference(variable_rename,[status(thm)],[5])).
+
+fof(7,negated_conjecture,(
+    ! [X20] : 
+      ( ~ p(north,north,north,north,X20)
+      & epred1_0 ) ),
+    inference(shift_quantors,[status(thm)],[6])).
+
+cnf(8,negated_conjecture,
+    ( epred1_0 ),
+    inference(split_conjunct,[status(thm)],[7])).
+
+cnf(9,negated_conjecture,
+    ( ~ p(north,north,north,north,X1) ),
+    inference(split_conjunct,[status(thm)],[7])).
+
+fof(10,plain,
+    ( ~ epred1_0
+    | ( p(south,south,south,south,start)
+      & ! [X1] : 
+          ( ~ p(south,north,south,north,X1)
+          | p(north,north,south,north,go_alone(X1)) )
+      & ! [X2] : 
+          ( ~ p(north,north,south,north,X2)
+          | p(south,north,south,north,go_alone(X2)) )
+      & ! [X3] : 
+          ( ~ p(south,south,north,south,X3)
+          | p(north,south,north,south,go_alone(X3)) )
+      & ! [X4] : 
+          ( ~ p(north,south,north,south,X4)
+          | p(south,south,north,south,go_alone(X4)) )
+      & ! [X5] : 
+          ( ~ p(south,south,south,north,X5)
+          | p(north,north,south,north,take_wolf(X5)) )
+      & ! [X6] : 
+          ( ~ p(north,north,south,north,X6)
+          | p(south,south,south,north,take_wolf(X6)) )
+      & ! [X7] : 
+          ( ~ p(south,south,north,south,X7)
+          | p(north,north,north,south,take_wolf(X7)) )
+      & ! [X8] : 
+          ( ~ p(north,north,north,south,X8)
+          | p(south,south,north,south,take_wolf(X8)) )
+      & ! [X9,X10,X11] : 
+          ( ~ p(south,X9,south,X10,X11)
+          | p(north,X9,north,X10,take_goat(X11)) )
+      & ! [X12,X13,X14] : 
+          ( ~ p(north,X12,north,X13,X14)
+          | p(south,X12,south,X13,take_goat(X14)) )
+      & ! [X15] : 
+          ( ~ p(south,north,south,south,X15)
+          | p(north,north,south,north,take_cabbage(X15)) )
+      & ! [X16] : 
+          ( ~ p(north,north,south,north,X16)
+          | p(south,north,south,south,take_cabbage(X16)) )
+      & ! [X17] : 
+          ( ~ p(south,south,north,south,X17)
+          | p(north,south,north,north,take_cabbage(X17)) )
+      & ! [X18] : 
+          ( ~ p(north,south,north,north,X18)
+          | p(south,south,north,south,take_cabbage(X18)) ) ) ),
+    inference(fof_nnf,[status(thm)],[3])).
+
+fof(11,plain,
+    ( ~ epred1_0
+    | ( p(south,south,south,south,start)
+      & ! [X19] : 
+          ( ~ p(south,north,south,north,X19)
+          | p(north,north,south,north,go_alone(X19)) )
+      & ! [X20] : 
+          ( ~ p(north,north,south,north,X20)
+          | p(south,north,south,north,go_alone(X20)) )
+      & ! [X21] : 
+          ( ~ p(south,south,north,south,X21)
+          | p(north,south,north,south,go_alone(X21)) )
+      & ! [X22] : 
+          ( ~ p(north,south,north,south,X22)
+          | p(south,south,north,south,go_alone(X22)) )
+      & ! [X23] : 
+          ( ~ p(south,south,south,north,X23)
+          | p(north,north,south,north,take_wolf(X23)) )
+      & ! [X24] : 
+          ( ~ p(north,north,south,north,X24)
+          | p(south,south,south,north,take_wolf(X24)) )
+      & ! [X25] : 
+          ( ~ p(south,south,north,south,X25)
+          | p(north,north,north,south,take_wolf(X25)) )
+      & ! [X26] : 
+          ( ~ p(north,north,north,south,X26)
+          | p(south,south,north,south,take_wolf(X26)) )
+      & ! [X27,X28,X29] : 
+          ( ~ p(south,X27,south,X28,X29)
+          | p(north,X27,north,X28,take_goat(X29)) )
+      & ! [X30,X31,X32] : 
+          ( ~ p(north,X30,north,X31,X32)
+          | p(south,X30,south,X31,take_goat(X32)) )
+      & ! [X33] : 
+          ( ~ p(south,north,south,south,X33)
+          | p(north,north,south,north,take_cabbage(X33)) )
+      & ! [X34] : 
+          ( ~ p(north,north,south,north,X34)
+          | p(south,north,south,south,take_cabbage(X34)) )
+      & ! [X35] : 
+          ( ~ p(south,south,north,south,X35)
+          | p(north,south,north,north,take_cabbage(X35)) )
+      & ! [X36] : 
+          ( ~ p(north,south,north,north,X36)
+          | p(south,south,north,south,take_cabbage(X36)) ) ) ),
+    inference(variable_rename,[status(thm)],[10])).
+
+fof(12,plain,(
+    ! [X19,X20,X21,X22,X23,X24,X25,X26,X27,X28,X29,X30,X31,X32,X33,X34,X35,X36] : 
+      ( ( ( ~ p(north,south,north,north,X36)
+          | p(south,south,north,south,take_cabbage(X36)) )
+        & ( ~ p(south,south,north,south,X35)
+          | p(north,south,north,north,take_cabbage(X35)) )
+        & ( ~ p(north,north,south,north,X34)
+          | p(south,north,south,south,take_cabbage(X34)) )
+        & ( ~ p(south,north,south,south,X33)
+          | p(north,north,south,north,take_cabbage(X33)) )
+        & ( ~ p(north,X30,north,X31,X32)
+          | p(south,X30,south,X31,take_goat(X32)) )
+        & ( ~ p(south,X27,south,X28,X29)
+          | p(north,X27,north,X28,take_goat(X29)) )
+        & ( ~ p(north,north,north,south,X26)
+          | p(south,south,north,south,take_wolf(X26)) )
+        & ( ~ p(south,south,north,south,X25)
+          | p(north,north,north,south,take_wolf(X25)) )
+        & ( ~ p(north,north,south,north,X24)
+          | p(south,south,south,north,take_wolf(X24)) )
+        & ( ~ p(south,south,south,north,X23)
+          | p(north,north,south,north,take_wolf(X23)) )
+        & ( ~ p(north,south,north,south,X22)
+          | p(south,south,north,south,go_alone(X22)) )
+        & ( ~ p(south,south,north,south,X21)
+          | p(north,south,north,south,go_alone(X21)) )
+        & ( ~ p(north,north,south,north,X20)
+          | p(south,north,south,north,go_alone(X20)) )
+        & ( ~ p(south,north,south,north,X19)
+          | p(north,north,south,north,go_alone(X19)) )
+        & p(south,south,south,south,start) )
+      | ~ epred1_0 ) ),
+    inference(shift_quantors,[status(thm)],[11])).
+
+fof(13,plain,(
+    ! [X19,X20,X21,X22,X23,X24,X25,X26,X27,X28,X29,X30,X31,X32,X33,X34,X35,X36] : 
+      ( ( ~ p(north,south,north,north,X36)
+        | p(south,south,north,south,take_cabbage(X36))
+        | ~ epred1_0 )
+      & ( ~ p(south,south,north,south,X35)
+        | p(north,south,north,north,take_cabbage(X35))
+        | ~ epred1_0 )
+      & ( ~ p(north,north,south,north,X34)
+        | p(south,north,south,south,take_cabbage(X34))
+        | ~ epred1_0 )
+      & ( ~ p(south,north,south,south,X33)
+        | p(north,north,south,north,take_cabbage(X33))
+        | ~ epred1_0 )
+      & ( ~ p(north,X30,north,X31,X32)
+        | p(south,X30,south,X31,take_goat(X32))
+        | ~ epred1_0 )
+      & ( ~ p(south,X27,south,X28,X29)
+        | p(north,X27,north,X28,take_goat(X29))
+        | ~ epred1_0 )
+      & ( ~ p(north,north,north,south,X26)
+        | p(south,south,north,south,take_wolf(X26))
+        | ~ epred1_0 )
+      & ( ~ p(south,south,north,south,X25)
+        | p(north,north,north,south,take_wolf(X25))
+        | ~ epred1_0 )
+      & ( ~ p(north,north,south,north,X24)
+        | p(south,south,south,north,take_wolf(X24))
+        | ~ epred1_0 )
+      & ( ~ p(south,south,south,north,X23)
+        | p(north,north,south,north,take_wolf(X23))
+        | ~ epred1_0 )
+      & ( ~ p(north,south,north,south,X22)
+        | p(south,south,north,south,go_alone(X22))
+        | ~ epred1_0 )
+      & ( ~ p(south,south,north,south,X21)
+        | p(north,south,north,south,go_alone(X21))
+        | ~ epred1_0 )
+      & ( ~ p(north,north,south,north,X20)
+        | p(south,north,south,north,go_alone(X20))
+        | ~ epred1_0 )
+      & ( ~ p(south,north,south,north,X19)
+        | p(north,north,south,north,go_alone(X19))
+        | ~ epred1_0 )
+      & ( p(south,south,south,south,start)
+        | ~ epred1_0 ) ) ),
+    inference(distribute,[status(thm)],[12])).
+
+cnf(14,plain,
+    ( p(south,south,south,south,start)
+    | ~ epred1_0 ),
+    inference(split_conjunct,[status(thm)],[13])).
+
+cnf(16,plain,
+    ( p(south,north,south,north,go_alone(X1))
+    | ~ epred1_0
+    | ~ p(north,north,south,north,X1) ),
+    inference(split_conjunct,[status(thm)],[13])).
+
+cnf(18,plain,
+    ( p(south,south,north,south,go_alone(X1))
+    | ~ epred1_0
+    | ~ p(north,south,north,south,X1) ),
+    inference(split_conjunct,[status(thm)],[13])).
+
+cnf(19,plain,
+    ( p(north,north,south,north,take_wolf(X1))
+    | ~ epred1_0
+    | ~ p(south,south,south,north,X1) ),
+    inference(split_conjunct,[status(thm)],[13])).
+
+cnf(23,plain,
+    ( p(north,X1,north,X2,take_goat(X3))
+    | ~ epred1_0
+    | ~ p(south,X1,south,X2,X3) ),
+    inference(split_conjunct,[status(thm)],[13])).
+
+cnf(24,plain,
+    ( p(south,X1,south,X2,take_goat(X3))
+    | ~ epred1_0
+    | ~ p(north,X1,north,X2,X3) ),
+    inference(split_conjunct,[status(thm)],[13])).
+
+cnf(27,plain,
+    ( p(north,south,north,north,take_cabbage(X1))
+    | ~ epred1_0
+    | ~ p(south,south,north,south,X1) ),
+    inference(split_conjunct,[status(thm)],[13])).
+
+cnf(29,plain,
+    ( p(south,south,south,south,start)
+    | $false ),
+    inference(rw,[status(thm)],[14,8,theory(equality)])).
+
+cnf(30,plain,
+    ( p(south,south,south,south,start) ),
+    inference(cn,[status(thm)],[29,theory(equality)])).
+
+cnf(31,plain,
+    ( p(south,X1,south,X2,take_goat(X3))
+    | $false
+    | ~ p(north,X1,north,X2,X3) ),
+    inference(rw,[status(thm)],[24,8,theory(equality)])).
+
+cnf(32,plain,
+    ( p(south,X1,south,X2,take_goat(X3))
+    | ~ p(north,X1,north,X2,X3) ),
+    inference(cn,[status(thm)],[31,theory(equality)])).
+
+cnf(33,plain,
+    ( p(south,north,south,north,go_alone(X1))
+    | $false
+    | ~ p(north,north,south,north,X1) ),
+    inference(rw,[status(thm)],[16,8,theory(equality)])).
+
+cnf(34,plain,
+    ( p(south,north,south,north,go_alone(X1))
+    | ~ p(north,north,south,north,X1) ),
+    inference(cn,[status(thm)],[33,theory(equality)])).
+
+cnf(39,plain,
+    ( p(south,south,north,south,go_alone(X1))
+    | $false
+    | ~ p(north,south,north,south,X1) ),
+    inference(rw,[status(thm)],[18,8,theory(equality)])).
+
+cnf(40,plain,
+    ( p(south,south,north,south,go_alone(X1))
+    | ~ p(north,south,north,south,X1) ),
+    inference(cn,[status(thm)],[39,theory(equality)])).
+
+cnf(43,plain,
+    ( p(north,X1,north,X2,take_goat(X3))
+    | $false
+    | ~ p(south,X1,south,X2,X3) ),
+    inference(rw,[status(thm)],[23,8,theory(equality)])).
+
+cnf(44,plain,
+    ( p(north,X1,north,X2,take_goat(X3))
+    | ~ p(south,X1,south,X2,X3) ),
+    inference(cn,[status(thm)],[43,theory(equality)])).
+
+cnf(45,plain,
+    ( ~ p(south,north,south,north,X1) ),
+    inference(spm,[status(thm)],[9,44,theory(equality)])).
+
+cnf(50,plain,
+    ( p(north,south,north,north,take_cabbage(X1))
+    | $false
+    | ~ p(south,south,north,south,X1) ),
+    inference(rw,[status(thm)],[27,8,theory(equality)])).
+
+cnf(51,plain,
+    ( p(north,south,north,north,take_cabbage(X1))
+    | ~ p(south,south,north,south,X1) ),
+    inference(cn,[status(thm)],[50,theory(equality)])).
+
+cnf(52,plain,
+    ( p(north,north,south,north,take_wolf(X1))
+    | $false
+    | ~ p(south,south,south,north,X1) ),
+    inference(rw,[status(thm)],[19,8,theory(equality)])).
+
+cnf(53,plain,
+    ( p(north,north,south,north,take_wolf(X1))
+    | ~ p(south,south,south,north,X1) ),
+    inference(cn,[status(thm)],[52,theory(equality)])).
+
+cnf(61,plain,
+    ( ~ p(north,north,south,north,X1) ),
+    inference(spm,[status(thm)],[45,34,theory(equality)])).
+
+cnf(63,plain,
+    ( ~ p(south,south,south,north,X1) ),
+    inference(spm,[status(thm)],[61,53,theory(equality)])).
+
+cnf(65,plain,
+    ( ~ p(north,south,north,north,X1) ),
+    inference(spm,[status(thm)],[63,32,theory(equality)])).
+
+cnf(68,plain,
+    ( ~ p(south,south,north,south,X1) ),
+    inference(spm,[status(thm)],[65,51,theory(equality)])).
+
+cnf(71,plain,
+    ( ~ p(north,south,north,south,X1) ),
+    inference(spm,[status(thm)],[68,40,theory(equality)])).
+
+cnf(76,plain,
+    ( ~ p(south,south,south,south,X1) ),
+    inference(spm,[status(thm)],[71,44,theory(equality)])).
+
+cnf(79,plain,
+    ( $false ),
+    inference(sr,[status(thm)],[30,76,theory(equality)])).
+
+cnf(80,plain,
+    ( $false ),
+    79,
+    ['proof']).
+%------------------------------------------------------------------------------
+%----ORIGINAL SYSTEM OUTPUT
+% # Problem is unsatisfiable (or provable), constructing proof object
+% # SZS status: Theorem
+% # Proof object starts here.
+% fof(1, conjecture,(((((((((((((((p(south,south,south,south,start)&![X1]:(p(south,north,south,north,X1)=>p(north,north,south,north,go_alone(X1))))&![X2]:(p(north,north,south,north,X2)=>p(south,north,south,north,go_alone(X2))))&![X3]:(p(south,south,north,south,X3)=>p(north,south,north,south,go_alone(X3))))&![X4]:(p(north,south,north,south,X4)=>p(south,south,north,south,go_alone(X4))))&![X5]:(p(south,south,south,north,X5)=>p(north,north,south,north,take_wolf(X5))))&![X6]:(p(north,north,south,north,X6)=>p(south,south,south,north,take_wolf(X6))))&![X7]:(p(south,south,north,south,X7)=>p(north,north,north,south,take_wolf(X7))))&![X8]:(p(north,north,north,south,X8)=>p(south,south,north,south,take_wolf(X8))))&![X9]:![X10]:![X11]:(p(south,X9,south,X10,X11)=>p(north,X9,north,X10,take_goat(X11))))&![X12]:![X13]:![X14]:(p(north,X12,north,X13,X14)=>p(south,X12,south,X13,take_goat(X14))))&![X15]:(p(south,north,south,south,X15)=>p(north,north,south,north,take_cabbage(X15))))&![X16]:(p(north,north,south,north,X16)=>p(south,north,south,south,take_cabbage(X16))))&![X17]:(p(south,south,north,south,X17)=>p(north,south,north,north,take_cabbage(X17))))&![X18]:(p(north,south,north,north,X18)=>p(south,south,north,south,take_cabbage(X18))))=>?[X19]:p(north,north,north,north,X19)),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/PUZ/PUZ047+1.tptp', thm100)).
+% fof(2, negated_conjecture,~((((((((((((((((p(south,south,south,south,start)&![X1]:(p(south,north,south,north,X1)=>p(north,north,south,north,go_alone(X1))))&![X2]:(p(north,north,south,north,X2)=>p(south,north,south,north,go_alone(X2))))&![X3]:(p(south,south,north,south,X3)=>p(north,south,north,south,go_alone(X3))))&![X4]:(p(north,south,north,south,X4)=>p(south,south,north,south,go_alone(X4))))&![X5]:(p(south,south,south,north,X5)=>p(north,north,south,north,take_wolf(X5))))&![X6]:(p(north,north,south,north,X6)=>p(south,south,south,north,take_wolf(X6))))&![X7]:(p(south,south,north,south,X7)=>p(north,north,north,south,take_wolf(X7))))&![X8]:(p(north,north,north,south,X8)=>p(south,south,north,south,take_wolf(X8))))&![X9]:![X10]:![X11]:(p(south,X9,south,X10,X11)=>p(north,X9,north,X10,take_goat(X11))))&![X12]:![X13]:![X14]:(p(north,X12,north,X13,X14)=>p(south,X12,south,X13,take_goat(X14))))&![X15]:(p(south,north,south,south,X15)=>p(north,north,south,north,take_cabbage(X15))))&![X16]:(p(north,north,south,north,X16)=>p(south,north,south,south,take_cabbage(X16))))&![X17]:(p(south,south,north,south,X17)=>p(north,south,north,north,take_cabbage(X17))))&![X18]:(p(north,south,north,north,X18)=>p(south,south,north,south,take_cabbage(X18))))=>?[X19]:p(north,north,north,north,X19))),inference(assume_negation,[status(cth)],[1])).
+% fof(3, plain,(epred1_0=>((((((((((((((p(south,south,south,south,start)&![X1]:(p(south,north,south,north,X1)=>p(north,north,south,north,go_alone(X1))))&![X2]:(p(north,north,south,north,X2)=>p(south,north,south,north,go_alone(X2))))&![X3]:(p(south,south,north,south,X3)=>p(north,south,north,south,go_alone(X3))))&![X4]:(p(north,south,north,south,X4)=>p(south,south,north,south,go_alone(X4))))&![X5]:(p(south,south,south,north,X5)=>p(north,north,south,north,take_wolf(X5))))&![X6]:(p(north,north,south,north,X6)=>p(south,south,south,north,take_wolf(X6))))&![X7]:(p(south,south,north,south,X7)=>p(north,north,north,south,take_wolf(X7))))&![X8]:(p(north,north,north,south,X8)=>p(south,south,north,south,take_wolf(X8))))&![X9]:![X10]:![X11]:(p(south,X9,south,X10,X11)=>p(north,X9,north,X10,take_goat(X11))))&![X12]:![X13]:![X14]:(p(north,X12,north,X13,X14)=>p(south,X12,south,X13,take_goat(X14))))&![X15]:(p(south,north,south,south,X15)=>p(north,north,south,north,take_cabbage(X15))))&![X16]:(p(north,north,south,north,X16)=>p(south,north,south,south,take_cabbage(X16))))&![X17]:(p(south,south,north,south,X17)=>p(north,south,north,north,take_cabbage(X17))))&![X18]:(p(north,south,north,north,X18)=>p(south,south,north,south,take_cabbage(X18))))),introduced(definition)).
+% fof(4, negated_conjecture,~((epred1_0=>?[X19]:p(north,north,north,north,X19))),inference(apply_def,[status(sab)],[2,3,theory(equality)])).
+% fof(5, negated_conjecture,(epred1_0&![X19]:~(p(north,north,north,north,X19))),inference(fof_nnf,[status(thm)],[4])).
+% fof(6, negated_conjecture,(epred1_0&![X20]:~(p(north,north,north,north,X20))),inference(variable_rename,[status(thm)],[5])).
+% fof(7, negated_conjecture,![X20]:(~(p(north,north,north,north,X20))&epred1_0),inference(shift_quantors,[status(thm)],[6])).
+% cnf(8,negated_conjecture,(epred1_0),inference(split_conjunct,[status(thm)],[7])).
+% cnf(9,negated_conjecture,(~p(north,north,north,north,X1)),inference(split_conjunct,[status(thm)],[7])).
+% fof(10, plain,(~(epred1_0)|((((((((((((((p(south,south,south,south,start)&![X1]:(~(p(south,north,south,north,X1))|p(north,north,south,north,go_alone(X1))))&![X2]:(~(p(north,north,south,north,X2))|p(south,north,south,north,go_alone(X2))))&![X3]:(~(p(south,south,north,south,X3))|p(north,south,north,south,go_alone(X3))))&![X4]:(~(p(north,south,north,south,X4))|p(south,south,north,south,go_alone(X4))))&![X5]:(~(p(south,south,south,north,X5))|p(north,north,south,north,take_wolf(X5))))&![X6]:(~(p(north,north,south,north,X6))|p(south,south,south,north,take_wolf(X6))))&![X7]:(~(p(south,south,north,south,X7))|p(north,north,north,south,take_wolf(X7))))&![X8]:(~(p(north,north,north,south,X8))|p(south,south,north,south,take_wolf(X8))))&![X9]:![X10]:![X11]:(~(p(south,X9,south,X10,X11))|p(north,X9,north,X10,take_goat(X11))))&![X12]:![X13]:![X14]:(~(p(north,X12,north,X13,X14))|p(south,X12,south,X13,take_goat(X14))))&![X15]:(~(p(south,north,south,south,X15))|p(north,north,south,north,take_cabbage(X15))))&![X16]:(~(p(north,north,south,north,X16))|p(south,north,south,south,take_cabbage(X16))))&![X17]:(~(p(south,south,north,south,X17))|p(north,south,north,north,take_cabbage(X17))))&![X18]:(~(p(north,south,north,north,X18))|p(south,south,north,south,take_cabbage(X18))))),inference(fof_nnf,[status(thm)],[3])).
+% fof(11, plain,(~(epred1_0)|((((((((((((((p(south,south,south,south,start)&![X19]:(~(p(south,north,south,north,X19))|p(north,north,south,north,go_alone(X19))))&![X20]:(~(p(north,north,south,north,X20))|p(south,north,south,north,go_alone(X20))))&![X21]:(~(p(south,south,north,south,X21))|p(north,south,north,south,go_alone(X21))))&![X22]:(~(p(north,south,north,south,X22))|p(south,south,north,south,go_alone(X22))))&![X23]:(~(p(south,south,south,north,X23))|p(north,north,south,north,take_wolf(X23))))&![X24]:(~(p(north,north,south,north,X24))|p(south,south,south,north,take_wolf(X24))))&![X25]:(~(p(south,south,north,south,X25))|p(north,north,north,south,take_wolf(X25))))&![X26]:(~(p(north,north,north,south,X26))|p(south,south,north,south,take_wolf(X26))))&![X27]:![X28]:![X29]:(~(p(south,X27,south,X28,X29))|p(north,X27,north,X28,take_goat(X29))))&![X30]:![X31]:![X32]:(~(p(north,X30,north,X31,X32))|p(south,X30,south,X31,take_goat(X32))))&![X33]:(~(p(south,north,south,south,X33))|p(north,north,south,north,take_cabbage(X33))))&![X34]:(~(p(north,north,south,north,X34))|p(south,north,south,south,take_cabbage(X34))))&![X35]:(~(p(south,south,north,south,X35))|p(north,south,north,north,take_cabbage(X35))))&![X36]:(~(p(north,south,north,north,X36))|p(south,south,north,south,take_cabbage(X36))))),inference(variable_rename,[status(thm)],[10])).
+% fof(12, plain,![X19]:![X20]:![X21]:![X22]:![X23]:![X24]:![X25]:![X26]:![X27]:![X28]:![X29]:![X30]:![X31]:![X32]:![X33]:![X34]:![X35]:![X36]:(((~(p(north,south,north,north,X36))|p(south,south,north,south,take_cabbage(X36)))&((~(p(south,south,north,south,X35))|p(north,south,north,north,take_cabbage(X35)))&((~(p(north,north,south,north,X34))|p(south,north,south,south,take_cabbage(X34)))&((~(p(south,north,south,south,X33))|p(north,north,south,north,take_cabbage(X33)))&((~(p(north,X30,north,X31,X32))|p(south,X30,south,X31,take_goat(X32)))&((~(p(south,X27,south,X28,X29))|p(north,X27,north,X28,take_goat(X29)))&((~(p(north,north,north,south,X26))|p(south,south,north,south,take_wolf(X26)))&((~(p(south,south,north,south,X25))|p(north,north,north,south,take_wolf(X25)))&((~(p(north,north,south,north,X24))|p(south,south,south,north,take_wolf(X24)))&((~(p(south,south,south,north,X23))|p(north,north,south,north,take_wolf(X23)))&((~(p(north,south,north,south,X22))|p(south,south,north,south,go_alone(X22)))&((~(p(south,south,north,south,X21))|p(north,south,north,south,go_alone(X21)))&((~(p(north,north,south,north,X20))|p(south,north,south,north,go_alone(X20)))&((~(p(south,north,south,north,X19))|p(north,north,south,north,go_alone(X19)))&p(south,south,south,south,start)))))))))))))))|~(epred1_0)),inference(shift_quantors,[status(thm)],[11])).
+% fof(13, plain,![X19]:![X20]:![X21]:![X22]:![X23]:![X24]:![X25]:![X26]:![X27]:![X28]:![X29]:![X30]:![X31]:![X32]:![X33]:![X34]:![X35]:![X36]:(((~(p(north,south,north,north,X36))|p(south,south,north,south,take_cabbage(X36)))|~(epred1_0))&(((~(p(south,south,north,south,X35))|p(north,south,north,north,take_cabbage(X35)))|~(epred1_0))&(((~(p(north,north,south,north,X34))|p(south,north,south,south,take_cabbage(X34)))|~(epred1_0))&(((~(p(south,north,south,south,X33))|p(north,north,south,north,take_cabbage(X33)))|~(epred1_0))&(((~(p(north,X30,north,X31,X32))|p(south,X30,south,X31,take_goat(X32)))|~(epred1_0))&(((~(p(south,X27,south,X28,X29))|p(north,X27,north,X28,take_goat(X29)))|~(epred1_0))&(((~(p(north,north,north,south,X26))|p(south,south,north,south,take_wolf(X26)))|~(epred1_0))&(((~(p(south,south,north,south,X25))|p(north,north,north,south,take_wolf(X25)))|~(epred1_0))&(((~(p(north,north,south,north,X24))|p(south,south,south,north,take_wolf(X24)))|~(epred1_0))&(((~(p(south,south,south,north,X23))|p(north,north,south,north,take_wolf(X23)))|~(epred1_0))&(((~(p(north,south,north,south,X22))|p(south,south,north,south,go_alone(X22)))|~(epred1_0))&(((~(p(south,south,north,south,X21))|p(north,south,north,south,go_alone(X21)))|~(epred1_0))&(((~(p(north,north,south,north,X20))|p(south,north,south,north,go_alone(X20)))|~(epred1_0))&(((~(p(south,north,south,north,X19))|p(north,north,south,north,go_alone(X19)))|~(epred1_0))&(p(south,south,south,south,start)|~(epred1_0)))))))))))))))),inference(distribute,[status(thm)],[12])).
+% cnf(14,plain,(p(south,south,south,south,start)|~epred1_0),inference(split_conjunct,[status(thm)],[13])).
+% cnf(16,plain,(p(south,north,south,north,go_alone(X1))|~epred1_0|~p(north,north,south,north,X1)),inference(split_conjunct,[status(thm)],[13])).
+% cnf(18,plain,(p(south,south,north,south,go_alone(X1))|~epred1_0|~p(north,south,north,south,X1)),inference(split_conjunct,[status(thm)],[13])).
+% cnf(19,plain,(p(north,north,south,north,take_wolf(X1))|~epred1_0|~p(south,south,south,north,X1)),inference(split_conjunct,[status(thm)],[13])).
+% cnf(23,plain,(p(north,X1,north,X2,take_goat(X3))|~epred1_0|~p(south,X1,south,X2,X3)),inference(split_conjunct,[status(thm)],[13])).
+% cnf(24,plain,(p(south,X1,south,X2,take_goat(X3))|~epred1_0|~p(north,X1,north,X2,X3)),inference(split_conjunct,[status(thm)],[13])).
+% cnf(27,plain,(p(north,south,north,north,take_cabbage(X1))|~epred1_0|~p(south,south,north,south,X1)),inference(split_conjunct,[status(thm)],[13])).
+% cnf(29,plain,(p(south,south,south,south,start)|$false),inference(rw,[status(thm)],[14,8,theory(equality)])).
+% cnf(30,plain,(p(south,south,south,south,start)),inference(cn,[status(thm)],[29,theory(equality)])).
+% cnf(31,plain,(p(south,X1,south,X2,take_goat(X3))|$false|~p(north,X1,north,X2,X3)),inference(rw,[status(thm)],[24,8,theory(equality)])).
+% cnf(32,plain,(p(south,X1,south,X2,take_goat(X3))|~p(north,X1,north,X2,X3)),inference(cn,[status(thm)],[31,theory(equality)])).
+% cnf(33,plain,(p(south,north,south,north,go_alone(X1))|$false|~p(north,north,south,north,X1)),inference(rw,[status(thm)],[16,8,theory(equality)])).
+% cnf(34,plain,(p(south,north,south,north,go_alone(X1))|~p(north,north,south,north,X1)),inference(cn,[status(thm)],[33,theory(equality)])).
+% cnf(39,plain,(p(south,south,north,south,go_alone(X1))|$false|~p(north,south,north,south,X1)),inference(rw,[status(thm)],[18,8,theory(equality)])).
+% cnf(40,plain,(p(south,south,north,south,go_alone(X1))|~p(north,south,north,south,X1)),inference(cn,[status(thm)],[39,theory(equality)])).
+% cnf(43,plain,(p(north,X1,north,X2,take_goat(X3))|$false|~p(south,X1,south,X2,X3)),inference(rw,[status(thm)],[23,8,theory(equality)])).
+% cnf(44,plain,(p(north,X1,north,X2,take_goat(X3))|~p(south,X1,south,X2,X3)),inference(cn,[status(thm)],[43,theory(equality)])).
+% cnf(45,plain,(~p(south,north,south,north,X1)),inference(spm,[status(thm)],[9,44,theory(equality)])).
+% cnf(50,plain,(p(north,south,north,north,take_cabbage(X1))|$false|~p(south,south,north,south,X1)),inference(rw,[status(thm)],[27,8,theory(equality)])).
+% cnf(51,plain,(p(north,south,north,north,take_cabbage(X1))|~p(south,south,north,south,X1)),inference(cn,[status(thm)],[50,theory(equality)])).
+% cnf(52,plain,(p(north,north,south,north,take_wolf(X1))|$false|~p(south,south,south,north,X1)),inference(rw,[status(thm)],[19,8,theory(equality)])).
+% cnf(53,plain,(p(north,north,south,north,take_wolf(X1))|~p(south,south,south,north,X1)),inference(cn,[status(thm)],[52,theory(equality)])).
+% cnf(61,plain,(~p(north,north,south,north,X1)),inference(spm,[status(thm)],[45,34,theory(equality)])).
+% cnf(63,plain,(~p(south,south,south,north,X1)),inference(spm,[status(thm)],[61,53,theory(equality)])).
+% cnf(65,plain,(~p(north,south,north,north,X1)),inference(spm,[status(thm)],[63,32,theory(equality)])).
+% cnf(68,plain,(~p(south,south,north,south,X1)),inference(spm,[status(thm)],[65,51,theory(equality)])).
+% cnf(71,plain,(~p(north,south,north,south,X1)),inference(spm,[status(thm)],[68,40,theory(equality)])).
+% cnf(76,plain,(~p(south,south,south,south,X1)),inference(spm,[status(thm)],[71,44,theory(equality)])).
+% cnf(79,plain,($false),inference(sr,[status(thm)],[30,76,theory(equality)])).
+% cnf(80,plain,($false),79,['proof']).
+% # Proof object ends here.
+% # ...subsumed                          : 9
+% # ...remaining for further processing  : 26
+% # Other redundant clauses eliminated   : 0
+% # Clauses deleted for lack of memory   : 0
+% # Backward-subsumed                    : 0
+% # Backward-rewritten                   : 0
+% # Generated clauses                    : 21
+% # ...of the previous two non-trivial   : 19
+% # Contextual simplify-reflections      : 0
+% # Paramodulations                      : 20
+% # Factorizations                       : 0
+% # Equation resolutions                 : 0
+% # Current number of processed clauses  : 25
+% #    Positive orientable unit clauses  : 1
+% #    Positive unorientable unit clauses: 0
+% #    Negative unit clauses             : 10
+% #    Non-unit-clauses                  : 14
+% # Current number of unprocessed clauses: 1
+% # ...number of literals in the above   : 1
+% # Clause-clause subsumption calls (NU) : 8
+% # Rec. Clause-clause subsumption calls : 8
+% # Unit Clause-clause subsumption calls : 41
+% # Rewrite failures with RHS unbound    : 0
+% 
+% # -------------------------------------------------
+% # User time                : 0.011 s
+% # System time              : 0.003 s
+% # Total time               : 0.014 s
+% # Maximum resident set size: 0 pages
+% 
+%------------------------------------------------------------------------------

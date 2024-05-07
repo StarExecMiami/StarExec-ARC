@@ -1,0 +1,58 @@
+#!/bin/tcsh
+
+setenv HERE `dirname $0`
+setenv TEMPDIR `mktemp -d`
+setenv PROBLEMFILE $TEMPDIR/E---3.1_$$.p
+setenv SOLUTIONFILE $TEMPDIR/E---3.1_$$.s
+onintr cleanup
+
+#----Add extra ()s for THF and TXF
+$HERE/tptp4X -t uniquenames4 -x $1 > $PROBLEMFILE
+
+set SPCLine=`grep -E "^% SPC " $PROBLEMFILE`
+if ("$SPCLine" != "") then
+    set ProblemSPC = `expr "$SPCLine" : "^% SPC  *: *\([^ ]*\)"`
+else
+    set ProblemSPC = `$HERE/SPCForProblem $PROBLEMFILE`
+endif
+set Mode = $3
+
+if (`expr "$ProblemSPC" : "TH1_.*"` || \
+    `expr "$ProblemSPC" : "TX1_.*"` || \
+    `expr "$ProblemSPC" : "TF1_.*"`) then
+    echo "Cannot process polymorphic problems yet"
+    echo % SZS status Inappropriate
+    exit
+endif
+
+if ("$Mode" == "SLH") then
+    echo -n "Running higher-order SLH theorem proving"
+    set Command = "$HERE/eprover-ho --delete-bad-limit=2000000000 --definitional-cnf=24 -s --print-statistics -R --print-version --proof-object --auto-schedule=1 --cpu-limit=$2 $PROBLEMFILE"
+else
+    if ("$Mode" == "THM") then
+        if (`expr "$ProblemSPC" : "TH0_.*"`) then
+            echo "Running higher-order theorem proving"
+            set Command = "$HERE/eprover-ho --delete-bad-limit=2000000000 --definitional-cnf=24 -s --print-statistics -R --print-version --proof-object --auto-schedule=8 --cpu-limit=$2 $PROBLEMFILE"
+        else
+            echo "Running first-order theorem proving"
+            set Command = "$HERE/eprover --delete-bad-limit=2000000000 --definitional-cnf=24 -s --print-statistics -R --print-version --proof-object --auto-schedule=8 --cpu-limit=$2 $PROBLEMFILE"
+        endif
+    else 
+        echo "Running first-order model finding"
+        set Command = "$HERE/eprover --delete-bad-limit=2000000000 --definitional-cnf=24 -s --print-statistics -R --print-version --proof-object --satauto-schedule=8 --cpu-limit=$2 $PROBLEMFILE"
+#----Stephan suggested ... Just grep for "['final']". Or don’t use --proof-object, use 
+#----"--print-saturated". ... but the latter still prints other stuff.
+    endif
+endif
+
+echo "Running: $Command"
+$Command > $SOLUTIONFILE
+if (`grep -c -m1 'SZS output start Saturation' $SOLUTIONFILE`) then
+    grep -E '^#|^%|^ *$|final' $SOLUTIONFILE
+else
+    cat $SOLUTIONFILE
+endif
+
+cleanup:
+    echo "% E---3.1 exiting"
+    rm -rf $TEMPDIR

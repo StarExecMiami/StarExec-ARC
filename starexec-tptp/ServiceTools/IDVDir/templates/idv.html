@@ -1,0 +1,136 @@
+{% extends "layout.html" %}
+
+{% block content %}
+	<link href="/idv/static/css/three-dots.css" rel="stylesheet">
+
+	<script src="https://d3js.org/d3.v6.min.js"></script>
+	<script src="https://unpkg.com/@hpcc-js/wasm@1.20.1/dist/index.js" type="text/javascript"></script>
+	<script type="javascript/worker" src="https://unpkg.com/viz.js@2.0.0/viz.js"></script>
+	<script src="https://unpkg.com/d3-graphviz@4.4.0/build/d3-graphviz.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+
+	<div id="loadingSymbol">
+		<div id="loadingText" style="position:relative; font-weight:bold;">Loading...</div>
+		<div class="dot-revolution" style="margin-left: 50%;margin-top:40px;"></div>
+	</div>
+
+	<div id="settings" class="box">
+		<h1 class="settingsHeader" onclick="collapseBox(this)">Settings/Tools <span class="triangle"></span></h1>
+		<div class="collapsable" style="height:0px;">
+			<div id="nodeInfoContainer" class="box">
+				<h2 class="settingsHeader" onclick="collapseBox(this)">Node Information <span class="triangle"></span></h2>
+				<div class="collapsable" id="nodeInfo" style="height:0px">
+						<h3><i>Hover over a node to see info about it here!</i></h3>
+				</div>
+			</div>
+			<div id="interestingnessOptions" class="box">
+				<h2 class="settingsHeader" onclick="collapseBox(this)">Show/Hide Nodes <span class="triangle"></span></h2>
+				<div class="collapsable" style="height:0px;">
+					<hr>
+					<button onclick="getInterest()">Compute interestingness for FOF/CNF derivations</button>
+
+					<button  class="interestHidden" id="interestScaleToggle" onclick="toggleInterestScaling()">Enable interestingness scaling</button>
+					<hr>
+		
+					<h3 class="interestHidden" >Blacken boring nodes:</h3>
+					<input type="range" class="mySlider interestHidden" name="interestingnessSlider" id="interestingnessSlider" oninput="recolorNodesByInterest()" min="-1.1" max="1.1" step="0.01" value="-1.1">
+					<hr class="interestHidden" >
+					<button onclick="toggleConjectureVisible(this)" id="hideConjNodesButton">Blacken non-lemmas</button>
+					<button onclick="redrawNodesByInterest()">Remove black nodes</button>
+					<button onclick="resetGraph()">Reset</button>
+
+				</div>
+			</div>
+
+			<div id="about" class="box">
+				<h2 class="settingsHeader" onclick="collapseBox(this)">About<span class="triangle"></span></h2>
+				<div class="collapsable" style="height:0px; font-size:12pt">
+					<hr>
+					<ul>
+						<li>The Interactive Derivation Viewer (IDV) <br>was written at the <a href="https://miami.edu">University of Miami.</a></li>
+						<li>Steven Trac wrote the original IDV as a Java applet.</li>
+						<li>Joe Masterjohn started the conversion to a web app.</li>
+						<li>Jack McKeown finished the conversion and deployment.</li>
+						<li>Jack McKeown adapted it for viewing intepretations.</li>
+					</ul>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<div id="graph" style="text-align: center; width:100%;height:100%; border-left:1px solid black;"></div>
+
+
+
+
+	<div style="display:none">
+		<p id="proofText">{{proof_string}}</p>
+	</div>
+
+
+
+	<script src="/idv/static/js/bundle.js"></script>
+	<script>
+		window.interestScalingBool = false;
+		window.interpretation = {{interpretation}};
+
+		function removeTooltips(){
+			
+			// Remove all title tags beneath svg tags to remove tooltips
+			let keys = Array.from(document.querySelectorAll("g.node title")).map(x => x.innerHTML);
+			let titles = Array.from(document.querySelectorAll("svg title"))
+
+			// We might have to try again if the graph isn't loaded yet
+			if (keys.length < Object.keys(window.proof).length){
+				setTimeout(removeTooltips, 500);
+				return;
+			}
+
+			console.log(`Removing ${titles.length} titles (${keys.length} nodes + edges)`);
+
+			titles.forEach(function(x){x.remove()})
+
+
+			// Since titles have been removed and SVG texts 
+			// no longer link back to the global proof object,
+			// we need to somehow have that data available on hover.
+			let nodes = Array.from(document.querySelectorAll("g.node text"))
+			nodes.forEach(function(x,i){
+				x.setAttribute("proofKey", keys[i]);
+			});
+		}
+
+	
+		if (window.interpretation){
+			document.querySelector("#interestingnessOptions").hidden = true;
+		}
+	
+		function show_original_graph(){
+			setTimeout(function(){
+				window.proofText = document.getElementById("proofText").innerText;
+				window.originalProof = parseProof(proofText);
+				window.proof = JSON.parse(JSON.stringify(originalProof));
+	
+				assignInterestingnessToHeightAndWidth();
+				showGV(proofToGV(proof));
+				if (window.interpretation) {
+					removeTooltips();
+				}
+	
+				// Weird Hacks for initializing gui
+				document.querySelector("#settings").children[0].click();
+                		setTimeout(()=>document.querySelector("#nodeInfoContainer > .settingsHeader").click(),500);
+			}, 200);
+		}
+
+
+		if (window.addEventListener) // W3C standard
+			window.addEventListener('load', show_original_graph, false);
+		else if (window.attachEvent) // Microsoft
+			window.attachEvent('onload', show_original_graph);
+
+	</script>
+
+{% endblock %}

@@ -1,0 +1,12 @@
+<HTML>
+
+<SCRIPT language="JavaScript">
+function newwindow() {
+  window.open('testApplet1.html','mywindow','width=400,height=200');
+}
+</SCRIPT>
+
+
+
+</HTML>
+

@@ -1,0 +1,27 @@
+list(axiom).
+
+% charles, hypothesis.
+ lives(charles).
+
+% poorer_killer, hypothesis.
+-killed(X, Y) |
+-richer(X, Y).
+
+% killer_hates_victim, hypothesis.
+-killed(X, Y) |
+ X != Y.
+
+% butler_hates_poor, hypothesis.
+-lives(X) |
+ richer(X, agatha+agatha) |
+ hates(butler, X).
+
+end_of_list.
+list(negated_conjecture).
+% prove_neither_charles_nor_butler_did_it, negated_conjecture.
+ killed(butler, agatha) |
+ killed(charles, agatha).
+
+end_of_list.
+
+%------------------------------------------------------------------------------

@@ -1,0 +1,5 @@
+setenv SZS_Proof Theorem
+setenv SZS_Axiom_Check_2 Satisfiable
+setenv SZS_Satisfiability_AllFile Theorem
+setenv SZS_Satisfiability Satisfiable
+setenv SZS_Scheduling Theorem

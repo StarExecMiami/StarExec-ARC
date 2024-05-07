@@ -1,0 +1,45 @@
+%------------------------------------------------------------------------------
+% File       : Vampire---8.0
+% Problem    : NUM001-1 : TPTP v1.0.0
+% Transform  : stdfof
+% Format     : tptp
+% Command    : vampire --mode casc -t %d %s
+
+% Computer   : art06.cs.miami.edu
+% Model      : i686 unknown
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2793MHz
+% Memory     : 1000MB
+% OS         : Linux 2.4.22-21mdk-i686-up-4GB
+% CPULimit   : 600s
+
+% Result     : Unsatisfiable 0.0s
+% Output     : Refutation 0.0s
+% Statistics : Number of clauses     :   32 (  68 expanded)
+%              Depth                 :    8
+%              Number of atoms       :   61 ( 146 expanded)
+%              Maximal clause size   :    3 (   2 average)
+%              Maximal term depth    :    4 (   2 average)
+% Verified   : 
+
+% Comments   : 
+%------------------------------------------------------------------------------
+%----TSTP SOLUTION
+% [1, input]   equalish(subtract(add(X0,X1),X1),X0)
+cnf(1,hypothesis,
+    ( equalish(subtract(add(X0,X1),X1),X0) ),
+    file('NUM001-1.p',unknown),
+    [ancestors(11,37),obviousness(0.00),complexity(1.00),intensity(0.75),surprisingness(0.98),adaptivity(0.25),focus(1.00),weight(1.00),usefulness(0.96),interesting(1.00),iteration(1)]).
+
+% [11, input]   ~equalish(X0,X1) \/ ~equalish(X1,X2) \/ equalish(X0,X2)
+cnf(11,lemma,
+    ( ~equalish(X0,X1) | ~equalish(X1,X2) | equalish(X0,X2) ),
+    file('NUM001-1.p',unknown),
+    ['final',ancestors(1,2,5,6,7,8,11,14,16,17,19,20,21,22),obviousness(0.97),complexity(0.75),intensity(0.95),surprisingness(0.89),adaptivity(0.00),focus(ignored),weight(0.80),usefulness(0.69),interesting(0.98),iteration(0)]).
+
+
+% [11,1->28, resolution]     equalish(subtract(X1,X2),subtract(X3,X2)) \/ ~equalish(X1,X3)
+cnf(28,derived,
+    ( $false ),
+    inference(resolution,[status(thm)],[1,11]),
+    [iquote('[11,1->28, resolution]'),'final',ancestors(11,14),obviousness(0.25),complexity(0.75),intensity(0.38),surprisingness(0.84),adaptivity(1.00),focus(1.00),weight(0.75),usefulness(0.68),interesting(0.93),iteration(1)]).
+

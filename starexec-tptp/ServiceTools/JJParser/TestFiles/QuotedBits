@@ -1,0 +1,7 @@
+fof(freddy,axiom,
+    ( ! [X,Y] : 
+        ( q(X)
+       => ( ~ p1(X)
+          & (f(X,"cat") = X => X != 'god')
+          & ($false | $true)
+          & p2(X,f(X,"a\"quo\\ted\"b",g('it\'s owed'))) ) ) )).

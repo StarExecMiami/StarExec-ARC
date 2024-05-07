@@ -1,0 +1,8 @@
+% 2 [] -Killer(x)|Hates(x,Agatha).
+cnf(2,axiom,
+	( ~ killer(X)
+	| hates(X,agatha) ),
+	file('/C:/DOCUME~1/practica/CONFIG~1/Temp/proof12582otter',butler),
+
+	[]).
+

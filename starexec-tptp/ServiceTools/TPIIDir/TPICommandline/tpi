@@ -1,0 +1,1416 @@
+#!/usr/bin/perl -w
+
+use File::Copy;
+use File::Path;
+use Env; 
+
+my $TPI_DBFILE = 'DB_File';
+my $TPI_ENV = 'ENV_VARS';
+my $TPI_PIDS = 'PIDS';
+my $SystemOnTPTP = "$ENV{TPTP_HOME}/SystemExecution/SystemOnTPTP";
+my $QuietFlagSet = "false";
+my $QuietFlagValue;
+my $GlobalPID = $$;
+
+#Read environment variables
+if (-e $TPI_ENV) {
+    my @vars_from_file;
+    open (VARS, "< $TPI_ENV") or die("Unable to open $TPI_ENV");
+    while(<VARS>) {
+        @vars_from_file = split(' ', $_);
+        if (defined $ENV{$vars_from_file[1]}) {
+#DEBUG print $vars_from_file[1] . "\n";
+            my $filetmp = "$TPI_ENV.tmp";
+            system("echo -e setenv '$vars_from_file[1]' '$ENV{$vars_from_file[1]}' >> $TPI_ENV");
+            open (ENV_VARS, "< $TPI_ENV") or die("Unable to open $TPI_ENV");
+            open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+            while (<ENV_VARS>) {
+                if (not/setenv $vars_from_file[1] /) {
+                    print TMP $_;
+                }
+            }
+            close(ENV_VARS);
+            close(TMP);
+            rename $filetmp, $TPI_ENV;
+            system("echo -e setenv '$vars_from_file[1]' '$ENV{$vars_from_file[1]}' >> $TPI_ENV");
+        } else {
+            $ENV{$vars_from_file[1]} = $vars_from_file[2];
+        }
+    }
+    close(VARS);
+}
+
+#Replace $getenv with the appropriate environment variables and check for the Quiet flag
+my $tpi_var_index;
+for ($tpi_var_index = 0; $tpi_var_index < scalar @ARGV; $tpi_var_index++) {
+    if ($ARGV[$tpi_var_index] =~ /\$getenv\(([A-Za-z_][A-Za-z0-9_]+)\)/) {
+        if (defined $ENV{$1}) {
+            $ARGV[$tpi_var_index] =~ s/\$getenv\(([A-Za-z_][A-Za-z0-9_]+)\)/$ENV{$1}/;
+        }
+    }
+    if ($ARGV[$tpi_var_index] =~ /-q([0-2])/) {
+        $QuietFlagValue = $1;
+        $QuietFlagSet = "true";
+        splice @ARGV, $tpi_var_index, 1;
+    } 
+}
+
+
+if ($ARGV[0] eq 'input') {
+    &input;
+} elsif ($ARGV[0] eq 'output') {
+        &output;
+} elsif ($ARGV[0] eq 'delete') {
+        &delete;
+} elsif ($ARGV[0] eq 'start_group') { 
+        &start_group;   
+} elsif ($ARGV[0] eq 'end_group') {
+        &end_group;
+} elsif ($ARGV[0] eq 'input_formula') {
+        &input_formula;
+} elsif ($ARGV[0] eq 'delete_group') {
+        &delete_group;
+} elsif ($ARGV[0] eq 'execute' || $ARGV[0] =~ /execute\(([A-Za-z,]+)\)/) {
+        &execute;
+} elsif ($ARGV[0] eq 'execute_async' || $ARGV[0] =~ /execute_async\(([A-Za-z,]+)\)/) {
+        &execute_async;
+} elsif ($ARGV[0] eq 'setenv') {
+        &setenv;
+} elsif ($ARGV[0] eq 'unsetenv') {
+        &unsetenv;
+} elsif ($ARGV[0] eq 'waitenv') {
+        &waitenv;
+} elsif ($ARGV[0] eq 'mktemp') {
+        &mktemp;
+} elsif ($ARGV[0] eq 'filter') {
+        &filter;
+} elsif ($ARGV[0] eq 'generate') {
+        &generate;
+} elsif ($ARGV[0] eq 'write') {
+        &write;
+} elsif ($ARGV[0] eq 'assert') {
+        &assert;
+} elsif ($ARGV[0] eq 'exit') {
+         &exit;
+} elsif ($ARGV[0] eq 'clear_DBFile') {
+        &clear_DBFile;
+} elsif ($ARGV[0] eq 'deactivate_group') {
+            &deactivate_group;
+} elsif ($ARGV[0] eq 'activate_group') {
+            &activate_group;
+} elsif ($ARGV[0] eq 'deactivate') {
+            &deactivate;
+} elsif ($ARGV[0] eq 'activate') {
+            &activate;
+} elsif ($ARGV[0] eq 'set_role') {
+        &set_role;
+}
+
+sub input
+{
+        my $AxiomInput;
+        my $Input_Temp = 'DB_File_Input_Temp';
+
+        #Replace $getargv with the appropriate command line arguments
+        for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+        {
+                if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                {
+                        $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[2+$1]/;
+                }
+        }
+
+        open (OUTPUT, "> $Input_Temp") or die("Unable to open $Input_Temp");
+        if (defined $ARGV[2] and $ARGV[2] eq '=')
+        {
+                open (INPUTFILE, "< $ARGV[3]") or die("Unable to open $ARGV[3]");
+                print OUTPUT "%TPI start_group: $ARGV[1]" . "\n";
+                while(<INPUTFILE>)
+                {
+                if(/include\(\'([A-Za-z0-9_\+\^\.\/\=\-]+)\'\)\./)
+                        {
+                                open (AXIOMFILE, "< $ENV{TPTP_HOME}/TPTP/$1") or die("Unable to open $ENV{TPTP_HOME}/TPTP/$1");
+                                while(!eof(AXIOMFILE))
+                                {
+                                        $AxiomInput = <AXIOMFILE>;
+                                        print OUTPUT $AxiomInput;
+                                }
+                                close(AXIOMFILE);
+                        }
+                        else
+                        {
+                                print OUTPUT $_;
+                        }
+                }
+                print OUTPUT "%TPI end_group: $ARGV[1]" . "\n";
+        }
+        else 
+        {
+                open (INPUTFILE, "< $ARGV[1]") or die("Unable to open $ARGV[1]");
+                print OUTPUT "%TPI start_group: tpi_premises" . "\n";
+                while(<INPUTFILE>)
+                {
+                        if(/include\(\'([A-Za-z0-9_\+\^\.\/\=\-]+)\'\)\./)
+                        {
+                                open (AXIOMFILE, "< $ENV{TPTP_HOME}/TPTP/$1") or die("Unable to open $ENV{TPTP_HOME}/TPTP/$1");
+                                while(!eof(AXIOMFILE))
+                                {
+                                        $AxiomInput = <AXIOMFILE>;
+                                        print OUTPUT $AxiomInput;
+                                }
+                                close(AXIOMFILE);
+                        }
+                        elsif(/conjecture/)
+                        {
+                                print OUTPUT "%TPI end_group: tpi_premises" . "\n";
+                                print OUTPUT "%TPI start_group: tpi_conjectures" . "\n";
+                                print OUTPUT $_;
+                                while(!($_ =~/\)\.\s*/))
+                                {
+                                        $_ = <INPUTFILE>;
+                                        print OUTPUT $_;
+                                }
+                                print OUTPUT "%TPI end_group: tpi_conjectures" . "\n";
+                                print OUTPUT "%TPI start_group: tpi_premises" . "\n";
+                        }
+                        else
+                        {
+                                print OUTPUT $_;
+                        }
+                }
+                print OUTPUT "%TPI end_group: tpi_premises" . "\n";
+        }       
+        close(INPUTFILE);
+        close(OUTPUT);
+        system("cat $Input_Temp >> $TPI_DBFILE"); 
+        system("rm $Input_Temp");
+}
+
+sub output
+{
+        #Replace $getargv with the appropriate command line arguments
+        for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+        {
+                if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                {
+                        $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[2+$1]/;
+                }
+        }   
+
+        if (defined $ARGV[2] and $ARGV[2] eq '=')
+        {
+                my $filetmp = 'tmpOutputFile.txt';
+                my $found_group = 'false';              
+                open (AXIOMS, "< $TPI_DBFILE") or die("Unable to open $TPI_DBFILE");
+                open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+                while(<AXIOMS>)
+                {                        
+                        if(/\%TPI start_group: $ARGV[3]/)
+                        {
+                                $found_group = 'true';
+                        }
+                        elsif(/\%TPI end_group: $ARGV[3]/)
+                        {
+                                print TMP $_;
+                                $found_group = 'false';
+                        }
+                        if($found_group eq 'true')
+                        {
+                                print TMP $_;
+                        }
+                }
+                close(AXIOMS);
+                close(TMP);
+                if ($ARGV[1] eq 'stdout')
+                {
+                        copy($filetmp,\*STDOUT);
+                }
+                else
+                {
+                        system("cat $filetmp >> $ARGV[1]");
+                }
+                system("rm $filetmp");
+        }
+        else
+        {
+                if ($ARGV[1] eq 'stdout')
+                {
+                        copy($TPI_DBFILE,\*STDOUT);
+                }
+                else
+                {
+                        system("cat $TPI_DBFILE >> $ARGV[1]");
+                }
+        }        
+}
+
+sub delete
+{
+        #Replace $getargv with the appropriate command line arguments
+        for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+        {
+                if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                {
+                        $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[2+$1]/;
+                }
+        }   
+
+        my $file = $TPI_DBFILE; 
+        my $filetmp = "$TPI_DBFILE.tmp"; 
+        open (INPUT, "< $file") or die("Unable to open $file"); 
+        open (TMP, "> $filetmp") or die("Unable to open $filetmp"); 
+        while(<INPUT>)
+        { 
+                    if(/^s*[a-z]{3}\($ARGV[1],/)
+                {
+                        while(<INPUT>)
+                        {
+                                if(/\)\.\s*$/)
+                                {
+                                        last;
+                                }
+                        }
+                        $_ = <INPUT>;
+                    } 
+                    print TMP $_; 
+        } 
+        close(INPUT); 
+        close(TMP); 
+        rename $filetmp, $file;
+} 
+
+sub start_group
+{ 
+        #Replace $getargv with the appropriate command line arguments
+        for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+        {
+                if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                {
+                        $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[2+$1]/;
+                }
+        }
+
+        system("echo %TPI start_group: $ARGV[1] >> $TPI_DBFILE");   
+}
+
+sub end_group
+{
+        #Replace $getargv with the appropriate command line arguments
+        for (my $tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+        {
+                if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                {
+                        $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[2+$1]/;
+                }
+        }
+
+        system("echo %TPI end_group: $ARGV[1] >> $TPI_DBFILE");
+}
+
+sub input_formula
+{
+        if (defined $ARGV[1])
+        {
+                system("echo '$ARGV[1]' >> $TPI_DBFILE");
+        }
+        else
+        {
+                my $formula =  <STDIN>;
+                chomp ($formula);
+                system("echo '$formula' >> $TPI_DBFILE");
+                while(!($formula =~/\)\.\s*/))
+                {
+                        $formula =  <STDIN>;
+                        chomp ($formula);
+                        system("echo '$formula' >> $TPI_DBFILE");
+                }
+        }
+}
+
+sub delete_group
+{
+        #Replace $getargv with the appropriate command line arguments
+        for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+        {
+                if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                {
+                        $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[2+$1]/;
+                }
+        }
+        if($ARGV[1] eq 'tpi')
+        {
+                my $tmpOutput = "$TPI_DBFILE.tmp";
+                open (OUTPUT, "> $tmpOutput") or die("Unable to open $tmpOutput");
+                close(OUTPUT);
+                rename $tmpOutput, $TPI_DBFILE;
+                return;
+        }
+        my $file = $TPI_DBFILE;
+        my $filetmp = "$TPI_DBFILE.tmp";
+        open (INPUT, "< $file") or die("Unable to open $file");
+        open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+        while(<INPUT>)
+        {
+                if(/%TPI start_group: $ARGV[1]/)
+                {
+                        while(<INPUT>)
+                        {
+                                if(/%TPI end_group: $ARGV[1]/)
+                                {
+                                        last;
+                                }
+                        }
+                        $_ = <INPUT>;
+                }
+                print TMP $_;
+        }
+        close(INPUT);
+        close(TMP);
+        rename $filetmp, $file;
+}
+
+sub execute
+{
+        my $env_var_name;
+        my $var_to_edit;
+        my $getgroupsUsed = 'false';
+        my $getgroupsCount = 0;
+        if (defined $ARGV[2] and $ARGV[2] eq '=')
+        {
+                #Replace $getargv with the appropriate command line arguments
+                for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+                {
+                        if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                        {
+                                $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[4+$1]/;
+                        }
+                }
+
+                $env_var_name = $ARGV[1];
+                $var_to_edit = $ARGV[3];
+        }
+        else
+        {
+                #Replace $getargv with the appropriate command line arguments
+                for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+                {
+                        if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                        {
+                                $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[2+$1]/;
+                        }
+                }   
+
+                $env_var_name = 'SZS';
+                $var_to_edit = $ARGV[1];
+        }
+        
+        #------------------------------------------------------Generic Control-------------------------------
+        
+        if($ARGV[0] =~ /execute\(([A-Za-z,]+)\)/)
+        {
+                my @controlParams;
+                my $flagstoBeAdded = "";
+                my $BackwardSelected = 'false';
+                @controlParams = split(',', $1);
+                foreach my $param (@controlParams)
+                {
+                        if($var_to_edit =~ /eprover/)
+                        {
+                                if($param eq "Backward")
+                                {
+                                        $BackwardSelected = 'true';
+                                        $flagstoBeAdded =  $flagstoBeAdded . "-H'(1*ConjectureRelativeSymbolWeight(SimulateSOS,0.5, 100, 100, 100, 100, 1.5, 1.5, 1),4*ConjectureRelativeSymbolWeight(SimulateSOS,0.1, 100, 100, 100, 100, 1.5, 1.5, 1.5),1*FIFOWeight(SimulateSOS),1*ConjectureRelativeSymbolWeight(SimulateSOS,0.5, 100, 100, 100, 100, 1.5, 1.5, 1),4*Refinedweight(SimulateSOS,3,2,2,1.5,2))' --assume-incompleteness --sos-uses-input-types ";
+                                } 
+                                if($param eq "AxSelect")
+                                {
+                                        $flagstoBeAdded =  $flagstoBeAdded . "--sine=Auto ";
+                                }
+                                if($param eq "NoAxSelect")
+                                {
+                                        $var_to_edit =~ s/--auto//;
+                                        $flagstoBeAdded =  $flagstoBeAdded . "--satauto ";
+                                }
+                                if($param eq "NoProof")
+                               {
+                                        $var_to_edit =~ s/--proof-object//;
+                                        $flagstoBeAdded =  $flagstoBeAdded . "-s ";
+                               }
+                               if($param eq "Proof")
+                               {
+                                       $var_to_edit =~ s/-s//;
+                                       $var_to_edit =~ s/--silent//;
+                                       $var_to_edit =~ s/--output-level=0//;
+                               }
+                        }
+                        if($var_to_edit =~ /iprover/)
+                        {
+                                if($param eq "Backward")
+                                {
+                                        $flagstoBeAdded =  $flagstoBeAdded . "--inst_lit_sel \"[+sign;+ground;-num_var;-num_symb]\" --res_lit_sel kbo_max ";
+                                }
+                                if($param eq "Forward")
+                                {
+                                        $flagstoBeAdded =  $flagstoBeAdded . "--inst_lit_sel \"[-sign;+ground;-num_var;-num_symb]\" --res_lit_sel adaptive ";
+                                }
+                        }
+                }
+                if($var_to_edit =~ /eprover/)
+                {
+                        $var_to_edit =~ s/eprover/eprover $flagstoBeAdded/;                 
+                        if($BackwardSelected eq 'true')
+                         {
+                                 $var_to_edit =~ s/--auto//;
+                                 $var_to_edit =~ s/--satauto//;
+                         }
+                }           
+                if($var_to_edit =~ /iprover/)
+                {
+                        $var_to_edit =~ s/iproveropt/iproveropt $flagstoBeAdded/;     
+                }                       
+        }       
+        #------------------------------------------------------Generic Control-------------------------------
+
+        if($var_to_edit =~ /\%s/)
+        {
+                $var_to_edit =~ s/\%s/$TPI_DBFILE/;
+        }
+        elsif($var_to_edit =~ /\$getgroups\(tpi\)/)
+        {
+                $var_to_edit =~ s/\$getgroups\(tpi\)/$TPI_DBFILE/;
+        }
+        elsif($var_to_edit =~ /\$getgroups\(([A-Za-z_,][A-Za-z0-9_,]+)\)/)
+        {
+                $_ = $var_to_edit;
+                $getgroupsUsed = 'true';
+                my @groups_list;
+                while(/\$getgroups\(([A-Za-z_,][A-Za-z0-9_,]+)\)/g)
+                {
+                        $groups_list[$getgroupsCount] = $+;
+                        $getgroupsCount = $getgroupsCount + 1;
+                        $var_to_edit =~ s/\$getgroups\($+\)/$TPI_DBFILE$getgroupsCount.$GlobalPID.tmp/;
+                }
+                my $index;
+                my $found_group;
+                my $filetmp;
+                my @groups;
+                for($index = 1; $index <= $getgroupsCount; $index++)
+                {
+                        @groups = split(',', $groups_list[$index-1]);
+                        $found_group = 'false';
+                        $filetmp = "$TPI_DBFILE$index.$GlobalPID.tmp";
+                        open (AXIOMS, "< $TPI_DBFILE") or die("Unable to open $TPI_DBFILE");
+                        open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+                        while(<AXIOMS>)
+                        {
+                              foreach my $group (@groups)
+                              {
+                                       if(/\%TPI start_group: $group/)
+                                       {
+                                               $found_group = 'true';
+                                       }
+                                       elsif(/\%TPI end_group: $group/)
+                                       {
+                                               print TMP $_;
+                                               $found_group = 'false';
+                                       }
+                               }
+                               if($found_group eq 'true')
+                               {
+                                       print TMP $_;
+                               }
+                        }
+                        close(AXIOMS);
+                        close(TMP);
+                }
+        }
+        my $status = '';
+        if($var_to_edit =~ /([A-Za-z0-9_,]+---([0-9]+.[0-9]+)* [0-9]+)/)
+        {
+                open (INPUT, "$SystemOnTPTP $var_to_edit |") or die("Unable to execute command.");
+        }
+        else
+        {
+                open (INPUT, "$var_to_edit 2>&1 |") or die("Unable to execute command.");
+        }
+        if ((defined $ARGV[2] and $ARGV[2] eq 'async') or (defined $ARGV[4] and $ARGV[4] eq 'async'))
+        {
+                while(<INPUT>)
+                {
+                        if(/SZS status/)
+                        {
+                                $status = $_;
+                        }
+                }   
+        }
+        else
+        {
+                while(<INPUT>)
+                {
+                        if(/SZS status/)
+                        {
+                                $status = $_;
+                                if($QuietFlagSet eq 'false' || ($QuietFlagSet eq 'true' && $QuietFlagValue == 0))
+                                {
+                                        print $_;
+                                }
+                        }
+                        else
+                        {
+                                if($QuietFlagSet eq 'false' || ($QuietFlagSet eq 'true' && $QuietFlagValue == 0))
+                                {
+                                         print $_;
+                                }
+                        }
+                }
+        }
+        close(INPUT);
+        if(! $status eq '')
+        {
+                my $status_index = index($status, "status");
+                my $final_status = substr($status, $status_index+7);
+                my $filetmp = "$TPI_ENV.tmp";
+                system("echo -n setenv '$env_var_name' '$final_status' >> $TPI_ENV");
+                open (VARS, "< $TPI_ENV") or die("Unable to open $TPI_ENV");
+                open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+                while(<VARS>)
+                    {
+                        if(not/setenv $env_var_name /)
+                        {
+                                print TMP $_;
+                        }
+                   }
+                close(VARS);
+                close(TMP);
+                rename $filetmp, $TPI_ENV;
+                system("echo -n setenv '$env_var_name' '$final_status' >> $TPI_ENV");
+        }
+        if ($getgroupsUsed eq 'true')
+        {
+                my $index;
+                for($index = 1; $index <= $getgroupsCount; $index++ )
+                {
+                        system("rm $TPI_DBFILE$index.$GlobalPID.tmp");
+                }
+        }
+        #E---1.8/bin/eprover --auto-schedule --tstp-format -s --proof-object --memory-limit=2048 --cpu-limit=300
+}
+
+sub execute_async
+{
+        my $pid = fork();
+        # If it's the child process
+        if( $pid == 0 )
+        {
+                if (defined $ARGV[2] and $ARGV[2] eq '=')
+                {
+                        #Replace $getargv with the appropriate command line arguments
+                        for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+                        {
+                                if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                                {
+                                        $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[4+$1]/;
+                                }
+                        }
+                        
+                        if($ARGV[0] =~ /execute_async\(([A-Za-z,]+)\)/)
+                        {  
+                                system("./tpi execute\($1\) '$ARGV[1]' '$ARGV[2]' '$ARGV[3]' async &");
+                        }
+                        else
+                        {                       
+                                system("./tpi execute '$ARGV[1]' '$ARGV[2]' '$ARGV[3]' async &");
+                        }
+                }
+                else
+                {
+                        #Replace $getargv with the appropriate command line arguments
+                        for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+                        {
+                                if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                                {
+                                        $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[2+$1]/;
+                                }
+                        }
+                        
+                        if($ARGV[0] =~ /execute_async\(([A-Za-z,]+)\)/)
+                        {  
+                                system("./tpi execute\($1\) '$ARGV[1]' async &");
+                        }
+                        else
+                        {                       
+                                system("./tpi execute '$ARGV[1]' async &");
+                        }
+                        
+                }
+        }
+        else
+        {
+                system("echo $pid >> $TPI_PIDS");
+        }
+}
+
+sub setenv
+{
+        if (defined $ARGV[2] and $ARGV[2] eq '=')
+        {
+                #Replace $getargv with the appropriate command line arguments
+                for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+                {
+                        if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                        {
+                                $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[4+$1]/;
+                        }
+                }
+
+                my $filetmp = "$TPI_ENV.tmp";
+                system("echo setenv '$ARGV[1]' '$ARGV[3]' >> $TPI_ENV");
+                open (VARS, "< $TPI_ENV") or die("Unable to open $TPI_ENV");
+                open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+                while(<VARS>)
+                {
+                        if(not/setenv $ARGV[1] /)
+                        {
+                                print TMP $_;
+                        }
+                       }
+                close(VARS);
+                close(TMP);
+                rename $filetmp, $TPI_ENV;
+                system("echo setenv '$ARGV[1]' '$ARGV[3]' >> $TPI_ENV");
+        }
+}
+
+sub unsetenv
+{
+        #Replace $getargv with the appropriate command line arguments
+        for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+        {
+                if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                {
+                        $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[2+$1]/;
+                }
+        }
+
+        my $filetmp = "$TPI_ENV.tmp";
+        open (VARS, "< $TPI_ENV") or die("Unable to open $TPI_ENV");
+        open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+        while(<VARS>)
+        {
+                if(not/setenv $ARGV[1]/)
+                {
+                        print TMP $_;
+                }
+        }
+        close(VARS);
+        close(TMP);
+        rename $filetmp, $TPI_ENV;
+}
+
+sub waitenv
+{
+        my @vars_list;
+        my $count = 0;
+        my $var_index;
+        for ($var_index = 1; $var_index < scalar @ARGV; $var_index++)
+         {
+                if(not ($ARGV[$var_index] eq '|'))
+                {
+                        if($var_index % 2 == 0)
+                        {
+                                last;
+                        }
+                        else
+                        {
+                                $vars_list[$count] = $ARGV[$var_index];
+                                $count = $count + 1;
+                        }
+                }
+        }
+        my $total_count = ($count * 2);
+        #Replace $getargv with the appropriate command line arguments
+        for ($tpi_var_index = 0; $tpi_var_index < $count; $tpi_var_index++)
+        {
+                       if ($vars_list[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                       {
+                              $vars_list[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[$total_count+$1]/;
+                       }
+        }   
+        my $var_set = 'false';
+        while ($var_set eq 'false')
+        {
+                sleep(1);
+                open (VARS, "< $TPI_ENV") or die("Unable to open $TPI_ENV");
+                while(<VARS>)
+                       {
+                        foreach my $var (@vars_list)
+                        {
+                                       if(/setenv $var /)
+                                       {
+                                             $var_set = 'true';
+                                       }
+                        }
+                }
+                close(VARS);
+        }
+}
+
+sub mktemp
+{
+        #Replace $getargv with the appropriate command line arguments
+        for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+        {
+                if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                {
+                        $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[2+$1]/;
+                }
+        }
+
+
+        my $var = $ARGV[1];
+        my $filetmp = "$var.tpitmpfile";
+        open (TMP_FILE, "> $filetmp") or die("Unable to open $filetmp");
+        print TMP_FILE '#This is a temporary file';
+        close(TMP_FILE);
+        my $filetmp2 = "$TPI_ENV.tmp";
+        system("echo setenv '$var' '$var.tpitmpfile' >> $TPI_ENV");
+        open (VARS, "< $TPI_ENV") or die("Unable to open $TPI_ENV");
+        open (TMP, "> $filetmp2") or die("Unable to open $filetmp2");
+        while(<VARS>)
+        {
+                if(not/setenv $var/)
+                {
+                        print TMP $_;
+                }
+        }
+        close(VARS);
+        close(TMP);
+        rename $filetmp2, $TPI_ENV;
+        system("echo setenv '$var' '$var.tpitmpfile' >> $TPI_ENV");
+}
+
+sub filter
+{
+        my $getgroupsUsed = 'false';
+        my $tmpOutput = "$TPI_DBFILE.tmp";
+        open (OUTPUT, "> $tmpOutput") or die("Unable to open $tmpOutput");
+        my $env_var_name;
+        my $var_to_edit;
+        my $getgroupsCount = 0;
+        if (defined $ARGV[2] and $ARGV[2] eq '=')
+        {
+                #Replace $getargv with the appropriate command line arguments
+                for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+                {
+                        if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                        {
+                                $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[4+$1]/;
+                        }
+                }
+
+                $env_var_name = $ARGV[1];
+                $var_to_edit = $ARGV[3];
+        }
+        else
+        {
+                #Replace $getargv with the appropriate command line arguments
+                for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+                {
+                        if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                        {
+                                $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[2+$1]/;
+                        }
+                }
+
+                $env_var_name = 'SZS';
+                $var_to_edit = $ARGV[1];
+        }
+
+
+        if($var_to_edit =~ /\%s/)
+        {
+                $var_to_edit =~ s/\%s/$TPI_DBFILE/;
+        }
+        elsif($var_to_edit =~ /\$getgroups\(tpi\)/)
+        {
+                $var_to_edit =~ s/\$getgroups\(tpi\)/$TPI_DBFILE/;
+        }
+        elsif($var_to_edit =~ /\$getgroups\(([A-Za-z_,][A-Za-z0-9_,]+)\)/)
+        {
+                $_ = $var_to_edit;
+                $getgroupsUsed = 'true';
+                my @groups_list;
+                while(/\$getgroups\(([A-Za-z_,][A-Za-z0-9_,]+)\)/g)
+                {
+                        $groups_list[$getgroupsCount] = $+;
+                        $getgroupsCount = $getgroupsCount + 1;
+                        $var_to_edit =~ s/\$getgroups\($+\)/$TPI_DBFILE$getgroupsCount.$GlobalPID.tmp/;
+                }
+                my $index;
+                my $found_group;
+                my $filetmp;
+                my @groups;
+                my @AllGroups;
+                my $AllGroupsIndex = 0;
+                my $GlobalGroupFound = 'false';
+                my $currentGroup = 'sss';
+                my $justFoundEndGlobal = 'false';
+                for($index = 1; $index <= $getgroupsCount; $index++)
+                {
+                        @groups = split(',', $groups_list[$index-1]);
+                        foreach my $group (@groups)
+                        {
+                                $AllGroups[$AllGroupsIndex] = $group;
+                                $AllGroupsIndex = $AllGroupsIndex +1;
+                        }
+                }
+                for($index = 1; $index <= $getgroupsCount; $index++)
+                {
+                        @groups = split(',', $groups_list[$index-1]);
+                        $found_group = 'false';
+                        $filetmp = "$TPI_DBFILE$index.$GlobalPID.tmp";
+                        open (AXIOMS, "< $TPI_DBFILE") or die("Unable to open $TPI_DBFILE");
+                        open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+                        while(<AXIOMS>)
+                            {
+                                foreach my $group (@groups)
+                                {
+                                        if(/\%TPI start_group: $group/)
+                                        {
+                                                $found_group = 'true';
+                                        }
+                                        elsif(/\%TPI end_group: $group/)
+                                        {
+                                                print TMP $_;
+                                                $found_group = 'false';
+                                        }
+                                }
+                                if($index == $getgroupsCount)
+                                {
+                                        foreach my $Globalgroup (@AllGroups)
+                                        {
+                                                if(/\%TPI start_group: $Globalgroup/)
+                                                {
+                                                        $GlobalGroupFound = 'true';
+                                                        $currentGroup = $Globalgroup;
+                                                }
+                                                elsif(/\%TPI end_group: $currentGroup/)
+                                                {
+                                                        $GlobalGroupFound = 'false';
+                                                        $justFoundEndGlobal = 'true';
+                                                }
+                                        }
+                                }
+                                if($found_group eq 'true')
+                                {
+                                        print TMP $_;
+                                }
+                                else
+                                {
+                                        if($index == $getgroupsCount && $GlobalGroupFound eq 'false')
+                                        {
+                                                if($justFoundEndGlobal eq 'true')
+                                                {
+                                                        $justFoundEndGlobal = 'false';
+                                                }
+                                                else
+                                                {
+                                                        print OUTPUT $_;
+                                                }
+                                        }
+                                }
+                          }
+                        close(AXIOMS);
+                        close(TMP);
+                }
+        }
+        else
+        {
+                open (AXIOMS, "< $TPI_DBFILE") or die("Unable to open $TPI_DBFILE");
+                while(<AXIOMS>)
+                {
+                        print OUTPUT $_;
+                }
+                close(AXIOMS);
+        }
+        my $status = '';
+        if($var_to_edit =~ /([A-Za-z0-9_,]+---([0-9]+.[0-9]+)* [0-9]+)/)
+        {
+                open (INPUT, "$SystemOnTPTP $var_to_edit |") or die("Unable to execute command.");
+        }
+        else
+        {
+                open (INPUT, "$var_to_edit 2>&1 |") or die("Unable to execute command.");
+        }
+        while(<INPUT>)
+        {
+                if(/SZS status/)
+                {
+                        $status = $_;
+                        if($QuietFlagSet eq 'false' || ($QuietFlagSet eq 'true' && ($QuietFlagValue == 0 || $QuietFlagValue == 1)))
+                        {
+                                print $_;
+                        }
+                }
+                else
+                {
+                        if($QuietFlagSet eq 'false' || (&QuietFlagSet eq 'true' && $QuietFlagValue == 0))
+                        {
+                                print $_;
+                        }
+                }
+                print OUTPUT $_;
+        }
+        close(INPUT);
+        close(OUTPUT);
+        rename $tmpOutput, $TPI_DBFILE;
+        if(! $status eq '')
+        {
+                my $status_index = index($status, "status");
+                my $final_status = substr($status, $status_index+7);
+                my $filetmp = "$TPI_ENV.tmp";
+                system("echo -n setenv '$env_var_name' '$final_status' >> $TPI_ENV");
+                open (VARS, "< $TPI_ENV") or die("Unable to open $TPI_ENV");
+                open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+                while(<VARS>)
+                    {
+                        if(not/setenv $env_var_name/)
+                        {
+                                print TMP $_;
+                        }
+                   }
+                close(VARS);
+                close(TMP);
+                rename $filetmp, $TPI_ENV;
+                system("echo -n setenv '$env_var_name' '$final_status' >> $TPI_ENV");
+        }
+        if($getgroupsUsed eq 'true')
+        {
+                my $index;
+                for($index = 1; $index <= $getgroupsCount; $index++ )
+                {
+                        system("rm $TPI_DBFILE$index.$GlobalPID.tmp");
+                }
+        }
+}
+
+sub generate
+{
+        my $number_of_arguments = scalar @ARGV;
+        my $getgroupsUsed = 'false';
+        my $getgroupsCount = 0;
+        my $var_to_edit;
+        if ($number_of_arguments == 2)
+        {
+                #Replace $getargv with the appropriate command line arguments
+                for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+                {
+                        if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                        {
+                                $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[2+$1]/;
+                        }
+                }
+
+                $var_to_edit = $ARGV[1];
+        }
+        else
+        {
+                #Replace $getargv with the appropriate command line arguments
+                for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+                {
+                        if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                        {
+                                $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[4+$1]/;
+                        }
+                }
+
+                $var_to_edit = $ARGV[3];
+        }
+
+        if($var_to_edit =~ /\%s/)
+        {
+                $var_to_edit =~ s/\%s/$TPI_DBFILE/;
+        }
+        elsif($var_to_edit =~ /\$getgroups\(tpi\)/)
+        {
+                $var_to_edit =~ s/\$getgroups\(tpi\)/$TPI_DBFILE/;
+        }
+        elsif($var_to_edit =~ /\$getgroups\(([A-Za-z_,][A-Za-z0-9_,]+)\)/)
+        {
+                $_ = $var_to_edit;
+                $getgroupsUsed = 'true';
+                my @groups_list;
+                while(/\$getgroups\(([A-Za-z_,][A-Za-z0-9_,]+)\)/g)
+                {
+                        $groups_list[$getgroupsCount] = $+;
+                        $getgroupsCount = $getgroupsCount + 1;
+                        $var_to_edit =~ s/\$getgroups\($+\)/$TPI_DBFILE$getgroupsCount.$GlobalPID.tmp/;
+                }
+                my $index;
+                my $found_group;
+                my $filetmp;
+                my @groups;
+                for($index = 1; $index <= $getgroupsCount; $index++)
+                {
+                        @groups = split(',', $groups_list[$index-1]);
+                        $found_group = 'false';
+                        $filetmp = "$TPI_DBFILE$index.$GlobalPID.tmp";
+                        open (AXIOMS, "< $TPI_DBFILE") or die("Unable to open $TPI_DBFILE");
+                        open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+                        while(<AXIOMS>)
+                        {
+                              foreach my $group (@groups)
+                              {
+                                       if(/\%TPI start_group: $group/)
+                                       {
+                                               $found_group = 'true';
+                                       }
+                                       elsif(/\%TPI end_group: $group/)
+                                       {
+                                               print TMP $_;
+                                               $found_group = 'false';
+                                       }
+                               }
+                               if($found_group eq 'true')
+                               {
+                                       print TMP $_;
+                               }
+                        }
+                        close(AXIOMS);
+                        close(TMP);
+                }
+        }
+        if ($number_of_arguments == 2)
+        {
+                if($var_to_edit =~ /([A-Za-z0-9_,]+---([0-9]+.[0-9]+)* [0-9]+)/)
+                {
+                        open (INPUT, "$SystemOnTPTP $var_to_edit |") or die("Unable to execute command.");
+                }
+                        else
+                {
+                        open (INPUT, "$var_to_edit |") or die("Unable to execute command.");
+                }
+                while(<INPUT>)
+                {
+                        system("echo -n '$_' >> $TPI_DBFILE");
+                }
+                close(INPUT);
+        }
+        elsif ($number_of_arguments == 4)
+        {
+                if ($ARGV[2] eq '=')
+                {
+                        my $status = '';
+                        if($var_to_edit =~ /([A-Za-z0-9_,]+---([0-9]+.[0-9]+)* [0-9]+)/)
+                        {
+                                open (INPUT, "$SystemOnTPTP $var_to_edit |") or die("Unable to execute command.");
+                        }
+                        else
+                        {
+                                open (INPUT, "$var_to_edit 2>&1 |") or die("Unable to execute command.");
+                        }
+                        while(<INPUT>)
+                        {
+                                if(/SZS status/)
+                                {
+                                        $status = $_;
+                                }
+                                system("echo -n '$_' >> $TPI_DBFILE");
+                        }
+                        close(INPUT);
+                        if(! $status eq '')
+                        {
+                                my $status_index = index($status, "status");
+                                my $final_status = substr($status, $status_index+7);
+                                my $filetmp = "$TPI_ENV.tmp";
+                                system("echo -n setenv '$ARGV[1]' '$final_status' >> $TPI_ENV");
+                                open (VARS, "< $TPI_ENV") or die("Unable to open $TPI_ENV");
+                                open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+                                while(<VARS>)
+                                    {
+                                        if(not/setenv $ARGV[1]/)
+                                        {
+                                                print TMP $_;
+                                        }
+                                   }
+                                close(VARS);
+                                close(TMP);
+                                rename $filetmp, $TPI_ENV;
+                                system("echo -n setenv '$ARGV[1]' '$final_status' >> $TPI_ENV");    
+                        }
+                }
+        }
+        if ($getgroupsUsed eq 'true')
+        {
+                my $index;
+                for($index = 1; $index <= $getgroupsCount; $index++ )
+                {
+                        system("rm $TPI_DBFILE$index.$GlobalPID.tmp");
+                }
+        }
+}
+
+sub write
+{
+        my $number_of_arguments = scalar @ARGV;
+        if ($number_of_arguments == 2)
+        {
+                print $ARGV[1] . "\n";
+        }
+        else
+        {
+                my @vars_list;
+                my $count = 0;
+                my $var_index;
+                for ($var_index = 1; $var_index < scalar @ARGV; $var_index++)
+                 {
+                        if(not ($ARGV[$var_index] eq '&'))
+                        {
+                                if($var_index % 2 == 0)
+                                {
+                                        last;
+                                }
+                                else
+                                {
+                                        $vars_list[$count] = $ARGV[$var_index];
+                                        $count = $count + 1;
+                                }
+                        }
+                }
+                my $total_count = ($count * 2);
+                #Replace $getargv with the appropriate command line arguments
+                for ($tpi_var_index = 0; $tpi_var_index < $count; $tpi_var_index++)
+                {
+                               if ($vars_list[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                               {
+                                       $vars_list[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[$total_count+$1]/;
+                               }
+                }           
+
+                my $index2;
+                for ($index2 = 0; $index2 < $count; $index2++)
+                       {
+                               print $vars_list[$index2];
+                }
+                print "\n";
+        }
+}
+
+sub assert
+{
+        my $number_of_arguments = scalar @ARGV;
+        if ($number_of_arguments == 4 && ($ARGV[2] eq '=' || $ARGV[2] eq '!='))
+        {
+                #Replace $getargv with the appropriate command line arguments
+                for ($tpi_var_index = 1; $tpi_var_index < scalar @ARGV; $tpi_var_index++)
+                {
+                        if ($ARGV[$tpi_var_index] =~ /\$getargv\(([0-9]+)\)/)
+                        {
+                                $ARGV[$tpi_var_index] =~ s/\$getargv\(([0-9]+)\)/$ARGV[4+$1]/;
+                        }
+                }
+
+                if ($ARGV[2] eq '=')
+                {
+                        if (!($ARGV[1] eq $ARGV[3]))
+                        {
+                                print "Assert fails: $ARGV[1] != $ARGV[3]. Now exiting tpi!" . "\n";
+                                system("./tpi exit 'exit(1)'");
+                        }
+                }
+                else
+                {
+                        if ($ARGV[1] eq $ARGV[3])
+                        {
+                                print "Assert fails: $ARGV[1] = $ARGV[3]. Now exiting tpi!" . "\n";
+                                system("./tpi exit 'exit(1)'");
+                        }
+                }
+        }
+}
+
+sub exit
+{
+         if (<*.tpitmpfile>)
+        {
+                system("rm *.tpitmpfile");
+        }
+        my $filetmp = "$TPI_ENV.tmp";
+        open (VARS, "< $TPI_ENV") or die("Unable to open $TPI_ENV");
+        open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+        while(<VARS>)
+            {
+                if(not/.tpitmpfile/)
+                {
+                        print TMP $_;
+                }
+           }
+        close(VARS);
+        close(TMP);
+        rename $filetmp, $TPI_ENV;
+        if(-e $TPI_PIDS)
+        {
+                open (IDS, "< $TPI_PIDS") or die("Unable to open $TPI_PIDS");
+                while(<IDS>)
+                {
+                        kill 0, $_;
+                }
+                close(IDS);
+                system("rm PIDS");
+        }
+        if($ARGV[1] =~ /\(([0-9]+)\)/)
+        {
+                system("exit $1");
+        }
+}
+
+sub clear_DBFile
+{
+        my $tmpOutput = "$TPI_DBFILE.tmp";
+        open (OUTPUT, "> $tmpOutput") or die("Unable to open $tmpOutput");
+        close(OUTPUT);
+        rename $tmpOutput, $TPI_DBFILE;
+}
+
+sub deactivate_group
+{
+        my $filetmp = "$TPI_DBFILE.tmp";
+        my $found_group = 'false';
+        open (AXIOMS, "< $TPI_DBFILE") or die("Unable to open $TPI_DBFILE");
+        open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+        while(<AXIOMS>)
+               {
+                if($found_group eq 'true')
+                {
+                        if(/\%TPI end_group: $ARGV[1]/)
+                        {
+                                 $found_group = 'false';
+                                 print TMP $_;
+                        }
+                        else
+                        {
+                                print TMP '%' . $_;
+                        }
+                }
+                else
+                {
+                        print TMP $_;
+                }
+        
+                if(/\%TPI start_group: $ARGV[1]/)
+                {
+                        $found_group = 'true';
+                }
+                               
+        }
+        close(AXIOMS);
+        close(TMP);
+        rename $filetmp, $TPI_DBFILE;
+}
+
+sub activate_group
+{
+        my $filetmp = "$TPI_DBFILE.tmp";
+        my $found_group = 'false';
+        open (AXIOMS, "< $TPI_DBFILE") or die("Unable to open $TPI_DBFILE");
+        open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+        while(<AXIOMS>)
+        {
+                if($found_group eq 'true')
+                {
+                        if(/\%TPI end_group: $ARGV[1]/)
+                        {
+                                 $found_group = 'false';
+                        }
+                        else
+                        {
+                                $_ =~ s/%//;
+                        }
+                }
+                print TMP $_;
+
+                if(/\%TPI start_group: $ARGV[1]/)
+                {
+                        $found_group = 'true';
+                }
+
+        }
+        close(AXIOMS);
+        close(TMP);
+        rename $filetmp, $TPI_DBFILE;
+}
+
+sub deactivate
+{
+        my $filetmp = "$TPI_DBFILE.tmp";
+        open (AXIOMS, "< $TPI_DBFILE") or die("Unable to open $TPI_DBFILE");
+        open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+        while(<AXIOMS>)
+        {
+                if(/\($ARGV[1],/)
+                {
+                        print TMP '%' . $_;
+                        while(!($_ =~/\)\.\s*/))
+                        {
+                                $_ = <AXIOMS>;
+                                print TMP '%' . $_;
+                        }
+                }
+                else
+                {
+                        print TMP $_;
+                }
+
+        }
+        close(AXIOMS);
+        close(TMP);
+        rename $filetmp, $TPI_DBFILE;
+}
+
+sub activate
+{
+        my $filetmp = "$TPI_DBFILE.tmp";
+        open (AXIOMS, "< $TPI_DBFILE") or die("Unable to open $TPI_DBFILE");
+        open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+        while(<AXIOMS>)
+        {
+                if(/\($ARGV[1],/)
+                {
+                        $_ =~ s/%//;
+                        print TMP $_;
+                        while(!($_ =~/\)\.\s*/))
+                        {
+                                $_ = <AXIOMS>;
+                                $_ =~ s/%//; 
+                                print TMP $_;
+                        }
+                }
+                else
+                {
+                        print TMP $_;
+                }
+        }
+        close(AXIOMS);
+        close(TMP);
+        rename $filetmp, $TPI_DBFILE;
+}
+
+sub set_role
+{
+        if(defined $ARGV[2] && $ARGV[2] eq '=' && defined $ARGV[3] && ($ARGV[3] eq 'axiom' || $ARGV[3] eq 'lemma' || $ARGV[3] eq 'conjecture' || $ARGV[3] eq 'hypothesis'))
+        {
+                my $filetmp = "$TPI_DBFILE.tmp";
+                open (AXIOMS, "< $TPI_DBFILE") or die("Unable to open $TPI_DBFILE");
+                open (TMP, "> $filetmp") or die("Unable to open $filetmp");
+                while(<AXIOMS>)
+                {
+                        if(/\($ARGV[1],/)
+                        {
+                                $_ =~ s/$ARGV[1],([A-Za-z_][A-Za-z0-9_]+),/$ARGV[1],$ARGV[3],/;
+                        }
+                        print TMP $_;
+                }
+                close(AXIOMS);
+                close(TMP);
+                rename $filetmp, $TPI_DBFILE;
+        }
+}

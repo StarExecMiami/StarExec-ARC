@@ -1,0 +1,25 @@
+formula_list(axiom).
+
+% reflexivity, axiom.
+    all x equal(x, x).
+
+% pel55_1, axiom.
+    ( exists X 
+      ( X != agatha
+       & killed(X, agatha) ) ).
+
+% pel55_2_1, axiom.
+    lives(agatha * butler).
+
+% pel55_3, axiom.
+    ( all X 
+      ( lives(X)
+      -> ( equal(X, agatha)
+         | equal(X, butler)
+         | equal(X, charles) ) ) ).
+
+end_of_list.
+formula_list(conjecture).
+% pel55, negated_conjecture.
+    (killed(agatha, agatha)).
+end_of_list.

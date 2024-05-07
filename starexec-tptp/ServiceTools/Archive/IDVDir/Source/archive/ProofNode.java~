@@ -1,0 +1,117 @@
+//*****************************************************************************
+//*****************************************************************************
+/*
+  Steven Trac
+  Proof Reader
+*/
+//*****************************************************************************
+/*****
+ * Graph Proof Reader
+ * Build on to GraphMan by Dr. Christian Duncan
+ * Mimics GraphMan file: GraphReader.java
+ ****/
+//*****************************************************************************
+import java.io.*;
+import java.util.*;
+//*****************************************************************************
+
+
+  /*********************
+   * A ProofNode in the Graph
+   *    Stores:
+   *       id - integer index into Graph Vector list (currently irrelevant!)
+   *       X, Y - double location coordinates
+   *       reference to the ProofGraph
+   *       f is the proof for the proof tree
+   *********************/
+public class ProofNode extends Node {
+  private ProofGraph g;
+  private Formula f;
+  
+  public ProofNode(int _id, double _x, double _y, ProofGraph _g) {
+    super(_id, _x, _y);
+    g = _g;
+    f = null;
+  }
+  
+  public ProofNode(Node other, ProofGraph _g) {
+    super(other); g = _g;
+  }
+  
+  /* Accessor methods */
+  // Return iterator of incident edges
+  public Iterator iterator() {
+    return new ProofGraphNodeEdgeIterator(g, id);
+  }
+  
+  /* Add an edge to the list of edges
+   */
+  int getDepth () { return f.getDepth(); }
+  void setProof (Formula _f) { f = _f; }
+  
+  void addEdge(Node other) {
+    // Create NEW Edge and add it to both
+    //    this and other edge lists
+    if (other instanceof ProofNode == false) {
+      throw new RuntimeException("Error: ProofNode.addEdge(other): " +
+                                 "other MUST be instanceof ProofNode"); 
+    }
+    ProofNode o = (ProofNode) other;
+    if (this.g != o.g) {
+      throw new RuntimeException("Error: ProofNode.addEdge(other): " +
+                                 "other MUST be in same graph as this node"); 
+    }		
+    g.addEdge(this.id, o.id);
+  }
+
+  
+  
+  /**********************************************************
+   * This is a private class associated with ProofGraphs
+   * ProofGraphNodeEdgeIterator -
+   *     returns an iterator of the edges in the given graph's node
+   * 
+   *     Algorithm works as follows:
+   *        nA,nB represents location in adj. matrix
+   *                         between nodes nA and nB
+   *        hasNext(): if mat[nA][nB] is an edge
+   *                   then return true
+   *                   otherwise find next edge (if exists)
+   *                              and return true/false
+   *        next(): calls hasNext() first.
+   *                if no - return null
+   *                else nA,nB points to current one - then do advance()
+   **********************************************************/
+  private class ProofGraphNodeEdgeIterator implements Iterator {
+    ProofGraph g;   // The current Graph to iterate on
+    int nA;          // Which start node are we using...
+    int nB;          // Which end node are we currently on
+    
+    // Iterate edges over entire graph
+    public ProofGraphNodeEdgeIterator(ProofGraph _g, int _node) {
+      g = _g; nA = _node; nB = 0;
+    }
+    
+    public boolean hasNext() { 
+      // Skip until either end or found an edge
+      while (nB < g.numNodes() && g.isEdge(nA,nB) == false) {
+        nB++;
+      }
+      
+      return (nB < g.numNodes()); // Found edge or not
+    }
+    
+    public Object next() {
+      if (hasNext() == false) return null;
+      
+      // Create a new Edge object between the two nodes
+      //Edge response = new Edge(g.node[nA], g.node[nB]);
+      Edge response = new Edge(g.getNode(nA), g.getNode(nB));
+      nB++;
+      return response;
+    }
+    
+    public void remove() { /* Not implemented */ }
+  }
+
+}

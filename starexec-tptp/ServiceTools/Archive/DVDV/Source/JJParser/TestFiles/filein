@@ -1,0 +1,9 @@
+fof(included,assumption,
+    p(X),
+    unknown,
+    []).
+
+%----OOOO an included comment
+
+fof(not_included,derived,
+    q(Y)).

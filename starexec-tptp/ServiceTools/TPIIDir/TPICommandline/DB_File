@@ -1,0 +1,73 @@
+%TPI start_group: tpi_premises
+%------------------------------------------------------------------------------
+%----Problem axioms
+fof(pel55_1,axiom,
+    ( ? [X] :
+        ( lives(X)
+        & killed(X,agatha) ) )).
+
+fof(pel55_2_1,axiom,
+    ( lives(agatha) )).
+
+fof(pel55_2_2,axiom,
+    ( lives(butler) )).
+
+% fof(pel55_2_2_CAX,axiom,
+%     ( ~ lives(butler) )).
+
+fof(pel55_2_3,axiom,
+    ( lives(charles) )).
+
+fof(pel55_3,axiom,
+    ( ! [X] :
+        ( lives(X)
+       => ( X = agatha
+          | X = butler
+          | X = charles ) ) )).
+
+fof(pel55_4,axiom,
+    ( ! [X,Y] :
+        ( killed(X,Y)
+       => hates(X,Y) ) )).
+
+fof(pel55_5,axiom,
+    ( ! [X,Y] :
+        ( killed(X,Y)
+       => ~ richer(X,Y) ) )).
+
+fof(pel55_6,axiom,
+    ( ! [X] :
+        ( hates(agatha,X)
+       => ~ hates(charles,X) ) )).
+
+fof(pel55_7,axiom,
+    ( ! [X] :
+        ( X != butler
+       => hates(agatha,X) ) )).
+
+fof(pel55_8,axiom,
+    ( ! [X] :
+        ( ~ richer(X,agatha)
+       => hates(butler,X) ) )).
+
+fof(pel55_9,axiom,
+    ( ! [X] :
+        ( hates(agatha,X)
+       => hates(butler,X) ) )).
+
+fof(pel55_10,axiom,
+    ( ! [X] :
+      ? [Y] : ~ hates(X,Y) )).
+
+fof(pel55_11,axiom,
+    (  agatha != butler )).
+
+%TPI end_group: tpi_premises
+%TPI start_group: tpi_conjectures
+fof(pel55,conjecture,
+    ( killed(agatha,agatha) )).
+%TPI end_group: tpi_conjectures
+%TPI start_group: tpi_premises
+
+%------------------------------------------------------------------------------
+%TPI end_group: tpi_premises

@@ -1,0 +1,119 @@
+% Mizar ND problem: t3_xboole_1,xboole_1,37,24 
+fof(dh_c1_3__xboole_1,axiom,
+    ( ( r1_tarski(c1_3__xboole_1,k1_xboole_0)
+     => c1_3__xboole_1 = k1_xboole_0 )
+   => ! [A] : 
+        ( r1_tarski(A,k1_xboole_0)
+       => A = k1_xboole_0 ) ),
+    file(xboole_1,c1_3__xboole_1),
+    [interesting(0.8),axiom,file(xboole_1,c1_3__xboole_1)]).
+
+fof(e1_3__xboole_1,assumption,(
+    r1_tarski(c1_3__xboole_1,k1_xboole_0) ),
+    introduced(assumption,[file(xboole_1,e1_3__xboole_1)]),
+    [interesting(0.8),axiom,file(xboole_1,e1_3__xboole_1)]).
+
+fof(rc1_xboole_0,theorem,(
+    ? [A] : v1_xboole_0(A) ),
+    file(xboole_0,rc1_xboole_0),
+    [interesting(0.9),axiom,file(xboole_0,rc1_xboole_0)]).
+
+fof(rc2_xboole_0,theorem,(
+    ? [A] : ~ v1_xboole_0(A) ),
+    file(xboole_0,rc2_xboole_0),
+    [interesting(0.9),axiom,file(xboole_0,rc2_xboole_0)]).
+
+fof(reflexivity_r1_tarski,theorem,(
+    ! [A,B] : r1_tarski(A,A) ),
+    file(tarski,r1_tarski),
+    [interesting(0.9),axiom,file(tarski,r1_tarski)]).
+
+fof(dt_k1_xboole_0,axiom,(
+    $true ),
+    file(xboole_0,k1_xboole_0),
+    [interesting(0.9),axiom,file(xboole_0,k1_xboole_0)]).
+
+fof(dt_c1_3__xboole_1,assumption,(
+    $true ),
+    introduced(assumption,[file(xboole_1,c1_3__xboole_1)]),
+    [interesting(0.8),axiom,file(xboole_1,c1_3__xboole_1)]).
+
+fof(fc1_xboole_0,theorem,(
+    v1_xboole_0(k1_xboole_0) ),
+    file(xboole_0,fc1_xboole_0),
+    [interesting(0.9),axiom,file(xboole_0,fc1_xboole_0)]).
+
+fof(d10_xboole_0,definition,(
+    ! [A,B] : 
+      ( A = B
+    <=> ( r1_tarski(A,B)
+        & r1_tarski(B,A) ) ) ),
+    file(xboole_0,d10_xboole_0),
+    [interesting(0.9),axiom,file(xboole_0,d10_xboole_0)]).
+
+fof(antisymmetry_r2_hidden,theorem,(
+    ! [A,B] : 
+      ( r2_hidden(A,B)
+     => ~ r2_hidden(B,A) ) ),
+    file(hidden,r2_hidden),
+    [interesting(0.9),axiom,file(hidden,r2_hidden)]).
+
+fof(t7_boole,theorem,(
+    ! [A,B] : ~ ( r2_hidden(A,B)
+      & v1_xboole_0(B) ) ),
+    file(boole,t7_boole),
+    [interesting(0.9),axiom,file(boole,t7_boole)]).
+
+fof(t8_boole,theorem,(
+    ! [A,B] : ~ ( v1_xboole_0(A)
+      & A != B
+      & v1_xboole_0(B) ) ),
+    file(boole,t8_boole),
+    [interesting(0.9),axiom,file(boole,t8_boole)]).
+
+fof(t6_boole,theorem,(
+    ! [A] : 
+      ( v1_xboole_0(A)
+     => A = k1_xboole_0 ) ),
+    file(boole,t6_boole),
+    [interesting(0.9),axiom,file(boole,t6_boole)]).
+
+fof(t2_xboole_1,theorem,(
+    ! [A] : r1_tarski(k1_xboole_0,A) ),
+    file(xboole_1,t2_xboole_1),
+    [interesting(0.9),axiom,file(xboole_1,t2_xboole_1)]).
+
+fof(e2_3__xboole_1,plain,
+    ( r1_tarski(c1_3__xboole_1,k1_xboole_0)
+    & r1_tarski(k1_xboole_0,c1_3__xboole_1) ),
+    inference(mizar_by,[status(thm),assumptions([dt_c1_3__xboole_1,e1_3__xboole_1])],[antisymmetry_r2_hidden,rc1_xboole_0,rc2_xboole_0,t7_boole,t8_boole,reflexivity_r1_tarski,dt_k1_xboole_0,dt_c1_3__xboole_1,fc1_xboole_0,t6_boole,e1_3__xboole_1,t2_xboole_1]),
+    [interesting(0.8),file(xboole_1,e2_3__xboole_1),[file(xboole_1,e2_3__xboole_1)]]).
+
+fof(i3_3__xboole_1,plain,(
+    $true ),
+    introduced(tautology,[file(xboole_1,i3_3__xboole_1)]),
+    [interesting(0.8),trivial,file(xboole_1,i3_3__xboole_1)]).
+
+fof(i2_3__xboole_1,plain,(
+    c1_3__xboole_1 = k1_xboole_0 ),
+    inference(conclusion,[status(thm),assumptions([dt_c1_3__xboole_1,e1_3__xboole_1])],[rc1_xboole_0,rc2_xboole_0,reflexivity_r1_tarski,dt_k1_xboole_0,dt_c1_3__xboole_1,fc1_xboole_0,d10_xboole_0,e2_3__xboole_1,i3_3__xboole_1]),
+    [interesting(0.8),file(xboole_1,i2_3__xboole_1),[file(xboole_1,i2_3__xboole_1)]]).
+
+fof(i1_3__xboole_1,plain,
+    ( r1_tarski(c1_3__xboole_1,k1_xboole_0)
+   => c1_3__xboole_1 = k1_xboole_0 ),
+    inference(discharge_asm,[status(thm),assumptions([dt_c1_3__xboole_1]),discharge_asm(discharge,[e1_3__xboole_1])],[e1_3__xboole_1,i2_3__xboole_1]),
+    [interesting(0.8),file(xboole_1,i1_3__xboole_1),[file(xboole_1,i1_3__xboole_1)]]).
+
+fof(i1_3_tmp__xboole_1,plain,
+    ( r1_tarski(c1_3__xboole_1,k1_xboole_0)
+   => c1_3__xboole_1 = k1_xboole_0 ),
+    inference(discharge_asm,[status(thm),assumptions([]),discharge_asm(discharge,[dt_c1_3__xboole_1])],[dt_c1_3__xboole_1,i1_3__xboole_1]),
+    [interesting(1),t3_xboole_1]).
+
+fof(t3_xboole_1,theorem,(
+    ! [A] : 
+      ( r1_tarski(A,k1_xboole_0)
+     => A = k1_xboole_0 ) ),
+    inference(let,[status(thm),assumptions([])],[i1_3_tmp__xboole_1,dh_c1_3__xboole_1]),
+    [interesting(1),file(xboole_1,t3_xboole_1),[file(xboole_1,t3_xboole_1)]]).

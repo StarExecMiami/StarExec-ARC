@@ -1,0 +1,9 @@
+#!/bin/tcsh
+
+setenv HERE `dirname $0`
+
+if ("$3" == "THM") then
+    java -Xss128m -Xmx2g -Xms1g -jar $HERE/leo3.jar $1 -t $2 -p  --atp eprover=$HERE/externals/eprover --atp cvc4=$HERE/externals/cvc4 --instantiate 39
+else
+    java -Xss128m -Xmx2g -Xms1g -jar $HERE/leo3.jar $1 -t $2 -p  --atp nitpick=$HERE/externals/nitpick/bin/isabelle --atp-timeout nitpick=90 --instantiate 39
+endif

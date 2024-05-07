@@ -1,0 +1,124 @@
+%------------------------------------------------------------------------------
+% File       : SCOTT---6.1
+% Problem    : NUM313+1 : TPTP v3.1.0
+% Transform  : add_equality:r
+% Format     : scott:hypothesis:conjecture:none
+% Command    : scott-wrapper %d %s
+
+% Computer   : art05.cs.miami.edu
+% Model      : i686 unknown
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2793MHz
+% Memory     : 1000MB
+% OS         : Linux 2.4.22-21mdk-i686-up-4GB
+% CPULimit   : 600s
+
+% Result     : Theorem 69.3s
+% Output     : Refutation 69.3s
+% Statistics : Number of clauses     :   15 (  15 expanded)
+%              Depth                 :    4
+%              Number of atoms       :   23 (  23 expanded)
+%              Maximal clause size   :    5 (   2 average)
+%              Maximal term depth    :    3 (   2 average)
+% Verified   : 
+
+% Comments   : 
+%------------------------------------------------------------------------------
+%----TSTP SOLUTION
+% 0: (wt=22) 16 [] -rdn_translate(A,rdn_pos(B))| -rdn_translate(C,rdn_pos(D))| -rdn_add_with_carry(rdnn(n0),B,D,E)| -rdn_translate(F,rdn_pos(E))|sum(A,C,F).
+cnf(16,initial,
+    ( ~rdn_translate(A,rdn_pos(B))
+    | ~rdn_translate(C,rdn_pos(D))
+    | ~rdn_add_with_carry(rdnn(n0),B,D,E)
+    | ~rdn_translate(F,rdn_pos(E))
+    | sum(A,C,F) ),
+    file('NUM313+1+eq_r.sin',unknown),
+    []).
+
+% 0: (wt=11) 24 [] -sum(A,B,C)| -sum(A,D,C)|equal(B,D).
+cnf(24,initial,
+    ( ~sum(A,B,C)
+    | ~sum(A,D,C)
+    | equal(B,D) ),
+    file('NUM313+1+eq_r.sin',unknown),
+    []).
+
+% 0: (wt=27) 27 [] -rdn_digit_add(rdnn(A),rdnn(B),rdnn(C),rdnn(n0))| -rdn_digit_add(rdnn(C),rdnn(D),rdnn(E),rdnn(n0))|rdn_add_with_carry(rdnn(D),rdnn(A),rdnn(B),rdnn(E)).
+cnf(27,initial,
+    ( ~rdn_digit_add(rdnn(A),rdnn(B),rdnn(C),rdnn(n0))
+    | ~rdn_digit_add(rdnn(C),rdnn(D),rdnn(E),rdnn(n0))
+    | rdn_add_with_carry(rdnn(D),rdnn(A),rdnn(B),rdnn(E)) ),
+    file('NUM313+1+eq_r.sin',unknown),
+    []).
+
+% 1: (wt=4) 85 [] sum(n2,$c1,n5).
+cnf(85,initial,
+    ( sum(n2,sk_c1,n5) ),
+    file('NUM313+1+eq_r.sin',unknown),
+    []).
+
+% 0: (wt=0) 86 [] -equal($c1,n3).
+cnf(86,initial,
+    ( ~equal(sk_c1,n3) ),
+    file('NUM313+1+eq_r.sin',unknown),
+    []).
+
+% 2: (wt=3) 87 [copy,86,flip.1] -equal(n3,$c1).
+cnf(87,derived,
+    ( ~equal(n3,sk_c1) ),
+    inference(flip,[status(thm)],[
+        inference(copy,[status(thm)],[86]),theory(equality)]),
+    [iquote('copy,86,flip.1')]).
+
+% 16: (wt=5) 91 [] rdn_translate(n2,rdn_pos(rdnn(n2))).
+cnf(91,initial,
+    ( rdn_translate(n2,rdn_pos(rdnn(n2))) ),
+    file('NUM313+1+eq_r.sin',unknown),
+    []).
+
+% 21: (wt=5) 92 [] rdn_translate(n3,rdn_pos(rdnn(n3))).
+cnf(92,initial,
+    ( rdn_translate(n3,rdn_pos(rdnn(n3))) ),
+    file('NUM313+1+eq_r.sin',unknown),
+    []).
+
+% 31: (wt=5) 94 [] rdn_translate(n5,rdn_pos(rdnn(n5))).
+cnf(94,initial,
+    ( rdn_translate(n5,rdn_pos(rdnn(n5))) ),
+    file('NUM313+1+eq_r.sin',unknown),
+    []).
+
+% 1436: (wt=9) 387 [] rdn_digit_add(rdnn(n2),rdnn(n3),rdnn(n5),rdnn(n0)).
+cnf(387,initial,
+    ( rdn_digit_add(rdnn(n2),rdnn(n3),rdnn(n5),rdnn(n0)) ),
+    file('NUM313+1+eq_r.sin',unknown),
+    []).
+
+% 1571: (wt=9) 414 [] rdn_digit_add(rdnn(n5),rdnn(n0),rdnn(n5),rdnn(n0)).
+cnf(414,initial,
+    ( rdn_digit_add(rdnn(n5),rdnn(n0),rdnn(n5),rdnn(n0)) ),
+    file('NUM313+1+eq_r.sin',unknown),
+    []).
+
+% 29: (wt=4) 465 [ur,87,24,85] -sum(n2,n3,n5).
+cnf(465,derived,
+    ( ~sum(n2,n3,n5) ),
+    inference(ur,[status(thm)],[87,24,85]),
+    [iquote('ur,87,24,85')]).
+
+% 0: (wt=9) 506 [ur,94,16,91,92,465] -rdn_add_with_carry(rdnn(n0),rdnn(n2),rdnn(n3),rdnn(n5)).
+cnf(506,derived,
+    ( ~rdn_add_with_carry(rdnn(n0),rdnn(n2),rdnn(n3),rdnn(n5)) ),
+    inference(ur,[status(thm)],[94,16,91,92,465]),
+    [iquote('ur,94,16,91,92,465')]).
+
+% 0: (wt=9) 20300 [hyper,414,27,387] rdn_add_with_carry(rdnn(n0),rdnn(n2),rdnn(n3),rdnn(n5)).
+cnf(20300,derived,
+    ( rdn_add_with_carry(rdnn(n0),rdnn(n2),rdnn(n3),rdnn(n5)) ),
+    inference(hyper,[status(thm)],[414,27,387]),
+    [iquote('hyper,414,27,387')]).
+
+% 0: (wt=0) 20301 [binary,20300.1,506.1] $F.
+cnf(20301,derived,
+    ( $false ),
+    inference(binary,[status(thm)],[20300,506]),
+    [iquote('binary,20300.1,506.1')]).

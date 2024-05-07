@@ -1,0 +1,1 @@
+cnf(12,derived,(e(X2)|equalish(X3,X4)|~r(X2,u0r4(X1))|~r(X2,X4)|~r(X2,X3)|~e(X1)|~r(X1,u0r1(u0r4(X1),X2))),inference([pm,foo],[status(thm)],[7,2,theory(equality)])).

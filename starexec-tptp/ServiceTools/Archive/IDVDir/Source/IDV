@@ -1,0 +1,1 @@
+java -classpath .:./parser/antlr-2.7.5.jar:./parser/TptpParser.jar:./ClientHttpRequest/ClientHttpRequest.jar IDV $@

@@ -1,0 +1,169 @@
+% 15 [] -killed(aunt_agatha,aunt_agatha).
+cnf(15,axiom,
+    ( ~killed(aunt_agatha,aunt_agatha) ),
+    unknown,
+    []).
+
+% 16 [] -lives_at_dreadsbury(A)|equal(A,aunt_agatha)|equal(A,butler)|equal(A,charles).
+cnf(16,axiom,
+    ( ~lives_at_dreadsbury(A)
+    | equal(A,aunt_agatha)
+    | equal(A,butler)
+    | equal(A,charles) ),
+    unknown,
+    []).
+
+% 17 [] -killed(A,B)|hates(A,B).
+cnf(17,axiom,
+    ( ~killed(A,B)
+    | hates(A,B) ),
+    unknown,
+    []).
+
+% 18 [] -killed(A,B)| -richer(A,B).
+cnf(18,axiom,
+    ( ~killed(A,B)
+    | ~richer(A,B) ),
+    unknown,
+    []).
+
+% 19 [] -hates(aunt_agatha,A)| -hates(charles,A).
+cnf(19,axiom,
+    ( ~hates(aunt_agatha,A)
+    | ~hates(charles,A) ),
+    unknown,
+    []).
+
+% 20 [] -hates(aunt_agatha,A)|hates(butler,A).
+cnf(20,axiom,
+    ( ~hates(aunt_agatha,A)
+    | hates(butler,A) ),
+    unknown,
+    []).
+
+% 21 [] -hates(A,every_one_but(A)).
+cnf(21,axiom,
+    ( ~hates(A,every_one_but(A)) ),
+    unknown,
+    []).
+
+% 22 [] -equal(aunt_agatha,butler).
+cnf(22,axiom,
+    ( ~equal(aunt_agatha,butler) ),
+    unknown,
+    []).
+
+% 23 [copy,22,flip.1] -equal(butler,aunt_agatha).
+cnf(23,plain,
+    ( ~equal(butler,aunt_agatha) ),
+    inference(flip,[status(thm)],[
+        inference(copy,[status(thm)],[22]),theory(equality)]),
+    [iquote('copy,22,flip.1')]).
+
+% 24 [] lives_at_dreadsbury(someone).
+cnf(24,axiom,
+    ( lives_at_dreadsbury(someone) ),
+    unknown,
+    []).
+
+% 25 [] killed(someone,aunt_agatha).
+cnf(25,axiom,
+    ( killed(someone,aunt_agatha) ),
+    unknown,
+    []).
+
+% 26 [] equal(A,butler)|hates(aunt_agatha,A).
+cnf(26,axiom,
+    ( equal(A,butler)
+    | hates(aunt_agatha,A) ),
+    unknown,
+    []).
+
+% 27 [] richer(A,aunt_agatha)|hates(butler,A).
+cnf(27,axiom,
+    ( richer(A,aunt_agatha)
+    | hates(butler,A) ),
+    unknown,
+    []).
+
+% 32 [binary,25.1,18.1] -richer(someone,aunt_agatha).
+cnf(32,plain,
+    ( ~richer(someone,aunt_agatha) ),
+    inference(binary,[status(thm)],[25,18]),
+    [iquote('binary,25.1,18.1')]).
+
+% 34 [para_into,25.1.1,16.4.1,unit_del,24] killed(charles,aunt_agatha)|equal(someone,aunt_agatha)|equal(someone,butler).
+cnf(34,plain,
+    ( killed(charles,aunt_agatha)
+    | equal(someone,aunt_agatha)
+    | equal(someone,butler) ),
+    inference(unit_del,[status(thm)],[
+        inference(para_into,[status(thm)],[25,16,theory(equality)]),24]),
+    [iquote('para_into,25.1.1,16.4.1,unit_del,24')]).
+
+% 51 [binary,26.2,20.1] equal(A,butler)|hates(butler,A).
+cnf(51,plain,
+    ( equal(A,butler)
+    | hates(butler,A) ),
+    inference(binary,[status(thm)],[26,20]),
+    [iquote('binary,26.2,20.1')]).
+
+% 52 [binary,26.2,19.1] equal(A,butler)| -hates(charles,A).
+cnf(52,plain,
+    ( equal(A,butler)
+    | ~hates(charles,A) ),
+    inference(binary,[status(thm)],[26,19]),
+    [iquote('binary,26.2,19.1')]).
+
+% 65 [binary,27.1,32.1] hates(butler,someone).
+cnf(65,plain,
+    ( hates(butler,someone) ),
+    inference(binary,[status(thm)],[27,32]),
+    [iquote('binary,27.1,32.1')]).
+
+% 151 [binary,51.2,21.1] equal(every_one_but(butler),butler).
+cnf(151,plain,
+    ( equal(every_one_but(butler),butler) ),
+    inference(binary,[status(thm)],[51,21]),
+    [iquote('binary,51.2,21.1')]).
+
+% 180 [para_from,151.1.1,21.1.2] -hates(butler,butler).
+cnf(180,plain,
+    ( ~hates(butler,butler) ),
+    inference(para_from,[status(thm)],[151,21,theory(equality)]),
+    [iquote('para_from,151.1.1,21.1.2')]).
+
+% 194 [para_from,34.3.1,65.1.2,unit_del,180] killed(charles,aunt_agatha)|equal(someone,aunt_agatha).
+cnf(194,plain,
+    ( killed(charles,aunt_agatha)
+    | equal(someone,aunt_agatha) ),
+    inference(unit_del,[status(thm)],[
+        inference(para_from,[status(thm)],[34,65,theory(equality)]),180]),
+    [iquote('para_from,34.3.1,65.1.2,unit_del,180')]).
+
+% 251 [binary,52.2,17.2] equal(A,butler)| -killed(charles,A).
+cnf(251,plain,
+    ( equal(A,butler)
+    | ~killed(charles,A) ),
+    inference(binary,[status(thm)],[52,17]),
+    [iquote('binary,52.2,17.2')]).
+
+% 373 [binary,251.2,194.1,unit_del,23] equal(someone,aunt_agatha).
+cnf(373,plain,
+    ( equal(someone,aunt_agatha) ),
+    inference(unit_del,[status(thm)],[
+        inference(binary,[status(thm)],[251,194]),23]),
+    [iquote('binary,251.2,194.1,unit_del,23')]).
+
+% 398 [para_from,373.1.1,25.1.1] killed(aunt_agatha,aunt_agatha).
+cnf(398,plain,
+    ( killed(aunt_agatha,aunt_agatha) ),
+    inference(para_from,[status(thm)],[373,25,theory(equality)]),
+    [iquote('para_from,373.1.1,25.1.1')]).
+
+% 399 [binary,398.1,15.1] $F.
+cnf(399,plain,
+    ( $false ),
+    inference(binary,[status(thm)],[398,15]),
+    [iquote('binary,398.1,15.1')]).
+

@@ -1,0 +1,3 @@
+cnf(the_1,axiom, ( ~ q(sk1(B),A) | r(A,sk2(A)) | p(a,A))).
+EOF__
+cnf(the_2,axiom, ( r(A,new_sk2(A)) | ~ q(new_sk1(B),A) | p(a,A))).

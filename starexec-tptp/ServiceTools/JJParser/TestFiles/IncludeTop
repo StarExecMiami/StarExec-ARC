@@ -1,0 +1,5 @@
+fof(top1,axiom,p).
+
+include('IncludeMiddle',[middle1,bottom3]).
+
+fof(top2,axiom,p).

@@ -1,0 +1,1307 @@
+%------------------------------------------------------------------------------
+% File       : EP---0.91
+% Problem    : SET615+3 : TPTP v2.2.0
+% Transform  : none
+% Format     : tptp
+% Command    : eproof --print-statistics -xAuto -tAuto --memory-limit=Auto --tstp-in --tstp-out %s
+
+% Computer   : art09.cs.miami.edu
+% Model      : i686 i686
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2793MHz
+% Memory     : 1003MB
+% OS         : Linux 2.6.11-1.1369_FC4
+% CPULimit   : 600s
+
+% Result     : Theorem 59.5s
+% Output     : Refutation 93.6s
+% Statistics : Number of formulae    :  189 (51946 expanded)
+%              Number of clauses     :  163 (15229 expanded)
+%              Depth                 :   44
+%              Number of atoms       :  349 (229202 expanded)
+%              Maximal formula depth :    8 (   2 average)
+%              Maximal clause size   :    7 (   2 average)
+%              Maximal term depth    :    6 (   2 average)
+% Verified   : 
+
+% Comments   : 
+%------------------------------------------------------------------------------
+%----TSTP SOLUTION
+fof(1,axiom,(
+    ! [X1,X2,X3] : 
+      ( member(X3,union(X1,X2))
+    <=> ( member(X3,X1)
+        | member(X3,X2) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET615+3.tptp',union_defn)).
+
+fof(2,axiom,(
+    ! [X1,X2,X3] : 
+      ( member(X3,difference(X1,X2))
+    <=> ( member(X3,X1)
+        & ~ member(X3,X2) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET615+3.tptp',difference_defn)).
+
+fof(3,axiom,(
+    ! [X1,X2] : 
+      ( X1 = X2
+    <=> ( subset(X1,X2)
+        & subset(X2,X1) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET615+3.tptp',equal_defn)).
+
+fof(4,axiom,(
+    ! [X1,X2] : union(X1,X2) = union(X2,X1) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET615+3.tptp',commutativity_of_union)).
+
+fof(5,axiom,(
+    ! [X1,X2] : 
+      ( subset(X1,X2)
+    <=> ! [X3] : 
+          ( member(X3,X1)
+         => member(X3,X2) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET615+3.tptp',subset_defn)).
+
+fof(8,conjecture,(
+    ! [X1,X2,X3] : difference(union(X1,X2),X3) = union(difference(X1,X3),difference(X2,X3)) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET615+3.tptp',prove_difference_distributes_over_union)).
+
+fof(9,negated_conjecture,(
+    ~ ( ! [X1,X2,X3] : difference(union(X1,X2),X3) = union(difference(X1,X3),difference(X2,X3)) ) ),
+    inference(assume_negation,[status(cth)],[8])).
+
+fof(10,plain,(
+    ! [X1,X2,X3] : 
+      ( member(X3,difference(X1,X2))
+    <=> ( member(X3,X1)
+        & ~ member(X3,X2) ) ) ),
+    inference(fof_simplification,[status(thm)],[2,theory(equality)])).
+
+fof(11,plain,(
+    ! [X1,X2,X3] : 
+      ( ( ~ member(X3,union(X1,X2))
+        | member(X3,X1)
+        | member(X3,X2) )
+      & ( ( ~ member(X3,X1)
+          & ~ member(X3,X2) )
+        | member(X3,union(X1,X2)) ) ) ),
+    inference(fof_nnf,[status(thm)],[1])).
+
+fof(12,plain,(
+    ! [X4,X5,X6] : 
+      ( ( ~ member(X6,union(X4,X5))
+        | member(X6,X4)
+        | member(X6,X5) )
+      & ( ( ~ member(X6,X4)
+          & ~ member(X6,X5) )
+        | member(X6,union(X4,X5)) ) ) ),
+    inference(variable_rename,[status(thm)],[11])).
+
+fof(13,plain,(
+    ! [X4,X5,X6] : 
+      ( ( ~ member(X6,union(X4,X5))
+        | member(X6,X4)
+        | member(X6,X5) )
+      & ( ~ member(X6,X4)
+        | member(X6,union(X4,X5)) )
+      & ( ~ member(X6,X5)
+        | member(X6,union(X4,X5)) ) ) ),
+    inference(distribute,[status(thm)],[12])).
+
+cnf(14,plain,
+    ( member(X1,union(X2,X3))
+    | ~ member(X1,X3) ),
+    inference(split_conjunct,[status(thm)],[13])).
+
+cnf(15,plain,
+    ( member(X1,union(X2,X3))
+    | ~ member(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[13])).
+
+cnf(16,plain,
+    ( member(X1,X2)
+    | member(X1,X3)
+    | ~ member(X1,union(X3,X2)) ),
+    inference(split_conjunct,[status(thm)],[13])).
+
+fof(17,plain,(
+    ! [X1,X2,X3] : 
+      ( ( ~ member(X3,difference(X1,X2))
+        | ( member(X3,X1)
+          & ~ member(X3,X2) ) )
+      & ( ~ member(X3,X1)
+        | member(X3,X2)
+        | member(X3,difference(X1,X2)) ) ) ),
+    inference(fof_nnf,[status(thm)],[10])).
+
+fof(18,plain,(
+    ! [X4,X5,X6] : 
+      ( ( ~ member(X6,difference(X4,X5))
+        | ( member(X6,X4)
+          & ~ member(X6,X5) ) )
+      & ( ~ member(X6,X4)
+        | member(X6,X5)
+        | member(X6,difference(X4,X5)) ) ) ),
+    inference(variable_rename,[status(thm)],[17])).
+
+fof(19,plain,(
+    ! [X4,X5,X6] : 
+      ( ( member(X6,X4)
+        | ~ member(X6,difference(X4,X5)) )
+      & ( ~ member(X6,X5)
+        | ~ member(X6,difference(X4,X5)) )
+      & ( ~ member(X6,X4)
+        | member(X6,X5)
+        | member(X6,difference(X4,X5)) ) ) ),
+    inference(distribute,[status(thm)],[18])).
+
+cnf(20,plain,
+    ( member(X1,difference(X2,X3))
+    | member(X1,X3)
+    | ~ member(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[19])).
+
+cnf(21,plain,
+    ( ~ member(X1,difference(X2,X3))
+    | ~ member(X1,X3) ),
+    inference(split_conjunct,[status(thm)],[19])).
+
+cnf(22,plain,
+    ( member(X1,X2)
+    | ~ member(X1,difference(X2,X3)) ),
+    inference(split_conjunct,[status(thm)],[19])).
+
+fof(23,plain,(
+    ! [X1,X2] : 
+      ( ( X1 != X2
+        | ( subset(X1,X2)
+          & subset(X2,X1) ) )
+      & ( ~ subset(X1,X2)
+        | ~ subset(X2,X1)
+        | X1 = X2 ) ) ),
+    inference(fof_nnf,[status(thm)],[3])).
+
+fof(24,plain,(
+    ! [X3,X4] : 
+      ( ( X3 != X4
+        | ( subset(X3,X4)
+          & subset(X4,X3) ) )
+      & ( ~ subset(X3,X4)
+        | ~ subset(X4,X3)
+        | X3 = X4 ) ) ),
+    inference(variable_rename,[status(thm)],[23])).
+
+fof(25,plain,(
+    ! [X3,X4] : 
+      ( ( subset(X3,X4)
+        | X3 != X4 )
+      & ( subset(X4,X3)
+        | X3 != X4 )
+      & ( ~ subset(X3,X4)
+        | ~ subset(X4,X3)
+        | X3 = X4 ) ) ),
+    inference(distribute,[status(thm)],[24])).
+
+cnf(26,plain,
+    ( X1 = X2
+    | ~ subset(X2,X1)
+    | ~ subset(X1,X2) ),
+    inference(split_conjunct,[status(thm)],[25])).
+
+fof(29,plain,(
+    ! [X3,X4] : union(X3,X4) = union(X4,X3) ),
+    inference(variable_rename,[status(thm)],[4])).
+
+cnf(30,plain,
+    ( union(X1,X2) = union(X2,X1) ),
+    inference(split_conjunct,[status(thm)],[29])).
+
+fof(31,plain,(
+    ! [X1,X2] : 
+      ( ( ~ subset(X1,X2)
+        | ! [X3] : 
+            ( ~ member(X3,X1)
+            | member(X3,X2) ) )
+      & ( ? [X3] : 
+            ( member(X3,X1)
+            & ~ member(X3,X2) )
+        | subset(X1,X2) ) ) ),
+    inference(fof_nnf,[status(thm)],[5])).
+
+fof(32,plain,(
+    ! [X4,X5] : 
+      ( ( ~ subset(X4,X5)
+        | ! [X6] : 
+            ( ~ member(X6,X4)
+            | member(X6,X5) ) )
+      & ( ? [X7] : 
+            ( member(X7,X4)
+            & ~ member(X7,X5) )
+        | subset(X4,X5) ) ) ),
+    inference(variable_rename,[status(thm)],[31])).
+
+fof(33,plain,(
+    ! [X4,X5] : 
+      ( ( ~ subset(X4,X5)
+        | ! [X6] : 
+            ( ~ member(X6,X4)
+            | member(X6,X5) ) )
+      & ( ( member(esk1_2(X4,X5),X4)
+          & ~ member(esk1_2(X4,X5),X5) )
+        | subset(X4,X5) ) ) ),
+    inference(skolemize,[status(sab)],[32])).
+
+fof(34,plain,(
+    ! [X4,X5,X6] : 
+      ( ( ~ member(X6,X4)
+        | member(X6,X5)
+        | ~ subset(X4,X5) )
+      & ( ( member(esk1_2(X4,X5),X4)
+          & ~ member(esk1_2(X4,X5),X5) )
+        | subset(X4,X5) ) ) ),
+    inference(shift_quantors,[status(thm)],[33])).
+
+fof(35,plain,(
+    ! [X4,X5,X6] : 
+      ( ( ~ member(X6,X4)
+        | member(X6,X5)
+        | ~ subset(X4,X5) )
+      & ( member(esk1_2(X4,X5),X4)
+        | subset(X4,X5) )
+      & ( ~ member(esk1_2(X4,X5),X5)
+        | subset(X4,X5) ) ) ),
+    inference(distribute,[status(thm)],[34])).
+
+cnf(36,plain,
+    ( subset(X1,X2)
+    | ~ member(esk1_2(X1,X2),X2) ),
+    inference(split_conjunct,[status(thm)],[35])).
+
+cnf(37,plain,
+    ( subset(X1,X2)
+    | member(esk1_2(X1,X2),X1) ),
+    inference(split_conjunct,[status(thm)],[35])).
+
+fof(50,negated_conjecture,(
+    ? [X1,X2,X3] : difference(union(X1,X2),X3) != union(difference(X1,X3),difference(X2,X3)) ),
+    inference(fof_nnf,[status(thm)],[9])).
+
+fof(51,negated_conjecture,(
+    ? [X4,X5,X6] : difference(union(X4,X5),X6) != union(difference(X4,X6),difference(X5,X6)) ),
+    inference(variable_rename,[status(thm)],[50])).
+
+fof(52,negated_conjecture,(
+    difference(union(esk3_0,esk4_0),esk5_0) != union(difference(esk3_0,esk5_0),difference(esk4_0,esk5_0)) ),
+    inference(skolemize,[status(sab)],[51])).
+
+cnf(53,negated_conjecture,
+    ( difference(union(esk3_0,esk4_0),esk5_0) != union(difference(esk3_0,esk5_0),difference(esk4_0,esk5_0)) ),
+    inference(split_conjunct,[status(thm)],[52])).
+
+cnf(62,plain,
+    ( member(esk1_2(difference(X1,X2),X3),X1)
+    | subset(difference(X1,X2),X3) ),
+    inference(spm,[status(thm)],[22,37,theory(equality)])).
+
+cnf(63,plain,
+    ( subset(difference(X1,X2),X3)
+    | ~ member(esk1_2(difference(X1,X2),X3),X2) ),
+    inference(spm,[status(thm)],[21,37,theory(equality)])).
+
+cnf(64,plain,
+    ( subset(X1,union(X2,X3))
+    | ~ member(esk1_2(X1,union(X2,X3)),X3) ),
+    inference(spm,[status(thm)],[36,14,theory(equality)])).
+
+cnf(65,plain,
+    ( subset(X1,union(X2,X3))
+    | ~ member(esk1_2(X1,union(X2,X3)),X2) ),
+    inference(spm,[status(thm)],[36,15,theory(equality)])).
+
+cnf(71,plain,
+    ( subset(X1,difference(X2,X3))
+    | member(esk1_2(X1,difference(X2,X3)),X3)
+    | ~ member(esk1_2(X1,difference(X2,X3)),X2) ),
+    inference(spm,[status(thm)],[36,20,theory(equality)])).
+
+cnf(76,plain,
+    ( member(esk1_2(union(X1,X2),X3),X2)
+    | member(esk1_2(union(X1,X2),X3),X1)
+    | subset(union(X1,X2),X3) ),
+    inference(spm,[status(thm)],[16,37,theory(equality)])).
+
+cnf(91,plain,
+    ( subset(difference(X1,difference(X2,X3)),X4)
+    | member(esk1_2(difference(X1,difference(X2,X3)),X4),X3)
+    | ~ member(esk1_2(difference(X1,difference(X2,X3)),X4),X2) ),
+    inference(spm,[status(thm)],[63,20,theory(equality)])).
+
+cnf(103,plain,
+    ( subset(difference(difference(X1,X2),X3),X4)
+    | ~ member(esk1_2(difference(difference(X1,X2),X3),X4),X2) ),
+    inference(spm,[status(thm)],[21,62,theory(equality)])).
+
+cnf(104,plain,
+    ( subset(difference(X1,X2),X1) ),
+    inference(spm,[status(thm)],[36,62,theory(equality)])).
+
+cnf(105,plain,
+    ( member(esk1_2(difference(union(X1,X2),X3),X4),X2)
+    | member(esk1_2(difference(union(X1,X2),X3),X4),X1)
+    | subset(difference(union(X1,X2),X3),X4) ),
+    inference(spm,[status(thm)],[16,62,theory(equality)])).
+
+cnf(136,plain,
+    ( subset(X1,union(X2,union(X3,X4)))
+    | ~ member(esk1_2(X1,union(X2,union(X3,X4))),X4) ),
+    inference(spm,[status(thm)],[64,14,theory(equality)])).
+
+cnf(137,plain,
+    ( subset(X1,union(X2,union(X3,X4)))
+    | ~ member(esk1_2(X1,union(X2,union(X3,X4))),X3) ),
+    inference(spm,[status(thm)],[64,15,theory(equality)])).
+
+cnf(138,plain,
+    ( subset(X1,union(X2,X1)) ),
+    inference(spm,[status(thm)],[64,37,theory(equality)])).
+
+cnf(139,plain,
+    ( subset(X1,union(X2,difference(X3,X4)))
+    | member(esk1_2(X1,union(X2,difference(X3,X4))),X4)
+    | ~ member(esk1_2(X1,union(X2,difference(X3,X4))),X3) ),
+    inference(spm,[status(thm)],[64,20,theory(equality)])).
+
+cnf(283,plain,
+    ( subset(X1,union(X1,X2)) ),
+    inference(spm,[status(thm)],[138,30,theory(equality)])).
+
+cnf(349,plain,
+    ( subset(X1,union(union(X2,X3),X4))
+    | ~ member(esk1_2(X1,union(union(X2,X3),X4)),X3) ),
+    inference(spm,[status(thm)],[65,14,theory(equality)])).
+
+cnf(352,plain,
+    ( subset(X1,union(difference(X2,X3),X4))
+    | member(esk1_2(X1,union(difference(X2,X3),X4)),X3)
+    | ~ member(esk1_2(X1,union(difference(X2,X3),X4)),X2) ),
+    inference(spm,[status(thm)],[65,20,theory(equality)])).
+
+cnf(468,plain,
+    ( subset(X1,difference(union(X2,X3),X4))
+    | member(esk1_2(X1,difference(union(X2,X3),X4)),X4)
+    | ~ member(esk1_2(X1,difference(union(X2,X3),X4)),X2) ),
+    inference(spm,[status(thm)],[71,15,theory(equality)])).
+
+cnf(469,plain,
+    ( subset(X1,difference(X1,X2))
+    | member(esk1_2(X1,difference(X1,X2)),X2) ),
+    inference(spm,[status(thm)],[71,37,theory(equality)])).
+
+cnf(471,plain,
+    ( subset(difference(X1,X2),difference(X1,X3))
+    | member(esk1_2(difference(X1,X2),difference(X1,X3)),X3) ),
+    inference(spm,[status(thm)],[71,62,theory(equality)])).
+
+cnf(474,plain,
+    ( subset(union(X4,X4),X5)
+    | member(esk1_2(union(X4,X4),X5),X4) ),
+    inference(ef,[status(thm)],[76,theory(equality)])).
+
+cnf(478,plain,
+    ( member(esk1_2(union(difference(X1,X2),X3),X4),X1)
+    | subset(union(difference(X1,X2),X3),X4)
+    | member(esk1_2(union(difference(X1,X2),X3),X4),X3) ),
+    inference(spm,[status(thm)],[22,76,theory(equality)])).
+
+cnf(479,plain,
+    ( member(esk1_2(union(X1,difference(X2,X3)),X4),X2)
+    | subset(union(X1,difference(X2,X3)),X4)
+    | member(esk1_2(union(X1,difference(X2,X3)),X4),X1) ),
+    inference(spm,[status(thm)],[22,76,theory(equality)])).
+
+cnf(482,plain,
+    ( subset(union(X1,X2),X1)
+    | member(esk1_2(union(X1,X2),X1),X2) ),
+    inference(spm,[status(thm)],[36,76,theory(equality)])).
+
+cnf(488,plain,
+    ( subset(union(X1,X2),union(X3,X1))
+    | member(esk1_2(union(X1,X2),union(X3,X1)),X2) ),
+    inference(spm,[status(thm)],[64,76,theory(equality)])).
+
+cnf(490,plain,
+    ( subset(union(X1,X2),union(X1,X3))
+    | member(esk1_2(union(X1,X2),union(X1,X3)),X2) ),
+    inference(spm,[status(thm)],[65,76,theory(equality)])).
+
+cnf(2894,plain,
+    ( subset(difference(union(X1,X2),X3),X1)
+    | member(esk1_2(difference(union(X1,X2),X3),X1),X2) ),
+    inference(spm,[status(thm)],[36,105,theory(equality)])).
+
+cnf(12700,plain,
+    ( subset(X1,difference(union(X1,X2),X3))
+    | member(esk1_2(X1,difference(union(X1,X2),X3)),X3) ),
+    inference(spm,[status(thm)],[468,37,theory(equality)])).
+
+cnf(12782,plain,
+    ( subset(X1,difference(X1,difference(X2,X3)))
+    | ~ member(esk1_2(X1,difference(X1,difference(X2,X3))),X3) ),
+    inference(spm,[status(thm)],[21,469,theory(equality)])).
+
+cnf(14230,plain,
+    ( member(esk1_2(difference(X1,X2),difference(X1,difference(X3,X4))),X3)
+    | subset(difference(X1,X2),difference(X1,difference(X3,X4))) ),
+    inference(spm,[status(thm)],[22,471,theory(equality)])).
+
+cnf(14238,plain,
+    ( subset(difference(X1,difference(X2,X3)),difference(X1,X2))
+    | member(esk1_2(difference(X1,difference(X2,X3)),difference(X1,X2)),X3) ),
+    inference(spm,[status(thm)],[91,471,theory(equality)])).
+
+cnf(15339,plain,
+    ( subset(union(X1,X1),X1) ),
+    inference(spm,[status(thm)],[36,474,theory(equality)])).
+
+cnf(15632,plain,
+    ( X1 = union(X1,X1)
+    | ~ subset(X1,union(X1,X1)) ),
+    inference(spm,[status(thm)],[26,15339,theory(equality)])).
+
+cnf(15641,plain,
+    ( X1 = union(X1,X1)
+    | $false ),
+    inference(rw,[status(thm)],[15632,283,theory(equality)])).
+
+cnf(15642,plain,
+    ( X1 = union(X1,X1) ),
+    inference(cn,[status(thm)],[15641,theory(equality)])).
+
+cnf(16162,plain,
+    ( subset(union(difference(X5,X6),X5),X7)
+    | member(esk1_2(union(difference(X5,X6),X5),X7),X5) ),
+    inference(ef,[status(thm)],[478,theory(equality)])).
+
+cnf(16259,plain,
+    ( subset(union(difference(X1,X2),X3),union(X4,X1))
+    | member(esk1_2(union(difference(X1,X2),X3),union(X4,X1)),X3) ),
+    inference(spm,[status(thm)],[64,478,theory(equality)])).
+
+cnf(16405,plain,
+    ( subset(union(X1,difference(X2,X3)),union(X4,X2))
+    | member(esk1_2(union(X1,difference(X2,X3)),union(X4,X2)),X1) ),
+    inference(spm,[status(thm)],[64,479,theory(equality)])).
+
+cnf(17648,plain,
+    ( subset(union(union(X1,union(X2,X3)),X2),union(X1,union(X2,X3))) ),
+    inference(spm,[status(thm)],[137,482,theory(equality)])).
+
+cnf(21471,plain,
+    ( subset(union(X1,X2),union(difference(X2,X3),X1))
+    | member(esk1_2(union(X1,X2),union(difference(X2,X3),X1)),X3) ),
+    inference(spm,[status(thm)],[352,488,theory(equality)])).
+
+cnf(22434,plain,
+    ( subset(union(X1,X2),union(X1,difference(X2,X3)))
+    | member(esk1_2(union(X1,X2),union(X1,difference(X2,X3))),X3) ),
+    inference(spm,[status(thm)],[139,490,theory(equality)])).
+
+cnf(52115,plain,
+    ( subset(union(X2,union(X1,union(X2,X3))),union(X1,union(X2,X3))) ),
+    inference(rw,[status(thm)],[17648,30,theory(equality)])).
+
+cnf(52150,plain,
+    ( union(X1,union(X2,X3)) = union(X2,union(X1,union(X2,X3)))
+    | ~ subset(union(X1,union(X2,X3)),union(X2,union(X1,union(X2,X3)))) ),
+    inference(spm,[status(thm)],[26,52115,theory(equality)])).
+
+cnf(52184,plain,
+    ( union(X1,union(X2,X3)) = union(X2,union(X1,union(X2,X3)))
+    | $false ),
+    inference(rw,[status(thm)],[52150,138,theory(equality)])).
+
+cnf(52185,plain,
+    ( union(X1,union(X2,X3)) = union(X2,union(X1,union(X2,X3))) ),
+    inference(cn,[status(thm)],[52184,theory(equality)])).
+
+cnf(232687,plain,
+    ( subset(difference(union(X1,X2),X2),X1) ),
+    inference(spm,[status(thm)],[63,2894,theory(equality)])).
+
+cnf(737012,plain,
+    ( subset(difference(X1,X2),difference(union(difference(X1,X2),X3),X2)) ),
+    inference(spm,[status(thm)],[63,12700,theory(equality)])).
+
+cnf(765614,plain,
+    ( subset(X1,difference(X1,difference(X2,X1))) ),
+    inference(spm,[status(thm)],[12782,37,theory(equality)])).
+
+cnf(766567,plain,
+    ( difference(X1,difference(X2,X1)) = X1
+    | ~ subset(difference(X1,difference(X2,X1)),X1) ),
+    inference(spm,[status(thm)],[26,765614,theory(equality)])).
+
+cnf(766840,plain,
+    ( difference(X1,difference(X2,X1)) = X1
+    | $false ),
+    inference(rw,[status(thm)],[766567,104,theory(equality)])).
+
+cnf(766841,plain,
+    ( difference(X1,difference(X2,X1)) = X1 ),
+    inference(cn,[status(thm)],[766840,theory(equality)])).
+
+cnf(767177,plain,
+    ( subset(X1,difference(union(X1,X3),difference(X2,X1))) ),
+    inference(spm,[status(thm)],[737012,766841,theory(equality)])).
+
+cnf(880650,plain,
+    ( subset(difference(X1,X2),difference(X1,difference(X2,X3))) ),
+    inference(spm,[status(thm)],[63,14230,theory(equality)])).
+
+cnf(892617,plain,
+    ( subset(difference(difference(X1,X2),difference(X3,X2)),difference(difference(X1,X2),X3)) ),
+    inference(spm,[status(thm)],[103,14238,theory(equality)])).
+
+cnf(951650,plain,
+    ( subset(union(X5,difference(X5,X6)),X7)
+    | member(esk1_2(union(difference(X5,X6),X5),X7),X5) ),
+    inference(rw,[status(thm)],[16162,30,theory(equality)])).
+
+cnf(951651,plain,
+    ( subset(union(X5,difference(X5,X6)),X7)
+    | member(esk1_2(union(X5,difference(X5,X6)),X7),X5) ),
+    inference(rw,[status(thm)],[951650,30,theory(equality)])).
+
+cnf(952034,plain,
+    ( subset(union(X1,difference(X1,X2)),X1) ),
+    inference(spm,[status(thm)],[36,951651,theory(equality)])).
+
+cnf(953035,plain,
+    ( X1 = union(X1,difference(X1,X2))
+    | ~ subset(X1,union(X1,difference(X1,X2))) ),
+    inference(spm,[status(thm)],[26,952034,theory(equality)])).
+
+cnf(953335,plain,
+    ( X1 = union(X1,difference(X1,X2))
+    | $false ),
+    inference(rw,[status(thm)],[953035,283,theory(equality)])).
+
+cnf(953336,plain,
+    ( X1 = union(X1,difference(X1,X2)) ),
+    inference(cn,[status(thm)],[953335,theory(equality)])).
+
+cnf(987265,plain,
+    ( subset(union(difference(X1,X2),X3),union(X3,X1)) ),
+    inference(spm,[status(thm)],[65,16259,theory(equality)])).
+
+cnf(1088218,plain,
+    ( subset(union(X1,difference(X2,X3)),union(X1,X2)) ),
+    inference(spm,[status(thm)],[65,16405,theory(equality)])).
+
+cnf(1551147,plain,
+    ( subset(union(X1,X2),union(difference(X2,X1),X1)) ),
+    inference(spm,[status(thm)],[64,21471,theory(equality)])).
+
+cnf(1551148,plain,
+    ( subset(union(union(X1,X2),X3),union(difference(X3,X2),union(X1,X2))) ),
+    inference(spm,[status(thm)],[136,21471,theory(equality)])).
+
+cnf(1551149,plain,
+    ( subset(union(union(X1,X2),X3),union(difference(X3,X1),union(X1,X2))) ),
+    inference(spm,[status(thm)],[137,21471,theory(equality)])).
+
+cnf(1551928,plain,
+    ( subset(union(X1,X2),union(X1,difference(X2,X1))) ),
+    inference(rw,[status(thm)],[1551147,30,theory(equality)])).
+
+cnf(1552426,plain,
+    ( union(X1,difference(X2,X1)) = union(X1,X2)
+    | ~ subset(union(X1,difference(X2,X1)),union(X1,X2)) ),
+    inference(spm,[status(thm)],[26,1551928,theory(equality)])).
+
+cnf(1552921,plain,
+    ( union(X1,difference(X2,X1)) = union(X1,X2)
+    | $false ),
+    inference(rw,[status(thm)],[1552426,1088218,theory(equality)])).
+
+cnf(1552922,plain,
+    ( union(X1,difference(X2,X1)) = union(X1,X2) ),
+    inference(cn,[status(thm)],[1552921,theory(equality)])).
+
+cnf(1553137,plain,
+    ( subset(difference(union(X1,X2),difference(X2,X1)),X1) ),
+    inference(spm,[status(thm)],[232687,1552922,theory(equality)])).
+
+cnf(1652909,plain,
+    ( subset(union(union(X1,X2),X3),union(union(X1,X2),difference(X3,X2))) ),
+    inference(spm,[status(thm)],[349,22434,theory(equality)])).
+
+cnf(1959802,plain,
+    ( difference(difference(X1,X2),X3) = difference(difference(X1,X2),difference(X3,X2))
+    | ~ subset(difference(difference(X1,X2),X3),difference(difference(X1,X2),difference(X3,X2))) ),
+    inference(spm,[status(thm)],[26,892617,theory(equality)])).
+
+cnf(1960805,plain,
+    ( difference(difference(X1,X2),X3) = difference(difference(X1,X2),difference(X3,X2))
+    | $false ),
+    inference(rw,[status(thm)],[1959802,880650,theory(equality)])).
+
+cnf(1960806,plain,
+    ( difference(difference(X1,X2),X3) = difference(difference(X1,X2),difference(X3,X2)) ),
+    inference(cn,[status(thm)],[1960805,theory(equality)])).
+
+cnf(1961197,plain,
+    ( difference(X1,difference(X3,difference(X2,X1))) = difference(X1,X3) ),
+    inference(spm,[status(thm)],[1960806,766841,theory(equality)])).
+
+cnf(2127311,plain,
+    ( union(difference(X1,X2),union(X3,X2)) = union(union(X3,X2),X1)
+    | ~ subset(union(difference(X1,X2),union(X3,X2)),union(union(X3,X2),X1)) ),
+    inference(spm,[status(thm)],[26,1551148,theory(equality)])).
+
+cnf(2127792,plain,
+    ( union(difference(X1,X2),union(X3,X2)) = union(union(X3,X2),X1)
+    | $false ),
+    inference(rw,[status(thm)],[2127311,987265,theory(equality)])).
+
+cnf(2127793,plain,
+    ( union(difference(X1,X2),union(X3,X2)) = union(union(X3,X2),X1) ),
+    inference(cn,[status(thm)],[2127792,theory(equality)])).
+
+cnf(2128627,plain,
+    ( union(difference(X1,difference(X2,X3)),X2) = union(X2,X1) ),
+    inference(spm,[status(thm)],[2127793,953336,theory(equality)])).
+
+cnf(2132232,plain,
+    ( union(X2,difference(X1,difference(X2,X3))) = union(X2,X1) ),
+    inference(rw,[status(thm)],[2128627,30,theory(equality)])).
+
+cnf(2146481,plain,
+    ( union(difference(X1,X2),union(X2,X3)) = union(union(X2,X3),X1)
+    | ~ subset(union(difference(X1,X2),union(X2,X3)),union(union(X2,X3),X1)) ),
+    inference(spm,[status(thm)],[26,1551149,theory(equality)])).
+
+cnf(2146955,plain,
+    ( union(difference(X1,X2),union(X2,X3)) = union(union(X2,X3),X1)
+    | $false ),
+    inference(rw,[status(thm)],[2146481,987265,theory(equality)])).
+
+cnf(2146956,plain,
+    ( union(difference(X1,X2),union(X2,X3)) = union(union(X2,X3),X1) ),
+    inference(cn,[status(thm)],[2146955,theory(equality)])).
+
+cnf(2157191,plain,
+    ( union(union(X1,X2),difference(X3,X2)) = union(union(X1,X2),X3)
+    | ~ subset(union(union(X1,X2),difference(X3,X2)),union(union(X1,X2),X3)) ),
+    inference(spm,[status(thm)],[26,1652909,theory(equality)])).
+
+cnf(2157671,plain,
+    ( union(union(X1,X2),difference(X3,X2)) = union(union(X1,X2),X3)
+    | $false ),
+    inference(rw,[status(thm)],[2157191,1088218,theory(equality)])).
+
+cnf(2157672,plain,
+    ( union(union(X1,X2),difference(X3,X2)) = union(union(X1,X2),X3) ),
+    inference(cn,[status(thm)],[2157671,theory(equality)])).
+
+cnf(2176116,plain,
+    ( X1 = difference(union(X1,X2),difference(X2,X1))
+    | ~ subset(X1,difference(union(X1,X2),difference(X2,X1))) ),
+    inference(spm,[status(thm)],[26,1553137,theory(equality)])).
+
+cnf(2176547,plain,
+    ( X1 = difference(union(X1,X2),difference(X2,X1))
+    | $false ),
+    inference(rw,[status(thm)],[2176116,767177,theory(equality)])).
+
+cnf(2176548,plain,
+    ( X1 = difference(union(X1,X2),difference(X2,X1)) ),
+    inference(cn,[status(thm)],[2176547,theory(equality)])).
+
+cnf(2176851,plain,
+    ( difference(union(difference(X1,X2),X2),X2) = difference(X1,X2) ),
+    inference(spm,[status(thm)],[2176548,766841,theory(equality)])).
+
+cnf(2177224,plain,
+    ( difference(union(X2,X1),difference(X2,X1)) = X1 ),
+    inference(spm,[status(thm)],[2176548,30,theory(equality)])).
+
+cnf(2178344,plain,
+    ( difference(union(X2,X1),X2) = difference(X1,X2) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[2176851,30,theory(equality)]),1552922,theory(equality)])).
+
+cnf(2179412,plain,
+    ( difference(difference(X1,X2),difference(X3,X2)) = difference(difference(X1,X2),union(X2,X3)) ),
+    inference(spm,[status(thm)],[1960806,2178344,theory(equality)])).
+
+cnf(2179414,plain,
+    ( difference(X1,difference(X3,difference(X2,X1))) = difference(X1,union(difference(X2,X1),X3)) ),
+    inference(spm,[status(thm)],[1961197,2178344,theory(equality)])).
+
+cnf(2179499,plain,
+    ( union(difference(X2,X1),union(X3,X1)) = union(union(X3,X1),union(X1,X2)) ),
+    inference(spm,[status(thm)],[2127793,2178344,theory(equality)])).
+
+cnf(2179502,plain,
+    ( union(X1,difference(X3,difference(X1,X2))) = union(X1,union(difference(X1,X2),X3)) ),
+    inference(spm,[status(thm)],[2132232,2178344,theory(equality)])).
+
+cnf(2179503,plain,
+    ( difference(union(X1,X2),X1) = difference(difference(X2,difference(X1,X3)),X1) ),
+    inference(spm,[status(thm)],[2178344,2132232,theory(equality)])).
+
+cnf(2179506,plain,
+    ( union(difference(X2,X1),union(X1,X3)) = union(union(X1,X3),union(X1,X2)) ),
+    inference(spm,[status(thm)],[2146956,2178344,theory(equality)])).
+
+cnf(2179521,plain,
+    ( difference(union(X2,X1),X1) = difference(X2,X1) ),
+    inference(spm,[status(thm)],[2178344,30,theory(equality)])).
+
+cnf(2180628,plain,
+    ( difference(difference(X1,X2),X3) = difference(difference(X1,X2),union(X2,X3)) ),
+    inference(rw,[status(thm)],[2179412,1960806,theory(equality)])).
+
+cnf(2180630,plain,
+    ( difference(X1,X3) = difference(X1,union(difference(X2,X1),X3)) ),
+    inference(rw,[status(thm)],[2179414,1961197,theory(equality)])).
+
+cnf(2180635,plain,
+    ( union(union(X3,X1),X2) = union(union(X3,X1),union(X1,X2)) ),
+    inference(rw,[status(thm)],[2179499,2127793,theory(equality)])).
+
+cnf(2180636,plain,
+    ( union(X1,X3) = union(X1,union(difference(X1,X2),X3)) ),
+    inference(rw,[status(thm)],[2179502,2132232,theory(equality)])).
+
+cnf(2180637,plain,
+    ( difference(X2,X1) = difference(difference(X2,difference(X1,X3)),X1) ),
+    inference(rw,[status(thm)],[2179503,2178344,theory(equality)])).
+
+cnf(2180638,plain,
+    ( union(union(X1,X3),X2) = union(union(X1,X3),union(X1,X2)) ),
+    inference(rw,[status(thm)],[2179506,2146956,theory(equality)])).
+
+cnf(2182803,plain,
+    ( difference(X1,difference(X2,difference(X3,X1))) = difference(X1,union(X2,difference(X3,X1))) ),
+    inference(spm,[status(thm)],[1961197,2179521,theory(equality)])).
+
+cnf(2183981,plain,
+    ( difference(X1,X2) = difference(X1,union(X2,difference(X3,X1))) ),
+    inference(rw,[status(thm)],[2182803,1961197,theory(equality)])).
+
+cnf(2193084,plain,
+    ( difference(union(X1,X3),X1) = difference(union(difference(X1,X2),X3),X1) ),
+    inference(spm,[status(thm)],[2178344,2180636,theory(equality)])).
+
+cnf(2196589,plain,
+    ( difference(X3,X1) = difference(union(difference(X1,X2),X3),X1) ),
+    inference(rw,[status(thm)],[2193084,2178344,theory(equality)])).
+
+cnf(2197595,plain,
+    ( difference(difference(X1,X2),union(X2,X3)) = difference(X1,union(X2,X3)) ),
+    inference(spm,[status(thm)],[2180637,2176548,theory(equality)])).
+
+cnf(2197602,plain,
+    ( difference(difference(X1,difference(X2,X3)),X2) = difference(union(X1,difference(X2,X3)),X2) ),
+    inference(spm,[status(thm)],[2180637,2179521,theory(equality)])).
+
+cnf(2199074,plain,
+    ( difference(X1,X2) = difference(union(X1,difference(X2,X3)),X2) ),
+    inference(rw,[status(thm)],[2197602,2180637,theory(equality)])).
+
+cnf(2216911,plain,
+    ( difference(union(X1,X3),union(X1,X2)) = difference(X3,union(X1,X2)) ),
+    inference(spm,[status(thm)],[2196589,2176548,theory(equality)])).
+
+cnf(2219423,plain,
+    ( difference(union(X1,X3),union(X2,X3)) = difference(X1,union(X2,X3)) ),
+    inference(spm,[status(thm)],[2199074,2177224,theory(equality)])).
+
+cnf(2527664,plain,
+    ( union(union(X1,X2),X3) = union(union(X1,X3),union(X1,X2)) ),
+    inference(spm,[status(thm)],[30,2180638,theory(equality)])).
+
+cnf(2531305,plain,
+    ( union(union(X1,X2),X3) = union(union(X1,X3),X2) ),
+    inference(rw,[status(thm)],[2527664,2180638,theory(equality)])).
+
+cnf(2536344,plain,
+    ( union(union(X1,X3),X2) = union(X3,union(X1,X2)) ),
+    inference(spm,[status(thm)],[30,2531305,theory(equality)])).
+
+cnf(2560120,plain,
+    ( union(X1,union(X2,X3)) = union(union(X1,X2),X3) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[2180635,2536344,theory(equality)]),52185,theory(equality)])).
+
+cnf(2560121,plain,
+    ( union(X1,union(X2,X3)) = union(X2,union(X1,X3)) ),
+    inference(rw,[status(thm)],[2560120,2536344,theory(equality)])).
+
+cnf(2560180,plain,
+    ( union(X2,union(X1,difference(X3,X2))) = union(union(X1,X2),X3) ),
+    inference(rw,[status(thm)],[2157672,2536344,theory(equality)])).
+
+cnf(2560181,plain,
+    ( union(X2,union(X1,difference(X3,X2))) = union(X2,union(X1,X3)) ),
+    inference(rw,[status(thm)],[2560180,2536344,theory(equality)])).
+
+cnf(2563359,plain,
+    ( difference(union(X2,union(X1,X3)),X1) = difference(union(X2,X3),X1) ),
+    inference(spm,[status(thm)],[2178344,2560121,theory(equality)])).
+
+cnf(2580279,plain,
+    ( difference(union(X1,union(X2,X3)),X1) = difference(union(X2,difference(X3,X1)),X1) ),
+    inference(spm,[status(thm)],[2178344,2560181,theory(equality)])).
+
+cnf(2582125,plain,
+    ( difference(union(X2,X3),X1) = difference(union(X2,difference(X3,X1)),X1) ),
+    inference(rw,[status(thm)],[2580279,2178344,theory(equality)])).
+
+cnf(2633595,plain,
+    ( difference(difference(X1,X2),X3) = difference(X1,union(X2,X3)) ),
+    inference(rw,[status(thm)],[2197595,2180628,theory(equality)])).
+
+cnf(2633757,plain,
+    ( union(X1,difference(X2,union(X3,X1))) = union(X1,difference(X2,X3)) ),
+    inference(spm,[status(thm)],[1552922,2633595,theory(equality)])).
+
+cnf(2656272,plain,
+    ( difference(union(X1,X2),union(X3,difference(X2,X1))) = difference(X1,union(X3,difference(X2,X1))) ),
+    inference(spm,[status(thm)],[2219423,1552922,theory(equality)])).
+
+cnf(2657225,plain,
+    ( difference(union(X1,X2),union(X3,difference(X2,X1))) = difference(X1,X3) ),
+    inference(rw,[status(thm)],[2656272,2183981,theory(equality)])).
+
+cnf(2660683,plain,
+    ( difference(union(difference(X2,X3),X1),X3) = difference(union(X1,X2),X3) ),
+    inference(spm,[status(thm)],[2582125,30,theory(equality)])).
+
+cnf(2662063,plain,
+    ( union(X1,difference(X3,union(X2,X1))) = union(X1,difference(union(union(X2,X1),X3),X2)) ),
+    inference(spm,[status(thm)],[2633757,2178344,theory(equality)])).
+
+cnf(2662209,plain,
+    ( union(X1,difference(X2,union(X1,X3))) = union(X1,difference(X2,X3)) ),
+    inference(spm,[status(thm)],[2633757,30,theory(equality)])).
+
+cnf(2663364,plain,
+    ( union(X1,difference(X3,X2)) = union(X1,difference(union(union(X2,X1),X3),X2)) ),
+    inference(rw,[status(thm)],[2662063,2633757,theory(equality)])).
+
+cnf(2663365,plain,
+    ( union(X1,difference(X3,X2)) = union(X1,difference(union(X1,X3),X2)) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[2663364,2536344,theory(equality)]),2563359,theory(equality)])).
+
+cnf(2665786,plain,
+    ( union(X1,X1) = union(X1,difference(X2,difference(X2,X1))) ),
+    inference(spm,[status(thm)],[2663365,2176548,theory(equality)])).
+
+cnf(2667105,plain,
+    ( X1 = union(X1,difference(X2,difference(X2,X1))) ),
+    inference(rw,[status(thm)],[2665786,15642,theory(equality)])).
+
+cnf(2668084,plain,
+    ( difference(X1,difference(X1,difference(X2,difference(X2,X1)))) = difference(X2,difference(X2,X1)) ),
+    inference(spm,[status(thm)],[2177224,2667105,theory(equality)])).
+
+cnf(2668217,plain,
+    ( union(X1,difference(X1,X3)) = union(X1,difference(difference(X2,difference(X2,X1)),X3)) ),
+    inference(spm,[status(thm)],[2663365,2667105,theory(equality)])).
+
+cnf(2669406,plain,
+    ( difference(X1,difference(X1,X2)) = difference(X2,difference(X2,X1)) ),
+    inference(rw,[status(thm)],[2668084,1961197,theory(equality)])).
+
+cnf(2669515,plain,
+    ( X1 = union(X1,difference(difference(X2,difference(X2,X1)),X3)) ),
+    inference(rw,[status(thm)],[2668217,953336,theory(equality)])).
+
+cnf(2669516,plain,
+    ( X1 = union(X1,difference(X2,union(difference(X2,X1),X3))) ),
+    inference(rw,[status(thm)],[2669515,2633595,theory(equality)])).
+
+cnf(2685845,plain,
+    ( difference(X1,difference(X2,X1)) = difference(X1,difference(X3,union(difference(X3,difference(X2,X1)),X4))) ),
+    inference(spm,[status(thm)],[2180630,2669516,theory(equality)])).
+
+cnf(2687237,plain,
+    ( X1 = difference(X1,difference(X3,union(difference(X3,difference(X2,X1)),X4))) ),
+    inference(rw,[status(thm)],[2685845,766841,theory(equality)])).
+
+cnf(2692320,plain,
+    ( union(difference(X1,X2),difference(X2,difference(X2,X1))) = union(difference(X1,X2),X1) ),
+    inference(spm,[status(thm)],[1552922,2669406,theory(equality)])).
+
+cnf(2693808,plain,
+    ( union(difference(X1,X2),difference(X2,difference(X2,X1))) = X1 ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[2692320,30,theory(equality)]),953336,theory(equality)])).
+
+cnf(2985839,plain,
+    ( difference(X1,difference(X2,difference(union(X2,X3),difference(X4,X1)))) = X1 ),
+    inference(spm,[status(thm)],[2687237,2657225,theory(equality)])).
+
+cnf(3053775,plain,
+    ( union(difference(difference(union(X1,X2),difference(X3,X1)),X1),X1) = difference(union(X1,X2),difference(X3,X1)) ),
+    inference(spm,[status(thm)],[2693808,2985839,theory(equality)])).
+
+cnf(3054998,plain,
+    ( union(X1,difference(X2,X3)) = difference(union(X1,X2),difference(X3,X1)) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[3053775,2633595,theory(equality)]),30,theory(equality)]),1552922,theory(equality)]),2216911,theory(equality)]),30,theory(equality)]),2662209,theory(equality)])).
+
+cnf(3055428,plain,
+    ( difference(union(difference(X1,X2),X3),X2) = union(difference(X1,X2),difference(X3,X2)) ),
+    inference(spm,[status(thm)],[3054998,766841,theory(equality)])).
+
+cnf(3056678,plain,
+    ( difference(union(X3,X1),X2) = union(difference(X1,X2),difference(X3,X2)) ),
+    inference(rw,[status(thm)],[3055428,2660683,theory(equality)])).
+
+cnf(3062334,negated_conjecture,
+    ( difference(union(esk4_0,esk3_0),esk5_0) != difference(union(esk3_0,esk4_0),esk5_0) ),
+    inference(rw,[status(thm)],[53,3056678,theory(equality)])).
+
+cnf(3062335,negated_conjecture,
+    ( $false ),
+    inference(ar,[status(thm)],[3062334,30,theory(equality)])).
+
+cnf(3062336,negated_conjecture,
+    ( $false ),
+    3062335,
+    ['proof']).
+%------------------------------------------------------------------------------
+%----ORIGINAL SYSTEM OUTPUT
+% # Problem is unsatisfiable (or provable), constructing proof object
+% # SZS status: Theorem
+% # Proof object starts here.
+% fof(1, axiom,![X1]:![X2]:![X3]:(member(X3,union(X1,X2))<=>(member(X3,X1)|member(X3,X2))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET615+3.tptp', union_defn)).
+% fof(2, axiom,![X1]:![X2]:![X3]:(member(X3,difference(X1,X2))<=>(member(X3,X1)&~(member(X3,X2)))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET615+3.tptp', difference_defn)).
+% fof(3, axiom,![X1]:![X2]:(equal(X1, X2)<=>(subset(X1,X2)&subset(X2,X1))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET615+3.tptp', equal_defn)).
+% fof(4, axiom,![X1]:![X2]:equal(union(X1,X2), union(X2,X1)),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET615+3.tptp', commutativity_of_union)).
+% fof(5, axiom,![X1]:![X2]:(subset(X1,X2)<=>![X3]:(member(X3,X1)=>member(X3,X2))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET615+3.tptp', subset_defn)).
+% fof(8, conjecture,![X1]:![X2]:![X3]:equal(difference(union(X1,X2),X3), union(difference(X1,X3),difference(X2,X3))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SET/SET615+3.tptp', prove_difference_distributes_over_union)).
+% fof(9, negated_conjecture,~(![X1]:![X2]:![X3]:equal(difference(union(X1,X2),X3), union(difference(X1,X3),difference(X2,X3)))),inference(assume_negation,[status(cth)],[8])).
+% fof(10, plain,![X1]:![X2]:![X3]:(member(X3,difference(X1,X2))<=>(member(X3,X1)&~(member(X3,X2)))),inference(fof_simplification,[status(thm)],[2,theory(equality)])).
+% fof(11, plain,![X1]:![X2]:![X3]:((~(member(X3,union(X1,X2)))|(member(X3,X1)|member(X3,X2)))&((~(member(X3,X1))&~(member(X3,X2)))|member(X3,union(X1,X2)))),inference(fof_nnf,[status(thm)],[1])).
+% fof(12, plain,![X4]:![X5]:![X6]:((~(member(X6,union(X4,X5)))|(member(X6,X4)|member(X6,X5)))&((~(member(X6,X4))&~(member(X6,X5)))|member(X6,union(X4,X5)))),inference(variable_rename,[status(thm)],[11])).
+% fof(13, plain,![X4]:![X5]:![X6]:((~(member(X6,union(X4,X5)))|(member(X6,X4)|member(X6,X5)))&((~(member(X6,X4))|member(X6,union(X4,X5)))&(~(member(X6,X5))|member(X6,union(X4,X5))))),inference(distribute,[status(thm)],[12])).
+% cnf(14,plain,(member(X1,union(X2,X3))|~member(X1,X3)),inference(split_conjunct,[status(thm)],[13])).
+% cnf(15,plain,(member(X1,union(X2,X3))|~member(X1,X2)),inference(split_conjunct,[status(thm)],[13])).
+% cnf(16,plain,(member(X1,X2)|member(X1,X3)|~member(X1,union(X3,X2))),inference(split_conjunct,[status(thm)],[13])).
+% fof(17, plain,![X1]:![X2]:![X3]:((~(member(X3,difference(X1,X2)))|(member(X3,X1)&~(member(X3,X2))))&((~(member(X3,X1))|member(X3,X2))|member(X3,difference(X1,X2)))),inference(fof_nnf,[status(thm)],[10])).
+% fof(18, plain,![X4]:![X5]:![X6]:((~(member(X6,difference(X4,X5)))|(member(X6,X4)&~(member(X6,X5))))&((~(member(X6,X4))|member(X6,X5))|member(X6,difference(X4,X5)))),inference(variable_rename,[status(thm)],[17])).
+% fof(19, plain,![X4]:![X5]:![X6]:(((member(X6,X4)|~(member(X6,difference(X4,X5))))&(~(member(X6,X5))|~(member(X6,difference(X4,X5)))))&((~(member(X6,X4))|member(X6,X5))|member(X6,difference(X4,X5)))),inference(distribute,[status(thm)],[18])).
+% cnf(20,plain,(member(X1,difference(X2,X3))|member(X1,X3)|~member(X1,X2)),inference(split_conjunct,[status(thm)],[19])).
+% cnf(21,plain,(~member(X1,difference(X2,X3))|~member(X1,X3)),inference(split_conjunct,[status(thm)],[19])).
+% cnf(22,plain,(member(X1,X2)|~member(X1,difference(X2,X3))),inference(split_conjunct,[status(thm)],[19])).
+% fof(23, plain,![X1]:![X2]:((~(equal(X1, X2))|(subset(X1,X2)&subset(X2,X1)))&((~(subset(X1,X2))|~(subset(X2,X1)))|equal(X1, X2))),inference(fof_nnf,[status(thm)],[3])).
+% fof(24, plain,![X3]:![X4]:((~(equal(X3, X4))|(subset(X3,X4)&subset(X4,X3)))&((~(subset(X3,X4))|~(subset(X4,X3)))|equal(X3, X4))),inference(variable_rename,[status(thm)],[23])).
+% fof(25, plain,![X3]:![X4]:(((subset(X3,X4)|~(equal(X3, X4)))&(subset(X4,X3)|~(equal(X3, X4))))&((~(subset(X3,X4))|~(subset(X4,X3)))|equal(X3, X4))),inference(distribute,[status(thm)],[24])).
+% cnf(26,plain,(X1=X2|~subset(X2,X1)|~subset(X1,X2)),inference(split_conjunct,[status(thm)],[25])).
+% fof(29, plain,![X3]:![X4]:equal(union(X3,X4), union(X4,X3)),inference(variable_rename,[status(thm)],[4])).
+% cnf(30,plain,(union(X1,X2)=union(X2,X1)),inference(split_conjunct,[status(thm)],[29])).
+% fof(31, plain,![X1]:![X2]:((~(subset(X1,X2))|![X3]:(~(member(X3,X1))|member(X3,X2)))&(?[X3]:(member(X3,X1)&~(member(X3,X2)))|subset(X1,X2))),inference(fof_nnf,[status(thm)],[5])).
+% fof(32, plain,![X4]:![X5]:((~(subset(X4,X5))|![X6]:(~(member(X6,X4))|member(X6,X5)))&(?[X7]:(member(X7,X4)&~(member(X7,X5)))|subset(X4,X5))),inference(variable_rename,[status(thm)],[31])).
+% fof(33, plain,![X4]:![X5]:((~(subset(X4,X5))|![X6]:(~(member(X6,X4))|member(X6,X5)))&((member(esk1_2(X4,X5),X4)&~(member(esk1_2(X4,X5),X5)))|subset(X4,X5))),inference(skolemize,[status(sab)],[32])).
+% fof(34, plain,![X4]:![X5]:![X6]:(((~(member(X6,X4))|member(X6,X5))|~(subset(X4,X5)))&((member(esk1_2(X4,X5),X4)&~(member(esk1_2(X4,X5),X5)))|subset(X4,X5))),inference(shift_quantors,[status(thm)],[33])).
+% fof(35, plain,![X4]:![X5]:![X6]:(((~(member(X6,X4))|member(X6,X5))|~(subset(X4,X5)))&((member(esk1_2(X4,X5),X4)|subset(X4,X5))&(~(member(esk1_2(X4,X5),X5))|subset(X4,X5)))),inference(distribute,[status(thm)],[34])).
+% cnf(36,plain,(subset(X1,X2)|~member(esk1_2(X1,X2),X2)),inference(split_conjunct,[status(thm)],[35])).
+% cnf(37,plain,(subset(X1,X2)|member(esk1_2(X1,X2),X1)),inference(split_conjunct,[status(thm)],[35])).
+% fof(50, negated_conjecture,?[X1]:?[X2]:?[X3]:~(equal(difference(union(X1,X2),X3), union(difference(X1,X3),difference(X2,X3)))),inference(fof_nnf,[status(thm)],[9])).
+% fof(51, negated_conjecture,?[X4]:?[X5]:?[X6]:~(equal(difference(union(X4,X5),X6), union(difference(X4,X6),difference(X5,X6)))),inference(variable_rename,[status(thm)],[50])).
+% fof(52, negated_conjecture,~(equal(difference(union(esk3_0,esk4_0),esk5_0), union(difference(esk3_0,esk5_0),difference(esk4_0,esk5_0)))),inference(skolemize,[status(sab)],[51])).
+% cnf(53,negated_conjecture,(difference(union(esk3_0,esk4_0),esk5_0)!=union(difference(esk3_0,esk5_0),difference(esk4_0,esk5_0))),inference(split_conjunct,[status(thm)],[52])).
+% cnf(62,plain,(member(esk1_2(difference(X1,X2),X3),X1)|subset(difference(X1,X2),X3)),inference(spm,[status(thm)],[22,37,theory(equality)])).
+% cnf(63,plain,(subset(difference(X1,X2),X3)|~member(esk1_2(difference(X1,X2),X3),X2)),inference(spm,[status(thm)],[21,37,theory(equality)])).
+% cnf(64,plain,(subset(X1,union(X2,X3))|~member(esk1_2(X1,union(X2,X3)),X3)),inference(spm,[status(thm)],[36,14,theory(equality)])).
+% cnf(65,plain,(subset(X1,union(X2,X3))|~member(esk1_2(X1,union(X2,X3)),X2)),inference(spm,[status(thm)],[36,15,theory(equality)])).
+% cnf(71,plain,(subset(X1,difference(X2,X3))|member(esk1_2(X1,difference(X2,X3)),X3)|~member(esk1_2(X1,difference(X2,X3)),X2)),inference(spm,[status(thm)],[36,20,theory(equality)])).
+% cnf(76,plain,(member(esk1_2(union(X1,X2),X3),X2)|member(esk1_2(union(X1,X2),X3),X1)|subset(union(X1,X2),X3)),inference(spm,[status(thm)],[16,37,theory(equality)])).
+% cnf(91,plain,(subset(difference(X1,difference(X2,X3)),X4)|member(esk1_2(difference(X1,difference(X2,X3)),X4),X3)|~member(esk1_2(difference(X1,difference(X2,X3)),X4),X2)),inference(spm,[status(thm)],[63,20,theory(equality)])).
+% cnf(103,plain,(subset(difference(difference(X1,X2),X3),X4)|~member(esk1_2(difference(difference(X1,X2),X3),X4),X2)),inference(spm,[status(thm)],[21,62,theory(equality)])).
+% cnf(104,plain,(subset(difference(X1,X2),X1)),inference(spm,[status(thm)],[36,62,theory(equality)])).
+% cnf(105,plain,(member(esk1_2(difference(union(X1,X2),X3),X4),X2)|member(esk1_2(difference(union(X1,X2),X3),X4),X1)|subset(difference(union(X1,X2),X3),X4)),inference(spm,[status(thm)],[16,62,theory(equality)])).
+% cnf(136,plain,(subset(X1,union(X2,union(X3,X4)))|~member(esk1_2(X1,union(X2,union(X3,X4))),X4)),inference(spm,[status(thm)],[64,14,theory(equality)])).
+% cnf(137,plain,(subset(X1,union(X2,union(X3,X4)))|~member(esk1_2(X1,union(X2,union(X3,X4))),X3)),inference(spm,[status(thm)],[64,15,theory(equality)])).
+% cnf(138,plain,(subset(X1,union(X2,X1))),inference(spm,[status(thm)],[64,37,theory(equality)])).
+% cnf(139,plain,(subset(X1,union(X2,difference(X3,X4)))|member(esk1_2(X1,union(X2,difference(X3,X4))),X4)|~member(esk1_2(X1,union(X2,difference(X3,X4))),X3)),inference(spm,[status(thm)],[64,20,theory(equality)])).
+% cnf(283,plain,(subset(X1,union(X1,X2))),inference(spm,[status(thm)],[138,30,theory(equality)])).
+% cnf(349,plain,(subset(X1,union(union(X2,X3),X4))|~member(esk1_2(X1,union(union(X2,X3),X4)),X3)),inference(spm,[status(thm)],[65,14,theory(equality)])).
+% cnf(352,plain,(subset(X1,union(difference(X2,X3),X4))|member(esk1_2(X1,union(difference(X2,X3),X4)),X3)|~member(esk1_2(X1,union(difference(X2,X3),X4)),X2)),inference(spm,[status(thm)],[65,20,theory(equality)])).
+% cnf(468,plain,(subset(X1,difference(union(X2,X3),X4))|member(esk1_2(X1,difference(union(X2,X3),X4)),X4)|~member(esk1_2(X1,difference(union(X2,X3),X4)),X2)),inference(spm,[status(thm)],[71,15,theory(equality)])).
+% cnf(469,plain,(subset(X1,difference(X1,X2))|member(esk1_2(X1,difference(X1,X2)),X2)),inference(spm,[status(thm)],[71,37,theory(equality)])).
+% cnf(471,plain,(subset(difference(X1,X2),difference(X1,X3))|member(esk1_2(difference(X1,X2),difference(X1,X3)),X3)),inference(spm,[status(thm)],[71,62,theory(equality)])).
+% cnf(474,plain,(subset(union(X4,X4),X5)|member(esk1_2(union(X4,X4),X5),X4)),inference(ef,[status(thm)],[76,theory(equality)])).
+% cnf(478,plain,(member(esk1_2(union(difference(X1,X2),X3),X4),X1)|subset(union(difference(X1,X2),X3),X4)|member(esk1_2(union(difference(X1,X2),X3),X4),X3)),inference(spm,[status(thm)],[22,76,theory(equality)])).
+% cnf(479,plain,(member(esk1_2(union(X1,difference(X2,X3)),X4),X2)|subset(union(X1,difference(X2,X3)),X4)|member(esk1_2(union(X1,difference(X2,X3)),X4),X1)),inference(spm,[status(thm)],[22,76,theory(equality)])).
+% cnf(482,plain,(subset(union(X1,X2),X1)|member(esk1_2(union(X1,X2),X1),X2)),inference(spm,[status(thm)],[36,76,theory(equality)])).
+% cnf(488,plain,(subset(union(X1,X2),union(X3,X1))|member(esk1_2(union(X1,X2),union(X3,X1)),X2)),inference(spm,[status(thm)],[64,76,theory(equality)])).
+% cnf(490,plain,(subset(union(X1,X2),union(X1,X3))|member(esk1_2(union(X1,X2),union(X1,X3)),X2)),inference(spm,[status(thm)],[65,76,theory(equality)])).
+% cnf(2894,plain,(subset(difference(union(X1,X2),X3),X1)|member(esk1_2(difference(union(X1,X2),X3),X1),X2)),inference(spm,[status(thm)],[36,105,theory(equality)])).
+% cnf(12700,plain,(subset(X1,difference(union(X1,X2),X3))|member(esk1_2(X1,difference(union(X1,X2),X3)),X3)),inference(spm,[status(thm)],[468,37,theory(equality)])).
+% cnf(12782,plain,(subset(X1,difference(X1,difference(X2,X3)))|~member(esk1_2(X1,difference(X1,difference(X2,X3))),X3)),inference(spm,[status(thm)],[21,469,theory(equality)])).
+% cnf(14230,plain,(member(esk1_2(difference(X1,X2),difference(X1,difference(X3,X4))),X3)|subset(difference(X1,X2),difference(X1,difference(X3,X4)))),inference(spm,[status(thm)],[22,471,theory(equality)])).
+% cnf(14238,plain,(subset(difference(X1,difference(X2,X3)),difference(X1,X2))|member(esk1_2(difference(X1,difference(X2,X3)),difference(X1,X2)),X3)),inference(spm,[status(thm)],[91,471,theory(equality)])).
+% cnf(15339,plain,(subset(union(X1,X1),X1)),inference(spm,[status(thm)],[36,474,theory(equality)])).
+% cnf(15632,plain,(X1=union(X1,X1)|~subset(X1,union(X1,X1))),inference(spm,[status(thm)],[26,15339,theory(equality)])).
+% cnf(15641,plain,(X1=union(X1,X1)|$false),inference(rw,[status(thm)],[15632,283,theory(equality)])).
+% cnf(15642,plain,(X1=union(X1,X1)),inference(cn,[status(thm)],[15641,theory(equality)])).
+% cnf(16162,plain,(subset(union(difference(X5,X6),X5),X7)|member(esk1_2(union(difference(X5,X6),X5),X7),X5)),inference(ef,[status(thm)],[478,theory(equality)])).
+% cnf(16259,plain,(subset(union(difference(X1,X2),X3),union(X4,X1))|member(esk1_2(union(difference(X1,X2),X3),union(X4,X1)),X3)),inference(spm,[status(thm)],[64,478,theory(equality)])).
+% cnf(16405,plain,(subset(union(X1,difference(X2,X3)),union(X4,X2))|member(esk1_2(union(X1,difference(X2,X3)),union(X4,X2)),X1)),inference(spm,[status(thm)],[64,479,theory(equality)])).
+% cnf(17648,plain,(subset(union(union(X1,union(X2,X3)),X2),union(X1,union(X2,X3)))),inference(spm,[status(thm)],[137,482,theory(equality)])).
+% cnf(21471,plain,(subset(union(X1
+% ,X2),union(difference(X2,X3),X1))|member(esk1_2(union(X1,X2),union(difference(X2,X3),X1)),X3)),inference(spm,[status(thm)],[352,488,theory(equality)])).
+% cnf(22434,plain,(subset(union(X1,X2),union(X1,difference(X2,X3)))|member(esk1_2(union(X1,X2),union(X1,difference(X2,X3))),X3)),inference(spm,[status(thm)],[139,490,theory(equality)])).
+% cnf(52115,plain,(subset(union(X2,union(X1,union(X2,X3))),union(X1,union(X2,X3)))),inference(rw,[status(thm)],[17648,30,theory(equality)])).
+% cnf(52150,plain,(union(X1,union(X2,X3))=union(X2,union(X1,union(X2,X3)))|~subset(union(X1,union(X2,X3)),union(X2,union(X1,union(X2,X3))))),inference(spm,[status(thm)],[26,52115,theory(equality)])).
+% cnf(52184,plain,(union(X1,union(X2,X3))=union(X2,union(X1,union(X2,X3)))|$false),inference(rw,[status(thm)],[52150,138,theory(equality)])).
+% cnf(52185,plain,(union(X1,union(X2,X3))=union(X2,union(X1,union(X2,X3)))),inference(cn,[status(thm)],[52184,theory(equality)])).
+% cnf(232687,plain,(subset(difference(union(X1,X2),X2),X1)),inference(spm,[status(thm)],[63,2894,theory(equality)])).
+% cnf(737012,plain,(subset(difference(X1,X2),difference(union(difference(X1,X2),X3),X2))),inference(spm,[status(thm)],[63,12700,theory(equality)])).
+% cnf(765614,plain,(subset(X1,difference(X1,difference(X2,X1)))),inference(spm,[status(thm)],[12782,37,theory(equality)])).
+% cnf(766567,plain,(difference(X1,difference(X2,X1))=X1|~subset(difference(X1,difference(X2,X1)),X1)),inference(spm,[status(thm)],[26,765614,theory(equality)])).
+% cnf(766840,plain,(difference(X1,difference(X2,X1))=X1|$false),inference(rw,[status(thm)],[766567,104,theory(equality)])).
+% cnf(766841,plain,(difference(X1,difference(X2,X1))=X1),inference(cn,[status(thm)],[766840,theory(equality)])).
+% cnf(767177,plain,(subset(X1,difference(union(X1,X3),difference(X2,X1)))),inference(spm,[status(thm)],[737012,766841,theory(equality)])).
+% cnf(880650,plain,(subset(difference(X1,X2),difference(X1,difference(X2,X3)))),inference(spm,[status(thm)],[63,14230,theory(equality)])).
+% cnf(892617,plain,(subset(difference(difference(X1,X2),difference(X3,X2)),difference(difference(X1,X2),X3))),inference(spm,[status(thm)],[103,14238,theory(equality)])).
+% cnf(951650,plain,(subset(union(X5,difference(X5,X6)),X7)|member(esk1_2(union(difference(X5,X6),X5),X7),X5)),inference(rw,[status(thm)],[16162,30,theory(equality)])).
+% cnf(951651,plain,(subset(union(X5,difference(X5,X6)),X7)|member(esk1_2(union(X5,difference(X5,X6)),X7),X5)),inference(rw,[status(thm)],[951650,30,theory(equality)])).
+% cnf(952034,plain,(subset(union(X1,difference(X1,X2)),X1)),inference(spm,[status(thm)],[36,951651,theory(equality)])).
+% cnf(953035,plain,(X1=union(X1,difference(X1,X2))|~subset(X1,union(X1,difference(X1,X2)))),inference(spm,[status(thm)],[26,952034,theory(equality)])).
+% cnf(953335,plain,(X1=union(X1,difference(X1,X2))|$false),inference(rw,[status(thm)],[953035,283,theory(equality)])).
+% cnf(953336,plain,(X1=union(X1,difference(X1,X2))),inference(cn,[status(thm)],[953335,theory(equality)])).
+% cnf(987265,plain,(subset(union(difference(X1,X2),X3),union(X3,X1))),inference(spm,[status(thm)],[65,16259,theory(equality)])).
+% cnf(1088218,plain,(subset(union(X1,difference(X2,X3)),union(X1,X2))),inference(spm,[status(thm)],[65,16405,theory(equality)])).
+% cnf(1551147,plain,(subset(union(X1,X2),union(difference(X2,X1),X1))),inference(spm,[status(thm)],[64,21471,theory(equality)])).
+% cnf(1551148,plain,(subset(union(union(X1,X2),X3),union(difference(X3,X2),union(X1,X2)))),inference(spm,[status(thm)],[136,21471,theory(equality)])).
+% cnf(1551149,plain,(subset(union(union(X1,X2),X3),union(difference(X3,X1),union(X1,X2)))),inference(spm,[status(thm)],[137,21471,theory(equality)])).
+% cnf(1551928,plain,(subset(union(X1,X2),union(X1,difference(X2,X1)))),inference(rw,[status(thm)],[1551147,30,theory(equality)])).
+% cnf(1552426,plain,(union(X1,difference(X2,X1))=union(X1,X2)|~subset(union(X1,difference(X2,X1)),union(X1,X2))),inference(spm,[status(thm)],[26,1551928,theory(equality)])).
+% cnf(1552921,plain,(union(X1,difference(X2,X1))=union(X1,X2)|$false),inference(rw,[status(thm)],[1552426,1088218,theory(equality)])).
+% cnf(1552922,plain,(union(X1,difference(X2,X1))=union(X1,X2)),inference(cn,[status(thm)],[1552921,theory(equality)])).
+% cnf(1553137,plain,(subset(difference(union(X1,X2),difference(X2,X1)),X1)),inference(spm,[status(thm)],[232687,1552922,theory(equality)])).
+% cnf(1652909,plain,(subset(union(union(X1,X2),X3),union(union(X1,X2),difference(X3,X2)))),inference(spm,[status(thm)],[349,22434,theory(equality)])).
+% cnf(1959802,plain,(difference(difference(X1,X2),X3)=difference(difference(X1,X2),difference(X3,X2))|~subset(difference(difference(X1,X2),X3),difference(difference(X1,X2),difference(X3,X2)))),inference(spm,[status(thm)],[26,892617,theory(equality)])).
+% cnf(1960805,plain,(difference(difference(X1,X2),X3)=difference(difference(X1,X2),difference(X3,X2))|$false),inference(rw,[status(thm)],[1959802,880650,theory(equality)])).
+% cnf(1960806,plain,(difference(difference(X1,X2),X3)=difference(difference(X1,X2),difference(X3,X2))),inference(cn,[status(thm)],[1960805,theory(equality)])).
+% cnf(1961197,plain,(difference(X1,difference(X3,difference(X2,X1)))=difference(X1,X3)),inference(spm,[status(thm)],[1960806,766841,theory(equality)])).
+% cnf(2127311,plain,(union(difference(X1,X2),union(X3,X2))=union(union(X3,X2),X1)|~subset(union(difference(X1,X2),union(X3,X2)),union(union(X3,X2),X1))),inference(spm,[status(thm)],[26,1551148,theory(equality)])).
+% cnf(2127792,plain,(union(difference(X1,X2),union(X3,X2))=union(union(X3,X2),X1)|$false),inference(rw,[status(thm)],[2127311,987265,theory(equality)])).
+% cnf(2127793,plain,(union(difference(X1,X2),union(X3,X2))=union(union(X3,X2),X1)),inference(cn,[status(thm)],[2127792,theory(equality)])).
+% cnf(2128627,plain,(union(difference(X1,difference(X2,X3)),X2)=union(X2,X1)),inference(spm,[status(thm)],[2127793,953336,theory(equality)])).
+% cnf(2132232,plain,(union(X2,difference(X1,difference(X2,X3)))=union(X2,X1)),inference(rw,[status(thm)],[2128627,30,theory(equality)])).
+% cnf(2146481,plain,(union(difference(X1,X2),union(X2,X3))=union(union(X2,X3),X1)|~subset(union(difference(X1,X2),union(X2,X3)),union(union(X2,X3),X1))),inference(spm,[status(thm)],[26,1551149,theory(equality)])).
+% cnf(2146955,plain,(union(difference(X1,X2),union(X2,X3))=union(union(X2,X3),X1)|$false),inference(rw,[status(thm)],[2146481,987265,theory(equality)])).
+% cnf(2146956,plain,(union(difference(X1,X2),union(X2,X3))=union(union(X2,X3),X1)),inference(cn,[status(thm)],[2146955,theory(equality)])).
+% cnf(2157191,plain,(union(union(X1,X2),difference(X3,X2))=union(union(X1,X2),X3)|~subset(union(union(X1,X2),difference(X3,X2)),union(union(X1,X2),X3))),inference(spm,[status(thm)],[26,1652909,theory(equality)])).
+% cnf(2157671,plain,(union(union(X1,X2),difference(X3,X2))=union(union(X1,X2),X3)|$false),inference(rw,[status(thm)],[2157191,1088218,theory(equality)])).
+% cnf(2157672,plain,(union(union(X1,X2),difference(X3,X2))=union(union(X1,X2),X3)),inference(cn,[status(thm)],[2157671,theory(equality)])).
+% cnf(2176116,plain,(X1=difference(union(X1,X2),difference(X2,X1))|~subset(X1,difference(union(X1,X2),difference(X2,X1)))),inference(spm,[status(thm)],[26,1553137,theory(equality)])).
+% cnf(2176547,plain,(X1=difference(union(X1,X2),difference(X2,X1))|$false),inference(rw,[status(thm)],[2176116,767177,theory(equality)])).
+% cnf(2176548,plain,(X1=difference(union(X1,X2),difference(X2,X1))),inference(cn,[status(thm)],[2176547,theory(equality)])).
+% cnf(2176851,plain,(difference(union(difference(X1,X2),X2),X2)=difference(X1,X2)),inference(spm,[status(thm)],[2176548,766841,theory(equality)])).
+% cnf(2177224,plain,(difference(union(X2,X1),difference(X2,X1))=X1),inference(spm,[status(thm)],[2176548,30,theory(equality)])).
+% cnf(2178344,plain,(difference(union(X2,X1),X2)=difference(X1,X2)),inference(rw,[status(thm)],[inference(rw,[status(thm)],[2176851,30,theory(equality)]),1552922,theory(equality)])).
+% cnf(2179412,plain,(difference(difference(X1,X2),difference(X3,X2))=difference(difference(X1,X2),union(X2,X3))),inference(spm,[status(thm)],[1960806,2178344,theory(equality)])).
+% cnf(2179414,plain,(difference(X1,difference(X3,difference(X2,X1)))=difference(X1,union(difference(X2,X1),X3))),inference(spm,[status(thm)],[1961197,2178344,theory(equality)])).
+% cnf(2179499,plain,(union(difference(X2,X1),union(X3,X1))=union(union(X3,X1),union(X1,X2))),inference(spm,[status(thm)],[2127793,2178344,theory(equality)])).
+% cnf(2179502,plain,(union(X1,difference(X3,difference(X1,X2)))=union(X1,union(difference(X1,X2),X3))),inference(spm,[status(thm)],[2132232,2178344,theory(equality)])).
+% cnf(2179503,plain,(difference(union(X1,X2),X1)=difference(difference(X2,difference(X1,X3)),X1)),inference(spm,[status(thm)],[2178344,2132232,theory(equality)])).
+% cnf(2179506,plain,(union(difference(X2,X1),union(X1,X3))=union(union(X1,X3),union(X1,X2))),inference(spm,[status(thm)],[2146956,2178344,theory(equality)])).
+% cnf(2179521,plain,(difference(union(X2,X1),X1)=difference(X2,X1)),inference(spm,[status(thm)],[2178344,30,theory(equality)])).
+% cnf(2180628,plain,(difference(difference(X1,X2),X3)=difference(difference(X1,X2),union(X2,X3))),inference(rw,[status(thm)],[2179412,1960806,theory(equality)])).
+% cnf(2180630,plain,(difference(X1,X3)=difference(X1,union(difference(X2,X1),X3))),inference(rw,[status(thm)],[2179414,1961197,theory(equality)])).
+% cnf(2180635,plain,(union(union(X3,X1),X2)=union(union(X3,X1),union(X1,X2))),inference(rw,[status(thm)],[2179499,2127793,theory(equality)])).
+% cnf(2180636,plain,(union(X1,X3)=union(X1,union(difference(X1,X2),X3))),inference(rw,[status(thm)],[2179502,2132232,theory(equality)])).
+% cnf(2180637,plain,(difference(X2,X1)=difference(difference(X2,difference(X1,X3)),X1)),inference(rw,[status(thm)],[2179503,2178344,theory(equality)])).
+% cnf(2180638,plain,(union(union(X1,X3),X2)=union(union(X1,X3),union(X1,X2))),inference(rw,[status(thm)],[2179506,2146956,theory(equality)])).
+% cnf(2182803,plain,(difference(X1,difference(X2,difference(X3,X1)))=difference(X1,union(X2,difference(X3,X1)))),inference(spm,[status(thm)],[1961197,2179521,theory(equality)])).
+% cnf(2183981,plain,(difference(X1,X2)=difference(X1,union(X2,difference(X3,X1)))),inference(rw,[status(thm)],[2182803,1961197,theory(equality)])).
+% cnf(2193084,plain,(difference(union(X1,X3),X1)=difference(union(difference(X1,X2),X3),X1)),inference(spm,[status(thm)],[2178344,2180636,theory(equality)])).
+% cnf(2196589,plain,(difference(X3,X1)=difference(union(difference(X1,X2),X3),X1)),inference(rw,[status(thm)],[2193084,2178344,theory(equality)])).
+% cnf(2197595,plain,(difference(difference(X1,X2),union(X2,X3))=difference(X1,union(X2,X3))),inference(spm,[status(thm)],[2180637,2176548,theory(equality)])).
+% cnf(2197602,plain,(difference(difference(X1,difference(X2,X3)),X2)=difference(union(X1,difference(X2,X3)),X2)),inference(spm,[status(thm)],[2180637,2179521,theory(equality)])).
+% cnf(2199074,plain,(difference(X1,X2)=difference(union(X1,difference(X2,X3)),X2)),inference(rw,[status(thm)],[2197602,2180637,theory(equality)])).
+% cnf(2216911,plain,(difference(union(X1,X3),union(X1,X2))=difference(X3,union(X1,X2))),inference(spm,[status(thm)],[2196589,2176548,theory(equality)])).
+% cnf(2219423,plain,(difference(union(X1,X3),union(X2,X3))=difference(X1,union(X2,X3))),inference(spm,[status(thm)],[2199074,2177224,theory(equality)])).
+% cnf(2527664,plain,(union(union(X1,X2),X3)=union(union(X1,X3),union(X1,X2))),inference(spm,[status(thm)],[30,2180638,theory(equality)])).
+% cnf(2531305,plain,(union(union(X1,X2),X3)=union(union(X1,X3),X2)),inference(rw,[status(thm)],[2527664,2180638,theory(equality)])).
+% cnf(2536344,plain,(union(union(X1,X3),X2)=union(X3,union(X1,X2))),inference(spm,[status(thm)],[30,2531305,theory(equality)])).
+% cnf(2560120,plain,(union(X1,union(X2,X3))=union(union(X1,X2),X3)),inference(rw,[status(thm)],[inference(rw,[status(thm)],[2180635,2536344,theory(equality)]),52185,theory(equality)])).
+% cnf(2560121,plain,(union(X1,union(X2,X3))=union(X2,union(X1,X3))),inference(rw,[status(thm)],[2560120,2536344,theory(equality)])).
+% cnf(2560180,plain,(union(X2,union(X1,difference(X3,X2)))=union(union(X1,X2),X3)),inference(rw,[status(thm)],[2157672,2536344,theory(equality)])).
+% cnf(2560181,plain,(union(X2,union(X1,difference(X3,X2)))=union(X2,union(X1,X3))),inference(rw,[status(thm)],[2560180,2536344,theory(equality)])).
+% cnf(2563359,plain,(difference(union(X2,union(X1,X3)),X1)=difference(union(X2,X3),X1)),inference(spm,[status(thm)],[2178344,2560121,theory(equality)])).
+% cnf(2580279,plain,(difference(union(X1,union(X2,X3)),X1)=difference(union(X2,difference(X3,X1)),X1)),inference(spm,[status(thm)],[2178344,2560181,theory(equality)])).
+% cnf(2582125,plain,(difference(union(X2,X3),X1)=difference(union(X2,difference(X3,X1)),X1)),inference(rw,[status(thm)],[2580279,2178344,theory(equality)])).
+% cnf(2633595,plain,(difference(difference(X1,X2),X3)=difference(X1,union(X2,X3))),inference(rw,[status(thm)],[2197595,2180628,theory(equality)])).
+% cnf(2633757,plain,(union(X1,difference(X2,union(X3,X1)))=union(X1,difference(X2,X3))),inference(spm,[status(thm)],[1552922,2633595,theory(equality)])).
+% cnf(2656272,plain,(difference(union(X1,X2),union(X3,difference(X2,X1)))=difference(X1,union(X3,difference(X2,X1)))),inference(spm,[status(thm)],[2219423,1552922,theory(equality)])).
+% cnf(2657225,plain,(difference(union(X1,X2),union(X3,difference(X2,X1)))=difference(X1,X3)),inference(rw,[status(thm)],[2656272,2183981,theory(equality)])).
+% cnf(2660683,plain,(difference(union(difference(X2,X3),X1),X3)=difference(union(X1,X2),X3)),inference(spm,[status(thm)],[2582125,30,theory(equality)])).
+% cnf(2662063,plain,(union(X1,difference(X3,union(X2,X1)))=union(X1,difference(union(union(X2,X1),X3),X2))),inference(spm,[status(thm)],[2633757,2178344,theory(equality)])).
+% cnf(2662209,plain,(union(X1,difference(X2,union(X1,X3)))=union(X1,difference(X2,X3))),inference(spm,[status(thm)],[2633757,30,theory(equality)])).
+% cnf(2663364,plain,(union(X1,difference(X3,X2))=union(X1,difference(union(union(X2,X1),X3),X2))),inference(rw,[status(thm)],[2662063,2633757,theory(equality)])).
+% cnf(2663365,plain,(union(X1,difference(X3,X2))=union(X1,difference(union(X1,X3),X2))),inference(rw,[status(thm)],[inference(rw,[status(thm)],[2663364,2536344,theory(equality)]),2563359,theory(equality)])).
+% cnf(2665786,plain,(union(X1,X1)=union(X1,difference(X2,difference(X2,X1)))),inference(spm,[status(thm)],[2663365,2176548,theory(equality)])).
+% cnf(2667105,plain,(X1=union(X1,difference(X2,difference(X2,X1)))),inference(rw,[status(thm)],[2665786,15642,theory(equality)])).
+% cnf(2668084,plain,(difference(X1,difference(X1,difference(X2,difference(X2,X1))))=difference(X2,difference(X2,X1))),inference(spm,[status(thm)],[2177224,2667105,theory(equality)])).
+% cnf(2668217,plain,(union(X1,difference(X1,X3))=union(X1,difference(difference(X2,difference(X2,X1)),X3))),inference(spm,[status(thm)],[2663365,2667105,theory(equality)])).
+% cnf(2669406,plain,(difference(X1,difference(X1,X2))=difference(X2,difference(X2,X1))),inference(rw,[status(thm)],[2668084,1961197,theory(equality)])).
+% cnf(2669515,plain,(X1=union(X1,difference(difference(X2,difference(X2,X1)),X3))),inference(rw,[status(thm)],[2668217,953336,theory(equality)])).
+% cnf(2669516,plain,(X1=union(X1,difference(X2,union(difference(X2,X1),X3)))),inference(rw,[status(thm)],[2669515,2633595,theory(equality)])).
+% cnf(2685845,plain,(difference(X1,difference(X2,X1))=difference(X1,difference(X3,union(difference(X3,difference(X2,X1)),X4)))),inference(spm,[status(thm)],[2180630,2669516,theory(equality)])).
+% cnf(2687237,plain,(X1=difference(X1,difference(X3,union(difference(X3,difference(X2,X1)),X4)))),inference(rw,[status(thm)],[2685845,766841,theory(equality)])).
+% cnf(2692320,plain,(union(difference(X1,X2),difference(X2,difference(X2,X1)))=union(difference(X1,X2),X1)),inference(spm,[status(thm)],[1552922,2669406,theory(equality)])).
+% cnf(2693808,plain,(union(difference(X1,X2),difference(X2,difference(X2,X1)))=X1),inference(rw,[status(thm)],[inference(rw,[status(thm)],[2692320,30,theory(equality)]),953336,theory(equality)])).
+% cnf(2985839,plain,(difference(X1,difference(X2,difference(union(X2,X3),difference(X4,X1))))=X1),inference(spm,[status(thm)],[2687237,2657225,theory(equality)])).
+% cnf(3053775,plain,(union(difference(difference(union(X1,X2),difference(X3,X1)),X1),X1)=difference(union(X1,X2),difference(X3,X1))),inference(spm,[status(thm)],[2693808,2985839,theory(equality)])).
+% cnf(3054998,plain,(union(X1,difference(X2,X3))=difference(union(X1,X2),difference(X3,X1))),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[3053775,2633595,theory(equality)]),30,theory(equality)]),1552922,theory(equality)]),2216911,theory(equality)]),30,theory(equality)]),2662209,theory(equality)])).
+% cnf(3055428,plain,(difference(union(difference(X1,X2),X3),X2)=union(difference(X1,X2),difference(X3,X2))),inference(spm,[status(thm)],[3054998,766841,theory(equality)])).
+% cnf(3056678,plain,(difference(union(X3,X1),X2)=union(difference(X1,X2),difference(X3,X2))),inference(rw,[status(thm)],[3055428,2660683,theory(equality)])).
+% cnf(3062334,negated_conjecture,(difference(union(esk4_0,esk3_0),esk5_0)!=difference(union(esk3_0,esk4_0),esk5_0)),inference(rw,[status(thm)],[53,3056678,theory(equality)])).
+% cnf(3062335,negated_conjecture,($false),inference(ar,[status(thm)],[3062334,30,theory(equality)])).
+% cnf(3062336,negated_conjecture,($false),3062335,['proof']).
+% # Proof object ends here.
+% # ...subsumed                          : 59537
+% # ...remaining for further processing  : 2669
+% # Other redundant clauses eliminated   : 2
+% # Clauses deleted for lack of memory   : 0
+% # Backward-subsumed                    : 61
+% # Backward-rewritten                   : 1470
+% # Generated clauses                    : 1706110
+% # ...of the previous two non-trivial   : 1113215
+% # Contextual simplify-reflections      : 2324
+% # Paramodulations                      : 1704404
+% # Factorizations                       : 1704
+% # Equation resolutions                 : 2
+% # Current number of processed clauses  : 1136
+% #    Positive orientable unit clauses  : 408
+% #    Positive unorientable unit clauses: 46
+% #    Negative unit clauses             : 5
+% #    Non-unit-clauses                  : 677
+% # Current number of unprocessed clauses: 246465
+% # ...number of literals in the above   : 653950
+% # Clause-clause subsumption calls (NU) : 608044
+% # Rec. Clause-clause subsumption calls : 277041
+% # Unit Clause-clause subsumption calls : 288072
+% # Rewrite failures with RHS unbound    : 9790
+% 
+% # -------------------------------------------------
+% # User time                : 55.605 s
+% # System time              : 1.233 s
+% # Total time               : 56.837 s
+% # Maximum resident set size: 0 pages
+% WARNING: TreeLimitedRun lost 36.69s, total lost is 36.69s
+% 
+%------------------------------------------------------------------------------
+
+
+cnf(1553137,plain,
+    ( subset(difference(union(X1,X2),difference(X2,X1)),X1) ),
+    inference(spm,[status(thm)],[232687,1552922,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.00),complexity(0.67),intensity(1.00),surprisingness(0.70),adaptivity(0.53),focus(ignored),weight(0.80),usefulness(0.67),interesting(0.83)]).
+cnf(1652909,plain,
+    ( subset(union(union(X1,X2),X3),union(union(X1,X2),difference(X3,X2))) ),
+    inference(spm,[status(thm)],[349,22434,theory(equality)]),
+    [ancestors(14,15,16,20,36,37),obviousness(0.00),complexity(0.67),intensity(0.26),surprisingness(0.70),adaptivity(0.60),focus(ignored),weight(0.60),usefulness(0.65),interesting(0.58)]).
+cnf(2127311,plain,
+    ( union(difference(X1,X2),union(X3,X2)) = union(union(X3,X2),X1)
+    | ~ subset(union(difference(X1,X2),union(X3,X2)),union(union(X3,X2),X1)) ),
+    inference(spm,[status(thm)],[26,1551148,theory(equality)]),
+    [ancestors(14,15,16,20,26,36,37),obviousness(0.00),complexity(0.33),intensity(0.00),surprisingness(0.35),adaptivity(0.09),focus(ignored),weight(0.00),usefulness(0.68),interesting(0.00)]).
+cnf(2146481,plain,
+    ( union(difference(X1,X2),union(X2,X3)) = union(union(X2,X3),X1)
+    | ~ subset(union(difference(X1,X2),union(X2,X3)),union(union(X2,X3),X1)) ),
+    inference(spm,[status(thm)],[26,1551149,theory(equality)]),
+    [ancestors(14,15,16,20,26,36,37),obviousness(0.00),complexity(0.33),intensity(0.00),surprisingness(0.35),adaptivity(0.09),focus(ignored),weight(0.00),usefulness(0.70),interesting(0.01)]).
+cnf(2157191,plain,
+    ( union(union(X1,X2),difference(X3,X2)) = union(union(X1,X2),X3)
+    | ~ subset(union(union(X1,X2),difference(X3,X2)),union(union(X1,X2),X3)) ),
+    inference(spm,[status(thm)],[26,1652909,theory(equality)]),
+    [ancestors(14,15,16,20,26,36,37),obviousness(0.00),complexity(0.33),intensity(0.00),surprisingness(0.35),adaptivity(0.09),focus(ignored),weight(0.00),usefulness(0.69),interesting(0.00)]).
+cnf(2176116,plain,
+    ( X1 = difference(union(X1,X2),difference(X2,X1))
+    | ~ subset(X1,difference(union(X1,X2),difference(X2,X1))) ),
+    inference(spm,[status(thm)],[26,1553137,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.00),complexity(0.33),intensity(0.51),surprisingness(0.35),adaptivity(0.07),focus(ignored),weight(0.40),usefulness(0.70),interesting(0.26)]).
+cnf(2176548,plain,
+    ( X1 = difference(union(X1,X2),difference(X2,X1)) ),
+    inference(cn,[status(thm)],[2176547,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.01),complexity(0.67),intensity(1.00),surprisingness(0.73),adaptivity(0.53),focus(ignored),weight(0.80),usefulness(0.70),interesting(0.85)]).
+cnf(2176851,plain,
+    ( difference(union(difference(X1,X2),X2),X2) = difference(X1,X2) ),
+    inference(spm,[status(thm)],[2176548,766841,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.01),complexity(0.67),intensity(0.71),surprisingness(0.73),adaptivity(0.37),focus(ignored),weight(0.70),usefulness(0.69),interesting(0.69)]).
+cnf(2177224,plain,
+    ( difference(union(X2,X1),difference(X2,X1)) = X1 ),
+    inference(spm,[status(thm)],[2176548,30,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.01),complexity(0.67),intensity(1.00),surprisingness(0.73),adaptivity(0.53),focus(ignored),weight(0.80),usefulness(0.68),interesting(0.84)]).
+cnf(2178344,plain,
+    ( difference(union(X2,X1),X2) = difference(X1,X2) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[2176851,30,theory(equality)]),1552922,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.01),complexity(0.67),intensity(1.00),surprisingness(0.73),adaptivity(0.53),focus(ignored),weight(0.80),usefulness(0.69),interesting(0.85)]).
+cnf(2179521,plain,
+    ( difference(union(X2,X1),X1) = difference(X2,X1) ),
+    inference(spm,[status(thm)],[2178344,30,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.01),complexity(0.67),intensity(1.00),surprisingness(0.73),adaptivity(0.53),focus(ignored),weight(0.80),usefulness(0.72),interesting(0.86)]).
+cnf(2180630,plain,
+    ( difference(X1,X3) = difference(X1,union(difference(X2,X1),X3)) ),
+    inference(rw,[status(thm)],[2179414,1961197,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.02),complexity(0.67),intensity(0.71),surprisingness(0.73),adaptivity(0.77),focus(ignored),weight(0.70),usefulness(0.72),interesting(0.81)]).
+cnf(2180636,plain,
+    ( union(X1,X3) = union(X1,union(difference(X1,X2),X3)) ),
+    inference(rw,[status(thm)],[2179502,2132232,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.02),complexity(0.67),intensity(0.71),surprisingness(0.73),adaptivity(0.77),focus(ignored),weight(0.70),usefulness(0.73),interesting(0.82)]).
+cnf(2183981,plain,
+    ( difference(X1,X2) = difference(X1,union(X2,difference(X3,X1))) ),
+    inference(rw,[status(thm)],[2182803,1961197,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.02),complexity(0.67),intensity(0.71),surprisingness(0.73),adaptivity(0.77),focus(ignored),weight(0.70),usefulness(0.73),interesting(0.82)]).
+cnf(2196589,plain,
+    ( difference(X3,X1) = difference(union(difference(X1,X2),X3),X1) ),
+    inference(rw,[status(thm)],[2193084,2178344,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.04),complexity(0.67),intensity(0.71),surprisingness(0.73),adaptivity(0.77),focus(ignored),weight(0.70),usefulness(0.73),interesting(0.82)]).
+cnf(2199074,plain,
+    ( difference(X1,X2) = difference(union(X1,difference(X2,X3)),X2) ),
+    inference(rw,[status(thm)],[2197602,2180637,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.05),complexity(0.67),intensity(0.71),surprisingness(0.73),adaptivity(0.77),focus(ignored),weight(0.70),usefulness(0.72),interesting(0.82)]).
+cnf(2633595,plain,
+    ( difference(difference(X1,X2),X3) = difference(X1,union(X2,X3)) ),
+    inference(rw,[status(thm)],[2197595,2180628,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.04),complexity(0.67),intensity(0.71),surprisingness(0.73),adaptivity(0.77),focus(ignored),weight(0.70),usefulness(0.73),interesting(0.82)]).
+cnf(2665786,plain,
+    ( union(X1,X1) = union(X1,difference(X2,difference(X2,X1))) ),
+    inference(spm,[status(thm)],[2663365,2176548,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.21),complexity(0.67),intensity(0.71),surprisingness(0.73),adaptivity(0.37),focus(ignored),weight(0.70),usefulness(0.72),interesting(0.76)]).
+cnf(2667105,plain,
+    ( X1 = union(X1,difference(X2,difference(X2,X1))) ),
+    inference(rw,[status(thm)],[2665786,15642,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.21),complexity(0.67),intensity(1.00),surprisingness(0.73),adaptivity(0.53),focus(ignored),weight(0.80),usefulness(0.71),interesting(0.91)]).
+cnf(2669515,plain,
+    ( X1 = union(X1,difference(difference(X2,difference(X2,X1)),X3)) ),
+    inference(rw,[status(thm)],[2668217,953336,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.42),complexity(0.67),intensity(0.71),surprisingness(0.73),adaptivity(0.77),focus(ignored),weight(0.70),usefulness(0.72),interesting(0.93)]).
+cnf(2669516,plain,
+    ( X1 = union(X1,difference(X2,union(difference(X2,X1),X3))) ),
+    inference(rw,[status(thm)],[2669515,2633595,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.47),complexity(0.67),intensity(0.71),surprisingness(0.73),adaptivity(0.77),focus(ignored),weight(0.70),usefulness(0.71),interesting(0.94)]).
+cnf(2687237,plain,
+    ( X1 = difference(X1,difference(X3,union(difference(X3,difference(X2,X1)),X4))) ),
+    inference(rw,[status(thm)],[2685845,766841,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.48),complexity(0.67),intensity(0.51),surprisingness(0.73),adaptivity(0.93),focus(ignored),weight(0.60),usefulness(0.70),interesting(0.90)]).
+cnf(2693808,plain,
+    ( union(difference(X1,X2),difference(X2,difference(X2,X1))) = X1 ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[2692320,30,theory(equality)]),953336,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.23),complexity(0.67),intensity(0.71),surprisingness(0.73),adaptivity(0.37),focus(ignored),weight(0.70),usefulness(0.68),interesting(0.75)]).
+cnf(2985839,plain,
+    ( difference(X1,difference(X2,difference(union(X2,X3),difference(X4,X1)))) = X1 ),
+    inference(spm,[status(thm)],[2687237,2657225,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.56),complexity(0.67),intensity(0.51),surprisingness(0.73),adaptivity(0.93),focus(ignored),weight(0.60),usefulness(0.69),interesting(0.92)]).
+cnf(3054998,plain,
+    ( union(X1,difference(X2,X3)) = difference(union(X1,X2),difference(X3,X1)) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[3053775,2633595,theory(equality)]),30,theory(equality)]),1552922,theory(equality)]),2216911,theory(equality)]),30,theory(equality)]),2662209,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(0.92),complexity(0.67),intensity(0.51),surprisingness(0.73),adaptivity(0.60),focus(ignored),weight(0.60),usefulness(0.64),interesting(0.92)]).
+cnf(3056678,plain,
+    ( difference(union(X3,X1),X2) = union(difference(X1,X2),difference(X3,X2)) ),
+    inference(rw,[status(thm)],[3055428,2660683,theory(equality)]),
+    [ancestors(14,15,16,20,21,22,26,30,36,37),obviousness(1.00),complexity(0.67),intensity(0.51),surprisingness(0.73),adaptivity(0.60),focus(ignored),weight(0.60),usefulness(0.64),interesting(0.94)]).

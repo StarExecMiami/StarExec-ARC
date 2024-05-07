@@ -1,0 +1,2133 @@
+%------------------------------------------------------------------------------
+% File       : EP---0.99
+% Problem    : SWV116+1 : TPTP v3.1.0
+% Transform  : none
+% Format     : tptp
+% Command    : eproof --print-statistics -xAuto -tAuto --cpu-limit=%d --memory-limit=Auto --tstp-in --tstp-out %s
+
+% Computer   : art08.cs.miami.edu
+% Model      : i686 i686
+% CPU        : Intel(R) Pentium(R) 4 CPU 2.80GHz @ 2793MHz
+% Memory     : 1003MB
+% OS         : Linux 2.6.17-1.2142_FC4
+% CPULimit   : 600s
+
+% Result     : Theorem 24.9s
+% Output     : Refutation 29.5s
+% Verified   : 
+% Statistics : Number of formulae    :  252 (1264715 expanded)
+%              Number of clauses     :  208 (552423 expanded)
+%              Number of leaves      :   19 (360476 expanded)
+%              Depth                 :   43
+%              Number of atoms       :  992 (1484157 expanded)
+%              Maximal formula depth :   28 (   4 average)
+%              Maximal clause size   :   75 (   5 average)
+%              Maximal term depth    :    7 (   1 average)
+
+% Comments   : 
+%------------------------------------------------------------------------------
+fof(27,axiom,(
+    ! [X1] : plus(X1,n1) = succ(X1) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',succ_plus_1_r)).
+
+fof(28,axiom,(
+    ! [X1] : plus(n1,X1) = succ(X1) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',succ_plus_1_l)).
+
+fof(29,axiom,(
+    ! [X1] : plus(X1,n2) = succ(succ(X1)) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',succ_plus_2_r)).
+
+fof(30,axiom,(
+    ! [X1] : plus(n2,X1) = succ(succ(X1)) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',succ_plus_2_l)).
+
+fof(31,axiom,(
+    ! [X1] : plus(X1,n3) = succ(succ(succ(X1))) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',succ_plus_3_r)).
+
+fof(32,axiom,(
+    ! [X1] : plus(n3,X1) = succ(succ(succ(X1))) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',succ_plus_3_l)).
+
+fof(33,axiom,(
+    ! [X1] : plus(X1,n4) = succ(succ(succ(succ(X1)))) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',succ_plus_4_r)).
+
+fof(35,axiom,(
+    ! [X1] : plus(X1,n5) = succ(succ(succ(succ(succ(X1))))) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',succ_plus_5_r)).
+
+fof(36,axiom,(
+    ! [X1] : plus(n5,X1) = succ(succ(succ(succ(succ(X1))))) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',succ_plus_5_l)).
+
+fof(37,axiom,(
+    ! [X1] : minus(X1,n1) = pred(X1) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',pred_minus_1)).
+
+fof(38,axiom,(
+    ! [X1] : pred(succ(X1)) = X1 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',pred_succ)).
+
+fof(51,conjecture,
+    ( ( leq(n0,pv5)
+      & leq(pv5,minus(n999,n1))
+      & ! [X16,X17] : 
+          ( ( leq(n0,X16)
+            & leq(n0,X17)
+            & leq(X16,minus(n6,n1))
+            & leq(X17,minus(n6,n1)) )
+         => a_select3(q_ds1_filter,X16,X17) = a_select3(q_ds1_filter,X17,X16) )
+      & ! [X4,X20] : 
+          ( ( leq(n0,X4)
+            & leq(n0,X20)
+            & leq(X4,minus(n3,n1))
+            & leq(X20,minus(n3,n1)) )
+         => a_select3(r_ds1_filter,X4,X20) = a_select3(r_ds1_filter,X20,X4) )
+      & ! [X21,X22] : 
+          ( ( leq(n0,X21)
+            & leq(n0,X22)
+            & leq(X21,minus(n6,n1))
+            & leq(X22,minus(n6,n1)) )
+         => a_select3(pminus_ds1_filter,X21,X22) = a_select3(pminus_ds1_filter,X22,X21) )
+      & ! [X27,X28] : 
+          ( ( leq(n0,X27)
+            & leq(n0,X28)
+            & leq(X27,minus(n6,n1))
+            & leq(X28,minus(n6,n1)) )
+         => a_select3(pminus_ds1_filter,X27,X28) = a_select3(pminus_ds1_filter,X28,X27) )
+      & ! [X5] : 
+          ( ( leq(n0,X5)
+            & leq(X5,minus(n6,n1)) )
+         => ! [X11] : 
+              ( ( leq(n0,X11)
+                & leq(X11,minus(n6,n1)) )
+             => a_select3(id_ds1_filter,X5,X11) = a_select3(id_ds1_filter,X11,X5) ) ) )
+   => ( ! [X29,X6] : 
+          ( ( leq(n0,X29)
+            & leq(n0,X6)
+            & leq(X29,minus(n6,n1))
+            & leq(X6,minus(n6,n1)) )
+         => a_select3(q_ds1_filter,X29,X6) = a_select3(q_ds1_filter,X6,X29) )
+      & ! [X19,X18] : 
+          ( ( leq(n0,X19)
+            & leq(n0,X18)
+            & leq(X19,minus(n3,n1))
+            & leq(X18,minus(n3,n1)) )
+         => a_select3(r_ds1_filter,X19,X18) = a_select3(r_ds1_filter,X18,X19) )
+      & ! [X30,X31] : 
+          ( ( leq(n0,X30)
+            & leq(n0,X31)
+            & leq(X30,minus(n6,n1))
+            & leq(X31,minus(n6,n1)) )
+         => a_select3(pminus_ds1_filter,X30,X31) = a_select3(pminus_ds1_filter,X31,X30) ) ) ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',quaternion_ds1_symm_0009)).
+
+fof(95,axiom,(
+    succ(succ(succ(succ(n0)))) = n4 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',successor_4)).
+
+fof(96,axiom,(
+    succ(succ(succ(succ(succ(n0))))) = n5 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',successor_5)).
+
+fof(97,axiom,(
+    succ(succ(succ(succ(succ(succ(n0)))))) = n6 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',successor_6)).
+
+fof(99,axiom,(
+    succ(succ(n0)) = n2 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',successor_2)).
+
+fof(100,axiom,(
+    succ(succ(succ(n0))) = n3 ),
+    file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp',successor_3)).
+
+fof(101,negated_conjecture,(
+    ~ ( ( leq(n0,pv5)
+        & leq(pv5,minus(n999,n1))
+        & ! [X16,X17] : 
+            ( ( leq(n0,X16)
+              & leq(n0,X17)
+              & leq(X16,minus(n6,n1))
+              & leq(X17,minus(n6,n1)) )
+           => a_select3(q_ds1_filter,X16,X17) = a_select3(q_ds1_filter,X17,X16) )
+        & ! [X4,X20] : 
+            ( ( leq(n0,X4)
+              & leq(n0,X20)
+              & leq(X4,minus(n3,n1))
+              & leq(X20,minus(n3,n1)) )
+           => a_select3(r_ds1_filter,X4,X20) = a_select3(r_ds1_filter,X20,X4) )
+        & ! [X21,X22] : 
+            ( ( leq(n0,X21)
+              & leq(n0,X22)
+              & leq(X21,minus(n6,n1))
+              & leq(X22,minus(n6,n1)) )
+           => a_select3(pminus_ds1_filter,X21,X22) = a_select3(pminus_ds1_filter,X22,X21) )
+        & ! [X27,X28] : 
+            ( ( leq(n0,X27)
+              & leq(n0,X28)
+              & leq(X27,minus(n6,n1))
+              & leq(X28,minus(n6,n1)) )
+           => a_select3(pminus_ds1_filter,X27,X28) = a_select3(pminus_ds1_filter,X28,X27) )
+        & ! [X5] : 
+            ( ( leq(n0,X5)
+              & leq(X5,minus(n6,n1)) )
+           => ! [X11] : 
+                ( ( leq(n0,X11)
+                  & leq(X11,minus(n6,n1)) )
+               => a_select3(id_ds1_filter,X5,X11) = a_select3(id_ds1_filter,X11,X5) ) ) )
+     => ( ! [X29,X6] : 
+            ( ( leq(n0,X29)
+              & leq(n0,X6)
+              & leq(X29,minus(n6,n1))
+              & leq(X6,minus(n6,n1)) )
+           => a_select3(q_ds1_filter,X29,X6) = a_select3(q_ds1_filter,X6,X29) )
+        & ! [X19,X18] : 
+            ( ( leq(n0,X19)
+              & leq(n0,X18)
+              & leq(X19,minus(n3,n1))
+              & leq(X18,minus(n3,n1)) )
+           => a_select3(r_ds1_filter,X19,X18) = a_select3(r_ds1_filter,X18,X19) )
+        & ! [X30,X31] : 
+            ( ( leq(n0,X30)
+              & leq(n0,X31)
+              & leq(X30,minus(n6,n1))
+              & leq(X31,minus(n6,n1)) )
+           => a_select3(pminus_ds1_filter,X30,X31) = a_select3(pminus_ds1_filter,X31,X30) ) ) ) ),
+    inference(assume_negation,[status(cth)],[51])).
+
+fof(103,plain,
+    ( epred1_0
+   => ( leq(n0,pv5)
+      & leq(pv5,minus(n999,n1))
+      & ! [X16,X17] : 
+          ( ( leq(n0,X16)
+            & leq(n0,X17)
+            & leq(X16,minus(n6,n1))
+            & leq(X17,minus(n6,n1)) )
+         => a_select3(q_ds1_filter,X16,X17) = a_select3(q_ds1_filter,X17,X16) )
+      & ! [X4,X20] : 
+          ( ( leq(n0,X4)
+            & leq(n0,X20)
+            & leq(X4,minus(n3,n1))
+            & leq(X20,minus(n3,n1)) )
+         => a_select3(r_ds1_filter,X4,X20) = a_select3(r_ds1_filter,X20,X4) )
+      & ! [X21,X22] : 
+          ( ( leq(n0,X21)
+            & leq(n0,X22)
+            & leq(X21,minus(n6,n1))
+            & leq(X22,minus(n6,n1)) )
+         => a_select3(pminus_ds1_filter,X21,X22) = a_select3(pminus_ds1_filter,X22,X21) )
+      & ! [X27,X28] : 
+          ( ( leq(n0,X27)
+            & leq(n0,X28)
+            & leq(X27,minus(n6,n1))
+            & leq(X28,minus(n6,n1)) )
+         => a_select3(pminus_ds1_filter,X27,X28) = a_select3(pminus_ds1_filter,X28,X27) )
+      & ! [X5] : 
+          ( ( leq(n0,X5)
+            & leq(X5,minus(n6,n1)) )
+         => ! [X11] : 
+              ( ( leq(n0,X11)
+                & leq(X11,minus(n6,n1)) )
+             => a_select3(id_ds1_filter,X5,X11) = a_select3(id_ds1_filter,X11,X5) ) ) ) ),
+    introduced(definition)).
+
+fof(104,plain,
+    ( ( ! [X29,X6] : 
+          ( ( leq(n0,X29)
+            & leq(n0,X6)
+            & leq(X29,minus(n6,n1))
+            & leq(X6,minus(n6,n1)) )
+         => a_select3(q_ds1_filter,X29,X6) = a_select3(q_ds1_filter,X6,X29) )
+      & ! [X19,X18] : 
+          ( ( leq(n0,X19)
+            & leq(n0,X18)
+            & leq(X19,minus(n3,n1))
+            & leq(X18,minus(n3,n1)) )
+         => a_select3(r_ds1_filter,X19,X18) = a_select3(r_ds1_filter,X18,X19) ) )
+   => epred2_0 ),
+    introduced(definition)).
+
+fof(105,negated_conjecture,(
+    ~ ( epred1_0
+     => ( epred2_0
+        & ! [X30,X31] : 
+            ( ( leq(n0,X30)
+              & leq(n0,X31)
+              & leq(X30,minus(n6,n1))
+              & leq(X31,minus(n6,n1)) )
+           => a_select3(pminus_ds1_filter,X30,X31) = a_select3(pminus_ds1_filter,X31,X30) ) ) ) ),
+    inference(apply_def,[status(sab)],[inference(apply_def,[status(sab)],[101,103,theory(equality)]),104,theory(equality)])).
+
+fof(181,plain,(
+    ! [X2] : plus(X2,n1) = succ(X2) ),
+    inference(variable_rename,[status(thm)],[27])).
+
+cnf(182,plain,
+    ( plus(X1,n1) = succ(X1) ),
+    inference(split_conjunct,[status(thm)],[181])).
+
+fof(183,plain,(
+    ! [X2] : plus(n1,X2) = succ(X2) ),
+    inference(variable_rename,[status(thm)],[28])).
+
+cnf(184,plain,
+    ( plus(n1,X1) = succ(X1) ),
+    inference(split_conjunct,[status(thm)],[183])).
+
+fof(185,plain,(
+    ! [X2] : plus(X2,n2) = succ(succ(X2)) ),
+    inference(variable_rename,[status(thm)],[29])).
+
+cnf(186,plain,
+    ( plus(X1,n2) = succ(succ(X1)) ),
+    inference(split_conjunct,[status(thm)],[185])).
+
+fof(187,plain,(
+    ! [X2] : plus(n2,X2) = succ(succ(X2)) ),
+    inference(variable_rename,[status(thm)],[30])).
+
+cnf(188,plain,
+    ( plus(n2,X1) = succ(succ(X1)) ),
+    inference(split_conjunct,[status(thm)],[187])).
+
+fof(189,plain,(
+    ! [X2] : plus(X2,n3) = succ(succ(succ(X2))) ),
+    inference(variable_rename,[status(thm)],[31])).
+
+cnf(190,plain,
+    ( plus(X1,n3) = succ(succ(succ(X1))) ),
+    inference(split_conjunct,[status(thm)],[189])).
+
+fof(191,plain,(
+    ! [X2] : plus(n3,X2) = succ(succ(succ(X2))) ),
+    inference(variable_rename,[status(thm)],[32])).
+
+cnf(192,plain,
+    ( plus(n3,X1) = succ(succ(succ(X1))) ),
+    inference(split_conjunct,[status(thm)],[191])).
+
+fof(193,plain,(
+    ! [X2] : plus(X2,n4) = succ(succ(succ(succ(X2)))) ),
+    inference(variable_rename,[status(thm)],[33])).
+
+cnf(194,plain,
+    ( plus(X1,n4) = succ(succ(succ(succ(X1)))) ),
+    inference(split_conjunct,[status(thm)],[193])).
+
+fof(197,plain,(
+    ! [X2] : plus(X2,n5) = succ(succ(succ(succ(succ(X2))))) ),
+    inference(variable_rename,[status(thm)],[35])).
+
+cnf(198,plain,
+    ( plus(X1,n5) = succ(succ(succ(succ(succ(X1))))) ),
+    inference(split_conjunct,[status(thm)],[197])).
+
+fof(199,plain,(
+    ! [X2] : plus(n5,X2) = succ(succ(succ(succ(succ(X2))))) ),
+    inference(variable_rename,[status(thm)],[36])).
+
+cnf(200,plain,
+    ( plus(n5,X1) = succ(succ(succ(succ(succ(X1))))) ),
+    inference(split_conjunct,[status(thm)],[199])).
+
+fof(201,plain,(
+    ! [X2] : minus(X2,n1) = pred(X2) ),
+    inference(variable_rename,[status(thm)],[37])).
+
+cnf(202,plain,
+    ( minus(X1,n1) = pred(X1) ),
+    inference(split_conjunct,[status(thm)],[201])).
+
+fof(203,plain,(
+    ! [X2] : pred(succ(X2)) = X2 ),
+    inference(variable_rename,[status(thm)],[38])).
+
+cnf(204,plain,
+    ( pred(succ(X1)) = X1 ),
+    inference(split_conjunct,[status(thm)],[203])).
+
+fof(245,negated_conjecture,
+    ( epred1_0
+    & ( ~ epred2_0
+      | ? [X30,X31] : 
+          ( leq(n0,X30)
+          & leq(n0,X31)
+          & leq(X30,minus(n6,n1))
+          & leq(X31,minus(n6,n1))
+          & a_select3(pminus_ds1_filter,X30,X31) != a_select3(pminus_ds1_filter,X31,X30) ) ) ),
+    inference(fof_nnf,[status(thm)],[105])).
+
+fof(246,negated_conjecture,
+    ( epred1_0
+    & ( ~ epred2_0
+      | ? [X32,X33] : 
+          ( leq(n0,X32)
+          & leq(n0,X33)
+          & leq(X32,minus(n6,n1))
+          & leq(X33,minus(n6,n1))
+          & a_select3(pminus_ds1_filter,X32,X33) != a_select3(pminus_ds1_filter,X33,X32) ) ) ),
+    inference(variable_rename,[status(thm)],[245])).
+
+fof(247,negated_conjecture,
+    ( epred1_0
+    & ( ~ epred2_0
+      | ( leq(n0,esk4_0)
+        & leq(n0,esk5_0)
+        & leq(esk4_0,minus(n6,n1))
+        & leq(esk5_0,minus(n6,n1))
+        & a_select3(pminus_ds1_filter,esk4_0,esk5_0) != a_select3(pminus_ds1_filter,esk5_0,esk4_0) ) ) ),
+    inference(skolemize,[status(sab)],[246])).
+
+fof(248,negated_conjecture,
+    ( epred1_0
+    & ( leq(n0,esk4_0)
+      | ~ epred2_0 )
+    & ( leq(n0,esk5_0)
+      | ~ epred2_0 )
+    & ( leq(esk4_0,minus(n6,n1))
+      | ~ epred2_0 )
+    & ( leq(esk5_0,minus(n6,n1))
+      | ~ epred2_0 )
+    & ( a_select3(pminus_ds1_filter,esk4_0,esk5_0) != a_select3(pminus_ds1_filter,esk5_0,esk4_0)
+      | ~ epred2_0 ) ),
+    inference(distribute,[status(thm)],[247])).
+
+cnf(249,negated_conjecture,
+    ( ~ epred2_0
+    | a_select3(pminus_ds1_filter,esk4_0,esk5_0) != a_select3(pminus_ds1_filter,esk5_0,esk4_0) ),
+    inference(split_conjunct,[status(thm)],[248])).
+
+cnf(250,negated_conjecture,
+    ( leq(esk5_0,minus(n6,n1))
+    | ~ epred2_0 ),
+    inference(split_conjunct,[status(thm)],[248])).
+
+cnf(251,negated_conjecture,
+    ( leq(esk4_0,minus(n6,n1))
+    | ~ epred2_0 ),
+    inference(split_conjunct,[status(thm)],[248])).
+
+cnf(252,negated_conjecture,
+    ( leq(n0,esk5_0)
+    | ~ epred2_0 ),
+    inference(split_conjunct,[status(thm)],[248])).
+
+cnf(253,negated_conjecture,
+    ( leq(n0,esk4_0)
+    | ~ epred2_0 ),
+    inference(split_conjunct,[status(thm)],[248])).
+
+cnf(254,negated_conjecture,
+    ( epred1_0 ),
+    inference(split_conjunct,[status(thm)],[248])).
+
+cnf(312,plain,
+    ( succ(succ(succ(succ(n0)))) = n4 ),
+    inference(split_conjunct,[status(thm)],[95])).
+
+cnf(313,plain,
+    ( succ(succ(succ(succ(succ(n0))))) = n5 ),
+    inference(split_conjunct,[status(thm)],[96])).
+
+cnf(314,plain,
+    ( succ(succ(succ(succ(succ(succ(n0)))))) = n6 ),
+    inference(split_conjunct,[status(thm)],[97])).
+
+cnf(316,plain,
+    ( succ(succ(n0)) = n2 ),
+    inference(split_conjunct,[status(thm)],[99])).
+
+cnf(317,plain,
+    ( succ(succ(succ(n0))) = n3 ),
+    inference(split_conjunct,[status(thm)],[100])).
+
+fof(318,plain,
+    ( ~ epred1_0
+    | ( leq(n0,pv5)
+      & leq(pv5,minus(n999,n1))
+      & ! [X16,X17] : 
+          ( ~ leq(n0,X16)
+          | ~ leq(n0,X17)
+          | ~ leq(X16,minus(n6,n1))
+          | ~ leq(X17,minus(n6,n1))
+          | a_select3(q_ds1_filter,X16,X17) = a_select3(q_ds1_filter,X17,X16) )
+      & ! [X4,X20] : 
+          ( ~ leq(n0,X4)
+          | ~ leq(n0,X20)
+          | ~ leq(X4,minus(n3,n1))
+          | ~ leq(X20,minus(n3,n1))
+          | a_select3(r_ds1_filter,X4,X20) = a_select3(r_ds1_filter,X20,X4) )
+      & ! [X21,X22] : 
+          ( ~ leq(n0,X21)
+          | ~ leq(n0,X22)
+          | ~ leq(X21,minus(n6,n1))
+          | ~ leq(X22,minus(n6,n1))
+          | a_select3(pminus_ds1_filter,X21,X22) = a_select3(pminus_ds1_filter,X22,X21) )
+      & ! [X27,X28] : 
+          ( ~ leq(n0,X27)
+          | ~ leq(n0,X28)
+          | ~ leq(X27,minus(n6,n1))
+          | ~ leq(X28,minus(n6,n1))
+          | a_select3(pminus_ds1_filter,X27,X28) = a_select3(pminus_ds1_filter,X28,X27) )
+      & ! [X5] : 
+          ( ~ leq(n0,X5)
+          | ~ leq(X5,minus(n6,n1))
+          | ! [X11] : 
+              ( ~ leq(n0,X11)
+              | ~ leq(X11,minus(n6,n1))
+              | a_select3(id_ds1_filter,X5,X11) = a_select3(id_ds1_filter,X11,X5) ) ) ) ),
+    inference(fof_nnf,[status(thm)],[103])).
+
+fof(319,plain,
+    ( ~ epred1_0
+    | ( leq(n0,pv5)
+      & leq(pv5,minus(n999,n1))
+      & ! [X29,X30] : 
+          ( ~ leq(n0,X29)
+          | ~ leq(n0,X30)
+          | ~ leq(X29,minus(n6,n1))
+          | ~ leq(X30,minus(n6,n1))
+          | a_select3(q_ds1_filter,X29,X30) = a_select3(q_ds1_filter,X30,X29) )
+      & ! [X31,X32] : 
+          ( ~ leq(n0,X31)
+          | ~ leq(n0,X32)
+          | ~ leq(X31,minus(n3,n1))
+          | ~ leq(X32,minus(n3,n1))
+          | a_select3(r_ds1_filter,X31,X32) = a_select3(r_ds1_filter,X32,X31) )
+      & ! [X33,X34] : 
+          ( ~ leq(n0,X33)
+          | ~ leq(n0,X34)
+          | ~ leq(X33,minus(n6,n1))
+          | ~ leq(X34,minus(n6,n1))
+          | a_select3(pminus_ds1_filter,X33,X34) = a_select3(pminus_ds1_filter,X34,X33) )
+      & ! [X35,X36] : 
+          ( ~ leq(n0,X35)
+          | ~ leq(n0,X36)
+          | ~ leq(X35,minus(n6,n1))
+          | ~ leq(X36,minus(n6,n1))
+          | a_select3(pminus_ds1_filter,X35,X36) = a_select3(pminus_ds1_filter,X36,X35) )
+      & ! [X37] : 
+          ( ~ leq(n0,X37)
+          | ~ leq(X37,minus(n6,n1))
+          | ! [X38] : 
+              ( ~ leq(n0,X38)
+              | ~ leq(X38,minus(n6,n1))
+              | a_select3(id_ds1_filter,X37,X38) = a_select3(id_ds1_filter,X38,X37) ) ) ) ),
+    inference(variable_rename,[status(thm)],[318])).
+
+fof(320,plain,(
+    ! [X29,X30,X31,X32,X33,X34,X35,X36,X37,X38] : 
+      ( ( ( ~ leq(n0,X38)
+          | ~ leq(X38,minus(n6,n1))
+          | a_select3(id_ds1_filter,X37,X38) = a_select3(id_ds1_filter,X38,X37)
+          | ~ leq(n0,X37)
+          | ~ leq(X37,minus(n6,n1)) )
+        & ( ~ leq(n0,X35)
+          | ~ leq(n0,X36)
+          | ~ leq(X35,minus(n6,n1))
+          | ~ leq(X36,minus(n6,n1))
+          | a_select3(pminus_ds1_filter,X35,X36) = a_select3(pminus_ds1_filter,X36,X35) )
+        & ( ~ leq(n0,X33)
+          | ~ leq(n0,X34)
+          | ~ leq(X33,minus(n6,n1))
+          | ~ leq(X34,minus(n6,n1))
+          | a_select3(pminus_ds1_filter,X33,X34) = a_select3(pminus_ds1_filter,X34,X33) )
+        & ( ~ leq(n0,X31)
+          | ~ leq(n0,X32)
+          | ~ leq(X31,minus(n3,n1))
+          | ~ leq(X32,minus(n3,n1))
+          | a_select3(r_ds1_filter,X31,X32) = a_select3(r_ds1_filter,X32,X31) )
+        & ( ~ leq(n0,X29)
+          | ~ leq(n0,X30)
+          | ~ leq(X29,minus(n6,n1))
+          | ~ leq(X30,minus(n6,n1))
+          | a_select3(q_ds1_filter,X29,X30) = a_select3(q_ds1_filter,X30,X29) )
+        & leq(n0,pv5)
+        & leq(pv5,minus(n999,n1)) )
+      | ~ epred1_0 ) ),
+    inference(shift_quantors,[status(thm)],[319])).
+
+fof(321,plain,(
+    ! [X29,X30,X31,X32,X33,X34,X35,X36,X37,X38] : 
+      ( ( ~ leq(n0,X38)
+        | ~ leq(X38,minus(n6,n1))
+        | a_select3(id_ds1_filter,X37,X38) = a_select3(id_ds1_filter,X38,X37)
+        | ~ leq(n0,X37)
+        | ~ leq(X37,minus(n6,n1))
+        | ~ epred1_0 )
+      & ( ~ leq(n0,X35)
+        | ~ leq(n0,X36)
+        | ~ leq(X35,minus(n6,n1))
+        | ~ leq(X36,minus(n6,n1))
+        | a_select3(pminus_ds1_filter,X35,X36) = a_select3(pminus_ds1_filter,X36,X35)
+        | ~ epred1_0 )
+      & ( ~ leq(n0,X33)
+        | ~ leq(n0,X34)
+        | ~ leq(X33,minus(n6,n1))
+        | ~ leq(X34,minus(n6,n1))
+        | a_select3(pminus_ds1_filter,X33,X34) = a_select3(pminus_ds1_filter,X34,X33)
+        | ~ epred1_0 )
+      & ( ~ leq(n0,X31)
+        | ~ leq(n0,X32)
+        | ~ leq(X31,minus(n3,n1))
+        | ~ leq(X32,minus(n3,n1))
+        | a_select3(r_ds1_filter,X31,X32) = a_select3(r_ds1_filter,X32,X31)
+        | ~ epred1_0 )
+      & ( ~ leq(n0,X29)
+        | ~ leq(n0,X30)
+        | ~ leq(X29,minus(n6,n1))
+        | ~ leq(X30,minus(n6,n1))
+        | a_select3(q_ds1_filter,X29,X30) = a_select3(q_ds1_filter,X30,X29)
+        | ~ epred1_0 )
+      & ( leq(n0,pv5)
+        | ~ epred1_0 )
+      & ( leq(pv5,minus(n999,n1))
+        | ~ epred1_0 ) ) ),
+    inference(distribute,[status(thm)],[320])).
+
+cnf(324,plain,
+    ( a_select3(q_ds1_filter,X1,X2) = a_select3(q_ds1_filter,X2,X1)
+    | ~ epred1_0
+    | ~ leq(X2,minus(n6,n1))
+    | ~ leq(X1,minus(n6,n1))
+    | ~ leq(n0,X2)
+    | ~ leq(n0,X1) ),
+    inference(split_conjunct,[status(thm)],[321])).
+
+cnf(325,plain,
+    ( a_select3(r_ds1_filter,X1,X2) = a_select3(r_ds1_filter,X2,X1)
+    | ~ epred1_0
+    | ~ leq(X2,minus(n3,n1))
+    | ~ leq(X1,minus(n3,n1))
+    | ~ leq(n0,X2)
+    | ~ leq(n0,X1) ),
+    inference(split_conjunct,[status(thm)],[321])).
+
+cnf(326,plain,
+    ( a_select3(pminus_ds1_filter,X1,X2) = a_select3(pminus_ds1_filter,X2,X1)
+    | ~ epred1_0
+    | ~ leq(X2,minus(n6,n1))
+    | ~ leq(X1,minus(n6,n1))
+    | ~ leq(n0,X2)
+    | ~ leq(n0,X1) ),
+    inference(split_conjunct,[status(thm)],[321])).
+
+fof(329,plain,
+    ( ? [X29,X6] : 
+        ( leq(n0,X29)
+        & leq(n0,X6)
+        & leq(X29,minus(n6,n1))
+        & leq(X6,minus(n6,n1))
+        & a_select3(q_ds1_filter,X29,X6) != a_select3(q_ds1_filter,X6,X29) )
+    | ? [X19,X18] : 
+        ( leq(n0,X19)
+        & leq(n0,X18)
+        & leq(X19,minus(n3,n1))
+        & leq(X18,minus(n3,n1))
+        & a_select3(r_ds1_filter,X19,X18) != a_select3(r_ds1_filter,X18,X19) )
+    | epred2_0 ),
+    inference(fof_nnf,[status(thm)],[104])).
+
+fof(330,plain,
+    ( ? [X30,X31] : 
+        ( leq(n0,X30)
+        & leq(n0,X31)
+        & leq(X30,minus(n6,n1))
+        & leq(X31,minus(n6,n1))
+        & a_select3(q_ds1_filter,X30,X31) != a_select3(q_ds1_filter,X31,X30) )
+    | ? [X32,X33] : 
+        ( leq(n0,X32)
+        & leq(n0,X33)
+        & leq(X32,minus(n3,n1))
+        & leq(X33,minus(n3,n1))
+        & a_select3(r_ds1_filter,X32,X33) != a_select3(r_ds1_filter,X33,X32) )
+    | epred2_0 ),
+    inference(variable_rename,[status(thm)],[329])).
+
+fof(331,plain,
+    ( ( leq(n0,esk6_0)
+      & leq(n0,esk7_0)
+      & leq(esk6_0,minus(n6,n1))
+      & leq(esk7_0,minus(n6,n1))
+      & a_select3(q_ds1_filter,esk6_0,esk7_0) != a_select3(q_ds1_filter,esk7_0,esk6_0) )
+    | ( leq(n0,esk8_0)
+      & leq(n0,esk9_0)
+      & leq(esk8_0,minus(n3,n1))
+      & leq(esk9_0,minus(n3,n1))
+      & a_select3(r_ds1_filter,esk8_0,esk9_0) != a_select3(r_ds1_filter,esk9_0,esk8_0) )
+    | epred2_0 ),
+    inference(skolemize,[status(sab)],[330])).
+
+fof(332,plain,
+    ( ( leq(n0,esk8_0)
+      | leq(n0,esk6_0)
+      | epred2_0 )
+    & ( leq(n0,esk9_0)
+      | leq(n0,esk6_0)
+      | epred2_0 )
+    & ( leq(esk8_0,minus(n3,n1))
+      | leq(n0,esk6_0)
+      | epred2_0 )
+    & ( leq(esk9_0,minus(n3,n1))
+      | leq(n0,esk6_0)
+      | epred2_0 )
+    & ( a_select3(r_ds1_filter,esk8_0,esk9_0) != a_select3(r_ds1_filter,esk9_0,esk8_0)
+      | leq(n0,esk6_0)
+      | epred2_0 )
+    & ( leq(n0,esk8_0)
+      | leq(n0,esk7_0)
+      | epred2_0 )
+    & ( leq(n0,esk9_0)
+      | leq(n0,esk7_0)
+      | epred2_0 )
+    & ( leq(esk8_0,minus(n3,n1))
+      | leq(n0,esk7_0)
+      | epred2_0 )
+    & ( leq(esk9_0,minus(n3,n1))
+      | leq(n0,esk7_0)
+      | epred2_0 )
+    & ( a_select3(r_ds1_filter,esk8_0,esk9_0) != a_select3(r_ds1_filter,esk9_0,esk8_0)
+      | leq(n0,esk7_0)
+      | epred2_0 )
+    & ( leq(n0,esk8_0)
+      | leq(esk6_0,minus(n6,n1))
+      | epred2_0 )
+    & ( leq(n0,esk9_0)
+      | leq(esk6_0,minus(n6,n1))
+      | epred2_0 )
+    & ( leq(esk8_0,minus(n3,n1))
+      | leq(esk6_0,minus(n6,n1))
+      | epred2_0 )
+    & ( leq(esk9_0,minus(n3,n1))
+      | leq(esk6_0,minus(n6,n1))
+      | epred2_0 )
+    & ( a_select3(r_ds1_filter,esk8_0,esk9_0) != a_select3(r_ds1_filter,esk9_0,esk8_0)
+      | leq(esk6_0,minus(n6,n1))
+      | epred2_0 )
+    & ( leq(n0,esk8_0)
+      | leq(esk7_0,minus(n6,n1))
+      | epred2_0 )
+    & ( leq(n0,esk9_0)
+      | leq(esk7_0,minus(n6,n1))
+      | epred2_0 )
+    & ( leq(esk8_0,minus(n3,n1))
+      | leq(esk7_0,minus(n6,n1))
+      | epred2_0 )
+    & ( leq(esk9_0,minus(n3,n1))
+      | leq(esk7_0,minus(n6,n1))
+      | epred2_0 )
+    & ( a_select3(r_ds1_filter,esk8_0,esk9_0) != a_select3(r_ds1_filter,esk9_0,esk8_0)
+      | leq(esk7_0,minus(n6,n1))
+      | epred2_0 )
+    & ( leq(n0,esk8_0)
+      | a_select3(q_ds1_filter,esk6_0,esk7_0) != a_select3(q_ds1_filter,esk7_0,esk6_0)
+      | epred2_0 )
+    & ( leq(n0,esk9_0)
+      | a_select3(q_ds1_filter,esk6_0,esk7_0) != a_select3(q_ds1_filter,esk7_0,esk6_0)
+      | epred2_0 )
+    & ( leq(esk8_0,minus(n3,n1))
+      | a_select3(q_ds1_filter,esk6_0,esk7_0) != a_select3(q_ds1_filter,esk7_0,esk6_0)
+      | epred2_0 )
+    & ( leq(esk9_0,minus(n3,n1))
+      | a_select3(q_ds1_filter,esk6_0,esk7_0) != a_select3(q_ds1_filter,esk7_0,esk6_0)
+      | epred2_0 )
+    & ( a_select3(r_ds1_filter,esk8_0,esk9_0) != a_select3(r_ds1_filter,esk9_0,esk8_0)
+      | a_select3(q_ds1_filter,esk6_0,esk7_0) != a_select3(q_ds1_filter,esk7_0,esk6_0)
+      | epred2_0 ) ),
+    inference(distribute,[status(thm)],[331])).
+
+cnf(333,plain,
+    ( epred2_0
+    | a_select3(q_ds1_filter,esk6_0,esk7_0) != a_select3(q_ds1_filter,esk7_0,esk6_0)
+    | a_select3(r_ds1_filter,esk8_0,esk9_0) != a_select3(r_ds1_filter,esk9_0,esk8_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(334,plain,
+    ( epred2_0
+    | leq(esk9_0,minus(n3,n1))
+    | a_select3(q_ds1_filter,esk6_0,esk7_0) != a_select3(q_ds1_filter,esk7_0,esk6_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(335,plain,
+    ( epred2_0
+    | leq(esk8_0,minus(n3,n1))
+    | a_select3(q_ds1_filter,esk6_0,esk7_0) != a_select3(q_ds1_filter,esk7_0,esk6_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(336,plain,
+    ( epred2_0
+    | leq(n0,esk9_0)
+    | a_select3(q_ds1_filter,esk6_0,esk7_0) != a_select3(q_ds1_filter,esk7_0,esk6_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(337,plain,
+    ( epred2_0
+    | leq(n0,esk8_0)
+    | a_select3(q_ds1_filter,esk6_0,esk7_0) != a_select3(q_ds1_filter,esk7_0,esk6_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(338,plain,
+    ( epred2_0
+    | leq(esk7_0,minus(n6,n1))
+    | a_select3(r_ds1_filter,esk8_0,esk9_0) != a_select3(r_ds1_filter,esk9_0,esk8_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(339,plain,
+    ( epred2_0
+    | leq(esk7_0,minus(n6,n1))
+    | leq(esk9_0,minus(n3,n1)) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(340,plain,
+    ( epred2_0
+    | leq(esk7_0,minus(n6,n1))
+    | leq(esk8_0,minus(n3,n1)) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(341,plain,
+    ( epred2_0
+    | leq(esk7_0,minus(n6,n1))
+    | leq(n0,esk9_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(342,plain,
+    ( epred2_0
+    | leq(esk7_0,minus(n6,n1))
+    | leq(n0,esk8_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(343,plain,
+    ( epred2_0
+    | leq(esk6_0,minus(n6,n1))
+    | a_select3(r_ds1_filter,esk8_0,esk9_0) != a_select3(r_ds1_filter,esk9_0,esk8_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(344,plain,
+    ( epred2_0
+    | leq(esk6_0,minus(n6,n1))
+    | leq(esk9_0,minus(n3,n1)) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(345,plain,
+    ( epred2_0
+    | leq(esk6_0,minus(n6,n1))
+    | leq(esk8_0,minus(n3,n1)) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(346,plain,
+    ( epred2_0
+    | leq(esk6_0,minus(n6,n1))
+    | leq(n0,esk9_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(347,plain,
+    ( epred2_0
+    | leq(esk6_0,minus(n6,n1))
+    | leq(n0,esk8_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(348,plain,
+    ( epred2_0
+    | leq(n0,esk7_0)
+    | a_select3(r_ds1_filter,esk8_0,esk9_0) != a_select3(r_ds1_filter,esk9_0,esk8_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(349,plain,
+    ( epred2_0
+    | leq(n0,esk7_0)
+    | leq(esk9_0,minus(n3,n1)) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(350,plain,
+    ( epred2_0
+    | leq(n0,esk7_0)
+    | leq(esk8_0,minus(n3,n1)) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(351,plain,
+    ( epred2_0
+    | leq(n0,esk7_0)
+    | leq(n0,esk9_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(352,plain,
+    ( epred2_0
+    | leq(n0,esk7_0)
+    | leq(n0,esk8_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(353,plain,
+    ( epred2_0
+    | leq(n0,esk6_0)
+    | a_select3(r_ds1_filter,esk8_0,esk9_0) != a_select3(r_ds1_filter,esk9_0,esk8_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(354,plain,
+    ( epred2_0
+    | leq(n0,esk6_0)
+    | leq(esk9_0,minus(n3,n1)) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(355,plain,
+    ( epred2_0
+    | leq(n0,esk6_0)
+    | leq(esk8_0,minus(n3,n1)) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(356,plain,
+    ( epred2_0
+    | leq(n0,esk6_0)
+    | leq(n0,esk9_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(357,plain,
+    ( epred2_0
+    | leq(n0,esk6_0)
+    | leq(n0,esk8_0) ),
+    inference(split_conjunct,[status(thm)],[332])).
+
+cnf(360,plain,
+    ( pred(plus(X1,n1)) = X1 ),
+    inference(rw,[status(thm)],[204,182,theory(equality)]),
+    [unfolding]).
+
+cnf(362,plain,
+    ( plus(n1,X1) = plus(X1,n1) ),
+    inference(rw,[status(thm)],[184,182,theory(equality)]),
+    [unfolding]).
+
+cnf(363,plain,
+    ( plus(plus(n0,n1),n1) = n2 ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[316,182,theory(equality)]),182,theory(equality)]),
+    [unfolding]).
+
+cnf(365,plain,
+    ( plus(X1,n2) = plus(plus(X1,n1),n1) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[186,182,theory(equality)]),182,theory(equality)]),
+    [unfolding]).
+
+cnf(366,plain,
+    ( plus(n2,X1) = plus(plus(X1,n1),n1) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[188,182,theory(equality)]),182,theory(equality)]),
+    [unfolding]).
+
+cnf(367,plain,
+    ( plus(plus(plus(n0,n1),n1),n1) = n3 ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[317,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),
+    [unfolding]).
+
+cnf(368,plain,
+    ( plus(plus(plus(X1,n1),n1),n1) = plus(X1,n3) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[190,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),
+    [unfolding]).
+
+cnf(369,plain,
+    ( plus(plus(plus(X1,n1),n1),n1) = plus(n3,X1) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[192,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),
+    [unfolding]).
+
+cnf(370,plain,
+    ( plus(plus(plus(plus(n0,n1),n1),n1),n1) = n4 ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[312,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),
+    [unfolding]).
+
+cnf(371,plain,
+    ( plus(plus(plus(plus(X1,n1),n1),n1),n1) = plus(X1,n4) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[194,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),
+    [unfolding]).
+
+cnf(373,plain,
+    ( plus(plus(plus(plus(plus(n0,n1),n1),n1),n1),n1) = n5 ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[313,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),
+    [unfolding]).
+
+cnf(374,plain,
+    ( plus(plus(plus(plus(plus(X1,n1),n1),n1),n1),n1) = plus(X1,n5) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[198,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),
+    [unfolding]).
+
+cnf(375,plain,
+    ( plus(plus(plus(plus(plus(X1,n1),n1),n1),n1),n1) = plus(n5,X1) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[200,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),
+    [unfolding]).
+
+cnf(376,plain,
+    ( plus(plus(plus(plus(plus(plus(n0,n1),n1),n1),n1),n1),n1) = n6 ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[314,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),
+    [unfolding]).
+
+cnf(383,plain,
+    ( minus(plus(X1,n1),n1) = X1 ),
+    inference(rw,[status(thm)],[360,202,theory(equality)]),
+    [unfolding]).
+
+cnf(439,plain,
+    ( minus(plus(n1,X1),n1) = X1 ),
+    inference(spm,[status(thm)],[383,362,theory(equality)])).
+
+cnf(442,plain,
+    ( plus(n1,plus(n1,n0)) = n2 ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[363,362,theory(equality)]),362,theory(equality)])).
+
+cnf(522,plain,
+    ( plus(n1,plus(X1,n1)) = plus(X1,n2) ),
+    inference(rw,[status(thm)],[365,362,theory(equality)])).
+
+cnf(541,plain,
+    ( plus(X1,n2) = plus(n2,X1) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[366,362,theory(equality)]),522,theory(equality)])).
+
+cnf(553,plain,
+    ( plus(n1,n2) = n3 ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[367,362,theory(equality)]),362,theory(equality)]),442,theory(equality)]),541,theory(equality)])).
+
+cnf(600,plain,
+    ( plus(n1,plus(X1,n2)) = plus(X1,n3) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[368,362,theory(equality)]),522,theory(equality)]),362,theory(equality)])).
+
+cnf(604,plain,
+    ( plus(X1,n3) = plus(n3,X1) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[369,362,theory(equality)]),522,theory(equality)]),362,theory(equality)]),600,theory(equality)])).
+
+cnf(616,plain,
+    ( plus(n1,n3) = n4 ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[370,362,theory(equality)]),362,theory(equality)]),442,theory(equality)]),541,theory(equality)]),553,theory(equality)]),604,theory(equality)])).
+
+cnf(621,plain,
+    ( plus(n1,n4) = n5 ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[373,362,theory(equality)]),362,theory(equality)]),442,theory(equality)]),541,theory(equality)]),553,theory(equality)]),604,theory(equality)]),616,theory(equality)]),362,theory(equality)])).
+
+cnf(622,plain,
+    ( plus(n1,plus(X1,n3)) = plus(X1,n4) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[371,362,theory(equality)]),522,theory(equality)]),362,theory(equality)]),600,theory(equality)]),362,theory(equality)])).
+
+cnf(660,plain,
+    ( plus(n1,n5) = n6 ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[376,362,theory(equality)]),362,theory(equality)]),442,theory(equality)]),541,theory(equality)]),553,theory(equality)]),604,theory(equality)]),616,theory(equality)]),362,theory(equality)]),621,theory(equality)]),362,theory(equality)])).
+
+cnf(661,plain,
+    ( a_select3(pminus_ds1_filter,X1,X2) = a_select3(pminus_ds1_filter,X2,X1)
+    | $false
+    | ~ leq(n0,X2)
+    | ~ leq(n0,X1)
+    | ~ leq(X2,minus(n6,n1))
+    | ~ leq(X1,minus(n6,n1)) ),
+    inference(rw,[status(thm)],[326,254,theory(equality)])).
+
+cnf(662,plain,
+    ( a_select3(pminus_ds1_filter,X1,X2) = a_select3(pminus_ds1_filter,X2,X1)
+    | ~ leq(n0,X2)
+    | ~ leq(n0,X1)
+    | ~ leq(X2,minus(n6,n1))
+    | ~ leq(X1,minus(n6,n1)) ),
+    inference(cn,[status(thm)],[661,theory(equality)])).
+
+cnf(678,plain,
+    ( plus(n1,plus(X1,n4)) = plus(X1,n5) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[374,362,theory(equality)]),522,theory(equality)]),362,theory(equality)]),600,theory(equality)]),362,theory(equality)]),622,theory(equality)]),362,theory(equality)])).
+
+cnf(683,plain,
+    ( plus(X1,n5) = plus(n5,X1) ),
+    inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[375,362,theory(equality)]),522,theory(equality)]),362,theory(equality)]),600,theory(equality)]),362,theory(equality)]),622,theory(equality)]),362,theory(equality)]),678,theory(equality)])).
+
+cnf(685,plain,
+    ( minus(plus(n1,n5),n1) = n5 ),
+    inference(spm,[status(thm)],[383,683,theory(equality)])).
+
+cnf(699,plain,
+    ( minus(n6,n1) = n5 ),
+    inference(rw,[status(thm)],[685,660,theory(equality)])).
+
+cnf(726,plain,
+    ( a_select3(q_ds1_filter,X1,X2) = a_select3(q_ds1_filter,X2,X1)
+    | $false
+    | ~ leq(n0,X2)
+    | ~ leq(n0,X1)
+    | ~ leq(X2,minus(n6,n1))
+    | ~ leq(X1,minus(n6,n1)) ),
+    inference(rw,[status(thm)],[324,254,theory(equality)])).
+
+cnf(727,plain,
+    ( a_select3(q_ds1_filter,X1,X2) = a_select3(q_ds1_filter,X2,X1)
+    | ~ leq(n0,X2)
+    | ~ leq(n0,X1)
+    | ~ leq(X2,minus(n6,n1))
+    | ~ leq(X1,minus(n6,n1)) ),
+    inference(cn,[status(thm)],[726,theory(equality)])).
+
+cnf(756,plain,
+    ( a_select3(r_ds1_filter,X1,X2) = a_select3(r_ds1_filter,X2,X1)
+    | $false
+    | ~ leq(n0,X2)
+    | ~ leq(n0,X1)
+    | ~ leq(X2,minus(n3,n1))
+    | ~ leq(X1,minus(n3,n1)) ),
+    inference(rw,[status(thm)],[325,254,theory(equality)])).
+
+cnf(757,plain,
+    ( a_select3(r_ds1_filter,X1,X2) = a_select3(r_ds1_filter,X2,X1)
+    | ~ leq(n0,X2)
+    | ~ leq(n0,X1)
+    | ~ leq(X2,minus(n3,n1))
+    | ~ leq(X1,minus(n3,n1)) ),
+    inference(cn,[status(thm)],[756,theory(equality)])).
+
+cnf(2029,plain,
+    ( a_select3(q_ds1_filter,X1,X2) = a_select3(q_ds1_filter,X2,X1)
+    | ~ leq(X2,n5)
+    | ~ leq(X1,minus(n6,n1))
+    | ~ leq(n0,X2)
+    | ~ leq(n0,X1) ),
+    inference(rw,[status(thm)],[727,699,theory(equality)])).
+
+cnf(2030,plain,
+    ( a_select3(q_ds1_filter,X1,X2) = a_select3(q_ds1_filter,X2,X1)
+    | ~ leq(X2,n5)
+    | ~ leq(X1,n5)
+    | ~ leq(n0,X2)
+    | ~ leq(n0,X1) ),
+    inference(rw,[status(thm)],[2029,699,theory(equality)])).
+
+cnf(2031,plain,
+    ( a_select3(pminus_ds1_filter,X1,X2) = a_select3(pminus_ds1_filter,X2,X1)
+    | ~ leq(X2,n5)
+    | ~ leq(X1,minus(n6,n1))
+    | ~ leq(n0,X2)
+    | ~ leq(n0,X1) ),
+    inference(rw,[status(thm)],[662,699,theory(equality)])).
+
+cnf(2032,plain,
+    ( a_select3(pminus_ds1_filter,X1,X2) = a_select3(pminus_ds1_filter,X2,X1)
+    | ~ leq(X2,n5)
+    | ~ leq(X1,n5)
+    | ~ leq(n0,X2)
+    | ~ leq(n0,X1) ),
+    inference(rw,[status(thm)],[2031,699,theory(equality)])).
+
+cnf(2033,plain,
+    ( epred2_0
+    | leq(esk7_0,n5)
+    | a_select3(r_ds1_filter,esk9_0,esk8_0) != a_select3(r_ds1_filter,esk8_0,esk9_0) ),
+    inference(rw,[status(thm)],[338,699,theory(equality)])).
+
+cnf(2034,plain,
+    ( epred2_0
+    | leq(esk6_0,n5)
+    | a_select3(r_ds1_filter,esk9_0,esk8_0) != a_select3(r_ds1_filter,esk8_0,esk9_0) ),
+    inference(rw,[status(thm)],[343,699,theory(equality)])).
+
+cnf(2035,plain,
+    ( epred2_0
+    | leq(esk9_0,minus(n3,n1))
+    | leq(esk7_0,n5) ),
+    inference(rw,[status(thm)],[339,699,theory(equality)])).
+
+cnf(2036,plain,
+    ( epred2_0
+    | leq(esk8_0,minus(n3,n1))
+    | leq(esk7_0,n5) ),
+    inference(rw,[status(thm)],[340,699,theory(equality)])).
+
+cnf(2037,plain,
+    ( epred2_0
+    | leq(esk9_0,minus(n3,n1))
+    | leq(esk6_0,n5) ),
+    inference(rw,[status(thm)],[344,699,theory(equality)])).
+
+cnf(2038,plain,
+    ( epred2_0
+    | leq(esk8_0,minus(n3,n1))
+    | leq(esk6_0,n5) ),
+    inference(rw,[status(thm)],[345,699,theory(equality)])).
+
+cnf(2039,plain,
+    ( epred2_0
+    | leq(esk7_0,n5)
+    | leq(n0,esk9_0) ),
+    inference(rw,[status(thm)],[341,699,theory(equality)])).
+
+cnf(2040,plain,
+    ( epred2_0
+    | leq(esk6_0,n5)
+    | leq(n0,esk9_0) ),
+    inference(rw,[status(thm)],[346,699,theory(equality)])).
+
+cnf(2041,plain,
+    ( epred2_0
+    | leq(esk7_0,n5)
+    | leq(n0,esk8_0) ),
+    inference(rw,[status(thm)],[342,699,theory(equality)])).
+
+cnf(2042,plain,
+    ( epred2_0
+    | leq(esk6_0,n5)
+    | leq(n0,esk8_0) ),
+    inference(rw,[status(thm)],[347,699,theory(equality)])).
+
+cnf(2043,negated_conjecture,
+    ( leq(esk5_0,n5)
+    | ~ epred2_0 ),
+    inference(rw,[status(thm)],[250,699,theory(equality)])).
+
+cnf(2044,negated_conjecture,
+    ( leq(esk4_0,n5)
+    | ~ epred2_0 ),
+    inference(rw,[status(thm)],[251,699,theory(equality)])).
+
+cnf(2117,plain,
+    ( epred2_0
+    | leq(n0,esk8_0)
+    | ~ leq(esk6_0,n5)
+    | ~ leq(esk7_0,n5)
+    | ~ leq(n0,esk6_0)
+    | ~ leq(n0,esk7_0) ),
+    inference(spm,[status(thm)],[337,2030,theory(equality)])).
+
+cnf(2119,plain,
+    ( epred2_0
+    | leq(n0,esk9_0)
+    | ~ leq(esk6_0,n5)
+    | ~ leq(esk7_0,n5)
+    | ~ leq(n0,esk6_0)
+    | ~ leq(n0,esk7_0) ),
+    inference(spm,[status(thm)],[336,2030,theory(equality)])).
+
+cnf(2121,plain,
+    ( epred2_0
+    | a_select3(r_ds1_filter,esk9_0,esk8_0) != a_select3(r_ds1_filter,esk8_0,esk9_0)
+    | ~ leq(esk6_0,n5)
+    | ~ leq(esk7_0,n5)
+    | ~ leq(n0,esk6_0)
+    | ~ leq(n0,esk7_0) ),
+    inference(spm,[status(thm)],[333,2030,theory(equality)])).
+
+cnf(2185,plain,
+    ( ~ epred2_0
+    | ~ leq(esk4_0,n5)
+    | ~ leq(esk5_0,n5)
+    | ~ leq(n0,esk4_0)
+    | ~ leq(n0,esk5_0) ),
+    inference(spm,[status(thm)],[249,2032,theory(equality)])).
+
+cnf(2602,plain,
+    ( minus(n3,n1) = n2 ),
+    inference(spm,[status(thm)],[439,553,theory(equality)])).
+
+cnf(2630,plain,
+    ( ~ epred2_0
+    | ~ leq(esk4_0,n5)
+    | ~ leq(esk5_0,n5)
+    | ~ leq(n0,esk4_0) ),
+    inference(csr,[status(thm)],[2185,252])).
+
+cnf(2631,plain,
+    ( ~ epred2_0
+    | ~ leq(esk4_0,n5)
+    | ~ leq(esk5_0,n5) ),
+    inference(csr,[status(thm)],[2630,253])).
+
+cnf(2632,plain,
+    ( ~ epred2_0
+    | ~ leq(esk4_0,n5) ),
+    inference(csr,[status(thm)],[2631,2043])).
+
+cnf(2633,plain,
+    ( ~ epred2_0 ),
+    inference(csr,[status(thm)],[2632,2044])).
+
+cnf(2634,plain,
+    ( leq(n0,esk8_0)
+    | leq(n0,esk6_0) ),
+    inference(sr,[status(thm)],[357,2633,theory(equality)])).
+
+cnf(2635,plain,
+    ( leq(n0,esk9_0)
+    | leq(n0,esk6_0) ),
+    inference(sr,[status(thm)],[356,2633,theory(equality)])).
+
+cnf(2636,plain,
+    ( leq(n0,esk8_0)
+    | leq(n0,esk7_0) ),
+    inference(sr,[status(thm)],[352,2633,theory(equality)])).
+
+cnf(2637,plain,
+    ( leq(n0,esk9_0)
+    | leq(n0,esk7_0) ),
+    inference(sr,[status(thm)],[351,2633,theory(equality)])).
+
+cnf(2638,plain,
+    ( leq(esk8_0,minus(n3,n1))
+    | leq(n0,esk6_0) ),
+    inference(sr,[status(thm)],[355,2633,theory(equality)])).
+
+cnf(2639,plain,
+    ( leq(esk9_0,minus(n3,n1))
+    | leq(n0,esk6_0) ),
+    inference(sr,[status(thm)],[354,2633,theory(equality)])).
+
+cnf(2640,plain,
+    ( leq(esk8_0,minus(n3,n1))
+    | leq(n0,esk7_0) ),
+    inference(sr,[status(thm)],[350,2633,theory(equality)])).
+
+cnf(2641,plain,
+    ( leq(esk9_0,minus(n3,n1))
+    | leq(n0,esk7_0) ),
+    inference(sr,[status(thm)],[349,2633,theory(equality)])).
+
+cnf(2642,plain,
+    ( leq(n0,esk9_0)
+    | leq(esk7_0,n5) ),
+    inference(sr,[status(thm)],[2039,2633,theory(equality)])).
+
+cnf(2643,plain,
+    ( leq(n0,esk9_0)
+    | leq(esk6_0,n5) ),
+    inference(sr,[status(thm)],[2040,2633,theory(equality)])).
+
+cnf(2644,plain,
+    ( leq(n0,esk8_0)
+    | leq(esk7_0,n5) ),
+    inference(sr,[status(thm)],[2041,2633,theory(equality)])).
+
+cnf(2645,plain,
+    ( leq(n0,esk8_0)
+    | leq(esk6_0,n5) ),
+    inference(sr,[status(thm)],[2042,2633,theory(equality)])).
+
+cnf(2646,plain,
+    ( leq(esk9_0,minus(n3,n1))
+    | leq(esk7_0,n5) ),
+    inference(sr,[status(thm)],[2035,2633,theory(equality)])).
+
+cnf(2647,plain,
+    ( leq(esk8_0,minus(n3,n1))
+    | leq(esk7_0,n5) ),
+    inference(sr,[status(thm)],[2036,2633,theory(equality)])).
+
+cnf(2648,plain,
+    ( leq(esk9_0,minus(n3,n1))
+    | leq(esk6_0,n5) ),
+    inference(sr,[status(thm)],[2037,2633,theory(equality)])).
+
+cnf(2649,plain,
+    ( leq(esk8_0,minus(n3,n1))
+    | leq(esk6_0,n5) ),
+    inference(sr,[status(thm)],[2038,2633,theory(equality)])).
+
+cnf(2858,plain,
+    ( leq(esk8_0,n2)
+    | leq(n0,esk6_0) ),
+    inference(rw,[status(thm)],[2638,2602,theory(equality)])).
+
+cnf(2859,plain,
+    ( a_select3(r_ds1_filter,X1,X2) = a_select3(r_ds1_filter,X2,X1)
+    | ~ leq(X2,n2)
+    | ~ leq(X1,minus(n3,n1))
+    | ~ leq(n0,X2)
+    | ~ leq(n0,X1) ),
+    inference(rw,[status(thm)],[757,2602,theory(equality)])).
+
+cnf(2860,plain,
+    ( a_select3(r_ds1_filter,X1,X2) = a_select3(r_ds1_filter,X2,X1)
+    | ~ leq(X2,n2)
+    | ~ leq(X1,n2)
+    | ~ leq(n0,X2)
+    | ~ leq(n0,X1) ),
+    inference(rw,[status(thm)],[2859,2602,theory(equality)])).
+
+cnf(2861,plain,
+    ( epred2_0
+    | leq(esk9_0,n2)
+    | a_select3(q_ds1_filter,esk7_0,esk6_0) != a_select3(q_ds1_filter,esk6_0,esk7_0) ),
+    inference(rw,[status(thm)],[334,2602,theory(equality)])).
+
+cnf(2862,plain,
+    ( leq(esk9_0,n2)
+    | a_select3(q_ds1_filter,esk7_0,esk6_0) != a_select3(q_ds1_filter,esk6_0,esk7_0) ),
+    inference(sr,[status(thm)],[2861,2633,theory(equality)])).
+
+cnf(2863,plain,
+    ( epred2_0
+    | leq(esk8_0,n2)
+    | a_select3(q_ds1_filter,esk7_0,esk6_0) != a_select3(q_ds1_filter,esk6_0,esk7_0) ),
+    inference(rw,[status(thm)],[335,2602,theory(equality)])).
+
+cnf(2864,plain,
+    ( leq(esk8_0,n2)
+    | a_select3(q_ds1_filter,esk7_0,esk6_0) != a_select3(q_ds1_filter,esk6_0,esk7_0) ),
+    inference(sr,[status(thm)],[2863,2633,theory(equality)])).
+
+cnf(2881,plain,
+    ( leq(esk9_0,n2)
+    | leq(n0,esk6_0) ),
+    inference(rw,[status(thm)],[2639,2602,theory(equality)])).
+
+cnf(2953,plain,
+    ( leq(esk8_0,n2)
+    | leq(n0,esk7_0) ),
+    inference(rw,[status(thm)],[2640,2602,theory(equality)])).
+
+cnf(2988,plain,
+    ( leq(esk9_0,n2)
+    | leq(n0,esk7_0) ),
+    inference(rw,[status(thm)],[2641,2602,theory(equality)])).
+
+cnf(2998,plain,
+    ( leq(esk9_0,n2)
+    | leq(esk7_0,n5) ),
+    inference(rw,[status(thm)],[2646,2602,theory(equality)])).
+
+cnf(3048,plain,
+    ( leq(esk8_0,n2)
+    | leq(esk7_0,n5) ),
+    inference(rw,[status(thm)],[2647,2602,theory(equality)])).
+
+cnf(3059,plain,
+    ( leq(esk9_0,n2)
+    | leq(esk6_0,n5) ),
+    inference(rw,[status(thm)],[2648,2602,theory(equality)])).
+
+cnf(3145,plain,
+    ( leq(esk8_0,n2)
+    | leq(esk6_0,n5) ),
+    inference(rw,[status(thm)],[2649,2602,theory(equality)])).
+
+cnf(3155,plain,
+    ( epred2_0
+    | leq(n0,esk6_0)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | ~ leq(n0,esk8_0)
+    | ~ leq(n0,esk9_0) ),
+    inference(spm,[status(thm)],[353,2860,theory(equality)])).
+
+cnf(3157,plain,
+    ( epred2_0
+    | leq(n0,esk7_0)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | ~ leq(n0,esk8_0)
+    | ~ leq(n0,esk9_0) ),
+    inference(spm,[status(thm)],[348,2860,theory(equality)])).
+
+cnf(3159,plain,
+    ( epred2_0
+    | leq(esk7_0,n5)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | ~ leq(n0,esk8_0)
+    | ~ leq(n0,esk9_0) ),
+    inference(spm,[status(thm)],[2033,2860,theory(equality)])).
+
+cnf(3161,plain,
+    ( epred2_0
+    | leq(esk6_0,n5)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | ~ leq(n0,esk8_0)
+    | ~ leq(n0,esk9_0) ),
+    inference(spm,[status(thm)],[2034,2860,theory(equality)])).
+
+cnf(3163,plain,
+    ( leq(n0,esk6_0)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | ~ leq(n0,esk8_0)
+    | ~ leq(n0,esk9_0) ),
+    inference(sr,[status(thm)],[3155,2633,theory(equality)])).
+
+cnf(3165,plain,
+    ( leq(n0,esk7_0)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | ~ leq(n0,esk8_0)
+    | ~ leq(n0,esk9_0) ),
+    inference(sr,[status(thm)],[3157,2633,theory(equality)])).
+
+cnf(3167,plain,
+    ( leq(esk7_0,n5)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | ~ leq(n0,esk8_0)
+    | ~ leq(n0,esk9_0) ),
+    inference(sr,[status(thm)],[3159,2633,theory(equality)])).
+
+cnf(3169,plain,
+    ( leq(esk6_0,n5)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | ~ leq(n0,esk8_0)
+    | ~ leq(n0,esk9_0) ),
+    inference(sr,[status(thm)],[3161,2633,theory(equality)])).
+
+cnf(3218,plain,
+    ( leq(esk9_0,n2)
+    | ~ leq(esk6_0,n5)
+    | ~ leq(esk7_0,n5)
+    | ~ leq(n0,esk6_0)
+    | ~ leq(n0,esk7_0) ),
+    inference(spm,[status(thm)],[2862,2030,theory(equality)])).
+
+cnf(3220,plain,
+    ( leq(esk8_0,n2)
+    | ~ leq(esk6_0,n5)
+    | ~ leq(esk7_0,n5)
+    | ~ leq(n0,esk6_0)
+    | ~ leq(n0,esk7_0) ),
+    inference(spm,[status(thm)],[2864,2030,theory(equality)])).
+
+cnf(163050,plain,
+    ( leq(n0,esk8_0)
+    | ~ leq(esk6_0,n5)
+    | ~ leq(esk7_0,n5)
+    | ~ leq(n0,esk6_0)
+    | ~ leq(n0,esk7_0) ),
+    inference(sr,[status(thm)],[2117,2633,theory(equality)])).
+
+cnf(163051,plain,
+    ( leq(n0,esk8_0)
+    | ~ leq(esk6_0,n5)
+    | ~ leq(esk7_0,n5)
+    | ~ leq(n0,esk6_0) ),
+    inference(csr,[status(thm)],[163050,2636])).
+
+cnf(163052,plain,
+    ( leq(n0,esk8_0)
+    | ~ leq(esk6_0,n5)
+    | ~ leq(esk7_0,n5) ),
+    inference(csr,[status(thm)],[163051,2634])).
+
+cnf(163053,plain,
+    ( leq(n0,esk8_0)
+    | ~ leq(esk6_0,n5) ),
+    inference(csr,[status(thm)],[163052,2644])).
+
+cnf(163054,plain,
+    ( leq(n0,esk8_0) ),
+    inference(csr,[status(thm)],[163053,2645])).
+
+cnf(163521,plain,
+    ( leq(n0,esk9_0)
+    | ~ leq(esk6_0,n5)
+    | ~ leq(esk7_0,n5)
+    | ~ leq(n0,esk6_0)
+    | ~ leq(n0,esk7_0) ),
+    inference(sr,[status(thm)],[2119,2633,theory(equality)])).
+
+cnf(163522,plain,
+    ( leq(n0,esk9_0)
+    | ~ leq(esk6_0,n5)
+    | ~ leq(esk7_0,n5)
+    | ~ leq(n0,esk6_0) ),
+    inference(csr,[status(thm)],[163521,2637])).
+
+cnf(163523,plain,
+    ( leq(n0,esk9_0)
+    | ~ leq(esk6_0,n5)
+    | ~ leq(esk7_0,n5) ),
+    inference(csr,[status(thm)],[163522,2635])).
+
+cnf(163524,plain,
+    ( leq(n0,esk9_0)
+    | ~ leq(esk6_0,n5) ),
+    inference(csr,[status(thm)],[163523,2642])).
+
+cnf(163525,plain,
+    ( leq(n0,esk9_0) ),
+    inference(csr,[status(thm)],[163524,2643])).
+
+cnf(163983,plain,
+    ( a_select3(r_ds1_filter,esk9_0,esk8_0) != a_select3(r_ds1_filter,esk8_0,esk9_0)
+    | ~ leq(esk6_0,n5)
+    | ~ leq(esk7_0,n5)
+    | ~ leq(n0,esk6_0)
+    | ~ leq(n0,esk7_0) ),
+    inference(sr,[status(thm)],[2121,2633,theory(equality)])).
+
+cnf(360309,plain,
+    ( leq(n0,esk6_0)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | $false
+    | ~ leq(n0,esk9_0) ),
+    inference(rw,[status(thm)],[3163,163054,theory(equality)])).
+
+cnf(360310,plain,
+    ( leq(n0,esk6_0)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | $false
+    | $false ),
+    inference(rw,[status(thm)],[360309,163525,theory(equality)])).
+
+cnf(360311,plain,
+    ( leq(n0,esk6_0)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2) ),
+    inference(cn,[status(thm)],[360310,theory(equality)])).
+
+cnf(360312,plain,
+    ( leq(n0,esk6_0)
+    | ~ leq(esk8_0,n2) ),
+    inference(csr,[status(thm)],[360311,2881])).
+
+cnf(360313,plain,
+    ( leq(n0,esk6_0) ),
+    inference(csr,[status(thm)],[360312,2858])).
+
+cnf(360477,plain,
+    ( a_select3(r_ds1_filter,esk9_0,esk8_0) != a_select3(r_ds1_filter,esk8_0,esk9_0)
+    | ~ leq(esk6_0,n5)
+    | ~ leq(esk7_0,n5)
+    | $false
+    | ~ leq(n0,esk7_0) ),
+    inference(rw,[status(thm)],[163983,360313,theory(equality)])).
+
+cnf(360478,plain,
+    ( a_select3(r_ds1_filter,esk9_0,esk8_0) != a_select3(r_ds1_filter,esk8_0,esk9_0)
+    | ~ leq(esk6_0,n5)
+    | ~ leq(esk7_0,n5)
+    | ~ leq(n0,esk7_0) ),
+    inference(cn,[status(thm)],[360477,theory(equality)])).
+
+cnf(361358,plain,
+    ( leq(n0,esk7_0)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | $false
+    | ~ leq(n0,esk9_0) ),
+    inference(rw,[status(thm)],[3165,163054,theory(equality)])).
+
+cnf(361359,plain,
+    ( leq(n0,esk7_0)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | $false
+    | $false ),
+    inference(rw,[status(thm)],[361358,163525,theory(equality)])).
+
+cnf(361360,plain,
+    ( leq(n0,esk7_0)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2) ),
+    inference(cn,[status(thm)],[361359,theory(equality)])).
+
+cnf(361361,plain,
+    ( leq(n0,esk7_0)
+    | ~ leq(esk8_0,n2) ),
+    inference(csr,[status(thm)],[361360,2988])).
+
+cnf(361362,plain,
+    ( leq(n0,esk7_0) ),
+    inference(csr,[status(thm)],[361361,2953])).
+
+cnf(361482,plain,
+    ( a_select3(r_ds1_filter,esk9_0,esk8_0) != a_select3(r_ds1_filter,esk8_0,esk9_0)
+    | ~ leq(esk6_0,n5)
+    | ~ leq(esk7_0,n5)
+    | $false ),
+    inference(rw,[status(thm)],[360478,361362,theory(equality)])).
+
+cnf(361483,plain,
+    ( a_select3(r_ds1_filter,esk9_0,esk8_0) != a_select3(r_ds1_filter,esk8_0,esk9_0)
+    | ~ leq(esk6_0,n5)
+    | ~ leq(esk7_0,n5) ),
+    inference(cn,[status(thm)],[361482,theory(equality)])).
+
+cnf(362025,plain,
+    ( leq(esk7_0,n5)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | $false
+    | ~ leq(n0,esk9_0) ),
+    inference(rw,[status(thm)],[3167,163054,theory(equality)])).
+
+cnf(362026,plain,
+    ( leq(esk7_0,n5)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | $false
+    | $false ),
+    inference(rw,[status(thm)],[362025,163525,theory(equality)])).
+
+cnf(362027,plain,
+    ( leq(esk7_0,n5)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2) ),
+    inference(cn,[status(thm)],[362026,theory(equality)])).
+
+cnf(362028,plain,
+    ( leq(esk7_0,n5)
+    | ~ leq(esk8_0,n2) ),
+    inference(csr,[status(thm)],[362027,2998])).
+
+cnf(362029,plain,
+    ( leq(esk7_0,n5) ),
+    inference(csr,[status(thm)],[362028,3048])).
+
+cnf(362145,plain,
+    ( a_select3(r_ds1_filter,esk9_0,esk8_0) != a_select3(r_ds1_filter,esk8_0,esk9_0)
+    | ~ leq(esk6_0,n5)
+    | $false ),
+    inference(rw,[status(thm)],[361483,362029,theory(equality)])).
+
+cnf(362146,plain,
+    ( a_select3(r_ds1_filter,esk9_0,esk8_0) != a_select3(r_ds1_filter,esk8_0,esk9_0)
+    | ~ leq(esk6_0,n5) ),
+    inference(cn,[status(thm)],[362145,theory(equality)])).
+
+cnf(363831,plain,
+    ( leq(esk6_0,n5)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | $false
+    | ~ leq(n0,esk9_0) ),
+    inference(rw,[status(thm)],[3169,163054,theory(equality)])).
+
+cnf(363832,plain,
+    ( leq(esk6_0,n5)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | $false
+    | $false ),
+    inference(rw,[status(thm)],[363831,163525,theory(equality)])).
+
+cnf(363833,plain,
+    ( leq(esk6_0,n5)
+    | ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2) ),
+    inference(cn,[status(thm)],[363832,theory(equality)])).
+
+cnf(363834,plain,
+    ( leq(esk6_0,n5)
+    | ~ leq(esk8_0,n2) ),
+    inference(csr,[status(thm)],[363833,3059])).
+
+cnf(363835,plain,
+    ( leq(esk6_0,n5) ),
+    inference(csr,[status(thm)],[363834,3145])).
+
+cnf(363947,plain,
+    ( a_select3(r_ds1_filter,esk9_0,esk8_0) != a_select3(r_ds1_filter,esk8_0,esk9_0)
+    | $false ),
+    inference(rw,[status(thm)],[362146,363835,theory(equality)])).
+
+cnf(363948,plain,
+    ( a_select3(r_ds1_filter,esk9_0,esk8_0) != a_select3(r_ds1_filter,esk8_0,esk9_0) ),
+    inference(cn,[status(thm)],[363947,theory(equality)])).
+
+cnf(365417,plain,
+    ( ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | ~ leq(n0,esk8_0)
+    | ~ leq(n0,esk9_0) ),
+    inference(spm,[status(thm)],[363948,2860,theory(equality)])).
+
+cnf(365419,plain,
+    ( ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | $false
+    | ~ leq(n0,esk9_0) ),
+    inference(rw,[status(thm)],[365417,163054,theory(equality)])).
+
+cnf(365420,plain,
+    ( ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2)
+    | $false
+    | $false ),
+    inference(rw,[status(thm)],[365419,163525,theory(equality)])).
+
+cnf(365421,plain,
+    ( ~ leq(esk8_0,n2)
+    | ~ leq(esk9_0,n2) ),
+    inference(cn,[status(thm)],[365420,theory(equality)])).
+
+cnf(379260,plain,
+    ( leq(esk9_0,n2)
+    | $false
+    | ~ leq(esk7_0,n5)
+    | ~ leq(n0,esk6_0)
+    | ~ leq(n0,esk7_0) ),
+    inference(rw,[status(thm)],[3218,363835,theory(equality)])).
+
+cnf(379261,plain,
+    ( leq(esk9_0,n2)
+    | $false
+    | $false
+    | ~ leq(n0,esk6_0)
+    | ~ leq(n0,esk7_0) ),
+    inference(rw,[status(thm)],[379260,362029,theory(equality)])).
+
+cnf(379262,plain,
+    ( leq(esk9_0,n2)
+    | $false
+    | $false
+    | $false
+    | ~ leq(n0,esk7_0) ),
+    inference(rw,[status(thm)],[379261,360313,theory(equality)])).
+
+cnf(379263,plain,
+    ( leq(esk9_0,n2)
+    | $false
+    | $false
+    | $false
+    | $false ),
+    inference(rw,[status(thm)],[379262,361362,theory(equality)])).
+
+cnf(379264,plain,
+    ( leq(esk9_0,n2) ),
+    inference(cn,[status(thm)],[379263,theory(equality)])).
+
+cnf(379386,plain,
+    ( ~ leq(esk8_0,n2)
+    | $false ),
+    inference(rw,[status(thm)],[365421,379264,theory(equality)])).
+
+cnf(379387,plain,
+    ( ~ leq(esk8_0,n2) ),
+    inference(cn,[status(thm)],[379386,theory(equality)])).
+
+cnf(383186,plain,
+    ( leq(esk8_0,n2)
+    | $false
+    | ~ leq(esk7_0,n5)
+    | ~ leq(n0,esk6_0)
+    | ~ leq(n0,esk7_0) ),
+    inference(rw,[status(thm)],[3220,363835,theory(equality)])).
+
+cnf(383187,plain,
+    ( leq(esk8_0,n2)
+    | $false
+    | $false
+    | ~ leq(n0,esk6_0)
+    | ~ leq(n0,esk7_0) ),
+    inference(rw,[status(thm)],[383186,362029,theory(equality)])).
+
+cnf(383188,plain,
+    ( leq(esk8_0,n2)
+    | $false
+    | $false
+    | $false
+    | ~ leq(n0,esk7_0) ),
+    inference(rw,[status(thm)],[383187,360313,theory(equality)])).
+
+cnf(383189,plain,
+    ( leq(esk8_0,n2)
+    | $false
+    | $false
+    | $false
+    | $false ),
+    inference(rw,[status(thm)],[383188,361362,theory(equality)])).
+
+cnf(383190,plain,
+    ( leq(esk8_0,n2) ),
+    inference(cn,[status(thm)],[383189,theory(equality)])).
+
+cnf(383191,plain,
+    ( $false ),
+    inference(sr,[status(thm)],[383190,379387,theory(equality)])).
+
+cnf(383192,plain,
+    ( $false ),
+    383191,
+    [proof]).
+%------------------------------------------------------------------------------
+%----ORIGINAL SYSTEM OUTPUT
+% # Problem is unsatisfiable (or provable), constructing proof object
+% # SZS status: Theorem
+% # Proof object starts here.
+% fof(27, axiom,![X1]:equal(plus(X1,n1), succ(X1)),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', succ_plus_1_r)).
+% fof(28, axiom,![X1]:equal(plus(n1,X1), succ(X1)),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', succ_plus_1_l)).
+% fof(29, axiom,![X1]:equal(plus(X1,n2), succ(succ(X1))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', succ_plus_2_r)).
+% fof(30, axiom,![X1]:equal(plus(n2,X1), succ(succ(X1))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', succ_plus_2_l)).
+% fof(31, axiom,![X1]:equal(plus(X1,n3), succ(succ(succ(X1)))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', succ_plus_3_r)).
+% fof(32, axiom,![X1]:equal(plus(n3,X1), succ(succ(succ(X1)))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', succ_plus_3_l)).
+% fof(33, axiom,![X1]:equal(plus(X1,n4), succ(succ(succ(succ(X1))))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', succ_plus_4_r)).
+% fof(35, axiom,![X1]:equal(plus(X1,n5), succ(succ(succ(succ(succ(X1)))))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', succ_plus_5_r)).
+% fof(36, axiom,![X1]:equal(plus(n5,X1), succ(succ(succ(succ(succ(X1)))))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', succ_plus_5_l)).
+% fof(37, axiom,![X1]:equal(minus(X1,n1), pred(X1)),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', pred_minus_1)).
+% fof(38, axiom,![X1]:equal(pred(succ(X1)), X1),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', pred_succ)).
+% fof(51, conjecture,(((((((leq(n0,pv5)&leq(pv5,minus(n999,n1)))&![X16]:![X17]:((((leq(n0,X16)&leq(n0,X17))&leq(X16,minus(n6,n1)))&leq(X17,minus(n6,n1)))=>equal(a_select3(q_ds1_filter,X16,X17), a_select3(q_ds1_filter,X17,X16))))&![X4]:![X20]:((((leq(n0,X4)&leq(n0,X20))&leq(X4,minus(n3,n1)))&leq(X20,minus(n3,n1)))=>equal(a_select3(r_ds1_filter,X4,X20), a_select3(r_ds1_filter,X20,X4))))&![X21]:![X22]:((((leq(n0,X21)&leq(n0,X22))&leq(X21,minus(n6,n1)))&leq(X22,minus(n6,n1)))=>equal(a_select3(pminus_ds1_filter,X21,X22), a_select3(pminus_ds1_filter,X22,X21))))&![X27]:![X28]:((((leq(n0,X27)&leq(n0,X28))&leq(X27,minus(n6,n1)))&leq(X28,minus(n6,n1)))=>equal(a_select3(pminus_ds1_filter,X27,X28), a_select3(pminus_ds1_filter,X28,X27))))&![X5]:((leq(n0,X5)&leq(X5,minus(n6,n1)))=>![X11]:((leq(n0,X11)&leq(X11,minus(n6,n1)))=>equal(a_select3(id_ds1_filter,X5,X11), a_select3(id_ds1_filter,X11,X5)))))=>((![X29]:![X6]:((((leq(n0,X29)&leq(n0,X6))&leq(X29,minus(n6,n1)))&leq(X6,minus(n6,n1)))=>equal(a_select3(q_ds1_filter,X29,X6), a_select3(q_ds1_filter,X6,X29)))&![X19]:![X18]:((((leq(n0,X19)&leq(n0,X18))&leq(X19,minus(n3,n1)))&leq(X18,minus(n3,n1)))=>equal(a_select3(r_ds1_filter,X19,X18), a_select3(r_ds1_filter,X18,X19))))&![X30]:![X31]:((((leq(n0,X30)&leq(n0,X31))&leq(X30,minus(n6,n1)))&leq(X31,minus(n6,n1)))=>equal(a_select3(pminus_ds1_filter,X30,X31), a_select3(pminus_ds1_filter,X31,X30))))),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', quaternion_ds1_symm_0009)).
+% fof(95, axiom,equal(succ(succ(succ(succ(n0)))), n4),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', successor_4)).
+% fof(96, axiom,equal(succ(succ(succ(succ(succ(n0))))), n5),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', successor_5)).
+% fof(97, axiom,equal(succ(succ(succ(succ(succ(succ(n0)))))), n6),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', successor_6)).
+% fof(99, axiom,equal(succ(succ(n0)), n2),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', successor_2)).
+% fof(100, axiom,equal(succ(succ(succ(n0))), n3),file('/home/graph/tptp/TSTP/PreparedTPTP/tptp---none/SWV/SWV116+1.tptp', successor_3)).
+% fof(101, negated_conjecture,~((((((((leq(n0,pv5)&leq(pv5,minus(n999,n1)))&![X16]:![X17]:((((leq(n0,X16)&leq(n0,X17))&leq(X16,minus(n6,n1)))&leq(X17,minus(n6,n1)))=>equal(a_select3(q_ds1_filter,X16,X17), a_select3(q_ds1_filter,X17,X16))))&![X4]:![X20]:((((leq(n0,X4)&leq(n0,X20))&leq(X4,minus(n3,n1)))&leq(X20,minus(n3,n1)))=>equal(a_select3(r_ds1_filter,X4,X20), a_select3(r_ds1_filter,X20,X4))))&![X21]:![X22]:((((leq(n0,X21)&leq(n0,X22))&leq(X21,minus(n6,n1)))&leq(X22,minus(n6,n1)))=>equal(a_select3(pminus_ds1_filter,X21,X22), a_select3(pminus_ds1_filter,X22,X21))))&![X27]:![X28]:((((leq(n0,X27)&leq(n0,X28))&leq(X27,minus(n6,n1)))&leq(X28,minus(n6,n1)))=>equal(a_select3(pminus_ds1_filter,X27,X28), a_select3(pminus_ds1_filter,X28,X27))))&![X5]:((leq(n0,X5)&leq(X5,minus(n6,n1)))=>![X11]:((leq(n0,X11)&leq(X11,minus(n6,n1)))=>equal(a_select3(id_ds1_filter,X5,X11), a_select3(id_ds1_filter,X11,X5)))))=>((![X29]:![X6]:((((leq(n0,X29)&leq(n0,X6))&leq(X29,minus(n6,n1)))&leq(X6,minus(n6,n1)))=>equal(a_select3(q_ds1_filter,X29,X6), a_select3(q_ds1_filter,X6,X29)))&![X19]:![X18]:((((leq(n0,X19)&leq(n0,X18))&leq(X19,minus(n3,n1)))&leq(X18,minus(n3,n1)))=>equal(a_select3(r_ds1_filter,X19,X18), a_select3(r_ds1_filter,X18,X19))))&![X30]:![X31]:((((leq(n0,X30)&leq(n0,X31))&leq(X30,minus(n6,n1)))&leq(X31,minus(n6,n1)))=>equal(a_select3(pminus_ds1_filter,X30,X31), a_select3(pminus_ds1_filter,X31,X30)))))),inference(assume_negation,[status(cth)],[51])).
+% fof(103, plain,(epred1_0=>((((((leq(n0,pv5)&leq(pv5,minus(n999,n1)))&![X16]:![X17]:((((leq(n0,X16)&leq(n0,X17))&leq(X16,minus(n6,n1)))&leq(X17,minus(n6,n1)))=>equal(a_select3(q_ds1_filter,X16,X17), a_select3(q_ds1_filter,X17,X16))))&![X4]:![X20]:((((leq(n0,X4)&leq(n0,X20))&leq(X4,minus(n3,n1)))&leq(X20,minus(n3,n1)))=>equal(a_select3(r_ds1_filter,X4,X20), a_select3(r_ds1_filter,X20,X4))))&![X21]:![X22]:((((leq(n0,X21)&leq(n0,X22))&leq(X21,minus(n6,n1)))&leq(X22,minus(n6,n1)))=>equal(a_select3(pminus_ds1_filter,X21,X22), a_select3(pminus_ds1_filter,X22,X21))))&![X27]:![X28]:((((leq(n0,X27)&leq(n0,X28))&leq(X27,minus(n6,n1)))&leq(X28,minus(n6,n1)))=>equal(a_select3(pminus_ds1_filter,X27,X28), a_select3(pminus_ds1_filter,X28,X27))))&![X5]:((leq(n0,X5)&leq(X5,minus(n6,n1)))=>![X11]:((leq(n0,X11)&leq(X11,minus(n6,n1)))=>equal(a_select3(id_ds1_filter,X5,X11), a_select3(id_ds1_filter,X11,X5)))))),introduced(definition)).
+% fof(104, plain,((![X29]:![X6]:((((leq(n0,X29)&leq(n0,X6))&leq(X29,minus(n6,n1)))&leq(X6,minus(n6,n1)))=>equal(a_select3(q_ds1_filter,X29,X6), a_select3(q_ds1_filter,X6,X29)))&![X19]:![X18]:((((leq(n0,X19)&leq(n0,X18))&leq(X19,minus(n3,n1)))&leq(X18,minus(n3,n1)))=>equal(a_select3(r_ds1_filter,X19,X18), a_select3(r_ds1_filter,X18,X19))))=>epred2_0),introduced(definition)).
+% fof(105, negated_conjecture,~((epred1_0=>(epred2_0&![X30]:![X31]:((((leq(n0,X30)&leq(n0,X31))&leq(X30,minus(n6,n1)))&leq(X31,minus(n6,n1)))=>equal(a_select3(pminus_ds1_filter,X30,X31), a_select3(pminus_ds1_filter,X31,X30)))))),inference(apply_def,[status(sab)],[inference(apply_def,[status(sab)],[101,103,theory(equality)]),104,theory(equality)])).
+% fof(181, plain,![X2]:equal(plus(X2,n1), succ(X2)),inference(variable_rename,[status(thm)],[27])).
+% cnf(182,plain,(plus(X1,n1)=succ(X1)),inference(split_conjunct,[status(thm)],[181])).
+% fof(183, plain,![X2]:equal(plus(n1,X2), succ(X2)),inference(variable_rename,[status(thm)],[28])).
+% cnf(184,plain,(plus(n1,X1)=succ(X1)),inference(split_conjunct,[status(thm)],[183])).
+% fof(185, plain,![X2]:equal(plus(X2,n2), succ(succ(X2))),inference(variable_rename,[status(thm)],[29])).
+% cnf(186,plain,(plus(X1,n2)=succ(succ(X1))),inference(split_conjunct,[status(thm)],[185])).
+% fof(187, plain,![X2]:equal(plus(n2,X2), succ(succ(X2))),inference(variable_rename,[status(thm)],[30])).
+% cnf(188,plain,(plus(n2,X1)=succ(succ(X1))),inference(split_conjunct,[status(thm)],[187])).
+% fof(189, plain,![X2]:equal(plus(X2,n3), succ(succ(succ(X2)))),inference(variable_rename,[status(thm)],[31])).
+% cnf(190,plain,(plus(X1,n3)=succ(succ(succ(X1)))),inference(split_conjunct,[status(thm)],[189])).
+% fof(191, plain,![X2]:equal(plus(n3,X2), succ(succ(succ(X2)))),inference(variable_rename,[status(thm)],[32])).
+% cnf(192,plain,(plus(n3,X1)=succ(succ(succ(X1)))),inference(split_conjunct,[status(thm)],[191])).
+% fof(193, plain,![X2]:equal(plus(X2,n4), succ(succ(succ(succ(X2))))),inference(variable_rename,[status(thm)],[33])).
+% cnf(194,plain,(plus(X1,n4)=succ(succ(succ(succ(X1))))),inference(split_conjunct,[status(thm)],[193])).
+% fof(197, plain,![X2]:equal(plus(X2,n5), succ(succ(succ(succ(succ(X2)))))),inference(variable_rename,[status(thm)],[35])).
+% cnf(198,plain,(plus(X1,n5)=succ(succ(succ(succ(succ(X1)))))),inference(split_conjunct,[status(thm)],[197])).
+% fof(199, plain,![X2]:equal(plus(n5,X2), succ(succ(succ(succ(succ(X2)))))),inference(variable_rename,[status(thm)],[36])).
+% cnf(200,plain,(plus(n5,X1)=succ(succ(succ(succ(succ(X1)))))),inference(split_conjunct,[status(thm)],[199])).
+% fof(201, plain,![X2]:equal(minus(X2,n1), pred(X2)),inference(variable_rename,[status(thm)],[37])).
+% cnf(202,plain,(minus(X1,n1)=pred(X1)),inference(split_conjunct,[status(thm)],[201])).
+% fof(203, plain,![X2]:equal(pred(succ(X2)), X2),inference(variable_rename,[status(thm)],[38])).
+% cnf(204,plain,(pred(succ(X1))=X1),inference(split_conjunct,[status(thm)],[203])).
+% fof(245, negated_conjecture,(epred1_0&(~(epred2_0)|?[X30]:?[X31]:((((leq(n0,X30)&leq(n0,X31))&leq(X30,minus(n6,n1)))&leq(X31,minus(n6,n1)))&~(equal(a_select3(pminus_ds1_filter,X30,X31), a_select3(pminus_ds1_filter,X31,X30)))))),inference(fof_nnf,[status(thm)],[105])).
+% fof(246, negated_conjecture,(epred1_0&(~(epred2_0)|?[X32]:?[X33]:((((leq(n0,X32)&leq(n0,X33))&leq(X32,minus(n6,n1)))&leq(X33,minus(n6,n1)))&~(equal(a_select3(pminus_ds1_filter,X32,X33), a_select3(pminus_ds1_filter,X33,X32)))))),inference(variable_rename,[status(thm)],[245])).
+% fof(247, negated_conjecture,(epred1_0&(~(epred2_0)|((((leq(n0,esk4_0)&leq(n0,esk5_0))&leq(esk4_0,minus(n6,n1)))&leq(esk5_0,minus(n6,n1)))&~(equal(a_select3(pminus_ds1_filter,esk4_0,esk5_0), a_select3(pminus_ds1_filter,esk5_0,esk4_0)))))),inference(skolemize,[status(sab)],[246])).
+% fof(248, negated_conjecture,(epred1_0&(((((leq(n0,esk4_0)|~(epred2_0))&(leq(n0,esk5_0)|~(epred2_0)))&(leq(esk4_0,minus(n6,n1))|~(epred2_0)))&(leq(esk5_0,minus(n6,n1))|~(epred2_0)))&(~(equal(a_select3(pminus_ds1_filter,esk4_0,esk5_0), a_select3(pminus_ds1_filter,esk5_0,esk4_0)))|~(epred2_0)))),inference(distribute,[status(thm)],[247])).
+% cnf(249,negated_conjecture,(~epred2_0|a_select3(pminus_ds1_filter,esk4_0,esk5_0)!=a_select3(pminus_ds1_filter,esk5_0,esk4_0)),inference(split_conjunct,[status(thm)],[248])).
+% cnf(250,negated_conjecture,(leq(esk5_0,minus(n6,n1))|~epred2_0),inference(split_conjunct,[status(thm)],[248])).
+% cnf(251,negated_conjecture,(leq(esk4_0,minus(n6,n1))|~epred2_0),inference(split_conjunct,[status(thm)],[248])).
+% cnf(252,negated_conjecture,(leq(n0,esk5_0)|~epred2_0),inference(split_conjunct,[status(thm)],[248])).
+% cnf(253,negated_conjecture,(leq(n0,esk4_0)|~epred2_0),inference(split_conjunct,[status(thm)],[248])).
+% cnf(254,negated_conjecture,(epred1_0),inference(split_conjunct,[status(thm)],[248])).
+% cnf(312,plain,(succ(succ(succ(succ(n0))))=n4),inference(split_conjunct,[status(thm)],[95])).
+% cnf(313,plain,(succ(succ(succ(succ(succ(n0)))))=n5),inference(split_conjunct,[status(thm)],[96])).
+% cnf(314,plain,(succ(succ(succ(succ(succ(succ(n0))))))=n6),inference(split_conjunct,[status(thm)],[97])).
+% cnf(316,plain,(succ(succ(n0))=n2),inference(split_conjunct,[status(thm)],[99])).
+% cnf(317,plain,(succ(succ(succ(n0)))=n3),inference(split_conjunct,[status(thm)],[100])).
+% fof(318, plain,(~(epred1_0)|((((((leq(n0,pv5)&leq(pv5,minus(n999,n1)))&![X16]:![X17]:((((~(leq(n0,X16))|~(leq(n0,X17)))|~(leq(X16,minus(n6,n1))))|~(leq(X17,minus(n6,n1))))|equal(a_select3(q_ds1_filter,X16,X17), a_select3(q_ds1_filter,X17,X16))))&![X4]:![X20]:((((~(leq(n0,X4))|~(leq(n0,X20)))|~(leq(X4,minus(n3,n1))))|~(leq(X20,minus(n3,n1))))|equal(a_select3(r_ds1_filter,X4,X20), a_select3(r_ds1_filter,X20,X4))))&![X21]:![X22]:((((~(leq(n0,X21))|~(leq(n0,X22)))|~(leq(X21,minus(n6,n1))))|~(leq(X22,minus(n6,n1))))|equal(a_select3(pminus_ds1_filter,X21,X22), a_select3(pminus_ds1_filter,X22,X21))))&![X27]:![X28]:((((~(leq(n0,X27))|~(leq(n0,X28)))|~(leq(X27,minus(n6,n1))))|~(leq(X28,minus(n6,n1))))|equal(a_select3(pminus_ds1_filter,X27,X28), a_select3(pminus_ds1_filter,X28,X27))))&![X5]:((~(leq(n0,X5))|~(leq(X5,minus(n6,n1))))|![X11]:((~(leq(n0,X11))|~(leq(X11,minus(n6,n1))))|equal(a_select3(id_ds1_filter,X5,X11), a_select3(id_ds1_filter,X11,X5)))))),inference(fof_nnf,[status(thm)],[103])).
+% fof(319, plain,(~(epred1_0)|((((((leq(n0,pv5)&leq(pv5,minus(n999,n1)))&![X29]:![X30]:((((~(leq(n0,X29))|~(leq(n0,X30)))|~(leq(X29,minus(n6,n1))))|~(leq(X30,minus(n6,n1))))|equal(a_select3(q_ds1_filter,X29,X30), a_select3(q_ds1_filter,X30,X29))))&![X31]:![X32]:((((~(leq(n0,X31))|~(leq(n0,X32)))|~(leq(X31,minus(n3,n1))))|~(leq(X32,minus(n3,n1))))|equal(a_select3(r_ds1_filter,X31,X32), a_select3(r_ds1_filter,X32,X31))))&![X33]:![X34]:((((~(leq(n0,X33))|~(leq(n0,X34)))|~(leq(X33,minus(n6,n1))))|~(leq(X34,minus(n6,n1))))|equal(a_select3(pminus_ds1_filter,X33,X34), a_select3(pminus_ds1_filter,X34,X33))))&![X35]:![X36]:((((~(leq(n0,X35))|~(leq(n0,X36)))|~(leq(X35,minus(n6,n1))))|~(leq(X36,minus(n6,n1))))|equal(a_select3(pminus_ds1_filter,X35,X36), a_select3(pminus_ds1_filter,X36,X35))))&![X37]:((~(leq(n0,X37))|~(leq(X37,minus(n6,n1))))|![X38]:((~(leq(n0,X38))|~(leq(X38,minus(n6,n1))))|equal(a_select3(id_ds1_filter,X37,X38), a_select3(id_ds1_filter,X38,X37)))))),inference(variable_rename,[status(thm)],[318])).
+% fof(320, plain,![X29]:![X30]:![X31]:![X32]:![X33]:![X34]:![X35]:![X36]:![X37]:![X38]:(((((~(leq(n0,X38))|~(leq(X38,minus(n6,n1))))|equal(a_select3(id_ds1_filter,X37,X38), a_select3(id_ds1_filter,X38,X37)))|(~(leq(n0,X37))|~(leq(X37,minus(n6,n1)))))&(((((~(leq(n0,X35))|~(leq(n0,X36)))|~(leq(X35,minus(n6,n1))))|~(leq(X36,minus(n6,n1))))|equal(a_select3(pminus_ds1_filter,X35,X36), a_select3(pminus_ds1_filter,X36,X35)))&(((((~(leq(n0,X33))|~(leq(n0,X34)))|~(leq(X33,minus(n6,n1))))|~(leq(X34,minus(n6,n1))))|equal(a_select3(pminus_ds1_filter,X33,X34), a_select3(pminus_ds1_filter,X34,X33)))&(((((~(leq(n0,X31))|~(leq(n0,X32)))|~(leq(X31,minus(n3,n1))))|~(leq(X32,minus(n3,n1))))|equal(a_select3(r_ds1_filter,X31,X32), a_select3(r_ds1_filter,X32,X31)))&(((((~(leq(n0,X29))|~(leq(n0,X30)))|~(leq(X29,minus(n6,n1))))|~(leq(X30,minus(n6,n1))))|equal(a_select3(q_ds1_filter,X29,X30), a_select3(q_ds1_filter,X30,X29)))&(leq(n0,pv5)&leq(pv5,minus(n999,n1))))))))|~(epred1_0)),inference(shift_quantors,[status(thm)],[319])).
+% fof(321, plain,![X29]:![X30]:![X31]:![X32]:![X33]:![X34]:![X35]:![X36]:![X37]:![X38]:(((((~(leq(n0,X38))|~(leq(X38,minus(n6,n1))))|equal(a_select3(id_ds1_filter,X37,X38), a_select3(id_ds1_filter,X38,X37)))|(~(leq(n0,X37))|~(leq(X37,minus(n6,n1)))))|~(epred1_0))&((((((~(leq(n0,X35))|~(leq(n0,X36)))|~(leq(X35,minus(n6,n1))))|~(leq(X36,minus(n6,n1))))|equal(a_select3(pminus_ds1_filter,X35,X36), a_select3(pminus_ds1_filter,X36,X35)))|~(epred1_0))&((((((~(leq(n0,X33))|~(leq(n0,X34)))|~(leq(X33,minus(n6,n1))))|~(leq(X34,minus(n6,n1))))|equal(a_select3(pminus_ds1_filter,X33,X34), a_select3(pminus_ds1_filter,X34,X33)))|~(epred1_0))&((((((~(leq(n0,X31))|~(leq(n0,X32)))|~(leq(X31,minus(n3,n1))))|~(leq(X32,minus(n3,n1))))|equal(a_select3(r_ds1_filter,X31,X32), a_select3(r_ds1_filter,X32,X31)))|~(epred1_0))&((((((~(leq(n0,X29))|~(leq(n0,X30)))|~(leq(X29,minus(n6,n1))))|~(leq(X30,minus(n6,n1))))|equal(a_select3(q_ds1_filter,X29,X30), a_select3(q_ds1_filter,X30,X29)))|~(epred1_0))&((leq(n0,pv5)|~(epred1_0))&(leq(pv5,minus(n999,n1))|~(epred1_0)))))))),inference(distribute,[status(thm)],[320])).
+% cnf(324,plain,(a_select3(q_ds1_filter,X1,X2)=a_select3(q_ds1_filter,X2,X1)|~epred1_0|~leq(X2,minus(n6,n1))|~leq(X1,minus(n6,n1))|~leq(n0,X2)|~leq(n0,X1)),inference(split_conjunct,[status(thm)],[321])).
+% cnf(325,plain,(a_select3(r_ds1_filter,X1,X2)=a_select3(r_ds1_filter,X2,X1)|~epred1_0|~leq(X2,minus(n3,n1))|~leq(X1,minus(n3,n1))|~leq(n0,X2)|~leq(n0,X1)),inference(split_conjunct,[status(thm)],[321])).
+% cnf(326,plain,(a_select3(pminus_ds1_filter,X1,X2)=a_select3(pminus_ds1_filter,X2,X1)|~epred1_0|~leq(X2,minus(n6,n1))|~leq(X1,minus(n6,n1))|~leq(n0,X2)|~leq(n0,X1)),inference(split_conjunct,[status(thm)],[321])).
+% fof(329, plain,((?[X29]:?[X6]:((((leq(n0,X29)&leq(n0,X6))&leq(X29,minus(n6,n1)))&leq(X6,minus(n6,n1)))&~(equal(a_select3(q_ds1_filter,X29,X6), a_select3(q_ds1_filter,X6,X29))))|?[X19]:?[X18]:((((leq(n0,X19)&leq(n0,X18))&leq(X19,minus(n3,n1)))&leq(X18,minus(n3,n1)))&~(equal(a_select3(r_ds1_filter,X19,X18), a_select3(r_ds1_filter,X18,X19)))))|epred2_0),inference(fof_nnf,[status(thm)],[104])).
+% fof(330, plain,((?[X30]:?[X31]:((((leq(n0,X30)&leq(n0,X31))&leq(X30,minus(n6,n1)))&leq(X31,minus(n6,n1)))&~(equal(a_select3(q_ds1_filter,X30,X31), a_select3(q_ds1_filter,X31,X30))))|?[X32]:?[X33]:((((leq(n0,X32)&leq(n0,X33))&leq(X32,minus(n3,n1)))&leq(X33,minus(n3,n1)))&~(equal(a_select3(r_ds1_filter,X32,X33), a_select3(r_ds1_filter,X33,X32)))))|epred2_0),inference(variable_rename,[status(thm)],[329])).
+% fof(331, plain,((((((leq(n0,esk6_0)&leq(n0,esk7_0))&leq(esk6_0,minus(n6,n1)))&leq(esk7_0,minus(n6,n1)))&~(equal(a_select3(q_ds1_filter,esk6_0,esk7_0), a_select3(q_ds1_filter,esk7_0,esk6_0))))|((((leq(n0,esk8_0)&leq(n0,esk9_0))&leq(esk8_0,minus(n3,n1)))&leq(esk9_0,minus(n3,n1)))&~(equal(a_select3(r_ds1_filter,esk8_0,esk9_0), a_select3(r_ds1_filter,esk9_0,esk8_0)))))|epred2_0),inference(skolemize,[status(sab)],[330])).
+% fof(332, plain,((((((((((leq(n0,esk8_0)|leq(n0,esk6_0))|epred2_0)&((leq(n0,esk9_0)|leq(n0,esk6_0))|epred2_0))&((leq(esk8_0,minus(n3,n1))|leq(n0,esk6_0))|epred2_0))&((leq(esk9_0,minus(n3,n1))|leq(n0,esk6_0))|epred2_0))&((~(equal(a_select3(r_ds1_filter,esk8_0,esk9_0), a_select3(r_ds1_filter,esk9_0,esk8_0)))|leq(n0,esk6_0))|epred2_0))&((((((leq(n0,esk8_0)|leq(n0,esk7_0))|epred2_0)&((leq(n0,esk9_0)|leq(n0,esk7_0))|epred2_0))&((leq(esk8_0,minus(n3,n1))|leq(n0,esk7_0))|epred2_0))&((leq(esk9_0,minus(n3,n1))|leq(n0,esk7_0))|epred2_0))&((~(equal(a_select3(r_ds1_filter,esk8_0,esk9_0), a_select3(r_ds1_filter,esk9_0,esk8_0)))|leq(n0,esk7_0))|epred2_0)))&((((((leq(n0,esk8_0)|leq(esk6_0,minus(n6,n1)))|epred2_0)&((leq(n0,esk9_0)|leq(esk6_0,minus(n6,n1)))|epred2_0))&((leq(esk8_0,minus(n3,n1))|leq(esk6_0,minus(n6,n1)))|epred2_0))&((leq(esk9_0,minus(n3,n1))|leq(esk6_0,minus(n6,n1)))|epred2_0))&((~(equal(a_select3(r_ds1_filter,esk8_0,esk9_0), a_select3(r_ds1_filter,esk9_0,esk8_0)))|leq(esk6_0,minus(n6,n1)))|epred2_0)))&((((((leq(n0,esk8_0)|leq(esk7_0,minus(n6,n1)))|epred2_0)&((leq(n0,esk9_0)|leq(esk7_0,minus(n6,n1)))|epred2_0))&((leq(esk8_0,minus(n3,n1))|leq(esk7_0,minus(n6,n1)))|epred2_0))&((leq(esk9_0,minus(n3,n1))|leq(esk7_0,minus(n6,n1)))|epred2_0))&((~(equal(a_select3(r_ds1_filter,esk8_0,esk9_0), a_select3(r_ds1_filter,esk9_0,esk8_0)))|leq(esk7_0,minus(n6,n1)))|epred2_0)))&((((((leq(n0,esk8_0)|~(equal(a_select3(q_ds1_filter,esk6_0,esk7_0), a_select3(q_ds1_filter,esk7_0,esk6_0))))|epred2_0)&((leq(n0,esk9_0)|~(equal(a_select3(q_ds1_filter,esk6_0,esk7_0), a_select3(q_ds1_filter,esk7_0,esk6_0))))|epred2_0))&((leq(esk8_0,minus(n3,n1))|~(equal(a_select3(q_ds1_filter,esk6_0,esk7_0), a_select3(q_ds1_filter,esk7_0,esk6_0))))|epred2_0))&((leq(esk9_0,minus(n3,n1))|~(equal(a_select3(q_ds1_filter,esk6_0,esk7_0), a_select3(q_ds1_filter,esk7_0,esk6_0))))|epred2_0))&((~(equal(a_select3(r_ds1_filter,esk8_0,esk9_0), a_select3(r_ds1_filter,esk9_0,esk8_0)))|~(equal(a_select3(q_ds1_filter,esk6_0,esk7_0), a_select3(q_ds1_filter,esk7_0,esk6_0))))|epred2_0))),inference(distribute,[status(thm)],[331])).
+% cnf(333,plain,(epred2_0|a_select3(q_ds1_filter,esk6_0,esk7_0)!=a_select3(q_ds1_filter,esk7_0,esk6_0)|a_select3(r_ds1_filter,esk8_0,esk9_0)!=a_select3(r_ds1_filter,esk9_0,esk8_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(334,plain,(epred2_0|leq(esk9_0,minus(n3,n1))|a_select3(q_ds1_filter,esk6_0,esk7_0)!=a_select3(q_ds1_filter,esk7_0,esk6_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(335,plain,(epred2_0|leq(esk8_0,minus(n3,n1))|a_select3(q_ds1_filter,esk6_0,esk7_0)!=a_select3(q_ds1_filter,esk7_0,esk6_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(336,plain,(epred2_0|leq(n0,esk9_0)|a_select3(q_ds1_filter,esk6_0,esk7_0)!=a_select3(q_ds1_filter,esk7_0,esk6_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(337,plain,(epred2_0|leq(n0,esk8_0)|a_select3(q_ds1_filter,esk6_0,esk7_0)!=a_select3(q_ds1_filter,esk7_0,esk6_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(338,plain,(epred2_0|leq(esk7_0,minus(n6,n1))|a_select3(r_ds1_filter,esk8_0,esk9_0)!=a_select3(r_ds1_filter,esk9_0,esk8_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(339,plain,(epred2_0|leq(esk7_0,minus(n6,n1))|leq(esk9_0,minus(n3,n1))),inference(split_conjunct,[status(thm)],[332])).
+% cnf(340,plain,(epred2_0|leq(esk7_0,minus(n6,n1))|leq(esk8_0,minus(n3,n1))),inference(split_conjunct,[status(thm)],[332])).
+% cnf(341,plain,(epred2_0|leq(esk7_0,minus(n6,n1))|leq(n0,esk9_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(342,plain,(epred2_0|leq(esk7_0,minus(n6,n1))|leq(n0,esk8_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(343,plain,(epred2_0|leq(esk6_0,minus(n6,n1))|a_select3(r_ds1_filter,esk8_0,esk9_0)!=a_select3(r_ds1_filter,esk9_0,esk8_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(344,plain,(epred2_0|leq(esk6_0,minus(n6,n1))|leq(esk9_0,minus(n3,n1))),inference(split_conjunct,[status(thm)],[332])).
+% cnf(345,plain,(epred2_0|leq(esk6_0,minus(n6,n1))|leq(esk8_0,minus(n3,n1))),inference(split_conjunct,[status(thm)],[332])).
+% cnf(346,plain,(epred2_0|leq(esk6_0,minus(n6,n1))|leq(n0,esk9_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(347,plain,(epred2_0|leq(esk6_0,minus(n6,n1))|leq(n0,esk8_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(348,plain,(epred2_0|leq(n0,esk7_0)|a_select3(r_ds1_filter,esk8_0,esk9_0)!=a_select3(r_ds1_filter,esk9_0,esk8_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(349,plain,(epred2_0|leq(n0,esk7_0)|leq(esk9_0,minus(n3,n1))),inference(split_conjunct,[status(thm)],[332])).
+% cnf(350,plain,(epred2_0|leq(n0,esk7_0)|leq(esk8_0,minus(n3,n1))),inference(split_conjunct,[status(thm)],[332])).
+% cnf(351,plain,(epred2_0|leq(n0,esk7_0)|leq(n0,esk9_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(352,plain,(epred2_0|leq(n0,esk7_0)|leq(n0,esk8_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(353,plain,(epred2_0|leq(n0,esk6_0)|a_select3(r_ds1_filter,esk8_0,esk9_0)!=a_select3(r_ds1_filter,esk9_0,esk8_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(354,plain,(epred2_0|leq(n0,esk6_0)|leq(esk9_0,minus(n3,n1))),inference(split_conjunct,[status(thm)],[332])).
+% cnf(355,plain,(epred2_0|leq(n0,esk6_0)|leq(esk8_0,minus(n3,n1))),inference(split_conjunct,[status(thm)],[332])).
+% cnf(356,plain,(epred2_0|leq(n0,esk6_0)|leq(n0,esk9_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(357,plain,(epred2_0|leq(n0,esk6_0)|leq(n0,esk8_0)),inference(split_conjunct,[status(thm)],[332])).
+% cnf(360,plain,(pred(plus(X1,n1))=X1),inference(rw,[status(thm)],[204,182,theory(equality)]),['unfolding']).
+% cnf(362,plain,(plus(n1,X1)=plus(X1,n1)),inference(rw,[status(thm)],[184,182,theory(equality)]),['unfolding']).
+% cnf(363,plain,(plus(plus(n0,n1),n1)=n2),inference(rw,[status(thm)],[inference(rw,[status(thm)],[316,182,theory(equality)]),182,theory(equality)]),['unfolding']).
+% cnf(365,plain,(plus(X1,n2)=plus(plus(X1,n1),n1)),inference(rw,[status(thm)],[inference(rw,[status(thm)],[186,182,theory(equality)]),182,theory(equality)]),['unfolding']).
+% cnf(366,plain,(plus(n2,X1)=plus(plus(X1,n1),n1)),inference(rw,[status(thm)],[inference(rw,[status(thm)],[188,182,theory(equality)]),182,theory(equality)]),['unfolding']).
+% cnf(367,plain,(plus(plus(plus(n0,n1),n1),n1)=n3),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[317,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),['unfolding']).
+% cnf(368,plain,(plus(plus(plus(X1,n1),n1),n1)=plus(X1,n3)),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[190,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),['unfolding']).
+% cnf(369,plain,(plus(plus(plus(X1,n1),n1),n1)=plus(n3,X1)),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[192,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),['unfolding']).
+% cnf(370,plain,(plus(plus(plus(plus(n0,n1),n1),n1),n1)=n4),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[312,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),['unfolding']).
+% cnf(371,plain,(plus(plus(plus(plus(X1,n1),n1),n1),n1)=plus(X1,n4)),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[194,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),['unfolding']).
+% cnf(373,plain,(plus(plus(plus(plus(plus(n0,n1),n1),n1),n1),n1)=n5),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[313,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),['unfolding']).
+% cnf(374,plain,(plus(plus(plus(plus(plus(X1,n1),n1),n1),n1),n1)=plus(X1,n5)),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[198,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),['unfolding']).
+% cnf(375,plain,(plus(plus(plus(plus(plus(X1,n1),n1),n1),n1),n1)=plus(n5,X1)),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[200,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),['unfolding']).
+% cnf(376,plain,(plus(plus(plus(plus(plus(plus(n0,n1),n1),n1),n1),n1),n1)=n6),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[314,182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),182,theory(equality)]),['unfolding']).
+% cnf(383,plain,(minus(plus(X1,n1),n1)=X1),inference(rw,[status(thm)],[360,202,theory(equality)]),['unfolding']).
+% cnf(439,plain,(minus(plus(n1,X1),n1)=X1),inference(spm,[status(thm)],[383,362,theory(equality)])).
+% cnf(442,plain,(plus(n1,plus(n1,n0))=n2),inference(rw,[status(thm)],[inference(rw,[status(thm)],[363,362,theory(equality)]),362,theory(equality)])).
+% cnf(522,plain,(plus(n1,plus(X1,n1))=plus(X1,n2)),inference(rw,[status(thm)],[365,362,theory(equality)])).
+% cnf(541,plain,(plus(X1,n2)=plus(n2,X1)),inference(rw,[status(thm)],[inference(rw,[status(thm)],[366,362,theory(equality)]),522,theory(equality)])).
+% cnf(553,plain,(plus(n1,n2)=n3),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[367,362,theory(equality)]),362,theory(equality)]),442,theory(equality)]),541,theory(equality)])).
+% cnf(600,plain,(plus(n1,plus(X1,n2))=plus(X1,n3)),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[368,362,theory(equality)]),522,theory(equality)]),362,theory(equality)])).
+% cnf(604,plain,(plus(X1,n3)=plus(n3,X1)),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[369,362,theory(equality)]),522,theory(equality)]),362,theory(equality)]),600,theory(equality)])).
+% cnf(616,plain,(plus(n1,n3)=n4),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[370,362,theory(equality)]),362,theory(equality)]),442,theory(equality)]),541,theory(equality)]),553,theory(equality)]),604,theory(equality)])).
+% cnf(621,plain,(plus(n1,n4)=n5),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[373,362,theory(equality)]),362,theory(equality)]),442,theory(equality)]),541,theory(equality)]),553,theory(equality)]),604,theory(equality)]),616,theory(equality)]),362,theory(equality)])).
+% cnf(622,plain,(plus(n1,plus(X1,n3))=plus(X1,n4)),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[371,362,theory(equality)]),522,theory(equality)]),362,theory(equality)]),600,theory(equality)]),362,theory(equality)])).
+% cnf(660,plain,(plus(n1,n5)=n6),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[376,362,theory(equality)]),362,theory(equality)]),442,theory(equality)]),541,theory(equality)]),553,theory(equality)]),604,theory(equality)]),616,theory(equality)]),362,theory(equality)]),621,theory(equality)]),362,theory(equality)])).
+% cnf(661,plain,(a_select3(pminus_ds1_filter,X1,X2)=a_select3(pminus_ds1_filter,X2,X1)|$false|~leq(n0,X2)|~leq(n0,X1)|~leq(X2,minus(n6,n1))|~leq(X1,minus(n6,n1))),inference(rw,[status(thm)],[326,254,theory(equality)])).
+% cnf(662,plain,(a_select3(pminus_ds1_filter,X1,X2)=a_select3(pminus_ds1_filter,X2,X1)|~leq(n0,X2)|~leq(n0,X1)|~leq(X2,minus(n6,n1))|~leq(X1,minus(n6,n1))),inference(cn,[status(thm)],[661,theory(equality)])).
+% cnf(678,plain,(plus(n1,plus(X1,n4))=plus(X1,n5)),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[374,362,theory(equality)]),522,theory(equality)]),362,theory(equality)]),600,theory(equality)]),362,theory(equality)]),622,theory(equality)]),362,theory(equality)])).
+% cnf(683,plain,(plus(X1,n5)=plus(n5,X1)),inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[inference(rw,[status(thm)],[375,362,theory(equality)]),522,theory(equality)]),362,theory(equality)]),600,theory(equality)]),362,theory(equality)]),622,theory(equality)]),362,theory(equality)]),678,theory(equality)])).
+% cnf(685,plain,(minus(plus(n1,n5),n1)=n5),inference(spm,[status(thm)],[383,683,theory(equality)])).
+% cnf(699,plain,(minus(n6,n1)=n5),inference(rw,[status(thm)],[685,660,theory(equality)])).
+% cnf(726,plain,(a_select3(q_ds1_filter,X1,X2)=a_select3(q_ds1_filter,X2,X1)|$false|~leq(n0,X2)|~leq(n0,X1)|~leq(X2,minus(n6,n1))|~leq(X1,minus(n6,n1))),inference(rw,[status(thm)],[324,254,theory(equality)])).
+% cnf(727,plain,(a_select3(q_ds1_filter,X1,X2)=a_select3(q_ds1_filter,X2,X1)|~leq(n0,X2)|~leq(n0,X1)|~leq(X2,minus(n6,n1))|~leq(X1,minus(n6,n1))),inference(cn,[status(thm)],[726,theory(equality)])).
+% cnf(756,plain,(a_select3(r_ds1_filter,X1,X2)=a_select3(r_ds1_filter,X2,X1)|$false|~leq(n0,X2)|~leq(n0,X1)|~leq(X2,minus(n3,n1))|~leq(X1,minus(n3,n1))),inference(rw,[status(thm)],[325,254,theory(equality)])).
+% cnf(757,plain,(a_select3(r_ds1_filter,X1,X2)=a_select3(r_ds1_filter,X2,X1)|~leq(n0,X2)|~leq(n0,X1)|~leq(X2,minus(n3,n1))|~leq(X1,minus(n3,n1))),inference(cn,[status(thm)],[756,theory(equality)])).
+% cnf(2029,plain,(a_select3(q_ds1_filter,X1,X2)=a_select3(q_ds1_filter,X2,X1)|~leq(X2,n5)|~leq(X1,minus(n6,n1))|~leq(n0,X2)|~leq(n0,X1)),inference(rw,[status(thm)],[727,699,theory(equality)])).
+% cnf(2030,plain,(a_select3(q_ds1_filter,X1,X2)=a_select3(q_ds1_filter,X2,X1)|~leq(X2,n5)|~leq(X1,n5)|~leq(n0,X2)|~leq(n0,X1)),inference(rw,[status(thm)],[2029,699,theory(equality)])).
+% cnf(2031,plain,(a_select3(pminus_ds1_filter,X1,X2)=a_select3(pminus_ds1_filter,X2,X1)|~leq(X2,n5)|~leq(X1,minus(n6,n1))|~leq(n0,X2)|~leq(n0,X1)),inference(rw,[status(thm)],[662,699,theory(equality)])).
+% cnf(2032,plain,(a_select3(pminus_ds1_filter,X1,X2)=a_select3(pminus_ds1_filter,X2,X1)|~leq(X2,n5)|~leq(X1,n5)|~leq(n0,X2)|~leq(n0,X1)),inference(rw,[status(thm)],[2031,699,theory(equality)])).
+% cnf(2033,plain,(epred2_0|leq(esk7_0,n5)|a_select3(r_ds1_filter,esk9_0,esk8_0)!=a_select3(r_ds1_filter,esk8_0,esk9_0)),inference(rw,[status(thm)],[338,699,theory(equality)])).
+% cnf(2034,plain,(epred2_0|leq(esk6_0,n5)|a_select3(r_ds1_filter,esk9_0,esk8_0)!=a_select3(r_ds1_filter,esk8_0,esk9_0)),inference(rw,[status(thm)],[343,699,theory(equality)])).
+% cnf(2035,plain,(epred2_0|leq(esk9_0,minus(n3,n1))|leq(esk7_0,n5)),inference(rw,[status(thm)],[339,699,theory(equality)])).
+% cnf(2036,plain,(epred2_0|leq(esk8_0,minus(n3,n1))|leq(esk7_0,n5)),inference(rw,[status(thm)],[340,699,theory(equality)])).
+% cnf(2037,plain,(epred2_0|leq(esk9_0,minus(n3,n1))|leq(esk6_0,n5)),inference(rw,[status(thm)],[344,699,theory(equality)])).
+% cnf(2038,plain,(epred2_0|leq(esk8_0,minus(n3,n1))|leq(esk6_0,n5)),inference(rw,[status(thm)],[345,699,theory(equality)])).
+% cnf(2039,plain,(epred2_0|leq(esk7_0,n5)|leq(n0,esk9_0)),inference(rw,[status(thm)],[341,699,theory(equality)])).
+% cnf(2040,plain,(epred2_0|leq(esk6_0,n5)|leq(n0,esk9_0)),inference(rw,[status(thm)],[346,699,theory(equality)])).
+% cnf(2041,plain,(epred2_0|leq(esk7_0,n5)|leq(n0,esk8_0)),inference(rw,[status(thm)],[342,699,theory(equality)])).
+% cnf(2042,plain,(epred2_0|leq(esk6_0,n5)|leq(n0,esk8_0)),inference(rw,[status(thm)],[347,699,theory(equality)])).
+% cnf(2043,negated_conjecture,(leq(esk5_0,n5)|~epred2_0),inference(rw,[status(thm)],[250,699,theory(equality)])).
+% cnf(2044,negated_conjecture,(leq(esk4_0,n5)|~epred2_0),inference(rw,[status(thm)],[251,699,theory(equality)])).
+% cnf(2117,plain,(epred2_0|leq(n0,esk8_0)|~leq(esk6_0,n5)|~leq(esk7_0,n5)|~leq(n0,esk6_0)|~leq(n0,esk7_0)),inference(spm,[status(thm)],[337,2030,theory(equality)])).
+% cnf(2119,plain,(epred2_0|leq(n0,esk9_0)|~leq(esk6_0,n5)|~leq(esk7_0,n5)|~leq(n0,esk6_0)|~leq(n0,esk7_0)),inference(spm,[status(thm)],[336,2030,theory(equality)])).
+% cnf(2121,plain,(epred2_0|a_select3(r_ds1_filter,esk9_0,esk8_0)!=a_select3(r_ds1_filter,esk8_0,esk9_0)|~leq(esk6_0,n5)|~leq(esk7_0,n5)|~leq(n0,esk6_0)|~leq(n0,esk7_0)),inference(spm,[status(thm)],[333,2030,theory(equality)])).
+% cnf(2185,plain,(~epred2_0|~leq(esk4_0,n5)|~leq(esk5_0,n5)|~leq(n0,esk4_0)|~leq(n0,esk5_0)),inference(spm,[status(thm)],[249,2032,theory(equality)])).
+% cnf(2602,plain,(minus(n3,n1)=n2),inference(spm,[status(thm)],[439,553,theory(equality)])).
+% cnf(2630,plain,(~epred2_0|~leq(esk4_0,n5)|~leq(esk5_0,n5)|~leq(n0,esk4_0)),inference(csr,[status(thm)],[2185,252])).
+% cnf(2631,plain,(~epred2_0|~leq(esk4_0,n5)|~leq(esk5_0,n5)),inference(csr,[status(thm)],[2630,253])).
+% cnf(2632,plain,(~epred2_0|~leq(esk4_0,n5)),inference(csr,[status(thm)],[2631,2043])).
+% cnf(2633,plain,(~epred2_0),inference(csr,[status(thm)],[2632,2044])).
+% cnf(2634,plain,(leq(n0,esk8_0)|leq(n0,esk6_0)),inference(sr,[status(thm)],[357,2633,theory(equality)])).
+% cnf(2635,plain,(leq(n0,esk9_0)|leq(n0,esk6_0)),inference(sr,[status(thm)],[356,2633,theory(equality)])).
+% cnf(2636,plain,(leq(n0,esk8_0)|leq(n0,esk7_0)),inference(sr,[status(thm)],[352,2633,theory(equality)])).
+% cnf(2637,plain,(leq(n0,esk9_0)|leq(n0,esk7_0)),inference(sr,[status(thm)],[351,2633,theory(equality)])).
+% cnf(2638,plain,(leq(esk8_0,minus(n3,n1))|leq(n0,esk6_0)),inference(sr,[status(thm)],[355,2633,theory(equality)])).
+% cnf(2639,plain,(leq(esk9_0,minus(n3,n1))|leq(n0,esk6_0)),inference(sr,[status(thm)],[354,2633,theory(equality)])).
+% cnf(2640,plain,(leq(esk8_0,minus(n3,n1))|leq(n0,esk7_0)),inference(sr,[status(thm)],[350,2633,theory(equality)])).
+% cnf(2641,plain,(leq(esk9_0,minus(n3,n1))|leq(n0,esk7_0)),inference(sr,[status(thm)],[349,2633,theory(equality)])).
+% cnf(2642,plain,(leq(n0,esk9_0)|leq(esk7_0,n5)),inference(sr,[status(thm)],[2039,2633,theory(equality)])).
+% cnf(2643,plain,(leq(n0,esk9_0)|leq(esk6_0,n5)),inference(sr,[status(thm)],[2040,2633,theory(equality)])).
+% cnf(2644,plain,(leq(n0,esk8_0)|leq(esk7_0,n5)),inference(sr,[status(thm)],[2041,2633,theory(equality)])).
+% cnf(2645,plain,(leq(n0,esk8_0)|leq(esk6_0,n5)),inference(sr,[status(thm)],[2042,2633,theory(equality)])).
+% cnf(2646,plain,(leq(esk9_0,minus(n3,n1))|leq(esk7_0,n5)),inference(sr,[status(thm)],[2035,2633,theory(equality)])).
+% cnf(2647,plain,(leq(esk8_0,minus(n3,n1))|leq(esk7_0,n5)),inference(sr,[status(thm)],[2036,2633,theory(equality)])).
+% cnf(2648,plain,(leq(esk9_0,minus(n3,n1))|leq(esk6_0,n5)),inference(sr,[status(thm)],[2037,2633,theory(equality)])).
+% cnf(2649,plain,(leq(esk8_0,minus(n3,n1))|leq(esk6_0,n5)),inference(sr,[status(thm)],[2038,2633,theory(equality)])).
+% cnf(2858,plain,(leq(esk8_0,n2)|leq(n0,esk6_0)),inference(rw,[status(thm)],[2638,2602,theory(equality)])).
+% cnf(2859,plain,(a_select3(r_ds1_filter,X1,X2)=a_select3(r_ds1_filter,X2,X1)|~leq(X2,n2)|~leq(X1,minus(n3,n1))|~leq(n0,X2)|~leq(n0,X1)),inference(rw,[status(thm)],[757,2602,theory(equality)])).
+% cnf(2860,plain,(a_select3(r_ds1_filter,X1,X2)=a_select3(r_ds1_filter,X2,X1)|~leq(X2,n2)|~leq(X1,n2)|~leq(n0,X2)|~leq(n0,X1)),inference(rw,[status(thm)],[2859,2602,theory(equality)])).
+% cnf(2861,plain,(epred2_0|leq(esk9_0,n2)|a_select3(q_ds1_filter,esk7_0,esk6_0)!=a_select3(q_ds1_filter,esk6_0,esk7_0)),inference(rw,[status(thm)],[334,2602,theory(equality)])).
+% cnf(2862,plain,(leq(esk9_0,n2)|a_select3(q_ds1_filter,esk7_0,esk6_0)!=a_select3(q_ds1_filter,esk6_0,esk7_0)),inference(sr,[status(thm)],[2861,2633,theory(equality)])).
+% cnf(2863,plain,(epred2_0|leq(esk8_0,n2)|a_select3(q_ds1_filter,esk7_0,esk6_0)!=a_select3(q_ds1_filter,esk6_0,esk7_0)),inference(rw,[status(thm)],[335,2602,theory(equality)])).
+% cnf(2864,plain,(leq(esk8_0,n2)|a_select3(q_ds1_filter,esk7_0,esk6_0)!=a_select3(q_ds1_filter,esk6_0,esk7_0)),inference(sr,[status(thm)],[2863,2633,theory(equality)])).
+% cnf(2881,plain,(leq(esk9_0,n2)|leq(n0,esk6_0)),inference(rw,[status(thm)],[2639,2602,theory(equality)])).
+% cnf(2953,plain,(leq(esk8_0,n2)|leq(n0,esk7_0)),inference(rw,[status(thm)],[2640,2602,theory(equality)])).
+% cnf(2988,plain,(leq(esk9_0,n2)|leq(n0,esk7_0)),inference(rw,[status(thm)],[2641,2602,theory(equality)])).
+% cnf(2998,plain,(leq(esk9_0,n2)|leq(esk7_0,n5)),inference(rw,[status(thm)],[2646,2602,theory(equality)])).
+% cnf(3048,plain,(leq(esk8_0,n2)|leq(esk7_0,n5)),inference(rw,[status(thm)],[2647,2602,theory(equality)])).
+% cnf(3059,plain,(leq(esk9_0,n2)|leq(esk6_0,n5)),inference(rw,[status(thm)],[2648,2602,theory(equality)])).
+% cnf(3145,plain,(leq(esk8_0,n2)|leq(esk6_0,n5)),inference(rw,[status(thm)],[2649,2602,theory(equality)])).
+% cnf(3155,plain,(epred2_0|leq(n0,esk6_0)|~leq(esk8_0,n2)|~leq(esk9_0,n2)|~leq(n0,esk8_0)|~leq(n0,esk9_0)),inference(spm,[status(thm)],[353,2860,theory(equality)])).
+% cnf(3157,plain,(epred2_0|leq(n0,esk7_0)|~leq(esk8_0,n2)|~leq(esk9_0,n2)|~leq(n0,esk8_0)|~leq(n0,esk9_0)),inference(spm,[status(thm)],[348,2860,theory(equality)])).
+% cnf(3159,plain,(epred2_0|leq(esk7_0,n5)|~leq(esk8_0,n2)|~leq(esk9_0,n2)|~leq(n0,esk8_0)|~leq(n0,esk9_0)),inference(spm,[status(thm)],[2033,2860,theory(equality)])).
+% cnf(3161,plain,(epred2_0|leq(esk6_0,n5)|~leq(esk8_0,n2)|~leq(esk9_0,n2)|~leq(n0,esk8_0)|~leq(n0,esk9_0)),inference(spm,[status(thm)],[2034,2860,theory(equality)])).
+% cnf(3163,plain,(leq(n0,esk6_0)|~leq(esk8_0,n2)|~leq(esk9_0,n2)|~leq(n0,esk8_0)|~leq(n0,esk9_0)),inference(sr,[status(thm)],[3155,2633,theory(equality)])).
+% cnf(3165,plain,(leq(n0,esk7_0)|~leq(esk8_0,n2)|~leq(esk9_0,n2)|~leq(n0,esk8_0)|~leq(n0,esk9_0)),inference(sr,[status(thm)],[3157,2633,theory(equality)])).
+% cnf(3167,plain,(leq(esk7_0,n5)|~leq(esk8_0,n2)|~leq(esk9_0,n2)|~leq(n0,esk8_0)|~leq(n0,esk9_0)),inference(sr,[status(thm)],[3159,2633,theory(equality)])).
+% cnf(3169,plain,(leq(esk6_0,n5)|~leq(esk8_0,n2)|~leq(esk9_0,n2)|~leq(n0,esk8_0)|~leq(n0,esk9_0)),inference(sr,[status(thm)],[3161,2633,theory(equality)])).
+% cnf(3218,plain,(leq(esk9_0,n2)|~leq(esk6_0,n5)|~leq(esk7_0,n5)|~leq(n0,esk6_0)|~leq(n0,esk7_0)),inference(spm,[status(thm)],[2862,2030,theory(equality)])).
+% cnf(3220,plain,(leq(esk8_0,n2)|~leq(esk6_0,n5)|~leq(esk7_0,n5)|~leq(n0,esk6_0)|~leq(n0,esk7_0)),inference(spm,[status(thm)],[2864,2030,theory(equality)])).
+% cnf(163050,plain,(leq(n0,esk8_0)|~leq(esk6_0,n5)|~leq(esk7_0,n5)|~leq(n0,esk6_0)|~leq(n0,esk7_0)),inference(sr,[status(thm)],[2117,2633,theory(equality)])).
+% cnf(163051,plain,(leq(n0,esk8_0)|~leq(esk6_0,n5)|~leq(esk7_0,n5)|~leq(n0,esk6_0)),inference(csr,[status(thm)],[163050,2636])).
+% cnf(163052,plain,(leq(n0,esk8_0)|~leq(esk6_0,n5)|~leq(esk7_0,n5)),inference(csr,[status(thm)],[163051,2634])).
+% cnf(163053,plain,(leq(n0,esk8_0)|~leq(esk6_0,n5)),inference(csr,[status(thm)],[163052,2644])).
+% cnf(163054,plain,(leq(n0,esk8_0)),inference(csr,[status(thm)],[163053,2645])).
+% cnf(163521,plain,(leq(n0,esk9_0)|~leq(esk6_0,n5)|~leq(esk7_0,n5)|~leq(n0,esk6_0)|~leq(n0,esk7_0)),inference(sr,[status(thm)],[2119,2633,theory(equality)])).
+% cnf(163522,plain,(leq(n0,esk9_0)|~leq(esk6_0,n5)|~leq(esk7_0,n5)|~leq(n0,esk6_0)),inference(csr,[status(thm)],[163521,2637])).
+% cnf(163523,plain,(leq(n0,esk9_0)|~leq(esk6_0,n5)|~leq(esk7_0,n5)),inference(csr,[status(thm)],[163522,2635])).
+% cnf(163524,plain,(leq(n0,esk9_0)|~leq(esk6_0,n5)),inference(csr,[status(thm)],[163523,2642])).
+% cnf(163525,plain,(leq(n0,esk9_0)),inference(csr,[status(thm)],[163524,2643])).
+% cnf(163983,plain,(a_select3(r_ds1_filter,esk9_0,esk8_0)!=a_select3(r_ds1_filter,esk8_0,esk9_0)|~leq(esk6_0,n5)|~leq(esk7_0,n5)|~leq(n0,esk6_0)|~leq(n0,esk7_0)),inference(sr,[status(thm)],[2121,2633,theory(equality)])).
+% cnf(360309,plain,(leq(n0,esk6_0)|~leq(esk8_0,n2)|~leq(esk9_0,n2)|$false|~leq(n0,esk9_0)),inference(rw,[status(thm)],[3163,163054,theory(equality)])).
+% cnf(360310,plain,(leq(n0,esk6_0)|~leq(esk8_0,n2)|~leq(esk9_0,n2)|$false|$false),inference(rw,[status(thm)],[360309,163525,theory(equality)])).
+% cnf(360311,plain,(leq(n0,esk6_0)|~leq(esk8_0,n2)|~leq(esk9_0,n2)),inference(cn,[status(thm)],[360310,theory(equality)])).
+% cnf(360312,plain,(leq(n0,esk6_0)|~leq(esk8_0,n2)),inference(csr,[status(thm)],[360311,2881])).
+% cnf(360313,plain,(leq(n0,esk6_0)),inference(csr,[status(thm)],[360312,2858])).
+% cnf(360477,plain,(a_select3(r_ds1_filter,esk9_0,esk8_0)!=a_select3(r_ds1_filter,esk8_0,esk9_0)|~leq(esk6_0,n5)|~leq(esk7_0,n5)|$false|~leq(n0,esk7_0)),inference(rw,[status(thm)],[163983,360313,theory(equality)])).
+% cnf(360478,plain,(a_select3(r_ds1_filter,esk9_0,esk8_0)!=a_select3(r_ds1_filter,esk8_0,esk9_0)|~leq(esk6_0,n5)|~leq(esk7_0,n5)|~leq(n0,esk7_0)),inference(cn,[status(thm)],[360477,theory(equality)])).
+% cnf(361358,plain,(leq(n0,esk7_0)|~leq(esk8_0,n2)|~leq(esk9_0,n2)|$false|~leq(n0,esk9_0)),inference(rw,[status(thm)],[3165,163054,theory(equality)])).
+% cnf(361359,plain,(leq(n0,esk7_0)|~leq(esk8_0,n2)|~leq(esk9_0,n2)|$false|$false),inference(rw,[status(thm)],[361358,163525,theory(equality)])).
+% cnf(361360,plain,(leq(n0,esk7_0)|~leq(esk8_0,n2)|~leq(esk9_0,n2)),inference(cn,[status(thm)],[361359,theory(equality)])).
+% cnf(361361,plain,(leq(n0,esk7_0)|~leq(esk8_0,n2)),inference(csr,[status(thm)],[361360,2988])).
+% cnf(361362,plain,(leq(n0,esk7_0)),inference(csr,[status(thm)],[361361,2953])).
+% cnf(361482,plain,(a_select3(r_ds1_filter,esk9_0,esk8_0)!=a_select3(r_ds1_filter,esk8_0,esk9_0)|~leq(esk6_0,n5)|~leq(esk7_0,n5)|$false),inference(rw,[status(thm)],[360478,361362,theory(equality)])).
+% cnf(361483,plain,(a_select3(r_ds1_filter,esk9_0,esk8_0)!=a_select3(r_ds1_filter,esk8_0,esk9_0)|~leq(esk6_0,n5)|~leq(esk7_0,n5)),inference(cn,[status(thm)],[361482,theory(equality)])).
+% cnf(362025,plain,(leq(esk7_0,n5)|~leq(esk8_0,n2)|~leq(esk9_0,n2)|$false|~leq(n0,esk9_0)),inference(rw,[status(thm)],[3167,163054,theory(equality)])).
+% cnf(362026,plain,(leq(esk7_0,n5)|~leq(esk8_0,n2)|~leq(esk9_0,n2)|$false|$false),inference(rw,[status(thm)],[362025,163525,theory(equality)])).
+% cnf(362027,plain,(leq(esk7_0,n5)|~leq(esk8_0,n2)|~leq(esk9_0,n2)),inference(cn,[status(thm)],[362026,theory(equality)])).
+% cnf(362028,plain,(leq(esk7_0,n5)|~leq(esk8_0,n2)),inference(csr,[status(thm)],[362027,2998])).
+% cnf(362029,plain,(leq(esk7_0,n5)),inference(csr,[status(thm)],[362028,3048])).
+% cnf(362145,plain,(a_select3(r_ds1_filter,esk9_0,esk8_0)!=a_select3(r_ds1_filter,esk8_0,esk9_0)|~leq(esk6_0,n5)|$false),inference(rw,[status(thm)],[361483,362029,theory(equality)])).
+% cnf(362146,plain,(a_select3(r_ds1_filter,esk9_0,esk8_0)!=a_select3(r_ds1_filter,esk8_0,esk9_0)|~leq(esk6_0,n5)),inference(cn,[status(thm)],[362145,theory(equality)])).
+% cnf(363831,plain,(leq(esk6_0,n5)|~leq(esk8_0,n2)|~leq(esk9_0,n2)|$false|~leq(n0,esk9_0)),inference(rw,[status(thm)],[3169,163054,theory(equality)])).
+% cnf(363832,plain,(leq(esk6_0,n5)|~leq(esk8_0,n2)|~leq(esk9_0,n2)|$false|$false),inference(rw,[status(thm)],[363831,163525,theory(equality)])).
+% cnf(363833,plain,(leq(esk6_0,n5)|~leq(esk8_0,n2)|~leq(esk9_0,n2)),inference(cn,[status(thm)],[363832,theory(equality)])).
+% cnf(363834,plain,(leq(esk6_0,n5)|~leq(esk8_0,n2)),inference(csr,[status(thm)],[363833,3059])).
+% cnf(363835,plain,(leq(esk6_0,n5)),inference(csr,[status(thm)],[363834,3145])).
+% cnf(363947,plain,(a_select3(r_ds1_filter,esk9_0,esk8_0)!=a_select3(r_ds1_filter,esk8_0,esk9_0)|$false),inference(rw,[status(thm)],[362146,363835,theory(equality)])).
+% cnf(363948,plain,(a_select3(r_ds1_filter,esk9_0,esk8_0)!=a_select3(r_ds1_filter,esk8_0,esk9_0)),inference(cn,[status(thm)],[363947,theory(equality)])).
+% cnf(365417,plain,(~leq(esk8_0,n2)|~leq(esk9_0,n2)|~leq(n0,esk8_0)|~leq(n0,esk9_0)),inference(spm,[status(thm)],[363948,2860,theory(equality)])).
+% cnf(365419,plain,(~leq(esk8_0,n2)|~leq(esk9_0,n2)|$false|~leq(n0,esk9_0)),inference(rw,[status(thm)],[365417,163054,theory(equality)])).
+% cnf(365420,plain,(~leq(esk8_0,n2)|~leq(esk9_0,n2)|$false|$false),inference(rw,[status(thm)],[365419,163525,theory(equality)])).
+% cnf(365421,plain,(~leq(esk8_0,n2)|~leq(esk9_0,n2)),inference(cn,[status(thm)],[365420,theory(equality)])).
+% cnf(379260,plain,(leq(esk9_0,n2)|$false|~leq(esk7_0,n5)|~leq(n0,esk6_0)|~leq(n0,esk7_0)),inference(rw,[status(thm)],[3218,363835,theory(equality)])).
+% cnf(379261,plain,(leq(esk9_0,n2)|$false|$false|~leq(n0,esk6_0)|~leq(n0,esk7_0)),inference(rw,[status(thm)],[379260,362029,theory(equality)])).
+% cnf(379262,plain,(leq(esk9_0,n2)|$false|$false|$false|~leq(n0,esk7_0)),inference(rw,[status(thm)],[379261,360313,theory(equality)])).
+% cnf(379263,plain,(leq(esk9_0,n2)|$false|$false|$false|$false),inference(rw,[status(thm)],[379262,361362,theory(equality)])).
+% cnf(379264,plain,(leq(esk9_0,n2)),inference(cn,[status(thm)],[379263,theory(equality)])).
+% cnf(379386,plain,(~leq(esk8_0,n2)|$false),inference(rw,[status(thm)],[365421,379264,theory(equality)])).
+% cnf(379387,plain,(~leq(esk8_0,n2)),inference(cn,[status(thm)],[379386,theory(equality)])).
+% cnf(383186,plain,(leq(esk8_0,n2)|$false|~leq(esk7_0,n5)|~leq(n0,esk6_0)|~leq(n0,esk7_0)),inference(rw,[status(thm)],[3220,363835,theory(equality)])).
+% cnf(383187,plain,(leq(esk8_0,n2)|$false|$false|~leq(n0,esk6_0)|~leq(n0,esk7_0)),inference(rw,[status(thm)],[383186,362029,theory(equality)])).
+% cnf(383188,plain,(leq(esk8_0,n2)|$false|$false|$false|~leq(n0,esk7_0)),inference(rw,[status(thm)],[383187,360313,theory(equality)])).
+% cnf(383189,plain,(leq(esk8_0,n2)|$false|$false|$false|$false),inference(rw,[status(thm)],[383188,361362,theory(equality)])).
+% cnf(383190,plain,(leq(esk8_0,n2)),inference(cn,[status(thm)],[383189,theory(equality)])).
+% cnf(383191,plain,($false),inference(sr,[status(thm)],[383190,379387,theory(equality)])).
+% cnf(383192,plain,($false),383191,['proof']).
+% # Proof object ends here.
+% # SZS status: Theorem
+% # Initial clauses:                     : 148
+% # Removed in preprocessing             : 2
+% # Initial clauses in saturation        : 146
+% # Processed clauses                    : 8703
+% # ...of these trivial                  : 200
+% # ...subsumed                          : 5884
+% # ...remaining for further processing  : 2619
+% # Other redundant clauses eliminated   : 14
+% # Clauses deleted for lack of memory   : 0
+% # Backward-subsumed                    : 169
+% # Backward-rewritten                   : 474
+% # Generated clauses                    : 215690
+% # ...of the previous two non-trivial   : 171167
+% # Contextual simplify-reflections      : 1310
+% # Paramodulations                      : 215572
+% # Factorizations                       : 78
+% # Equation resolutions                 : 16
+% # Current number of processed clauses  : 1950
+% #    Positive orientable unit clauses  : 422
+% #    Positive unorientable unit clauses: 5
+% #    Negative unit clauses             : 257
+% #    Non-unit-clauses                  : 1266
+% # Current number of unprocessed clauses: 92229
+% # ...number of literals in the above   : 765163
+% # Clause-clause subsumption calls (NU) : 177706
+% # Rec. Clause-clause subsumption calls : 87859
+% # Unit Clause-clause subsumption calls : 4799
+% # Rewrite failures with RHS unbound    : 0
+% 
+% # -------------------------------------------------
+% # User time                : 21.813 s
+% # System time              : 0.348 s
+% # Total time               : 22.161 s
+% # Maximum resident set size: 0 pages
+% 
+%------------------------------------------------------------------------------

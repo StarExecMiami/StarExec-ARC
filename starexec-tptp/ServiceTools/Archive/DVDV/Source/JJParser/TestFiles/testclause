@@ -1,0 +1,7 @@
+input_clause(freddy,conjecture,
+    [--p(X,Y),
+     ++q(X),
+     ++p(f(Y,cat),g(Y,cat))]).
+
+input_clause(empty,axiom,
+    []).

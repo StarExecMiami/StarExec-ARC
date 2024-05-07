@@ -1,0 +1,2 @@
+fof(simple,axiom, (
+    ! [X,Y] : p(X,Y) )).

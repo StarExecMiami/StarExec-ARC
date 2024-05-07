@@ -1,0 +1,81 @@
+#!/bin/tcsh
+
+set TPTP4X="/exp/home/tptp/ServiceTools/TPTP4XDir/tptp4X"
+set BNFParser="/exp/home/tptp/TPTP/SyntaxBNF/SyntaxBNF-yl-parser-verbose"
+
+set KeepAllFiles=0
+set KeepFailedFiles=0
+set KeepWarnedFiles=0
+
+if ($1 == "--keep_all") then
+    set KeepAllFiles=1
+    shift
+else 
+    if ($1 == "--keep_failed") then
+        set KeepFailedFiles=1
+        shift
+    else 
+        if ($1 == "--keep_warned") then
+            set KeepFailedFiles=1
+            set KeepWarnedFiles=1
+            shift
+        endif
+    endif
+endif
+
+
+foreach PathName ($*)
+    set FileName=`basename $PathName`
+    set OutputDir="TestOutput/$FileName"
+    rm -rf $OutputDir
+    mkdir -p $OutputDir
+    cp $PathName $OutputDir
+    set Failings=0
+    set Warnings=0
+
+    echo "TESTER: Start                                        for $FileName"
+#----Test if formatting changes anything
+    echo "TRYING: Formatting    Original    version            for $FileName"
+    $TPTP4X $PathName > $OutputDir/$FileName.formatted
+    if (`diff -q $PathName $OutputDir/$FileName.formatted | wc -l`) then
+        echo "WARNED: Original  and Formatted   versions   changed for $FileName"
+        @ Warnings++
+#----Check if the changed formatting is innocuous, by looking at parse trees
+        echo "TRYING: Parsing       Original    version            for $FileName"
+        $BNFParser < $OutputDir/$FileName | sed -e 's/^[^0-9]*[0-9] //' > $OutputDir/$FileName.parsed
+        echo "TRYING: Parsing       Formatted   version            for $FileName"
+        $BNFParser < $OutputDir/$FileName.formatted | sed -e 's/^[^0-9]*[0-9] //' > $OutputDir/$FileName.formatted.parsed
+        echo "DIFF+C: Original  and Formatted   parses             for $FileName"
+        diff --suppress-common-lines --side-by-side --expand-tabs $OutputDir/$FileName.parsed $OutputDir/$FileName.formatted.parsed > $OutputDir/$FileName.parsed_diff
+        TestScriptCleanBrackets.awk < $OutputDir/$FileName.parsed_diff > $OutputDir/$FileName.parsed_diff.cleaned
+        if (`cat $OutputDir/$FileName.parsed_diff.cleaned | wc -l`) then
+#----Shitto shitto, the parse trees are different, so the formatting broke something
+            echo "FAILED: Original  and Formatted   parses     changed for $FileName"
+            @ Failings++
+#----Check if formatting is a fixed point
+            echo "TRYING: Formatting    Formatted   version            for $FileName"
+            $TPTP4X $OutputDir/$FileName.formatted > $OutputDir/$FileName.formatted.formatted
+            if (`diff $OutputDir/$FileName.formatted $OutputDir/$FileName.formatted.formatted | wc -l`) then
+#----Damn, reformatting changed it too. Very bad.
+                echo "FAILED: Formatted and Reformatted versions   changed for $FileName"
+                @ Failings++
+            else
+                echo "PASSED: Formatted and Reformatted versions unchanged for $FileName"
+            endif
+        else
+            echo "PASSED: Original  and Formatted   parses   unchanged for $FileName"
+        endif
+    else
+        echo "PASSED: Original  and Formatted   versions unchanged for $FileName"
+    endif
+    
+    if ($KeepAllFiles || ($KeepFailedFiles && $Failings) || \
+($KeepWarnedFiles && ($Failings || $Warnings))) then
+        echo "Files saved in $OutputDir"
+    else
+        echo "Deleting $OutputDir"
+        rm -rf $OutputDir
+    endif
+    echo "TESTER: End                                          for $FileName : $Warnings warnings, $Failings failings"
+    echo ""
+end

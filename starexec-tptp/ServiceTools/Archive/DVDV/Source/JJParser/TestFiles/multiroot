@@ -1,0 +1,53 @@
+fof(d,axiom,
+    p(a),
+    unknown,
+    [where_did_this_come_from]).
+
+
+fof(e,axiom,
+    p(a),
+    unknown,
+    [where_did_this_come_from]).
+
+fof(f,axiom,
+    ! [X,Y] :
+      ( p(X)
+     => q(X,Y) ),
+    unknown,
+    [where_did_this_come_from]).
+
+fof(g,axiom,
+    p(b),
+    unknown,
+    [where_did_this_come_from]).
+
+fof(h,axiom,
+    ! [Z] : ~q(Z,Z),
+    unknown,
+    [where_did_this_come_from]).
+
+fof(a,derived,
+    ! [Y] : q(a,Y),
+    inference(hyper,[],[d,e,f])).
+
+fof(b,derived,
+    ! [Y] : q(b,Y),
+    inference(resolution,[],[f,g]),
+    []).
+
+fof(c,derived,
+    ~q(b,b),
+    inference(instance,[],[h]),
+    []).
+
+fof(root1,derived,
+    ! [Y] :
+      ( q(a,Y)
+      & q(b,Y) ),
+    inference(and_intro,[],[a,b]),
+    []).
+
+fof(root2,derived,
+    false,
+    inference(resolution,[],[b,c]),
+    []).

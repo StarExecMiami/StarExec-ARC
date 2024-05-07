@@ -1,0 +1,4 @@
+fof(a,plain,a,
+    inference(outer_rule,[status(thm),outer_rule(discharge,[d1,d2]),
+assumptions([a1,a2,a3])],[p1,
+inference(inner_rule,[status(sab),inner_rule(discharge,[d3,d4]),assumptions([a4,a5])],[ip1,ip2]),p2]) ).

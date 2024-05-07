@@ -1,0 +1,20 @@
+fof(18,axiom,(documentation(physicalQuantity,"&%A PhysicalQuantity is a
+measure of
+some quantifiable aspect of the modeled world, such as 'the earth's
+diameter' (a constant length) and 'the stress in a loaded deformable
+solid' a measure of stress, which is a function of three spatial
+coordinates).  All &%PhysicalQuantities are either &%ConstantQuantities
+or &%FunctionQuantities.  Instances of &%ConstantQuantity are dependent
+on a &%UnitOfMeasure, while instances of &%FunctionQuantity are
+&%Functions that map instances of &%ConstantQuantity to other instances
+of &%ConstantQuantity (e.g., &%TimeDependentQuantities are
+&%FunctionQuantities). Although the name and definition of
+&%PhysicalQuantity is borrowed from physics, &%PhysicalQuantities need
+not be material.  Aside from the dimensions of length, time, velocity,
+etc., nonphysical dimensions such as currency are also possible.
+Accordingly, am
+ounts of money would be instances of &%PhysicalQuantity.
+&%PhysicalQuantities are distinguished from &%Numbers by the fact that the
+former are associated with a
+ dimension of measurement."))).
+
