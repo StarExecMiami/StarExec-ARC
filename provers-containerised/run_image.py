@@ -14,13 +14,24 @@ f"{args.cpu_limit} -W {args.wall_clock_limit}{mem_part}"
 
 def getEnvVars(args):
 
-    return " ".join([f"-e {k}='{v}'" for k, v in [
+    envVars = [
         ("RLR_INPUT_FILE", "/artifacts/CWD/problemfile"),
         ("RLR_CPU_LIMIT", args.cpu_limit),
         ("RLR_WC_LIMIT", args.wall_clock_limit),
         ("RLR_MEM_LIMIT", args.memory_limit),
         ("RLR_INTENT", args.intent),
-    ]])
+    ]
+
+    if "TPTP" in os.environ:
+        envVars.append(("TPTP", "/artifacts/TPTP"))
+
+    return " ".join([f"-e {k}='{v}'" for k, v in envVars])
+
+def TPTPMount():
+    if "TPTP" not in os.environ:
+        return ""
+    return f" -v {os.environ['TPTP']}:/artifacts/TPTP"
+
 
 
 def makeBenchmark(problem):
@@ -54,7 +65,7 @@ help="dry run")
         args.wall_clock_limit = args.cpu_limit
         
 
-    command = f"podman run {getEnvVars(args)} -v .:/artifacts/CWD -t " + \
+    command = f"podman run {getEnvVars(args)} {TPTPMount()} -v .:/artifacts/CWD -t " + \
 f"{args.image_name} {getRLRArgs(args)} run_system"
 
 
