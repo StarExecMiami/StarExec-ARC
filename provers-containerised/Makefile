@@ -18,7 +18,7 @@ provers: eprover leo3 vampire
 #------------------------------------------------------------
 #----Prerequisite targets 
 ubuntu-arc:
-	podman build -t ubuntu-arc .//ubuntu-arc
+	podman build -t ubuntu-arc ./ubuntu-arc
 
 tptp-world: ubuntu-arc
 	podman build -t tptp-world ./tptp-world
