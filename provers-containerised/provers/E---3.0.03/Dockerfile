@@ -2,7 +2,7 @@
 #----To build: podman build -t eprover:3.0.03 .
 FROM ubuntu-arc
 
-#----Clones repository
+#----Clone repository
 ARG E_VERSION=E-3.0.03
 RUN git clone --depth 1 --branch $E_VERSION https://github.com/eprover/eprover.git
 

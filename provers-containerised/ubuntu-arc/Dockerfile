@@ -5,7 +5,7 @@ FROM ubuntu:latest
 
 #----Install gcc, make & co, also GIT
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends build-essential cmake git tcsh python3 wget curl
+    apt-get install -y --no-install-recommends build-essential cmake git tcsh python3 wget curl openjdk-8-jdk
 
 #----Configure GIT to clone repos
 RUN export GIT_SSL_NO_VERIFY=1 && \

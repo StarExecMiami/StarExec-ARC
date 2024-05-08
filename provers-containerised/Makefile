@@ -1,58 +1,60 @@
+#------------------------------------------------------------
 .PHONY: base provers eprover iprover leo3 vampire
 
-# Current versions of each prover as variables:
+#----Current versions of each prover as variables:
 EPROVER_VERSION = 3.0.03
 VAMPIRE_VERSION = 4.8
 LEO3_VERSION = 1.7.0
 
-# High level targets ########################################################
+#------------------------------------------------------------
+#----High level targets 
 all: base provers
 
 base: ubuntu-arc tptp-world
 
-provers: eprover 
-# leo3 vampire
+provers: eprover leo3 vampire
 
-# Prerequisite targets ######################################################
+#------------------------------------------------------------
+#----Prerequisite targets 
 ubuntu-arc:
 	podman build -t ubuntu-arc .//ubuntu-arc
-
-#scala-build:
-#	podman build -t scala-build ./base-build/scala-build
 
 tptp-world: ubuntu-arc
 	podman build -t tptp-world ./tptp-world
 
-#############################################################################
-# Targets for each prover ###################################################
-#############################################################################
+scala-build:
+	podman build -t scala-build ./base-build/scala-build
 
-# Eprover targets: #########################################################
-eprover: ubuntu-arc eprover-RAW eprover-RLR
+#------------------------------------------------------------
+#----Targets for each prover 
 
-eprover-RAW: tptp-world
-	podman build -t eprover:$(EPROVER_VERSION) ./provers/E---$(EPROVER_VERSION)
+#---Eprover targets 
+eprover: eprover-RLR
 
-eprover-RLR: eprover-RAW
+eprover-RLR: eprover-RAW tptp-world
 	podman build -t eprover:$(EPROVER_VERSION)-RLR --build-arg PROVER_IMAGE=eprover:$(EPROVER_VERSION) ./provers
 
-
-# Vampire targets: ###########################################################
-vampire: ubuntu-arc vampire-build vampire-runsolver
-
-vampire-build: 
-	podman build -t vampire-build ./provers/vampire/Vampire---$(VAMPIRE_VERSION)/build
-
-vampire-runsolver: 
-	podman build -t vampire:$(VAMPIRE_VERSION)-runsolver ./provers/vampire/Vampire---runsolver
+eprover-RAW: ubuntu-arc
+	podman build -t eprover:$(EPROVER_VERSION) ./provers/E---$(EPROVER_VERSION)
 
 
-# Leo3 targets: #############################################################
-leo3: leo3-build leo3-runsolver
+#----Vampire targets
+vampire: vampire-RLR
 
-leo3-build: 
-	podman build -t leo3-build ./provers/leo3/Leo-III---$(LEO3_VERSION)/build
+vampire-RLR: vampire-RAW tptp-world
+	podman build -t vampire:$(VAMPIRE_VERSION)-RLR --build-arg PROVER_IMAGE=vampire:$(VAMPIRE_VERSION) ./provers
 
-leo3-runsolver: 
-	podman build -t leo3:$(LEO3_VERSION)-runsolver ./provers/leo3/Leo-III---runsolver
+vampire-RAW: ubuntu-arc
+	podman build -t vampire:$(VAMPIRE_VERSION) ./provers/Vampire---$(VAMPIRE_VERSION)
 
+
+#----Leo3 targets
+leo3: leo3-RLR
+
+leo3-RLR: leo3-RAW tptp-world
+	podman build -t leo3:$(LEO3_VERSION)-RLR --build-arg PROVER_IMAGE=leo3:$(LEO3_VERSION) ./provers
+
+leo3-RAW: 
+	podman build -t leo3:$(LEO3_VERSION) ./provers/Leo-III---$(LEO3_VERSION)
+
+#------------------------------------------------------------

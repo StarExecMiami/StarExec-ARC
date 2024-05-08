@@ -1,10 +1,10 @@
 #!/bin/tcsh
 
-echo "RLR_CPU_LIMIT = $RLR_CPU_LIMIT"
-echo "RLR_WC_LIMIT = $RLR_WC_LIMIT"
-echo "RLR_MEM_LIMIT = $RLR_MEM_LIMIT"
-echo "RLR_INTENT = $RLR_INTENT"
-echo "RLR_INPUT_FILE = $RLR_INPUT_FILE"
+# echo "RLR_CPU_LIMIT = $RLR_CPU_LIMIT"
+# echo "RLR_WC_LIMIT = $RLR_WC_LIMIT"
+# echo "RLR_MEM_LIMIT = $RLR_MEM_LIMIT"
+# echo "RLR_INTENT = $RLR_INTENT"
+# echo "RLR_INPUT_FILE = $RLR_INPUT_FILE"
 
 setenv HERE `dirname $0`
 setenv TEMPDIR `mktemp -d`
