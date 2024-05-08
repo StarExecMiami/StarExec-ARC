@@ -9,6 +9,7 @@ LEO3_VERSION = 1.7.0
 #------------------------------------------------------------
 #----High level targets 
 all: base provers
+	echo "Now try 'run_image.py eprover:3.0.03-RLR -P PUZ001+1.p -C 60'"
 
 base: ubuntu-arc tptp-world
 
