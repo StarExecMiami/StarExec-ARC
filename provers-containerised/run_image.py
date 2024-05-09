@@ -27,9 +27,9 @@ def getEnvVars(args):
     return " ".join([f"-e {k}='{v}'" for k, v in envVars])
 #----------------------------------------------------------------------------------------------------
 def TPTPMount():
-    if "TPTP" not in os.environ:
-        return ""
-    return f" -v {os.environ['TPTP']}:/artifacts/TPTP"
+    if "TPTP" in os.environ:
+        return f" -v {os.environ['TPTP']}:/artifacts/TPTP"
+    return ""
 #----------------------------------------------------------------------------------------------------
 def makeBenchmark(problem):
     if problem:
