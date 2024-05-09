@@ -5,13 +5,12 @@ import subprocess
 import os, sys
 import shutil
 
-
+#----------------------------------------------------------------------------------------------------
 def getRLRArgs(args):
     mem_part = f" -M {args.memory_limit}" if args.memory_limit > 0 else ""
     return "--timestamp --watcher-data /dev/null -C " + \
 f"{args.cpu_limit} -W {args.wall_clock_limit}{mem_part}"
-
-
+#----------------------------------------------------------------------------------------------------
 def getEnvVars(args):
 
     envVars = [
@@ -26,22 +25,19 @@ def getEnvVars(args):
         envVars.append(("TPTP", "/artifacts/TPTP"))
 
     return " ".join([f"-e {k}='{v}'" for k, v in envVars])
-
+#----------------------------------------------------------------------------------------------------
 def TPTPMount():
     if "TPTP" not in os.environ:
         return ""
     return f" -v {os.environ['TPTP']}:/artifacts/TPTP"
-
-
-
+#----------------------------------------------------------------------------------------------------
 def makeBenchmark(problem):
     if problem:
         shutil.copy(problem, "./problemfile")
     else:
         with open('./problemfile', 'w') as problemfile:
             problemfile.write(sys.stdin.read())
-
-
+#----------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Wrapper for a podman call to a prover image")
     parser.add_argument("image_name", 
@@ -60,21 +56,17 @@ help="Intention (THM, SAT, etc), default=THM")
 help="dry run")
     args = parser.parse_args()
 
-
     if args.wall_clock_limit == 0 and args.cpu_limit != 0:
         args.wall_clock_limit = args.cpu_limit
         
-
     command = f"podman run {getEnvVars(args)} {TPTPMount()} -v .:/artifacts/CWD -t " + \
 f"{args.image_name} {getRLRArgs(args)} run_system"
 
-
-    # Run command or print for dry run
+#----Run command or print for dry run
     if args.dry_run:
         print(command)
     else:
         makeBenchmark(args.problem)
         subprocess.run(command, shell=True)
         os.remove("./problemfile")
-    
-
+#----------------------------------------------------------------------------------------------------

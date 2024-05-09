@@ -1,5 +1,5 @@
 #------------------------------------------------------------
-.PHONY: base provers eprover iprover leo3 vampire
+.PHONY: base ubuntu-arc tptp-world provers eprover iprover leo3 vampire
 
 #----Current versions of each prover as variables:
 EPROVER_VERSION = 3.0.03
