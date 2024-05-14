@@ -18,14 +18,13 @@ set Mode = $RLR_INTENT
 if ("$Mode" == "THM") then
     if (`expr "$ProblemSPC" : "TH.*"`) then
         echo "Running higher-order theorem proving"
-        set Command = "$HERE/vampire_rel_static_ahmed-new-hol_6848 --cores 8 --input_syntax tptp --proof tptp --output_axiom_names on --mode portfolio --schedule snake_tptp_hol $PROBLEMFILE -m 12000  -t $RLR_WC_LIMIT"
+        set Command = "$HERE/vampire-ho --cores 8 --input_syntax tptp --proof tptp --output_axiom_names on --mode portfolio --schedule snake_tptp_hol $PROBLEMFILE -m 12000  -t $RLR_WC_LIMIT"
     else
         echo "Running first-order theorem proving"
         set Command = "$HERE/vampire --mode portfolio --schedule snake_tptp_uns -p tptp --output_axiom_names on -m 16384 --cores 7 -t $RLR_WC_LIMIT $PROBLEMFILE"
     endif
 else
     echo "Running first-order model finding"
-    set Command = "$HERE/vampire_z3_rel_static_master_6827 --forced_options bce=off:erd=off:fde=none:updr=off --mode casc_sat -m 16384 --cores 7 -t $RLR_WC_LIMIT $PROBLEMFILE"
     set Command = "$HERE/vampire --mode casc_sat -m 16384 --cores 7 -t $RLR_WC_LIMIT $PROBLEMFILE"
 endif
 

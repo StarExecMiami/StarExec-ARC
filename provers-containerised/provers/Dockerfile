@@ -13,6 +13,9 @@ WORKDIR /artifacts
 # System specific stuff 
 COPY --from=builder /artifacts/* /artifacts/
 
-#ENTRYPOINT ["ResourceLimitedRun"]
+# ADD InstallCGroup.tcsh /artifacts/
+# ADD start_RLR /artifacts/
+# ENTRYPOINT ["start_RLR"]
+
 ENTRYPOINT ["runsolver"]
 #------------------------------------------------------------
