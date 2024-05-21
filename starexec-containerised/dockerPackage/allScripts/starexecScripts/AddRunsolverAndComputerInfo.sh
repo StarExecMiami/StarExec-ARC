@@ -12,11 +12,20 @@ chmod 755 /home/starexec/bin/GetComputerInfo
 
 # cp ../../solverAdditions/runsolver /home/starexec/StarExec-deploy/src/org/starexec/config/sge/
 
-cd /;
-git clone https://github.com/utpalbora/runsolver.git
-cd runsolver/src;
-make -j `nproc`
+# Too old maybe. had unimplemented error.
+# cd /;
+# git clone https://github.com/utpalbora/runsolver.git
+# cd runsolver/src;
+# make -j `nproc`
+# cp runsolver /home/starexec/StarExec-deploy/src/org/starexec/config/sge/
+
+
+sudo apt-get install -y g++-multilib
+cd /home/starexec/StarExec-deploy/src/org/starexec/config/sge/RunSolverSource 
+make clean
+make
 cp runsolver /home/starexec/StarExec-deploy/src/org/starexec/config/sge/
+
 
 
 
