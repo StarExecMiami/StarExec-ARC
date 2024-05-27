@@ -14,8 +14,10 @@ WORKDIR /artifacts
 COPY --from=builder /artifacts/* /artifacts/
 
 # ADD InstallCGroup.tcsh /artifacts/
-# ADD start_RLR /artifacts/
-# ENTRYPOINT ["start_RLR"]
 
-ENTRYPOINT ["runsolver"]
+#----Add GetComputerInfo for headers
+ADD start_RLR /artifacts/
+
+# ENTRYPOINT ["runsolver"]
+ENTRYPOINT ["start_RLR"]
 #------------------------------------------------------------
