@@ -19,8 +19,11 @@ chmod 755 /home/starexec/bin/GetComputerInfo
 # make -j `nproc`
 # cp runsolver /home/starexec/StarExec-deploy/src/org/starexec/config/sge/
 
+# I thought this was necessary, but it breaks for ARM.
+# After removing, I didn't have a problem in x86, so ¯\_(ツ)_/¯
+#sudo apt-get install -y g++-multilib
 
-sudo apt-get install -y g++-multilib
+
 cd /home/starexec/StarExec-deploy/src/org/starexec/config/sge/RunSolverSource 
 make clean
 make
