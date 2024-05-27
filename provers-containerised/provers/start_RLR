@@ -1,0 +1,36 @@
+#!/bin/tcsh
+
+#DEBUG echo "-----------------"
+#DEBUG echo ls -la /sys/fs
+#DEBUG ls -la /sys/fs
+#DEBUG echo "-----------------"
+#DEBUG echo ls -la /sys/fs/cgroup
+#DEBUG ls -la /sys/fs/cgroup
+#DEBUG echo "-----------------"
+
+#NOT WORKING echo InstallCGroup.tcsh
+#NOT WORKING InstallCGroup.tcsh
+#NOT WORKING----Add the control groups
+#NOT WORKING echo "echo '+memory +cpu +cpuset' >> /sys/fs/cgroup/cgroup.subtree_control"
+#NOT WORKING echo '+memory +cpu +cpuset' >> /sys/fs/cgroup/cgroup.subtree_control
+
+#DEBUG echo "-----------------"
+#DEBUG echo cat /sys/fs/cgroup/cgroup.subtree_control
+#DEBUG cat /sys/fs/cgroup/cgroup.subtree_control
+#DEBUG echo "-----------------"
+
+# echo "Running ResourceLimitedRun $argv"
+# ResourceLimitedRun $argv
+
+echo -n "% Computer : " ; uname -n
+echo -n "% Model    : " ; uname -m
+echo -n "% CPU      : " ; uname -p
+echo -n "% Memory   : " ; free -m | grep -m1 "^Mem" | sed -e "s/Mem: *\([0-9]*\).*/\1MB/"
+echo -n "% OS       : " ; uname -rs
+echo -n "% CPULimit : " ; echo "$RLR_CPU_LIMIT"
+echo -n "% WCLimit  : " ; echo "$RLR_WC_LIMIT"
+echo -n "% DateTime : " ; date
+echo "% CPUTime  : "
+
+#DEBUG echo "Running runsolver $argv"
+runsolver $argv
