@@ -25,6 +25,6 @@ sleep 20 # To give some time for servers to start up
 
 cd ~starexec/StarExec-deploy
 
-script/soft-deploy.sh && printf "SUCCESS!!! GO TO YOUR BROWSER AND TYPE IN: localhost:portNumber \nusername: admin \npassword: admin"
+script/soft-deploy.sh && printf "SUCCESS!!! GO IN YOUR BROWSER TO: http://localhost \n\nusername: admin \npassword: admin\n\n"
 
 sleep infinity
