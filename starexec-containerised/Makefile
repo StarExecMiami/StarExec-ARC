@@ -15,15 +15,18 @@ run:
 
 clean:
 	podman rmi -f starexec
-	#podman rm -f $(podman ps -a -q --filter ancestor=starexec)
+
+# kills the container only.
+kill:
+	podman rm -f `podman ps -a -q --filter ancestor=starexec`
+
 
 cleanVolumes:
 	podman volume rm -f volDB volStar volPro volSandbox
 
 
-# Assumes you only have one running container and it's starexec...
 connect:
-	podman exec -it $(shell podman container ls --format "{{.ID}}" | head -n 1) bash
+	podman exec -it `podman ps -a -q --filter ancestor=starexec` bash
 
 
 
