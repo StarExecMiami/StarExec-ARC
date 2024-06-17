@@ -35,6 +35,39 @@ RUN allScripts/starexecScripts/SetupStarexecOverrideProps.sh
 RUN allScripts/starexecScripts/UpdateSudoRules.sh
 RUN allScripts/starexecScripts/AddRunsolverAndComputerInfo.sh
 
+
+##################################################################
+# This section is for supporting sibling containers for          #
+# starexec jobs to be running containerized provers.             #
+##################################################################
+
+# Update packages and install Podman and SSH client
+RUN apt-get update && \
+    apt-get install -y podman openssh-client
+
+# Copy the SSH private key and set permissions
+COPY starexec_podman_key /root/.ssh/starexec_podman_key
+RUN chmod 600 /root/.ssh/starexec_podman_key
+
+# Configure SSH to use the mounted key and to accept new host keys
+RUN echo "StrictHostKeyChecking accept-new" >> /etc/ssh/ssh_config
+RUN usermod --add-subuids 100000-165535 --add-subgids 100000-165535 root
+
+# Define arguments with default values
+ARG SSH_USERNAME
+ARG SSH_PORT=22
+ARG HOST_MACHINE=localhost
+ARG SOCKET_PATH=/run/user/1000/podman/podman.sock
+
+# Set up Podman remote connection using the provided ARGs
+RUN podman system connection add outside \
+    ssh://${SSH_USERNAME}@${HOST_MACHINE}:${SSH_PORT}${SOCKET_PATH} \
+    --identity=/root/.ssh/starexec_podman_key
+
+
+####################################################################
+
+
 # Run container build scripts
 ADD --chmod=0755 ./dockerPackage/allScripts/dockerScripts ./allScripts/dockerScripts
 RUN allScripts/dockerScripts/DockerAppBuild.sh

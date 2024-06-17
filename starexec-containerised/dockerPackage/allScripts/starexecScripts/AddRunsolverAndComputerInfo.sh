@@ -23,13 +23,15 @@ chmod 755 /home/starexec/bin/GetComputerInfo
 # After removing, I didn't have a problem in x86, so ¯\_(ツ)_/¯
 #sudo apt-get install -y g++-multilib
 
-
 cd /home/starexec/StarExec-deploy/src/org/starexec/config/sge/RunSolverSource 
 make clean
 make
 cp runsolver /home/starexec/StarExec-deploy/src/org/starexec/config/sge/
 
 
-
+# Now let's add run_image.py so we can use it if we want to run prover images...
+# https://github.com/StarExecMiami/StarExec-ARC/blob/master/provers-containerised/run_image.py
+# wget https://raw.githubusercontent.com/StarExecMiami/StarExec-ARC/master/provers-containerised/run_image.py -O /home/starexec/StarExec-deploy/src/org/starexec/config/sge/run_image.py
+# Nevermind, We'll just package this with the dummy-prover image.
 
 

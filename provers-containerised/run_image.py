@@ -7,14 +7,28 @@ import shutil
 
 #----------------------------------------------------------------------------------------------------
 def getRLRArgs(args):
-    mem_part = f" -M {args.memory_limit}" if args.memory_limit > 0 else ""
-    return "--timestamp --watcher-data /dev/null -C " + \
-f"{args.cpu_limit} -W {args.wall_clock_limit}{mem_part}"
+    sandbox = "sandbox" if args.starexec == 1 else "sandbox2"
+
+    paths_part = f"--watcher-data /dev/null"
+    if args.starexec:
+        paths_part = f" --add-eof --watcher-data /export/starexec/{sandbox}/output/watcher.out" + \
+                     f" -o /export/starexec/{sandbox}/output/stdout.txt" + \
+                     f" -v /export/starexec/{sandbox}/output/var.out"
+
+    cpu_part = f"-C {args.cpu_limit} -W {args.wall_clock_limit}"
+    mem_part = f"-M {args.memory_limit}" if args.memory_limit > 0 else ""
+    return f"--timestamp {paths_part} {cpu_part} {mem_part}"
 #----------------------------------------------------------------------------------------------------
 def getEnvVars(args):
 
+    sandbox = "sandbox" if args.starexec == 1 else "sandbox2"
+    if args.starexec:
+        input_file = f"/export/starexec/{sandbox}/benchmark/theBenchmark.p"
+    else:
+        input_file = "/artifacts/CWD/problemfile"
+
     envVars = [
-        ("RLR_INPUT_FILE", "/artifacts/CWD/problemfile"),
+        ("RLR_INPUT_FILE", input_file),
         ("RLR_CPU_LIMIT", args.cpu_limit),
         ("RLR_WC_LIMIT", args.wall_clock_limit),
         ("RLR_MEM_LIMIT", args.memory_limit),
@@ -54,13 +68,46 @@ help="Memory limit in MiB, default=none")
 help="Intention (THM, SAT, etc), default=THM")
     parser.add_argument("--dry-run", action="store_true", 
 help="dry run")
+
+    parser.add_argument("-s", "--starexec", type=int, default=0, 
+help="""This is for using run_image.py from inside a container
+in the host machine. This is done using the -r -c flags in podman.
+(see starexec-dummy-provers)
+the arg here will be the sandbox number
+
+The problem must be made available to the prover container as well.
+This can't be done simply using the -v flag as normal,
+because the problem file isn't on the host, where podman expects
+the volumes when using "-r"
+
+Instead, we can assume that that run_image.py is running in
+a container that uses a volume. That volume is then mounted inside
+the prover container as well.
+
+By convention, we can use the volExport from starexec
+
+This involves the following work:
+    1. replacing "-v .:/artifacts/CWD" with "-v volExport:/export"
+    2. replacing "/artifacts/CWD/problemfile" in getEnvVars() with "/export/starexec/sandbox{i}/benchmark/theBenchmark.p"
+    3. adding "-r -c outside"
+    4. telling runsolver / RLR to output to /export/starexec/sandbox{i}/output/stdout.txt
+
+""")
+    
     args = parser.parse_args()
 
     if args.wall_clock_limit == 0 and args.cpu_limit != 0:
         args.wall_clock_limit = args.cpu_limit
-        
-    command = f"podman run {getEnvVars(args)} {TPTPMount()} -v .:/artifacts/CWD -t " + \
-f"{args.image_name} {getRLRArgs(args)} run_system"
+    
+    if args.starexec:
+        volumes = f"-v volExport:/export"
+        remote = "-r -c outside"
+    else:
+        volumes = "-v .:/artifacts/CWD"
+        remote = ""
+
+    command = f"podman {remote} run {getEnvVars(args)} {TPTPMount()} {volumes} " + \
+f"-t {args.image_name} {getRLRArgs(args)} run_system"
 
 #----Run command or print for dry run
     if args.dry_run:
@@ -70,3 +117,4 @@ f"{args.image_name} {getRLRArgs(args)} run_system"
         subprocess.run(command, shell=True)
         os.remove("./problemfile")
 #----------------------------------------------------------------------------------------------------
+
