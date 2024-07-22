@@ -35,6 +35,36 @@ RUN allScripts/starexecScripts/SetupStarexecOverrideProps.sh
 RUN allScripts/starexecScripts/UpdateSudoRules.sh
 RUN allScripts/starexecScripts/AddRunsolverAndComputerInfo.sh
 
+
+##################################################################
+# This section is for supporting sibling containers for          #
+# starexec jobs to be running containerized provers.             #
+##################################################################
+
+# Update packages and install Podman and SSH client
+RUN apt-get update && \
+    apt-get install -y podman openssh-client
+
+# Configure SSH to use the mounted key and to accept new host keys
+RUN echo "StrictHostKeyChecking accept-new" >> /etc/ssh/ssh_config
+RUN usermod --add-subuids 100000-165535 --add-subgids 100000-165535 root
+
+# kubectl is installed in case the container is running in k8s
+# and needs to use the k8s backend for starexec...
+# curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+# or for arm:
+# curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl"
+RUN if [ "$(uname -m)" = "x86_64" ]; then \
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"; \
+    else \
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl"; \
+    fi
+RUN chmod +x ./kubectl
+RUN sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+####################################################################
+
+
 # Run container build scripts
 ADD --chmod=0755 ./dockerPackage/allScripts/dockerScripts ./allScripts/dockerScripts
 RUN allScripts/dockerScripts/DockerAppBuild.sh

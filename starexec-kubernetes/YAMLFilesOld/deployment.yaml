@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: volume-init-script
+data:
+  init.sh: |
+    #!/bin/bash
+    directories=("/var/lib/mysql" "/home/starexec" "/home/sandbox" "/project")
+    for dir in "${directories[@]}"; do
+    if [ "$(ls -A ${dir}-init)" ]; then
+        echo "Volume ${dir} is already initialized."
+    else
+        echo "Volume ${dir} is empty. Copying data."
+        cp -a ${dir}/. ${dir}-init/
+    fi
+    done
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: starexec-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: starexec
+  template:
+    metadata:
+      labels:
+        app: starexec
+    spec:
+      initContainers:
+      - name: init-volume
+        image: public.ecr.aws/o3t8t9c0/starexec:latest
+        command: ["/bin/bash", "/etc/scripts/init.sh"]
+        volumeMounts:
+        - name: scripts
+          mountPath: /etc/scripts
+        - name: vol-db
+          mountPath: /var/lib/mysql-init
+        - name: vol-star
+          mountPath: /home/starexec-init
+        - name: vol-pro
+          mountPath: /project-init
+        - name: vol-sandbox
+          mountPath: /home/sandbox-init
+      containers:
+      - name: starexec
+        image: public.ecr.aws/o3t8t9c0/starexec:latest
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        volumeMounts:
+        - name: vol-db
+          mountPath: /var/lib/mysql
+        - name: vol-star
+          mountPath: /home/starexec
+        - name: vol-pro
+          mountPath: /project
+        - name: vol-sandbox
+          mountPath: /home/sandbox
+      volumes:
+      - name: scripts
+        configMap:
+          name: volume-init-script
+      - name: vol-db
+        persistentVolumeClaim:
+          claimName: db-claim
+      - name: vol-star
+        persistentVolumeClaim:
+          claimName: star-claim
+      - name: vol-pro
+        persistentVolumeClaim:
+          claimName: pro-claim
+      - name: vol-sandbox
+        persistentVolumeClaim:
+          claimName: sandbox-claim

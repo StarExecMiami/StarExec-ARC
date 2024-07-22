@@ -45,6 +45,7 @@ def TPTPMount():
         return f" -v {os.environ['TPTP']}:/artifacts/TPTP"
     return ""
 #----------------------------------------------------------------------------------------------------
+# This is not used when using --starexec
 def makeBenchmark(problem):
     if problem:
         shutil.copy(problem, "./problemfile")
@@ -70,15 +71,16 @@ help="Intention (THM, SAT, etc), default=THM")
 help="dry run")
 
     parser.add_argument("-s", "--starexec", type=int, default=0, 
-help="""This is for using run_image.py from inside a container
-in the host machine. This is done using the -r -c flags in podman.
+help="""This is for using run_image.py from inside a 
+containerized starexec instance. 
+This is done using the --remote and --connection flags in podman.
 (see starexec-dummy-provers)
 the arg here will be the sandbox number
 
 The problem must be made available to the prover container as well.
 This can't be done simply using the -v flag as normal,
 because the problem file isn't on the host, where podman expects
-the volumes when using "-r"
+the volumes when using "--remote"
 
 Instead, we can assume that that run_image.py is running in
 a container that uses a volume. That volume is then mounted inside
@@ -89,7 +91,7 @@ By convention, we can use the volExport from starexec
 This involves the following work:
     1. replacing "-v .:/artifacts/CWD" with "-v volExport:/export"
     2. replacing "/artifacts/CWD/problemfile" in getEnvVars() with "/export/starexec/sandbox{i}/benchmark/theBenchmark.p"
-    3. adding "-r -c outside"
+    3. adding "--remote --connection host-machine-podman-connection"
     4. telling runsolver / RLR to output to /export/starexec/sandbox{i}/output/stdout.txt
 
 """)
@@ -101,7 +103,7 @@ This involves the following work:
     
     if args.starexec:
         volumes = f"-v volExport:/export"
-        remote = "-r -c outside"
+        remote = "--remote --connection host-machine-podman-connection"
     else:
         volumes = "-v .:/artifacts/CWD"
         remote = ""

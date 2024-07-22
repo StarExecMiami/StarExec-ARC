@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: voldb
+spec:
+  selector:
+    matchLabels:
+      app: starexec
+      volume: voldb
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: volstar
+spec:
+  selector:
+    matchLabels:
+      app: starexec
+      volume: volstar
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: volpro
+spec:
+  selector:
+    matchLabels:
+      app: starexec
+      volume: volpro
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: volexport
+spec:
+  selector:
+    matchLabels:
+      app: starexec
+      volume: volexport
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi

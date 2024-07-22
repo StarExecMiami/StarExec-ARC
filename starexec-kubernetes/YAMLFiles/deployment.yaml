@@ -1,20 +1,3 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: volume-init-script
-data:
-  init.sh: |
-    #!/bin/bash
-    directories=("/var/lib/mysql" "/home/starexec" "/home/sandbox" "/project")
-    for dir in "${directories[@]}"; do
-    if [ "$(ls -A ${dir}-init)" ]; then
-        echo "Volume ${dir} is already initialized."
-    else
-        echo "Volume ${dir} is empty. Copying data."
-        cp -a ${dir}/. ${dir}-init/
-    fi
-    done
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -29,24 +12,31 @@ spec:
       labels:
         app: starexec
     spec:
+      serviceAccountName: starexec-headnode
       initContainers:
       - name: init-volume
-        image: public.ecr.aws/o3t8t9c0/starexec:latest
-        command: ["/bin/bash", "/etc/scripts/init.sh"]
+        image: tptpstarexec/starexec:latest
+        command:
+          - sh
+          - -c
+          - >
+            if [ "$(ls -A /mnt/vol-db)" ]; then echo "vol-db is not empty"; else cp -r /var/lib/mysql/* /mnt/vol-db/; fi &&
+            if [ "$(ls -A /mnt/vol-star)" ]; then echo "vol-star is not empty"; else cp -r /home/starexec/* /mnt/vol-star/; fi &&
+            if [ "$(ls -A /mnt/vol-pro)" ]; then echo "vol-pro is not empty"; else cp -r /project/* /mnt/vol-pro/; fi &&
+            if [ "$(ls -A /mnt/vol-export)" ]; then echo "vol-export is not empty"; else cp -r /export/* /mnt/vol-export/; fi &&
+            chown -R root:root /mnt/vol-db /mnt/vol-star /mnt/vol-pro /mnt/vol-export
         volumeMounts:
-        - name: scripts
-          mountPath: /etc/scripts
         - name: vol-db
-          mountPath: /var/lib/mysql-init
+          mountPath: /mnt/vol-db
         - name: vol-star
-          mountPath: /home/starexec-init
+          mountPath: /mnt/vol-star
         - name: vol-pro
-          mountPath: /project-init
-        - name: vol-sandbox
-          mountPath: /home/sandbox-init
+          mountPath: /mnt/vol-pro
+        - name: vol-export
+          mountPath: /mnt/vol-export
       containers:
       - name: starexec
-        image: public.ecr.aws/o3t8t9c0/starexec:latest
+        image: tptpstarexec/starexec:latest
         ports:
         - containerPort: 80
         - containerPort: 443
@@ -57,21 +47,45 @@ spec:
           mountPath: /home/starexec
         - name: vol-pro
           mountPath: /project
-        - name: vol-sandbox
-          mountPath: /home/sandbox
+        - name: vol-export
+          mountPath: /export
+        - name: ssh-key
+          mountPath: /root/.ssh/starexec_podman_key
+          # subPath: starexec_podman_key
+        env:
+        - name: SSH_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: starexec-config
+              key: SSH_USERNAME
+        - name: HOST_MACHINE
+          valueFrom:
+            configMapKeyRef:
+              name: starexec-config
+              key: HOST_MACHINE
+        - name: SSH_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: starexec-config
+              key: SSH_PORT
+        - name: SSH_SOCKET_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: starexec-config
+              key: SSH_SOCKET_PATH
       volumes:
-      - name: scripts
-        configMap:
-          name: volume-init-script
       - name: vol-db
         persistentVolumeClaim:
-          claimName: db-claim
+          claimName: voldb
       - name: vol-star
         persistentVolumeClaim:
-          claimName: star-claim
+          claimName: volstar
       - name: vol-pro
         persistentVolumeClaim:
-          claimName: pro-claim
-      - name: vol-sandbox
+          claimName: volpro
+      - name: vol-export
         persistentVolumeClaim:
-          claimName: sandbox-claim
+          claimName: volexport
+      - name: ssh-key
+        secret:
+          secretName: starexec-ssh-key

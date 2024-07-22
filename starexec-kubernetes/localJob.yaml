@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: k8s-starexec-job-e-546515904
+spec:
+  template:
+    spec:
+      containers:
+      - name: k8s-starexec-job-e-546515904-container
+        image: tptpstarexec/eprover:3.0.03-RLR-amd64
+        # command: [ "start_RLR" ]
+        command: [ "sleep", "3600" ] # so I can attach
+        workingDir: /artifacts
+        # args: 
+        # - "--timestamp"
+        # - "--add-eof"
+        # - "--watcher-data"
+        # - "/tmp/watcher.out"
+        # - "-o"
+        # - "/tmp/stdout.txt"
+        # - "-v"
+        # - "/tmp/var.out"
+        # - "-C"
+        # - "30"
+        # - "-W"
+        # - "30"
+        # - "run_system"
+
+        env:
+        - name: PATH
+          value: "/artifacts:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        - name: RLR_INPUT_FILE
+          value: "/export/starexec/sandbox/benchmark/theBenchmark.p"
+        - name: RLR_CPU_LIMIT
+          value: "30"
+        - name: RLR_WC_LIMIT
+          value: "30"
+        - name: RLR_MEM_LIMIT
+          value: "100"
+        - name: RLR_INTENT
+          value: "THM"
+
+        volumeMounts:
+        - name: volexport
+          mountPath: /export
+        
+      restartPolicy: Never
+
+      volumes:
+      - name: volexport
+        persistentVolumeClaim:
+          claimName: volexport
+  backoffLimit: 4
+
+
+
+################################################################################
