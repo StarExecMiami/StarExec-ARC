@@ -8,3 +8,10 @@ with special args to run a prover container in the host.
 4. The dummy prover is uploaded to the starexec using the web interface.
 5. The dummy prover can be used to run the corresponding previously-installed containerized prover in the host.
 
+
+---
+## Example Usage:
+```bash
+python make_dummy.py docker.io/tptpstarexec/eprover:3.0.03-RLR-amd64 dummy_k8s_eprover --k8s
+```
+
