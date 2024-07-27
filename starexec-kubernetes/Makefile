@@ -10,9 +10,6 @@ apply:
 
 	microk8s kubectl create secret generic starexec-ssh-key --from-file=starexec_ssh_key=../starexec-containerised/starexec_podman_key -n default; \
 
-	# microk8s kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
-
-
 
 connect:
 	microk8s kubectl exec -it $$(microk8s kubectl get pods --selector=app=starexec -o jsonpath='{.items[0].metadata.name}') -- /bin/bash

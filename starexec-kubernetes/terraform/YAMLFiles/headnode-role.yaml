@@ -1,0 +1,12 @@
+# Permissions for the head node to run stuff on the cluster.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: starexec-headnode-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/log", "pods/exec"]
+  verbs: ["get", "list", "watch", "create", "delete", "update"]
+- apiGroups: ["batch"]
+  resources: ["jobs"]
+  verbs: ["get", "list", "watch", "create", "delete", "update"]

@@ -1,4 +1,4 @@
-# StarExec-ARC (Automated Reasoning Containerisation)
+# StarExec-ARC <br>(Automated Reasoning Containerisation)
 ### This folder contains code for the containerization of Automated Theorem Provering (ATP) systems. It also contains code for the deployment of these ATP containers within a containerized StarExec (in podman, or kubernettes using microk8s or Amazon EKS).
 https://www.eprover.org/EVENTS/IWIL-2024/IWIL-24-Preproceedings.pdf
 
