@@ -48,6 +48,21 @@ module "vpc" {
   }
 }
 
+
+
+
+data "external" "max_nodes" {
+  program = ["bash", "./configuration_json_wrapper.sh", "maxNodes"]
+}
+
+data "external" "desired_nodes" {
+  program = ["bash", "./configuration_json_wrapper.sh", "desiredNodes"]
+}
+
+data "external" "instance_type" {
+  program = ["bash", "./configuration_json_wrapper.sh", "instanceType"]
+}
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.8.5"
@@ -73,13 +88,12 @@ module "eks" {
 
   eks_managed_node_groups = {
     one = {
-      name = "node-group-1"
+      name = "everything"
 
-      instance_types = ["t3.small"]
-
+      instance_types = [data.external.instance_type.result.value]
       min_size     = 1
-      max_size     = 3
-      desired_size = 2
+      max_size     = tonumber(data.external.max_nodes.result.value)
+      desired_size = tonumber(data.external.desired_nodes.result.value)
     }
   }
 }

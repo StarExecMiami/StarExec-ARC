@@ -74,7 +74,7 @@ help="dry run")
 help="""This is for using run_image.py from inside a 
 containerized starexec instance. 
 This is done using the --remote and --connection flags in podman.
-(see starexec-dummy-provers)
+(see starexec-proxy-provers)
 the arg here will be the sandbox number
 
 The problem must be made available to the prover container as well.

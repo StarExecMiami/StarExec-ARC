@@ -85,13 +85,14 @@ help="dry run")
         subprocess.run(command, shell=True)
 
         # need to wait for the job to finish
-        subprocess.run(f"kubectl wait --for=condition=complete job/{job_name} --timeout={args.wall_clock_limit}s", shell=True)
+        # subprocess.run(f"kubectl wait --for=condition=complete job/{job_name} --timeout={args.wall_clock_limit}s", shell=True)
 
-        # The above doesn't work, because the job takes a long time (as expected) when it needs to download the image.
-        # instead, we need to wait for the job to finish
-        # it could finish successfully or with a variety of errors:
+        # don't assume that the job is complete when the timeout is reached:
+        # subprocess.run(f"kubectl wait --for=condition=complete job/{job_name}", shell=True)
 
-        
+
+
+
 
 
 #----------------------------------------------------------------------------------------------------

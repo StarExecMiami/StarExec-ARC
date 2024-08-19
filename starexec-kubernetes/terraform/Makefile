@@ -1,15 +1,51 @@
 # make sure shell is bash, since I normally use fish:
 SHELL = bash
 
+domain := $(shell ./configuration.sh domain)
+
+
 default:
-	echo "1. create-cluster, 2. kubectl-setup, 3. populate-cluster, 4. info, 5. connect, 6. clean"
+	echo "1. create-cluster, 2. kubectl-setup, 3. populate-cluster, 4. info, 5. reconfig_starexec, 6. connect"
+
+
+
+
+reconfig-starexec:
+	@echo "Finding running pod for starexec-deployment..."
+	@POD_NAME=$$(kubectl get pods --selector=app=starexec -o jsonpath='{.items[0].metadata.name}'); \
+	if [ -z "$$POD_NAME" ]; then \
+		echo "No pod found for starexec-deployment"; \
+		exit 1; \
+	fi; \
+	echo "Pod found: $$POD_NAME"; \
+	echo "External IP for starexec-service: $(domain)"; \
+	echo "Executing reconfig script in the pod with domain $(domain)..."; \
+	kubectl cp reconfig_starexec.sh $$POD_NAME:/tmp/reconfig_starexec.sh; \
+	kubectl exec $$POD_NAME -- /bin/sh -c "chmod +x /tmp/reconfig_starexec.sh && /tmp/reconfig_starexec.sh $(domain)"
+
+
+get-certificate:
+	@echo "Finding running pod for starexec-deployment..."
+	@POD_NAME=$$(kubectl get pods --selector=app=starexec -o jsonpath='{.items[0].metadata.name}'); \
+	if [ -z "$$POD_NAME" ]; then \
+		echo "No pod found for starexec-deployment"; \
+		exit 1; \
+	fi; \
+	echo "Pod found: $$POD_NAME"; \
+	echo "External IP for starexec-service: $(domain)"; \
+	echo "Executing get-certificate script in the pod with domain $(domain)..."; \
+	kubectl cp get_certificate.sh $$POD_NAME:/tmp/get_certificate.sh; \
+	kubectl exec $$POD_NAME -- /bin/sh -c "chmod +x /tmp/get_certificate.sh && /tmp/get_certificate.sh $(domain)"
+
+
+
+
 
 ######################
 #     Kubernetes     #
 ######################
 
 populate-cluster:
-
 	export EFS_ID=$$(terraform output -raw efs_file_system_id) && \
 	export VOLDB_LABEL=$$(terraform output -raw efs_voldb_access_point_id) && \
 	export VOLSTAR_LABEL=$$(terraform output -raw efs_volstar_access_point_id) && \
@@ -43,12 +79,12 @@ info:
 
 # Creates EKS infrastructure
 create-cluster:
-	terraform apply -target=module.vpc
-	terraform apply
+	terraform apply -target=module.vpc -auto-approve
+	terraform apply -auto-approve
 
 # Destroys EKS infrastructure
 destroy:
-	terraform destroy
+	terraform destroy -auto-approve
 
 # Show what *will* be created with "terraform apply" (or make create-cluster)
 plan:

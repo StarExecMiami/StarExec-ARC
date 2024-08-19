@@ -1,17 +1,17 @@
 import argparse
 import os, shutil
 
-def makeDummyProver(prover, archiveName, k8s):
+def makeProxyProver(prover, archiveName, local):
     
     os.makedirs("parent/bin", exist_ok=True)
 
     # the starexec runscript checks for these files to know what to do 
     # (instead of running starexec_run_{archiveName}, 
     # like the local backend would normally do)
-    if k8s:
-        shutil.copy("../starexec-kubernetes/run_image_k8s.py", "parent/bin/run_image_k8s.py")
-    else:
+    if local:
         shutil.copy("../provers-containerised/run_image.py", "parent/bin/run_image.py")
+    else:
+        shutil.copy("../starexec-kubernetes/run_image_k8s.py", "parent/bin/run_image_k8s.py")
 
     with open(f"parent/bin/prover.txt", "w") as f:
         f.write(prover)
@@ -20,7 +20,7 @@ def makeDummyProver(prover, archiveName, k8s):
     
     # Despite not being used, there needs to be a "configuration..."
     with open(f"parent/bin/starexec_run_{archiveName}", "w") as f:
-        f.write("dummy\n")
+        f.write("proxy\n")
     
     
     shutil.make_archive(archiveName, 'gztar', 'parent')
@@ -29,10 +29,10 @@ def makeDummyProver(prover, archiveName, k8s):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("prover", help="The name:tag of a podman image existing in the host where the dummy prover will be run.")
-    parser.add_argument("archiveName", help="The name of the archive/dummy_prover to be created.")
-    parser.add_argument("--k8s", action="store_true", help="If set, the dummy prover will use kubectl with a templated job.yaml file instead of using podman directly.")
+    parser.add_argument("prover", help="The name:tag of a podman image existing in the host where the proxy prover will be run.")
+    parser.add_argument("archiveName", help="The name of the archive/proxy prover to be created.")
+    parser.add_argument("--local", action="store_true", help="If set, the proxy prover will NOT use kubectl with a templated job.yaml file, instead it'll invoke podman directly.")
     args = parser.parse_args()
 
-    makeDummyProver(args.prover, args.archiveName, args.k8s)
+    makeProxyProver(args.prover, args.archiveName, args.local)
 
