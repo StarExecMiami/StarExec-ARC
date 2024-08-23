@@ -12,6 +12,9 @@ spec:
       labels:
         app: starexec
     spec:
+      nodeSelector:
+        nodegroup: headnode
+        
       serviceAccountName: starexec-headnode
       initContainers:
       - name: init-volume

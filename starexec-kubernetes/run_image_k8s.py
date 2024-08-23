@@ -1,11 +1,43 @@
 #!/usr/bin/env python3
 
 import argparse
-import subprocess
-import os, sys
-import shutil
-import subprocess
+import subprocess, json, time, os
 from random import randint
+
+def wait_for_job_completion(job_name, namespace='default', timeout=None):
+    start_time = time.time()
+    
+    while True:
+        # Get job status
+        result = subprocess.run(
+            f"kubectl get job {job_name} -n {namespace} -o json",
+            shell=True,
+            capture_output=True,
+            text=True
+        )
+        
+        # Parse the JSON output
+        job_status = json.loads(result.stdout)
+        
+        # Check for completion or failure
+        conditions = job_status.get('status', {}).get('conditions', [])
+        for condition in conditions:
+            if condition['type'] == 'Complete' and condition['status'] == 'True':
+                print("Job completed successfully.")
+                return True
+            elif condition['type'] == 'Failed' and condition['status'] == 'True':
+                print("Job failed.")
+                return False
+
+        # Check for timeout
+        if timeout is not None and (time.time() - start_time) > timeout:
+            print("Timeout reached while waiting for job completion.")
+            return False
+
+        # Sleep for a while before checking again
+        time.sleep(1)
+
+
 
 # Template params: (see job_jinja.yaml)
 #   - name: the name of the job
@@ -84,15 +116,10 @@ help="dry run")
         
         subprocess.run(command, shell=True)
 
-        # need to wait for the job to finish
-        # subprocess.run(f"kubectl wait --for=condition=complete job/{job_name} --timeout={args.wall_clock_limit}s", shell=True)
-
-        # don't assume that the job is complete when the timeout is reached:
-        # subprocess.run(f"kubectl wait --for=condition=complete job/{job_name}", shell=True)
-
-
-
-
+        # Should never be reached, but just in case...
+        # The job could be "waiting for an available node" because of the nodeAffinity stuff.
+        OneHour = 3600
+        wait_for_job_completion(job_name, timeout=12*OneHour) 
 
 
 #----------------------------------------------------------------------------------------------------

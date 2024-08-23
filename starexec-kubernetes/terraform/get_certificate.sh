@@ -32,8 +32,8 @@ fi
 ########################################################################################
 # 2.) edit auto generated starexec-le-ssl.conf file to point to redirect to tomcat     #
 ########################################################################################
-sed -i '23i\
+sed -i '/<\/VirtualHost>/i \
 ProxyPass /starexec http://localhost:8080/starexec\n\
-ProxyPassReverse /starexec http://localhost:8080/starexec' /etc/apache2/sites-enabled/starexec-le-ssl.conf
+ProxyPassReverse /starexec http://localhost:8080/starexec\n' /etc/apache2/sites-enabled/starexec-le-ssl.conf
 
 service apache2 restart

@@ -5,7 +5,11 @@ domain := $(shell ./configuration.sh domain)
 
 
 default:
-	echo "1. create-cluster, 2. kubectl-setup, 3. populate-cluster, 4. info, 5. reconfig_starexec, 6. connect"
+	echo "1. create-cluster, 2. kubectl-setup, 3. populate-cluster"
+	make create-cluster kubectl-setup populate-cluster
+
+	echo "Getting certificate and reconfiguring starexec (java ant build config)"
+	make reconfig-starexec get-certificate
 
 
 
@@ -38,6 +42,36 @@ get-certificate:
 	kubectl exec $$POD_NAME -- /bin/sh -c "chmod +x /tmp/get_certificate.sh && /tmp/get_certificate.sh $(domain)"
 
 
+# Untested...
+forward-domain-route53:
+	@echo "Fetching external domain name from EKS service..."
+	# Using default namespace and the service name starexec-service
+	EXTERNAL_DOMAIN=$(shell kubectl get svc starexec-service -n default -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+	@echo "External domain: $$EXTERNAL_DOMAIN"
+	
+	@echo "Fetching hosted zone ID from Route 53..."
+	# Assuming ./configuration.sh domain returns a domain name registered with Route 53, e.g., example.com
+	HOSTED_ZONE_ID=$(shell aws route53 list-hosted-zones-by-name --dns-name $$domain --query "HostedZones[?Name=='$$domain.'].Id" --output text | cut -d'/' -f3)
+	@echo "Hosted zone ID: $$HOSTED_ZONE_ID"
+	
+	@echo "Updating Route 53 DNS record..."
+	aws route53 change-resource-record-sets --hosted-zone-id $$HOSTED_ZONE_ID --change-batch '{
+	  "Changes": [{
+	    "Action": "UPSERT",
+	    "ResourceRecordSet": {
+	      "Name": "$$domain",  # Use the domain obtained from the configuration script
+	      "Type": "CNAME",
+	      "TTL": 300,
+	      "ResourceRecords": [{
+	        "Value": "'"$$EXTERNAL_DOMAIN"'"
+	      }]
+	    }
+	  }]
+	}'
+	@echo "DNS update initiated."
+
+
+
 
 
 
@@ -45,7 +79,33 @@ get-certificate:
 #     Kubernetes     #
 ######################
 
-populate-cluster:
+
+label-nodes:
+	# Label compute nodes
+	for node in $$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}'); do \
+		if kubectl get node $$node -o jsonpath='{.metadata.labels.eks\.amazonaws\.com/nodegroup}' | grep -q "computenodes"; then \
+			echo "Labeling compute node: $$node"; \
+			kubectl label nodes $$node nodegroup=computenodes --overwrite; \
+		fi; \
+	done
+
+	# Label head node
+	for node in $$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}'); do \
+		if kubectl get node $$node -o jsonpath='{.metadata.labels.eks\.amazonaws\.com/nodegroup}' | grep -q "headnode"; then \
+			echo "Labeling head node: $$node"; \
+			kubectl label nodes $$node nodegroup=headnode --overwrite; \
+		fi; \
+	done
+
+	# Verify labeling
+	@echo "Verifying labels:"
+	@kubectl get nodes -L nodegroup
+
+
+
+	
+
+populate-cluster: label-nodes
 	export EFS_ID=$$(terraform output -raw efs_file_system_id) && \
 	export VOLDB_LABEL=$$(terraform output -raw efs_voldb_access_point_id) && \
 	export VOLSTAR_LABEL=$$(terraform output -raw efs_volstar_access_point_id) && \

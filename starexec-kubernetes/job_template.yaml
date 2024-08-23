@@ -23,14 +23,27 @@
 # -W 0 \
 # run_system
 
-
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ name }}
 spec:
   template:
+    metadata:
+      labels:
+        job-type: single-job-type
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  job-type: single-job-type
+              topologyKey: "kubernetes.io/hostname"
+
+      nodeSelector:
+        nodegroup: computenodes
+
       containers:
       - name: {{ name }}-container
         image: {{ image }}
@@ -75,4 +88,3 @@ spec:
         persistentVolumeClaim:
           claimName: volexport
   backoffLimit: 4
-

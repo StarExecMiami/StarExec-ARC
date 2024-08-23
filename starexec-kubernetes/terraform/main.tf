@@ -87,13 +87,22 @@ module "eks" {
   }
 
   eks_managed_node_groups = {
-    one = {
-      name = "everything"
+    computenodes = {
+      name = "computenodes"
 
       instance_types = [data.external.instance_type.result.value]
       min_size     = 1
       max_size     = tonumber(data.external.max_nodes.result.value)
       desired_size = tonumber(data.external.desired_nodes.result.value)
+    }
+    
+    headnode = {
+      name = "headnode"
+
+      instance_types = [data.external.instance_type.result.value]
+      min_size     = 1
+      max_size     = 1
+      desired_size = 1
     }
   }
 }
