@@ -8,8 +8,8 @@ default:
 	echo "1. create-cluster, 2. kubectl-setup, 3. populate-cluster"
 	make create-cluster kubectl-setup populate-cluster
 
-	echo "Getting certificate and reconfiguring starexec (java ant build config)"
-	make reconfig-starexec get-certificate
+	# echo "Getting certificate and reconfiguring starexec (java ant build config)"
+	# make reconfig-starexec get-certificate
 
 
 
