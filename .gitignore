@@ -8,6 +8,7 @@ starexec-kubernetes/terraform/YAMLFiles/storage.yaml
 starexec-kubernetes/terraform/ssh-keys
 starexec-kubernetes/terraform/.terraform
 starexec-kubernetes/terraform/.terraform*
-starexec-kubernetes/terraform/terraform.tfstate
 starexec-kubernetes/terraform/terraform.backup
+starexec-kubernetes/terraform/terraform.tfstate
+starexec-kubernetes/terraform/terraform.tfstate.backup
 
