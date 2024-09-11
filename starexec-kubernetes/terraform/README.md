@@ -13,13 +13,13 @@
         - check with `kubectl version`
 
 1. Edit `configuration.sh` to set your domain name, number of nodes, etc.
-2. Run ```make```, which does:
+2. Run ```make```, which does (you might need to run `make init` first):
     - ```make create-cluster```: Creates the EKS cluster using terraform.
     - ```make kubectl-setup```: Sets up kubectl to connect to the cluster.
     - ```make populate-cluster```: Populates the cluster with the StarExec k8s resources using kubectl.
 
 3. Wait a bit for the head node to be up-and-running:
-    - You can check using ```kubectl describe starexec-deployment``` and other kubectl commands.
+    - You can check using ```kubectl describe deployment starexec-deployment``` and other kubectl commands.
 
 4. Forward your domain name to the service:
     - If your domain name is registered with Route53 using the account signed into the AWS cli, you can run ```make forward-domain-route53```.
