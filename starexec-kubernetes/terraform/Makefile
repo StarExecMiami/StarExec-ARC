@@ -15,10 +15,10 @@ default:
 
 
 reconfig-starexec:
-	@echo "Finding running pod for starexec-deployment..."
+	@echo "Finding running pod for se-depl..."
 	@POD_NAME=$$(kubectl get pods --selector=app=starexec -o jsonpath='{.items[0].metadata.name}'); \
 	if [ -z "$$POD_NAME" ]; then \
-		echo "No pod found for starexec-deployment"; \
+		echo "No pod found for se-depl"; \
 		exit 1; \
 	fi; \
 	echo "Pod found: $$POD_NAME"; \
@@ -29,10 +29,10 @@ reconfig-starexec:
 
 
 get-certificate:
-	@echo "Finding running pod for starexec-deployment..."
+	@echo "Finding running pod for se-depl..."
 	@POD_NAME=$$(kubectl get pods --selector=app=starexec -o jsonpath='{.items[0].metadata.name}'); \
 	if [ -z "$$POD_NAME" ]; then \
-		echo "No pod found for starexec-deployment"; \
+		echo "No pod found for se-depl"; \
 		exit 1; \
 	fi; \
 	echo "Pod found: $$POD_NAME"; \
@@ -144,13 +144,20 @@ create-cluster:
 
 # Destroys EKS infrastructure
 destroy:
+	terraform destroy -target=module.eks -auto-approve
+	terraform destroy -target=module.vpc -auto-approve
 	terraform destroy -auto-approve
+
+
+
+
+
 
 # Show what *will* be created with "terraform apply" (or make create-cluster)
 plan:
 	terraform plan
 
-# Initialize terraform (Probably only need to do once?)
+# Initialize terraform state
 init:
 	terraform init -upgrade
 

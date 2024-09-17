@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: starexec-deployment
+  name: se-depl
 spec:
   replicas: 1
   selector:

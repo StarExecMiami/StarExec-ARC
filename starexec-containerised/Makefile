@@ -45,5 +45,5 @@ cleanVolumes:
 connect:
 	podman exec -it `podman ps -a -q --filter ancestor=starexec` bash
 
-
-
+push:
+	podman push starexec docker.io/tptpstarexec/starexec

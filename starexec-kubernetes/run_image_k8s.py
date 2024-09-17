@@ -87,8 +87,8 @@ help="Wall clock time limit in seconds, default=none")
 help="Memory limit in MiB, default=none")
     parser.add_argument("-I", "--intent", default="THM", choices=["THM", "SAT"], 
 help="Intention (THM, SAT, etc), default=THM")
-    parser.add_argument("--sandbox", default="sandbox", choices=["sandbox", "sandbox2"],
-help="Where will starexec look for the results / store the necessary inputs? (sandbox or sandbox2)")
+    parser.add_argument("--sandbox", default="sandbox",
+help="Where will starexec look for the results / store the necessary inputs? (full path)")
     parser.add_argument("--job-template-path", default="job_template.yaml", 
 help="Path to the job template file")
     parser.add_argument("--dry-run", action="store_true", 

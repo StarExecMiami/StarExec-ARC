@@ -1,6 +1,5 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
 
+#################### SETUP ####################################################
 provider "aws" {
   region = var.region
 }
@@ -15,7 +14,7 @@ data "aws_availability_zones" "available" {
 }
 
 locals {
-  cluster_name = "education-eks-${random_string.suffix.result}"
+  cluster_name = "starexec-eks-${random_string.suffix.result}"
 }
 
 resource "random_string" "suffix" {
@@ -23,11 +22,24 @@ resource "random_string" "suffix" {
   special = false
 }
 
+
+
+
+
+
+
+
+
+
+
+
+#################### VPC ####################################################
+
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.8.1"
 
-  name = "education-vpc"
+  name = "starexec-vpc"
 
   cidr = "10.0.0.0/16"
   azs  = slice(data.aws_availability_zones.available.names, 0, 3)
@@ -49,8 +61,6 @@ module "vpc" {
 }
 
 
-
-
 data "external" "max_nodes" {
   program = ["bash", "./configuration_json_wrapper.sh", "maxNodes"]
 }
@@ -62,6 +72,18 @@ data "external" "desired_nodes" {
 data "external" "instance_type" {
   program = ["bash", "./configuration_json_wrapper.sh", "instanceType"]
 }
+
+
+
+
+
+
+
+
+
+
+
+#################### EKS ####################################################
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
@@ -106,6 +128,17 @@ module "eks" {
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+#################### EFS ####################################################
 
 data "aws_iam_policy" "efs_csi_policy" {
   arn = "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy"
@@ -159,9 +192,16 @@ resource "aws_security_group" "efs_sg" {
   }
 }
 
-# Access points for voldb, volstar, volpro, and volexport:
 
-# voldb:
+
+
+
+
+
+
+
+
+#################### EFS Access Points ######################################
 resource "aws_efs_access_point" "voldb" {
   file_system_id = aws_efs_file_system.example.id
   
@@ -180,7 +220,6 @@ resource "aws_efs_access_point" "voldb" {
   }
 }
 
-# volstar:
 resource "aws_efs_access_point" "volstar" {
   file_system_id = aws_efs_file_system.example.id
   
@@ -199,7 +238,6 @@ resource "aws_efs_access_point" "volstar" {
   }
 }
 
-# volpro:
 resource "aws_efs_access_point" "volpro" {
   file_system_id = aws_efs_file_system.example.id
   
@@ -218,7 +256,6 @@ resource "aws_efs_access_point" "volpro" {
   }
 }
 
-# volexport:
 resource "aws_efs_access_point" "volexport" {
   file_system_id = aws_efs_file_system.example.id
   
@@ -241,76 +278,27 @@ resource "aws_efs_access_point" "volexport" {
 
 
 
-# # Generate the SSH key pair
-# resource "tls_private_key" "ssh_key" {
-#   algorithm = "RSA"
-#   rsa_bits  = 2048
-# }
-
-# # Save the public key
-# resource "local_file" "public_key_file" {
-#   content  = tls_private_key.ssh_key.public_key_openssh
-#   filename = "${path.module}/ssh-keys/id_rsa.pub"
-# }
-
-# # Use the generated public key
-# resource "aws_key_pair" "deployer" {
-#   key_name   = "efs-deployer-key"
-#   public_key = tls_private_key.ssh_key.public_key_openssh
-# }
-
-# resource "aws_instance" "init_dirs" {
-#   ami           = data.aws_ami.latest_linux_ami.id
-#   instance_type = "t3.micro"
-
-#   key_name = aws_key_pair.deployer.key_name
-
-#   # Selecting the first private subnet for the instance
-#   subnet_id = element(module.vpc.private_subnets, 0)
-#   security_groups = [aws_security_group.efs_sg.id]
-
-#   user_data = <<-EOF
-#               #!/bin/bash
-#               sudo mount -t efs ${aws_efs_file_system.example.id}:/ /mnt/efs
-#               sudo mkdir -p /mnt/efs/voldb /mnt/efs/volpro /mnt/efs/volexport /mnt/efs/volstar
-#               EOF
-
-#   tags = {
-#     Name = "EFS Directory Initializer"
-#   }
-
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
 
 
-# # Cleanup EC2 instance after setup
-# resource "null_resource" "cleanup" {
-#   triggers = {
-#     instance_id = aws_instance.init_dirs.id
-#   }
 
-#   provisioner "local-exec" {
-#     command = "aws ec2 terminate-instances --instance-ids ${self.triggers.instance_id}"
-#   }
 
-#   depends_on = [aws_instance.init_dirs]
-# }
 
-# # Fetch the latest AMI for Ubuntu
-# data "aws_ami" "latest_linux_ami" {
-#   most_recent = true
+#################### CLEANUP ##############################################
+resource "null_resource" "pre_destroy_cleanup" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
 
-#   filter {
-#     name   = "name"
-#     values = ["ubuntu/images/hvm-ssd/ubuntu-*-20.04-amd64-server-*"]
-#   }
+  provisioner "local-exec" {
+    command = "echo 'Ensure all dependent resources are cleared'"
+  }
 
-#   filter {
-#     name   = "virtualization-type"
-#     values = ["hvm"]
-#   }
+  depends_on = [
+    module.eks,
+    module.vpc
+  ]
 
-#   owners = ["099720109477"] # Canonical
-# }
+  lifecycle {
+    create_before_destroy = true
+  }
+}

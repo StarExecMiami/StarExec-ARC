@@ -11,7 +11,8 @@ Backend.WorkingDir: /export/starexec
 
 #Backend.Type: sge
 #Backend.Type: oar
-Backend.Type: local
+#Backend.Type: local
+Backend.Type: k8s
 
 # Host running the database; the compute nodes will connect to this host
 # to report back as job pairs finish.

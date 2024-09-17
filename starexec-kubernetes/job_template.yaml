@@ -52,11 +52,11 @@ spec:
         - "--timestamp"
         - "--add-eof"
         - "--watcher-data"
-        - "/export/starexec/{{ sandbox }}/output/watcher.out"
+        - "{{ sandbox }}/output/watcher.out"
         - "-o"
-        - "/export/starexec/{{ sandbox }}/output/stdout.txt"
+        - "{{ sandbox }}/output/stdout.txt"
         - "-v"
-        - "/export/starexec/{{ sandbox }}/output/var.out"
+        - "{{ sandbox }}/output/var.out"
         - "-C"
         - "{{ cpu_limit }}"
         - "-W"
@@ -67,7 +67,7 @@ spec:
         - name: PATH
           value: "/artifacts:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
         - name: RLR_INPUT_FILE
-          value: "/export/starexec/{{ sandbox }}/benchmark/theBenchmark.p"
+          value: "{{ sandbox }}/benchmark/theBenchmark.p"
         - name: RLR_CPU_LIMIT
           value: "{{ cpu_limit }}"
         - name: RLR_WC_LIMIT
@@ -78,13 +78,13 @@ spec:
           value: "{{ intent }}"
 
         volumeMounts:
-        - name: volexport
-          mountPath: /export
+        - name: vol-star
+          mountPath: /home/starexec
         
       restartPolicy: Never
 
       volumes:
-      - name: volexport
+      - name: vol-star
         persistentVolumeClaim:
-          claimName: volexport
+          claimName: volstar
   backoffLimit: 4
