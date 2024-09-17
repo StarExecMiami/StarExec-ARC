@@ -5,8 +5,8 @@ domain := $(shell ./configuration.sh domain)
 
 
 default:
-	echo "1. create-cluster, 2. kubectl-setup, 3. populate-cluster"
-	make create-cluster kubectl-setup populate-cluster
+	echo "0. init 1. create-cluster, 2. kubectl-setup, 3. populate-cluster"
+	make init create-cluster kubectl-setup populate-cluster
 
 	# echo "Getting certificate and reconfiguring starexec (java ant build config)"
 	# make reconfig-starexec get-certificate
