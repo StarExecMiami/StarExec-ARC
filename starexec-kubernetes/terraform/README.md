@@ -3,13 +3,13 @@
 ## Steps to follow
 0. Prepare:
     - Install Terraform.
-        - `brew install terraform` or [`ubuntu installation`](https://askubuntu.com/questions/983351/how-to-install-terraform-in-ubuntu)
+        - `brew install terraform` or in Ubuntu: `snap install terraform --classic` [`more info`](https://askubuntu.com/questions/983351/how-to-install-terraform-in-ubuntu)
     - Install the AWS CLI and login:
-        - `brew install awscli` or `apt install awscli`
+        - `brew install awscli` or in Ubuntu: `snap install aws-cli --classic`
         - check configuration with `aws sts get-caller-identity`
         - or, if needed, [configure AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)
     - Install kubectl:
-        - `brew install kubectl` or `snap install kubectl`
+        - `brew install kubectl` or in Ubuntu `snap install kubectl --classic`
         - check with `kubectl version`
 
 1. Edit `configuration.sh` to set your domain name, number of nodes, etc.
