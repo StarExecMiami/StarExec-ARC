@@ -12,6 +12,6 @@
 
 ## Documentation
 
-- [Talk slides about this project](https://www.eprover.org/EVENTS/IWIL-2024/IWIL-24-Preproceedings.pdf)
+- [A workshop paper about this project](https://www.eprover.org/EVENTS/IWIL-2024/IWIL-24-Preproceedings.pdf)
 
 - [The ARA proposal](https://www.amazon.science/research-awards/recipients/geoffrey-sutcliffe)
