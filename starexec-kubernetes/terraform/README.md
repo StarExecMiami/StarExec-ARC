@@ -22,10 +22,10 @@
     - ```make populate-cluster```: Populates the cluster with the StarExec k8s resources using kubectl.
 
 3. Wait a bit for the head node to be up-and-running:
-    - You can check using ```kubectl describe se-depl``` and other kubectl commands.
+    - You can check using ```kubectl describe pod se-depl``` and other kubectl commands.
 
 4. Forward your domain name to the service:
-    - If your domain name is registered with Route53 using the account signed into the AWS cli, you can run ```make forward-domain-route53```.
+    - If your domain name is registered with Route53 using the account signed into the AWS cli, you can run ```make forward-domain-route53```
     - Otherwise, you can run ```kubectl get svc```
     to get a domain name for the service, and separately
     forward your domain name to the service using a `CNAME` record.
