@@ -49,7 +49,7 @@ forward-domain-route53:
 	EXTERNAL_DOMAIN=$(shell kubectl get svc starexec-service -n default -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 	@echo "External domain: $$EXTERNAL_DOMAIN"
 	
-	@echo "Fetching hosted zone ID from Route 53..."
+	@echo "Fetching hosted zone ID from Route 53...(domain '$$domain')"
 	# Assuming ./configuration.sh domain returns a domain name registered with Route 53, e.g., example.com
 	HOSTED_ZONE_ID=$(shell aws route53 list-hosted-zones-by-name --dns-name $$domain --query "HostedZones[?Name=='$$domain.'].Id" --output text | cut -d'/' -f3)
 	@echo "Hosted zone ID: $$HOSTED_ZONE_ID"
