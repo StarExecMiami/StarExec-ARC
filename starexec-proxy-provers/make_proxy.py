@@ -24,6 +24,7 @@ def makeProxyProver(prover, archiveName, local):
     
     
     shutil.make_archive(archiveName, 'gztar', 'parent')
+    shutil.move(f"{archiveName}.tar.gz",f"{archiveName}.tgz")
     shutil.rmtree("parent")
 
 

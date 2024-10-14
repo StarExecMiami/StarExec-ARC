@@ -13,9 +13,9 @@ with special args to run a prover container in the host.
 ## Example Usage:
 ```bash
 # Using kubernetes to run the images:
-python make_proxy.py docker.io/tptpstarexec/eprover:3.0.03-RLR-amd64 proxy_eprover_k8s
+python make_proxy.py docker.io/tptpstarexec/eprover:3.0.03-RLR-amd64 E---3.0.03-K8sProxy
 
 # Alternatively, using podman to run the images:
-python make_proxy.py docker.io/tptpstarexec/eprover:3.0.03-RLR-amd64 proxy_eprover_podman --local
+python make_proxy.py docker.io/tptpstarexec/eprover:3.0.03-RLR-amd64 E---3.0.03-PodmanProxy --local
 ```
 
