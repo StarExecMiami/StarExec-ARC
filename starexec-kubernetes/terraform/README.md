@@ -22,20 +22,21 @@
     - ```make populate-cluster```: Populates the cluster with the StarExec k8s resources using kubectl.
 
 3. Wait a bit for the head node to be up-and-running:
-    - You can check using ```kubectl describe pod se-depl``` and other kubectl commands.
+   - You can check using ```kubectl describe pod se-depl``` and other kubectl commands.
+   - (Initial lines saying "FailedScheduling" can be ignored - it's normal.)
 
 4. Forward your domain name to the service:
-    - If your domain name is registered with Route53 using the account signed into the AWS cli, you can run ```make forward-domain-route53```
+    - If your domain name is registered with Route53 using the account signed into the AWS cli, you can set that in ```configurations.sh``` and run ```make forward-domain-route53```
     - Otherwise, you can run ```kubectl get svc```
     to get a domain name for the service, and separately
     forward your domain name to the service using a `CNAME` record.
 
-5. Tell the cluster about the domain:
+5. If you have done domain forwarding per 4, tell the cluster about the domain:
     - Run ```make reconfig-starexec``` to reconfigure the java ant build which uses the domain for some internal redirects like on the job-pairs page.
     - Run ```make get-certificate``` to use certbot to obtain a certificate for the domain **(The domain must be forwarding to the cluster for this to work!)**
 
-
-6. You should now be able to login to your new StarExec instance from https://yourdomainname.com/starexec
+6. You should now be able to login to your new StarExec instance from https://domainname/starexec
+    - ```domainname``` is your domain if forwarded, otherwise the auto-generated AWS domain.
     - username and password are both `admin`
 
 7. Normal StarExec tar.gz packages for provers do not work in this setup.
