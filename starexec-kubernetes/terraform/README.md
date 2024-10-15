@@ -23,7 +23,7 @@
 
 3. Wait a bit for the head node to be up-and-running:
    - You can check using ```kubectl describe pod se-depl``` and other kubectl commands.
-   - (Initial lines saying "FailedScheduling" can be ignored - it's normal.)
+     (Initial lines saying "FailedScheduling" can be ignored - it's normal.)
 
 4. Forward your domain name to the service:
     - If your domain name is registered with Route53 using the account signed into the AWS cli: 
