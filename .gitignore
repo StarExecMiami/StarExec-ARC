@@ -5,8 +5,9 @@ provers-containerised/problemfile
 
 
 starexec-kubernetes/terraform/YAMLFiles/storage.yaml
-starexec-kubernetes/terraform/ssh-keys
 starexec-kubernetes/terraform/.terraform
+starexec-kubernetes/terraform/testingMakefile
+starexec-kubernetes/terraform/ssh-keys
 starexec-kubernetes/terraform/.terraform*
 starexec-kubernetes/terraform/EFS_BACKUP
 starexec-kubernetes/terraform/terraform.backup

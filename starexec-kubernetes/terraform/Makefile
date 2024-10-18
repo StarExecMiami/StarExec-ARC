@@ -42,33 +42,48 @@ get-certificate:
 	kubectl exec $$POD_NAME -- /bin/sh -c "chmod +x /tmp/get_certificate.sh && /tmp/get_certificate.sh $(domain)"
 
 
-# Untested...
 forward-domain-route53:
 	@echo "Fetching external domain name from EKS service..."
-	# Using default namespace and the service name starexec-service
-	EXTERNAL_DOMAIN=$(shell kubectl get svc starexec-service -n default -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-	@echo "External domain: $$EXTERNAL_DOMAIN"
+	$(eval EXTERNAL_DOMAIN := $(shell kubectl get svc starexec-service -n default -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'))
+	@echo "External domain: $(EXTERNAL_DOMAIN)"
 	
-	@echo "Fetching hosted zone ID from Route 53...(domain '$$domain')"
-	# Assuming ./configuration.sh domain returns a domain name registered with Route 53, e.g., example.com
-	HOSTED_ZONE_ID=$(shell aws route53 list-hosted-zones-by-name --dns-name $$domain --query "HostedZones[?Name=='$$domain.'].Id" --output text | cut -d'/' -f3)
-	@echo "Hosted zone ID: $$HOSTED_ZONE_ID"
+	@echo "Fetching hosted zone ID from Route 53...(domain '$(domain)')"
+	$(eval HOSTED_ZONE_ID := $(shell aws route53 list-hosted-zones-by-name --dns-name $(domain) --query "HostedZones[?Name=='$(domain).'].Id" --output text | cut -d'/' -f3))
+	@echo "Hosted zone ID: $(HOSTED_ZONE_ID)"
 	
-	@echo "Updating Route 53 DNS record..."
-	aws route53 change-resource-record-sets --hosted-zone-id $$HOSTED_ZONE_ID --change-batch '{
-	  "Changes": [{
-	    "Action": "UPSERT",
-	    "ResourceRecordSet": {
-	      "Name": "$$domain",  # Use the domain obtained from the configuration script
-	      "Type": "CNAME",
-	      "TTL": 300,
-	      "ResourceRecords": [{
-	        "Value": "'"$$EXTERNAL_DOMAIN"'"
-	      }]
-	    }
-	  }]
+	@echo "Updating Route 53 DNS record for apex domain..."
+	aws route53 change-resource-record-sets --hosted-zone-id $(HOSTED_ZONE_ID) --change-batch '{ \
+	  "Changes": [{ \
+	    "Action": "UPSERT", \
+	    "ResourceRecordSet": { \
+	      "Name": "$(domain).", \
+	      "Type": "A", \
+	      "AliasTarget": { \
+	        "HostedZoneId": "$(HOSTED_ZONE_ID)", \
+	        "DNSName": "www.$(domain).", \
+	        "EvaluateTargetHealth": false \
+	      } \
+	    } \
+	  }] \
 	}'
+	
+	@echo "Updating Route 53 DNS record for www subdomain..."
+	aws route53 change-resource-record-sets --hosted-zone-id $(HOSTED_ZONE_ID) --change-batch '{ \
+	  "Changes": [{ \
+	    "Action": "UPSERT", \
+	    "ResourceRecordSet": { \
+	      "Name": "www.$(domain).", \
+	      "Type": "CNAME", \
+	      "TTL": 300, \
+	      "ResourceRecords": [{ \
+	        "Value": "$(EXTERNAL_DOMAIN)" \
+	      }] \
+	    } \
+	  }] \
+	}'
+	
 	@echo "DNS update initiated."
+
 
 
 
@@ -150,9 +165,6 @@ destroy:
 
 
 
-
-
-
 # Show what *will* be created with "terraform apply" (or make create-cluster)
 plan:
 	terraform plan
@@ -165,3 +177,38 @@ init:
 kubectl-setup:
 	aws eks --region $$(terraform output -raw region) update-kubeconfig \
 		--name $$(terraform output -raw cluster_name)
+
+
+
+
+
+
+
+
+######################
+# S3 Backups         #
+######################
+
+# Creates S3 bucket
+create-s3-bucket:
+	echo "Unimplemented"
+
+# Copies data from EFS to S3
+backup-to-s3:
+	echo "Unimplemented"
+
+# Restores data from S3 back to EFS
+restore-from-s3:
+	echo "Unimplemented"
+
+# Downloads data from S3
+download-from-s3:
+	echo "Unimplemented"
+
+# Uploads data to S3
+upload-to-s3:
+	echo "Unimplemented"
+
+# Deletes S3 bucket
+delete-s3-bucket:
+	echo "Unimplemented"

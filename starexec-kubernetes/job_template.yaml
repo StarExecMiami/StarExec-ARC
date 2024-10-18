@@ -80,6 +80,12 @@ spec:
         volumeMounts:
         - name: vol-star
           mountPath: /home/starexec
+
+        resources:
+          requests:
+            cpu: "1"
+          limits:
+            cpu: "1"
         
       restartPolicy: Never
 
