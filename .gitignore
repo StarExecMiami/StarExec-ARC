@@ -1,8 +1,6 @@
 starexec-containerised/starexec_podman_key
 starexec-containerised/starexec_podman_key.pub
 provers-containerised/problemfile
-#starexec-proxy-provers/*.tar.gz
-
 
 starexec-kubernetes/terraform/YAMLFiles/storage.yaml
 starexec-kubernetes/terraform/.terraform
