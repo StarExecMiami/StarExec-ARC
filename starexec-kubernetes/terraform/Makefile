@@ -3,16 +3,12 @@ SHELL = bash
 
 domain := $(shell ./configuration.sh domain)
 
-
 default:
 	echo "0. init 1. create-cluster, 2. kubectl-setup, 3. populate-cluster"
 	make init create-cluster kubectl-setup populate-cluster
 
 	# echo "Getting certificate and reconfiguring starexec (java ant build config)"
 	# make reconfig-starexec get-certificate
-
-
-
 
 reconfig-starexec:
 	@echo "Finding running pod for se-depl..."
@@ -27,7 +23,6 @@ reconfig-starexec:
 	kubectl cp reconfig_starexec.sh $$POD_NAME:/tmp/reconfig_starexec.sh; \
 	kubectl exec $$POD_NAME -- /bin/sh -c "chmod +x /tmp/reconfig_starexec.sh && /tmp/reconfig_starexec.sh $(domain)"
 
-
 get-certificate:
 	@echo "Finding running pod for se-depl..."
 	@POD_NAME=$$(kubectl get pods --selector=app=starexec -o jsonpath='{.items[0].metadata.name}'); \
@@ -41,7 +36,6 @@ get-certificate:
 	kubectl cp get_certificate.sh $$POD_NAME:/tmp/get_certificate.sh; \
 	kubectl exec $$POD_NAME -- /bin/sh -c "chmod +x /tmp/get_certificate.sh && /tmp/get_certificate.sh $(domain)"
 
-
 forward-domain-route53:
 	@echo "Fetching external domain name from EKS service..."
 	$(eval EXTERNAL_DOMAIN := $(shell kubectl get svc starexec-service -n default -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'))
@@ -50,6 +44,21 @@ forward-domain-route53:
 	@echo "Fetching hosted zone ID from Route 53...(domain '$(domain)')"
 	$(eval HOSTED_ZONE_ID := $(shell aws route53 list-hosted-zones-by-name --dns-name $(domain) --query "HostedZones[?Name=='$(domain).'].Id" --output text | cut -d'/' -f3))
 	@echo "Hosted zone ID: $(HOSTED_ZONE_ID)"
+	
+	@echo "Updating Route 53 DNS record for www subdomain..."
+	aws route53 change-resource-record-sets --hosted-zone-id $(HOSTED_ZONE_ID) --change-batch '{ \
+	  "Changes": [{ \
+	    "Action": "UPSERT", \
+	    "ResourceRecordSet": { \
+	      "Name": "www.$(domain).", \
+	      "Type": "CNAME", \
+	      "TTL": 300, \
+	      "ResourceRecords": [{ \
+	        "Value": "$(EXTERNAL_DOMAIN)" \
+	      }] \
+	    } \
+	  }] \
+	}'
 	
 	@echo "Updating Route 53 DNS record for apex domain..."
 	aws route53 change-resource-record-sets --hosted-zone-id $(HOSTED_ZONE_ID) --change-batch '{ \
@@ -63,21 +72,6 @@ forward-domain-route53:
 	        "DNSName": "www.$(domain).", \
 	        "EvaluateTargetHealth": false \
 	      } \
-	    } \
-	  }] \
-	}'
-	
-	@echo "Updating Route 53 DNS record for www subdomain..."
-	aws route53 change-resource-record-sets --hosted-zone-id $(HOSTED_ZONE_ID) --change-batch '{ \
-	  "Changes": [{ \
-	    "Action": "UPSERT", \
-	    "ResourceRecordSet": { \
-	      "Name": "www.$(domain).", \
-	      "Type": "CNAME", \
-	      "TTL": 300, \
-	      "ResourceRecords": [{ \
-	        "Value": "$(EXTERNAL_DOMAIN)" \
-	      }] \
 	    } \
 	  }] \
 	}'

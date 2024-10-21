@@ -2,7 +2,6 @@
 
 # For configuration of the cluster (domain name, etc)
 domain=starexec.net
-domain=a5ce3301edf034d919a18c57affb2c13-1189330949.us-east-2.elb.amazonaws.com
 desiredNodes=5
 maxNodes=5
 
