@@ -37,46 +37,30 @@ get-certificate:
 	kubectl exec $$POD_NAME -- /bin/sh -c "chmod +x /tmp/get_certificate.sh && /tmp/get_certificate.sh $(domain)"
 
 forward-domain-route53:
+
 	@echo "Fetching external domain name from EKS service..."
 	$(eval EXTERNAL_DOMAIN := $(shell kubectl get svc starexec-service -n default -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'))
 	@echo "External domain: $(EXTERNAL_DOMAIN)"
-	
+
+	@echo "Extracting ELB name from external domain..."
+	$(eval ELB_NAME := $(shell echo "$(EXTERNAL_DOMAIN)" | cut -d'-' -f1))
+	@echo "ELB name: $(ELB_NAME)"
+
+	@echo "Fetching ELB Hosted Zone ID..."
+	$(eval ELB_HOSTED_ZONE_ID := $(shell aws elb describe-load-balancers --load-balancer-names $(ELB_NAME) --query 'LoadBalancerDescriptions[0].CanonicalHostedZoneNameID' --output text))
+	@echo "ELB Hosted Zone ID: $(ELB_HOSTED_ZONE_ID)"
+
 	@echo "Fetching hosted zone ID from Route 53...(domain '$(domain)')"
 	$(eval HOSTED_ZONE_ID := $(shell aws route53 list-hosted-zones-by-name --dns-name $(domain) --query "HostedZones[?Name=='$(domain).'].Id" --output text | cut -d'/' -f3))
 	@echo "Hosted zone ID: $(HOSTED_ZONE_ID)"
-	
-	@echo "Updating Route 53 DNS record for www subdomain..."
-	aws route53 change-resource-record-sets --hosted-zone-id $(HOSTED_ZONE_ID) --change-batch '{ \
-	  "Changes": [{ \
-	    "Action": "UPSERT", \
-	    "ResourceRecordSet": { \
-	      "Name": "www.$(domain).", \
-	      "Type": "CNAME", \
-	      "TTL": 300, \
-	      "ResourceRecords": [{ \
-	        "Value": "$(EXTERNAL_DOMAIN)" \
-	      }] \
-	    } \
-	  }] \
-	}'
-	
+
 	@echo "Updating Route 53 DNS record for apex domain..."
-	aws route53 change-resource-record-sets --hosted-zone-id $(HOSTED_ZONE_ID) --change-batch '{ \
-	  "Changes": [{ \
-	    "Action": "UPSERT", \
-	    "ResourceRecordSet": { \
-	      "Name": "$(domain).", \
-	      "Type": "A", \
-	      "AliasTarget": { \
-	        "HostedZoneId": "$(HOSTED_ZONE_ID)", \
-	        "DNSName": "www.$(domain).", \
-	        "EvaluateTargetHealth": false \
-	      } \
-	    } \
-	  }] \
-	}'
-	
+	aws route53 change-resource-record-sets --hosted-zone-id $(HOSTED_ZONE_ID) \
+		--change-batch '{ "Changes": [ { "Action": "UPSERT", "ResourceRecordSet": { "Name": "$(domain).", "Type": "A", "AliasTarget": { "HostedZoneId": "$(ELB_HOSTED_ZONE_ID)", "DNSName": "$(EXTERNAL_DOMAIN).", "EvaluateTargetHealth": false } } } ] }'
+
+
 	@echo "DNS update initiated."
+	@echo "If this didn't work, ensure that the hosted zone and domain in Route53 have the same nameservers configured"
 
 
 
@@ -153,6 +137,7 @@ create-cluster:
 
 # Destroys EKS infrastructure
 destroy:
+	# make clean;
 	terraform destroy -target=module.eks -auto-approve
 	terraform destroy -target=module.vpc -auto-approve
 	terraform destroy -auto-approve
