@@ -121,11 +121,6 @@ clean:
 info:
 	kubectl get all --all-namespaces
 
-
-
-
-
-
 ######################
 # Terraform/EKS/AWS  #
 ######################
@@ -136,13 +131,10 @@ create-cluster:
 	terraform apply -auto-approve
 
 # Destroys EKS infrastructure
-destroy:
-	# make clean;
+destroy: clean
 	terraform destroy -target=module.eks -auto-approve
 	terraform destroy -target=module.vpc -auto-approve
 	terraform destroy -auto-approve
-
-
 
 # Show what *will* be created with "terraform apply" (or make create-cluster)
 plan:
@@ -156,13 +148,6 @@ init:
 kubectl-setup:
 	aws eks --region $$(terraform output -raw region) update-kubeconfig \
 		--name $$(terraform output -raw cluster_name)
-
-
-
-
-
-
-
 
 ######################
 # S3 Backups         #
