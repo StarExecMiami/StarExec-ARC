@@ -131,7 +131,8 @@ create-cluster:
 	terraform apply -auto-approve
 
 # Destroys EKS infrastructure
-destroy: clean
+destroy: 
+	echo "Have you done a make clean?"
 	terraform destroy -target=module.eks -auto-approve
 	terraform destroy -target=module.vpc -auto-approve
 	terraform destroy -auto-approve
