@@ -5,7 +5,7 @@ import subprocess
 import os, sys
 import shutil
 
-#----------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 def getRLRArgs(args):
     sandbox = "sandbox" if args.starexec == 1 else "sandbox2"
 
@@ -18,7 +18,7 @@ def getRLRArgs(args):
     cpu_part = f"-C {args.cpu_limit} -W {args.wall_clock_limit}"
     mem_part = f"-M {args.memory_limit}" if args.memory_limit > 0 else ""
     return f"--timestamp {paths_part} {cpu_part} {mem_part}"
-#----------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 def getEnvVars(args):
 
     sandbox = "sandbox" if args.starexec == 1 else "sandbox2"
@@ -39,21 +39,24 @@ def getEnvVars(args):
         envVars.append(("TPTP", "/artifacts/TPTP"))
 
     return " ".join([f"-e {k}='{v}'" for k, v in envVars])
-#----------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 def TPTPMount():
+
     if "TPTP" in os.environ:
         return f" -v {os.environ['TPTP']}:/artifacts/TPTP"
     return ""
-#----------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 # This is not used when using --starexec
 def makeBenchmark(problem):
+
     if problem:
         shutil.copy(problem, "./problemfile")
     else:
         with open('./problemfile', 'w') as problemfile:
             problemfile.write(sys.stdin.read())
-#----------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser("Wrapper for a podman call to a prover image")
     parser.add_argument("image_name", 
 help="Image name, e.g., eprover:3.0.03-RLR-arm64")
@@ -71,22 +74,18 @@ help="Intention (THM, SAT, etc), default=THM")
 help="dry run")
 
     parser.add_argument("-s", "--starexec", type=int, default=0, 
-help="""This is for using run_image.py from inside a 
-containerized starexec instance. 
-This is done using the --remote and --connection flags in podman.
-(see starexec-proxy-provers)
-the arg here will be the sandbox number
+help="""This is for using run_image.py from inside a containerized starexec instance. 
+This is done using the --remote and --connection flags in podman. (see starexec-proxy-provers)
+the arg here will be the sandbox number.
 
 The problem must be made available to the prover container as well.
-This can't be done simply using the -v flag as normal,
-because the problem file isn't on the host, where podman expects
-the volumes when using "--remote"
+This can't be done simply using the -v flag as normal, because the problem file isn't on the 
+host, where podman expects the volumes when using "--remote"
 
-Instead, we can assume that that run_image.py is running in
-a container that uses a volume. That volume is then mounted inside
-the prover container as well.
+Instead, we can assume that that run_image.py is running in a container that uses a volume. 
+That volume is then mounted inside the prover container as well.
 
-By convention, we can use the volExport from starexec
+By convention, we can use the volExport from starexec.
 
 This involves the following work:
     1. replacing "-v .:/artifacts/CWD" with "-v volExport:/export"
@@ -118,5 +117,5 @@ f"-t {args.image_name} {getRLRArgs(args)} run_system"
         makeBenchmark(args.problem)
         subprocess.run(command, shell=True)
         os.remove("./problemfile")
-#----------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 
