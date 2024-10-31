@@ -1,53 +1,20 @@
-# General Information: ##
-The container images in the folder "provers" depend on (some of) the images in the folder 
-"base-build".
+# Provers Containerised:
 
-We recommend using Podman (which is intended to work as a drop-in replacement for Docker).
-See Podman installation instructions: https://podman.io/docs/installation
-
-<br><br>
-
-# How to do podman/docker actions
-
-Building a container image with Podman/Docker:
-```bash
-podman/docker build -t <TAG_NAME> <PATH_TO_DIRECTORY_WHERE_DOCKERFILE_LIES>
-```
-
-Running a container (from an image) with Podman/Docker (entrypoint):
-```bash
-podman/docker run --rm [--entrypoint <ENTRYPOINT_FILE>] <TAG_NAME> <ARGS>
-```
-
-Running a container with Podman/Docker (interactive shell):
-```bash
-podman/docker run --rm -it <TAG_NAME>
-```
-
-
-
-Cleanup everything (Podman):
-```bash
-podman system prune --all --force && podman rmi --all
-```
-Forced cleanup (Podman):
-```bash
-podman rmi --all --force
-```
-Cleanup everything (Docker):
-```bash
-docker system prune --all --force &&  docker rmi $(docker images -a -q)
-```
-
-
-
-
-<br><br>
-<br><br>
-
-
-
-
+This folder contains all that is needed to containerise an ATP system (a "prover") so that 
+it can be run in `podman`.
+- `ubuntu-arc` contains a `Dockerfile` to build an Ubuntu image upon which everything else
+  is built.
+- `
+- `provers` contains folders for building individual provers (source, etc), the `start_RLR`
+  script that is used to invoke a prover under the control of a "Resource Limited Run"
+  program (currently `runsolver`) with appropriate leading output for the TPTP World, and
+  a `Dockerfile` to build a containers for specified prover (see the comments in the `Dockerfile`).
+  * Each prover's folder contains a `Dockerfile` for building the prover in a container.
+  * The tag name convention for prover containers is *prover*`:`*version*s.
+    - This has to be provided as the `--build-arg PROVER_IMAGE` value for building the resource
+      limited prover container.
+  * The tag name convention for resource limited porver containers is the prover container
+    name plus the suffix `-RLR`.
 
 # To build and run a TPTP docker image for E (example)
 
@@ -57,19 +24,16 @@ docker system prune --all --force &&  docker rmi $(docker images -a -q)
     cd starexec-ARC/provers-containerised/ubuntu-arc
     podman build -t ubuntu-arc .
     ```
-
 2. Now build `tptp-world` image:
     ```shell
     cd ../tptp-world
     podman build -t tptp-world .
     ```
-
 3. Now build `eprover` image. 
     ```shell
     cd ../provers/E---3.0.03 
     podman build -t eprover:3.0.03 .
     ```
-
 4. Now build `eprover:version-RLR` image using the generic RLR Dockerfile
     ```shell
     cd ..
@@ -86,7 +50,7 @@ run_image.py eprover:3.0.03-RLR -P ../../TPTP-problems/PUZ001+1.p -W 60 -I THM
 
 <br><br><br>
 # To put it in dockerhub
-```bash
+```shell
 podman login docker.io 
 # (tptpstarexec, German greeting with money-in-middle and zeros-at-the-end)
 podman tag eprover:3.0.03-RLR docker.io/tptpstarexec/eprover:3.0.03-RLR-your_architecture (e.g., arm64, amd64)
@@ -97,4 +61,34 @@ podman push docker.io/tptpstarexec/eprover:3.0.03-RLR-your_architecture
 # To pull it from dockerhub
 
 podman pull tptpstarexec/eprover:3.0.03-RLR-your_architecture
+
+# How to do podman/docker actions
+
+We recommend using Podman (which is intended to work as a drop-in replacement for Docker).
+See Podman installation instructions: https://podman.io/docs/installation
+
+Building a container image with Podman/Docker:
+```shell
+podman/docker build -t <TAG_NAME> <PATH_TO_DIRECTORY_WHERE_DOCKERFILE_LIES>
+```
+Running a container (from an image) with Podman/Docker (entrypoint):
+```shell
+podman/docker run --rm [--entrypoint <ENTRYPOINT_FILE>] <TAG_NAME> <ARGS>
+```
+Running a container with Podman/Docker (interactive shell):
+```shell
+podman/docker run --rm -it <TAG_NAME>
+```
+Cleanup everything (Podman):
+```shell
+podman system prune --all --force && podman rmi --all
+```
+Forced cleanup (Podman):
+```shell
+podman rmi --all --force
+```
+Cleanup everything (Docker):
+```shell
+docker system prune --all --force &&  docker rmi $(docker images -a -q)
+```
 
