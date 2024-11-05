@@ -37,7 +37,6 @@ get-certificate:
 	kubectl exec $$POD_NAME -- /bin/sh -c "chmod +x /tmp/get_certificate.sh && /tmp/get_certificate.sh $(domain)"
 
 forward-domain-route53:
-
 	@echo "Fetching external domain name from EKS service..."
 	$(eval EXTERNAL_DOMAIN := $(shell kubectl get svc starexec-service -n default -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'))
 	@echo "External domain: $(EXTERNAL_DOMAIN)"
@@ -58,21 +57,12 @@ forward-domain-route53:
 	aws route53 change-resource-record-sets --hosted-zone-id $(HOSTED_ZONE_ID) \
 		--change-batch '{ "Changes": [ { "Action": "UPSERT", "ResourceRecordSet": { "Name": "$(domain).", "Type": "A", "AliasTarget": { "HostedZoneId": "$(ELB_HOSTED_ZONE_ID)", "DNSName": "$(EXTERNAL_DOMAIN).", "EvaluateTargetHealth": false } } } ] }'
 
-
 	@echo "DNS update initiated."
 	@echo "If this didn't work, ensure that the hosted zone and domain in Route53 have the same nameservers configured"
-
-
-
-
-
-
 
 ######################
 #     Kubernetes     #
 ######################
-
-
 label-nodes:
 	# Label compute nodes
 	for node in $$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}'); do \
@@ -93,10 +83,6 @@ label-nodes:
 	# Verify labeling
 	@echo "Verifying labels:"
 	@kubectl get nodes -L nodegroup
-
-
-
-	
 
 populate-cluster: label-nodes
 	export EFS_ID=$$(terraform output -raw efs_file_system_id) && \

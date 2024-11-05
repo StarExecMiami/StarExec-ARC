@@ -1,4 +1,4 @@
-# Provers Containerised:
+# Provers Containerised
 
 This folder contains all that is needed to containerise an ATP system (a "prover") so that 
 it can be run in `podman`.
