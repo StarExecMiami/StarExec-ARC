@@ -21,8 +21,8 @@ The following steps are required to get it all working
     * For EKS but without a Route53 domain
       - WHAT
     * For EKS with a Route53 domain
-      - `https:`*your_Route53_domain*`/starexec`
-  - MOre about uploading here.
+      - `https://`*your_Route53_domain*`/starexec`
+  - More about uploading here.
 
 ## Repository Subdirectories
 
