@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # For configuration of the cluster (domain name, etc)
-domain=starexec.net
+domain=starexec-arc.net
 desiredNodes=5
 maxNodes=5
 

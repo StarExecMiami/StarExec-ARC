@@ -35,7 +35,6 @@ RUN git checkout
 RUN cd src/org/starexec/config/sge/RunSolverSource && make clean && make
 RUN cp src/org/starexec/config/sge/RunSolverSource/runsolver /artifacts/
 
-
 #----Build RLR
 RUN git clone https://github.com/StarExecMiami/ResourceLimitedRun.git
 RUN cd ResourceLimitedRun && make ResourceLimitedRun
