@@ -11,4 +11,5 @@ starexec-kubernetes/terraform/EFS_BACKUP
 starexec-kubernetes/terraform/terraform.backup
 starexec-kubernetes/terraform/terraform.tfstate
 starexec-kubernetes/terraform/terraform.tfstate.backup
+starexec-kubernetes/terraform/s3-backup
 
