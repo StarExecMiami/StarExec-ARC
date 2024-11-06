@@ -1,7 +1,14 @@
-# Deploying StarExec in Kubernetes<br>(microk8s OR terraform->EKS)
+# Deploying StarExec in Kubernetes
 
-1. The k8s configuration files are in `YAMLFiles`.
-2. Deploying in microk8s can be done using the `Makefile`.
-3. Terraform has a separate dir with its own `Makefile`.
-    - This subdir has another `YAMLFiles` dir which has some symlinks
-    and some modified copies from the outer `YAMLFiles` dir.
+## Deploying StarExec in microk8s
+
+* cd `YAMLFiles`
+* What next Jack?
+
+## Deploying StarExec in terraform/EKS
+
+* cd `terraform`
+  - The `terraform/YAMLFiles` directory has some symlinks to the top level `YAMLFiles` files,
+    and also some modified copies of the top level `YAMLFiles` files.
+* The README file has instructions.
+
