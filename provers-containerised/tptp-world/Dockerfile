@@ -11,8 +11,8 @@ RUN git clone --recurse-submodules https://github.com/TPTPWorld/ServiceTools.git
 RUN git clone --recurse-submodules https://github.com/TPTPWorld/TPTP4X.git
 
 ENV TPTP_HOME /
-RUN cd ServiceTools/JJUsers && make SPCForProblem 
-RUN cd TPTP4X && make tptp4X
+RUN cd ServiceTools/JJUsers && git pull && make SPCForProblem 
+RUN cd TPTP4X && git pull && make tptp4X
 #----/artifacts is where we put all relevant executables and is the working dir.
 #----It is created in ubuntu-build
 RUN cp ServiceTools/JJUsers/SPCForProblem /artifacts/

@@ -46,7 +46,7 @@ it can be run in `podman`.
     ```
 5. Run using the `run_image.py` script
    ```shell
-   cd provers-containerised/provers
+   cd ..
    run_image.py eprover:3.0.03-RLR -P ../../TPTP-problems/PUZ001+1.p -W 60 -I THM
    ```
 6. Save it in `dockerhub`
