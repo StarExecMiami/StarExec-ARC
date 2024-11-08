@@ -22,17 +22,6 @@ resource "random_string" "suffix" {
   special = false
 }
 
-
-
-
-
-
-
-
-
-
-
-
 #################### VPC ####################################################
 
 module "vpc" {
@@ -160,7 +149,7 @@ resource "aws_efs_file_system" "example" {
   creation_token = "efs-example"
 
   tags = {
-    Name = "MyEFS"
+    Name = "StarExec-EFS"
   }
 }
 
