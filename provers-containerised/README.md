@@ -27,17 +27,17 @@ it can be run in `podman`.
     ```shell
     git clone https://github.com/StarExecMiami/starexec-arc
     cd starexec-ARC/provers-containerised/ubuntu-arc
-    podman build -t ubuntu-arc .
+    podman build --no-cache -t ubuntu-arc .
     ```
 2. Now build `tptp-world` image:
     ```shell
     cd ../tptp-world
-    podman build -t tptp-world .
+    podman build --no-cache -t tptp-world .
     ```
 3. Now build `eprover` image. 
     ```shell
     cd ../provers/E---3.0.03 
-    podman build -t eprover:3.0.03 .
+    podman build --no-cache -t eprover:3.0.03 .
     ```
 4. Now build `eprover:version-RLR` image using the generic RLR Dockerfile
     ```shell

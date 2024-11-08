@@ -6,7 +6,7 @@ It also contains code for the deployment of these ATP containers within a contai
 
 The following steps are required to get it all working
 * Build containerised proxy-prover versions of the ATP systems.
-  - That requires containerised (non-proxy-versions) versions of the ATP systems.
+  - That requires containerised (non-proxy) versions of the ATP systems.
     * Those are built in the `provers-containerised` directory.
     * The README file has instructions.
   - The proxy-prover versions are then built in the `starexec-proxy-provers` directory.
@@ -14,10 +14,11 @@ The following steps are required to get it all working
 * Deploy StarExec in microk8s or EKS
   - That is done in the `starexec-kubernetes` directory.
   - The README file has instructions.
-* Navigate to the StarExec website, upload your ATP system and problem files, and away you go.
+* Navigate to the StarExec website as deployed, upload your proxy-prover ATP system and problem 
+  files, and away you go.
   - The URL for the website depends how you deployed StarExec
     * For microk8s
-      - WHAT?
+      - `localhost:8080/starexec`
     * For EKS but without a Route53 domain
       - WHAT
     * For EKS with a Route53 domain
