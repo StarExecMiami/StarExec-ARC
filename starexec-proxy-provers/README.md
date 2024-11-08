@@ -1,8 +1,18 @@
 # StarExec Proxy Provers
 
-This folder contains the `make_proxy.py` that makes a `.tgz` file for a given prover.
+This folder contains the `make_proxy.py` script that makes a `.tgz` proxy-prover file for a given 
+containerised (see provers-containerised) prover.
+Containerised StarExec (see starexec-containerised) can run a proxy-prover in Kubernetes.
 
-# Using containerized provers in containerized StarExec...
+## To make a proxy-prover (example)
+```shell
+python make_proxy.py docker.io/tptpstarexec/eprover:3.0.03-RLR-amd64 E---3.0.03-K8sProxy
+```
+## To run a proxy-prover (example)
+
+See the README in starexec-kubernetes
+
+# Here's how the magic works
 This is done by having the local backend in starexec run `run_image.py` with special args to 
 run a prover container in the host.
 
@@ -14,12 +24,9 @@ run a prover container in the host.
 5. The proxy prover can be used to run the corresponding containerized prover in the host.
 
 ---
-## Example Usage:
-```bash
-# Using kubernetes to run the images:
-python make_proxy.py docker.io/tptpstarexec/eprover:3.0.03-RLR-amd64 E---3.0.03-K8sProxy
-
+<!--
 # Alternatively, using podman to run the images:
 python make_proxy.py docker.io/tptpstarexec/eprover:3.0.03-RLR-amd64 E---3.0.03-PodmanProxy --local
+-->
 ```
 

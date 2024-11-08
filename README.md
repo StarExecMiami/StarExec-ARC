@@ -18,9 +18,11 @@ The following steps are required to get it all working
   files, and away you go.
   - The URL for the website depends how you deployed StarExec
     * For microk8s
-      - `localhost:8080/starexec`
+      - Run `microk8s kubectl get svc` to get the URL.
+      - Put the URL plus `/starexec` in your browser.
     * For EKS but without a Route53 domain
-      - WHAT
+      - un `microk8s get svc` to get the URL.
+      - Put the URL plus `/starexec` in your browser.
     * For EKS with a Route53 domain
       - `https://`*your_Route53_domain*`/starexec`
   - More about uploading here.

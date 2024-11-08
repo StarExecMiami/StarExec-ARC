@@ -2,13 +2,9 @@
 
 ## Deploying StarExec in microk8s
 
-* cd `YAMLFiles`
-* What next Jack?
+`cd microk8s` and see the README 
 
 ## Deploying StarExec in terraform/EKS
 
-* cd `terraform`
-  - The `terraform/YAMLFiles` directory has some symlinks to the top level `YAMLFiles` files,
-    and also some modified copies of the top level `YAMLFiles` files.
-* The README file has instructions.
+`cd terraform` and see the README 
 
