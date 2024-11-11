@@ -29,9 +29,13 @@ The following steps are required to get it all working
 
 ## Repository Subdirectories
 
-- [Provers Containerised](provers-containerised/README.md) - Stuff for building the podman images corresponding with specific ATP systems.
-- [StarExec Containerised](starexec-containerised/README.md) - Stuff for building the podman image of the [StarExec head node software](https://github.com/StarExecMiami/StarExec/).
-- [StarExec Proxy Provers](starexec-proxy-provers/README.md) - Stuff for building StarExec-compatible `.tar.gz` archives that enable the use of containerized provers within StarExec.
+- [`provers-containerised`](provers-containerised/README.md) - 
+  Stuff for building the podman images corresponding with specific ATP systems.
+- [starexec-containerised](starexec-containerised/README.md) - 
+  Stuff for building the podman image of the 
+  [StarExec head node software](https://github.com/StarExecMiami/StarExec/).
+- [starexec-proxy-provers](starexec-proxy-provers/README.md) - 
+  Stuff for building prover archives that can run in ``starexec-containerised``.
 - [StarExec Kubernetes](starexec-kubernetes/README.md) - Stuff for deploying StarExec in Kubernetes (using microk8s or Amazon EKS).
 - [StarExec Provers](starexec-provers/README.md) - Source code for example provers.
 - [StarExec TPTP](starexec-tptp/README.md) - Various code necessary for supporting TPTP.
