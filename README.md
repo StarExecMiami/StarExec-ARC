@@ -7,8 +7,8 @@ It also contains code for the deployment of these ATP containers within a contai
 The following steps are required to get it all working
 * Build containerised proxy-prover versions of the ATP systems.
   - That requires containerised (non-proxy) versions of the ATP systems.
-    * Those are built in the `provers-containerised` directory.
-    * The README file has instructions.
+    * Those are built in the [`provers-containerised`](provers-containerised) directory.
+    * The [`provers-containerised`](provers-containerised/README.md) file has instructions.
   - The proxy-prover versions are then built in the `starexec-proxy-provers` directory.
   - The README file has instructions.
 * Deploy StarExec in microk8s or EKS
@@ -30,7 +30,7 @@ The following steps are required to get it all working
 ## Repository Subdirectories
 
 - [`provers-containerised`](provers-containerised/README.md) - 
-  Stuff for building the podman images corresponding with specific ATP systems.
+  Stuff for building the containers for individual ATP systems.
 - [`starexec-containerised`](starexec-containerised/README.md) - 
   Stuff for building a containerized 
   [StarExec](https://github.com/StarExecMiami/StarExec/) (head node software only).
