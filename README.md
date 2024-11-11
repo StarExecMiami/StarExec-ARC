@@ -31,14 +31,15 @@ The following steps are required to get it all working
 
 - [`provers-containerised`](provers-containerised/README.md) - 
   Stuff for building the podman images corresponding with specific ATP systems.
-- [starexec-containerised](starexec-containerised/README.md) - 
-  Stuff for building the podman image of the 
-  [StarExec head node software](https://github.com/StarExecMiami/StarExec/).
-- [starexec-proxy-provers](starexec-proxy-provers/README.md) - 
+- [`starexec-containerised`](starexec-containerised/README.md) - 
+  Stuff for building a containerized 
+  [StarExec](https://github.com/StarExecMiami/StarExec/) (head node software only).
+- [`starexec-proxy-provers`](starexec-proxy-provers/README.md) - 
   Stuff for building prover archives that can run in ``starexec-containerised``.
-- [StarExec Kubernetes](starexec-kubernetes/README.md) - Stuff for deploying StarExec in Kubernetes (using microk8s or Amazon EKS).
-- [StarExec Provers](starexec-provers/README.md) - Source code for example provers.
-- [StarExec TPTP](starexec-tptp/README.md) - Various code necessary for supporting TPTP.
+- [`starexec-kubernetes`](starexec-kubernetes/README.md) - 
+  Stuff for deploying `starexec-containerised` in Kubernetes (using microk8s or Amazon EKS).
+- [`starexec-provers`](starexec-provers/README.md) - Source code for example provers.
+- [`starExec-tptp`](starexec-tptp/README.md) - Code for supporting TPTP.
 
 ## Documentation
 
