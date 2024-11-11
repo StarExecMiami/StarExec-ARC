@@ -8,12 +8,13 @@ The following steps are required to get it all working
 * Build containerised proxy-prover versions of the ATP systems.
   - That requires containerised (non-proxy) versions of the ATP systems.
     * Those are built in the [`provers-containerised`](provers-containerised) directory.
-    * The [`provers-containerised`](provers-containerised/README.md) file has instructions.
-  - The proxy-prover versions are then built in the `starexec-proxy-provers` directory.
-  - The README file has instructions.
+    * The [README](provers-containerised/README.md) has instructions.
+  - The proxy-prover versions are then built in the 
+    [`starexec-proxy-provers`](starexec-proxy-provers) directory.
+  - The [README](starexec-proxy-provers/README.md) file has instructions.
 * Deploy StarExec in microk8s or EKS
-  - That is done in the `starexec-kubernetes` directory.
-  - The README file has instructions.
+  - That is done in the [`starexec-kubernetes`](starexec-kubernetes) directory.
+  - The [README](starexec-kubernetes/README.md) file has instructions.
 * Navigate to the StarExec website as deployed, upload your proxy-prover ATP system and problem 
   files, and away you go.
   - The URL for the website depends how you deployed StarExec
@@ -21,7 +22,7 @@ The following steps are required to get it all working
       - Run `microk8s kubectl get svc` to get the URL.
       - Put the URL plus `/starexec` in your browser.
     * For EKS but without a Route53 domain
-      - un `microk8s get svc` to get the URL.
+      - Run `microk8s get svc` to get the URL.
       - Put the URL plus `/starexec` in your browser.
     * For EKS with a Route53 domain
       - `https://`*your_Route53_domain*`/starexec`
