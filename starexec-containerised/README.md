@@ -30,3 +30,19 @@ set up, you can do `make clean` and `make cleanVolumes` to totally reset
 and start over with step 1.
 
 ## 4. The container can be killed by running `make kill`
+
+# Here's how the magic works
+This is done by having the local backend in starexec run `run_image.py` with special args to 
+run a prover container in the host.
+
+- Containerised StarExec is built to support local execution of a prover, and also execution 
+  of a proxy-prover directly in podman or via Kubernetes.
+- If the proxy prover is built for podman then containerised StarExec sees the 
+  `run_image.py` script.
+  Containerised StarExec then runs podman to run the container.
+- If the proxy prover is built for Kubernetes then containerised StarExec sees the 
+  `run_image_k8s.py` script.
+  Containerised StarExec then runs kubectl to run the container in Kubernetes.
+- If neither script is there then it's not a proxy prover (just a regular StarExec `.tgz`).
+  Containerised StarExec then runs `runsolver` to run the prover.
+
