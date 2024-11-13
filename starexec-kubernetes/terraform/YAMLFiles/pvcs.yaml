@@ -48,19 +48,19 @@ spec:
       storage: 10Gi
   storageClassName: ""  # Explicitly set to an empty string to avoid using the default StorageClass
 
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: volexport
-spec:
-  selector:
-    matchLabels:
-      app: starexec
-      volume: volexport
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 10Gi
-  storageClassName: ""  # Explicitly set to an empty string to avoid using the default StorageClass
+#---
+#apiVersion: v1
+#kind: PersistentVolumeClaim
+#metadata:
+#  name: volexport
+#spec:
+#  selector:
+#    matchLabels:
+#      app: starexec
+#      volume: volexport
+#  accessModes:
+#    - ReadWriteMany
+#  resources:
+#    requests:
+#      storage: 10Gi
+#  storageClassName: ""  # Explicitly set to an empty string to avoid using the default StorageClass
