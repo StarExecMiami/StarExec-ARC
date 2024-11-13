@@ -7,7 +7,7 @@ In order to make a proxy-prover you first need a
 
 ## To make a proxy-prover that can run in containerised StarExec deployed in Kubernetes
 
-`python make_proxy.py docker.io/tptpstarexec/`*prover*:*version*`-RLR-amd64` *prover*---*version*`-K8sProxy`
+`python make_proxy.py docker.io/tptpstarexec/*prover*:*version*-RLR-amd64` *prover*---*version*`-K8sProxy`
 
 That creates *prover*:*version*`--K8sProxy.tgz` that can be uploaded to containerised 
 StarExec to run in Kubernetes.
