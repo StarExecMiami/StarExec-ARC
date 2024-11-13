@@ -22,17 +22,6 @@ resource "random_string" "suffix" {
   special = false
 }
 
-
-
-
-
-
-
-
-
-
-
-
 #################### VPC ####################################################
 
 module "vpc" {

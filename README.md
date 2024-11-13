@@ -7,32 +7,40 @@ It also contains code for the deployment of these ATP containers within a contai
 The following steps are required to get it all working
 * Build containerised proxy-prover versions of the ATP systems.
   - That requires containerised (non-proxy) versions of the ATP systems.
-    * Those are built in the `provers-containerised` directory.
-    * The README file has instructions.
-  - The proxy-prover versions are then built in the `starexec-proxy-provers` directory.
-  - The README file has instructions.
+    * Those are built in the [`provers-containerised`](provers-containerised) directory.
+    * The [README](provers-containerised/README.md) has instructions.
+  - The proxy-prover versions are then built in the 
+    [`starexec-proxy-provers`](starexec-proxy-provers) directory.
+  - The [README](starexec-proxy-provers/README.md) file has instructions.
 * Deploy StarExec in microk8s or EKS
-  - That is done in the `starexec-kubernetes` directory.
-  - The README file has instructions.
+  - That is done in the [`starexec-kubernetes`](starexec-kubernetes) directory.
+  - The [README](starexec-kubernetes/README.md) file has instructions.
 * Navigate to the StarExec website as deployed, upload your proxy-prover ATP system and problem 
   files, and away you go.
   - The URL for the website depends how you deployed StarExec
     * For microk8s
-      - `localhost:8080/starexec`
+      - Run `microk8s kubectl get svc` to get the URL.
+      - Put the URL plus `/starexec` in your browser.
     * For EKS but without a Route53 domain
-      - WHAT
+      - Run `microk8s get svc` to get the URL.
+      - Put the URL plus `/starexec` in your browser.
     * For EKS with a Route53 domain
       - `https://`*your_Route53_domain*`/starexec`
   - More about uploading here.
 
 ## Repository Subdirectories
 
-- [Provers Containerised](provers-containerised/README.md) - Stuff for building the podman images corresponding with specific ATP systems.
-- [StarExec Containerised](starexec-containerised/README.md) - Stuff for building the podman image of the [StarExec head node software](https://github.com/StarExecMiami/StarExec/).
-- [StarExec Proxy Provers](starexec-proxy-provers/README.md) - Stuff for building StarExec-compatible `.tar.gz` archives that enable the use of containerized provers within StarExec.
-- [StarExec Kubernetes](starexec-kubernetes/README.md) - Stuff for deploying StarExec in Kubernetes (using microk8s or Amazon EKS).
-- [StarExec Provers](starexec-provers/README.md) - Source code for example provers.
-- [StarExec TPTP](starexec-tptp/README.md) - Various code necessary for supporting TPTP.
+- [`provers-containerised`](provers-containerised/README.md) - 
+  Stuff for building the containers for individual ATP systems.
+- [`starexec-containerised`](starexec-containerised/README.md) - 
+  Stuff for building a containerized 
+  [StarExec](https://github.com/StarExecMiami/StarExec/) (head node software only).
+- [`starexec-proxy-provers`](starexec-proxy-provers/README.md) - 
+  Stuff for building prover archives that can run in ``starexec-containerised``.
+- [`starexec-kubernetes`](starexec-kubernetes/README.md) - 
+  Stuff for deploying `starexec-containerised` in Kubernetes (using microk8s or Amazon EKS).
+- [`starexec-provers`](starexec-provers/README.md) - Source code for example provers.
+- [`starExec-tptp`](starexec-tptp/README.md) - Code for supporting TPTP.
 
 ## Documentation
 
