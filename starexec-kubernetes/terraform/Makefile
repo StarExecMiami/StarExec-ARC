@@ -89,7 +89,7 @@ populate-cluster: label-nodes
 	export VOLDB_LABEL=$$(terraform output -raw efs_voldb_access_point_id) && \
 	export VOLSTAR_LABEL=$$(terraform output -raw efs_volstar_access_point_id) && \
 	export VOLPRO_LABEL=$$(terraform output -raw efs_volpro_access_point_id) && \
-	export VOLEXPORT_LABEL=$$(terraform output -raw efs_volexport_access_point_id) && \
+	# export VOLEXPORT_LABEL=$$(terraform output -raw efs_volexport_access_point_id) && \
 	envsubst < YAMLFiles/storage.yaml.template > YAMLFiles/storage.yaml 
 	
 	cd YAMLFiles && kubectl apply -f .
@@ -113,21 +113,44 @@ info:
 
 # Creates EKS infrastructure
 create-cluster:
-	terraform apply -target=module.vpc -auto-approve
-	terraform apply -auto-approve
+	@AWS_REGION=$$(aws configure list | grep region | awk '{print $$2}' | tr -d "'"); \
+	if [ -z "$$AWS_REGION" ]; then \
+		echo "Please first configure your aws region (you can verify it using 'aws configure list')"; \
+		exit 1; \
+	fi; \
+	terraform apply -var="region=$$AWS_REGION" -target=module.vpc -auto-approve; \
+	terraform apply -var="region=$$AWS_REGION" -auto-approve;
+
+# For changing the number of nodes in the EKS cluster (applying a change made in configuration.sh)
+update-node-count:
+	@echo "##############################################################################";
+	@echo "Be aware that this Makefile target only updates the number of nodes";
+	@echo "in the cluster according to what's in the configuration.sh file";
+	@echo "";
+	@echo "It does this by doing a full \"terraform apply\" command, however."
+	@echo "##############################################################################";
+	@sleep 10;
+	@AWS_REGION=$$(aws configure list | grep region | awk '{print $$2}' | tr -d "'"); \
+	if [ -z "$$AWS_REGION" ]; then \
+		echo "Please first configure your aws region (you can verify it using 'aws configure list')"; \
+		exit 1; \
+	fi; \
+	terraform apply -var="region=$$AWS_REGION" -auto-approve;
 
 # Destroys EKS infrastructure
 destroy-cluster:
 	# run make depopulate-cluster if k8s stuff hasn't been shut down.
+	@AWS_REGION=$$(aws configure list | grep region | awk '{print $$2}' | tr -d "'"); \
+	# run make clean if k8s stuff hasn't been shut down.
 	@if kubectl cluster-info > /dev/null 2>&1; then \
 		echo "Cluster is up. Running make depopulate-cluster..."; \
 		make depopulate-cluster; \
 	else \
 		echo "Cluster is not up. Skipping make depopulate-cluster."; \
 	fi
-	terraform destroy -target=module.eks -auto-approve
-	terraform destroy -target=module.vpc -auto-approve
-	terraform destroy -auto-approve
+	terraform destroy -var="region=$$AWS_REGION" -target=module.eks -auto-approve
+	terraform destroy -var="region=$$AWS_REGION" -target=module.vpc -auto-approve
+	terraform destroy -var="region=$$AWS_REGION" -auto-approve
 
 # Show what *will* be created with "terraform apply" (or make create-cluster)
 plan:
@@ -192,6 +215,12 @@ backup-to-s3-from-efs: create-s3-bucket create-datasync-iam-role
 	DATASYNC_S3_ACCESS_ROLE_ARN=$$(aws iam get-role --role-name $(DATASYNC_S3_ACCESS_ROLE_NAME) --query 'Role.Arn' --output text); \
 	S3_LOCATION_ARN=$$(aws datasync create-location-s3 --s3-bucket-arn arn:aws:s3:::$(BUCKET_NAME) --s3-config '{ "BucketAccessRoleArn": "'"$$DATASYNC_S3_ACCESS_ROLE_ARN"'" }' --query 'LocationArn' --output text); \
 	TASK_ARN=$$(aws datasync create-task --source-location-arn $$EFS_LOCATION_ARN --destination-location-arn $$S3_LOCATION_ARN --name EFS-to-S3-Backup --query 'TaskArn' --output text); \
+	# echo "Creating CloudWatch log group for DataSync task"; \
+	# aws logs create-log-group --log-group-name /aws/datasync/EFS-to-S3-Backup; \
+	# echo "Update DataSync task with CloudWatch logging"; \
+	# aws datasync update-task \
+	# 	--task-arn $$TASK_ARN \
+	# 	--cloud-watch-log-group-arn arn:aws:logs:$$REGION:$$AWS_ACCOUNT_ID:log-group:/aws/datasync/EFS-to-S3-Backup; \
 	echo "Starting DataSync task $$TASK_ARN"; \
 	EXECUTION_ARN=$$(aws datasync start-task-execution --task-arn $$TASK_ARN --query 'TaskExecutionArn' --output text); \
 	echo "Waiting for DataSync task to complete (Execution arn $$EXECUTION_ARN)"; \
@@ -251,8 +280,13 @@ restore-to-efs-from-s3: create-datasync-iam-role
 		--source-location-arn $$S3_LOCATION_ARN \
 		--destination-location-arn $$EFS_LOCATION_ARN \
 		--name S3-to-EFS-Restore \
-		--options '{ "OverwriteMode": "ALWAYS", "VerifyMode": "POINT_IN_TIME_CONSISTENT" }' \
 		--query 'TaskArn' --output text); \
+	# echo "Creating CloudWatch log group for DataSync task"; \
+	# aws logs create-log-group --log-group-name /aws/datasync/S3-to-EFS-Restore; \
+	# echo "Update DataSync task with CloudWatch logging"; \
+	# aws datasync update-task \
+	# 	--task-arn $$TASK_ARN \
+	# 	--cloud-watch-log-group-arn arn:aws:logs:$$REGION:$$AWS_ACCOUNT_ID:log-group:/aws/datasync/S3-to-EFS-Restore; \
 	echo "Starting DataSync task $$TASK_ARN"; \
 	EXECUTION_ARN=$$(aws datasync start-task-execution \
 		--task-arn $$TASK_ARN \
@@ -268,7 +302,8 @@ restore-to-efs-from-s3: create-datasync-iam-role
 		BYTES_WRITTEN=$$(aws datasync describe-task-execution \
 			--task-execution-arn $$EXECUTION_ARN \
 			--query 'BytesWritten' --output text); \
-		if [ "$$BYTES_TRANSFERRED" != "None" ] && [ "$$BYTES_WRITTEN" != "None" ] && [ "$$BYTES_TRANSFERRED" -ne 0 ]; then \
+		echo "Task status: $$STATUS, Bytes transferred: $$BYTES_TRANSFERRED, Bytes written: $$BYTES_WRITTEN"; \
+		if [ "$$BYTES_TRANSFERRED" != "None" ] && [ "$$BYTES_WRITTEN" != "None" ] && [ $$BYTES_TRANSFERRED -ne 0 ]; then \
 			PERCENT=$$(echo "scale=2; $$BYTES_WRITTEN * 100 / $$BYTES_TRANSFERRED" | bc); \
 			echo "Task status: $$STATUS, Progress: $$PERCENT%"; \
 		else \

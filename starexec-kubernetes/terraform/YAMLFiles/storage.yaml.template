@@ -66,25 +66,30 @@ spec:
 #    volumeAttributes:
 #      path: "/volpro" 
 
----
 
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: volexport-storage
-  labels:
-    volume: volexport
-    app: starexec
-spec:
-  capacity:
-    storage: 10Gi
-  volumeMode: Filesystem
-  accessModes:
-    - ReadWriteMany
-  storageClassName: ""
-  persistentVolumeReclaimPolicy: Retain
-  csi:
-    driver: efs.csi.aws.com
-    volumeHandle: "${EFS_ID}::${VOLEXPORT_LABEL}"
+
+
+
+# volexport shouldn't be necessary with how StarExec runs jobs
+# using k8s, because data_dir is 
+#---
+#apiVersion: v1
+#kind: PersistentVolume
+#metadata:
+#  name: volexport-storage
+#  labels:
+#    volume: volexport
+#   app: starexec
+#spec:
+#  capacity:
+#    storage: 10Gi
+#  volumeMode: Filesystem
+#  accessModes:
+#    - ReadWriteMany
+#  storageClassName: ""
+#  persistentVolumeReclaimPolicy: Retain
+#  csi:
+#    driver: efs.csi.aws.com
+#    volumeHandle: "${EFS_ID}::${VOLEXPORT_LABEL}"
 #    volumeAttributes:
 #      path: "/volexport"
