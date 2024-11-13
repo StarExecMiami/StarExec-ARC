@@ -101,7 +101,7 @@ populate-cluster: label-nodes
 connect:
 	kubectl exec -it $$(kubectl get pods --selector=app=starexec -o jsonpath='{.items[0].metadata.name}') -- /bin/bash
 
-clean:
+depopulate-cluster:
 	kubectl delete -f YAMLFiles
 
 info:
@@ -117,20 +117,17 @@ create-cluster:
 	terraform apply -auto-approve
 
 # Destroys EKS infrastructure
-destroy:
-	# run make clean if k8s stuff hasn't been shut down.
+destroy-cluster:
+	# run make depopulate-cluster if k8s stuff hasn't been shut down.
 	@if kubectl cluster-info > /dev/null 2>&1; then \
-		echo "Cluster is up. Running make clean..."; \
-		make clean; \
+		echo "Cluster is up. Running make depopulate-cluster..."; \
+		make depopulate-cluster; \
 	else \
-		echo "Cluster is not up. Skipping make clean."; \
+		echo "Cluster is not up. Skipping make depopulate-cluster."; \
 	fi
 	terraform destroy -target=module.eks -auto-approve
 	terraform destroy -target=module.vpc -auto-approve
 	terraform destroy -auto-approve
-
-
-
 
 # Show what *will* be created with "terraform apply" (or make create-cluster)
 plan:

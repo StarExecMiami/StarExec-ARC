@@ -15,7 +15,7 @@ def makeProxyProver(prover, archiveName, local):
     with open(f"parent/bin/prover.txt", "w") as f:
         f.write(prover)
 
-    shutil.copy("../starexec-kubernetes/job_template.yaml", "parent/bin/job_template.yaml")
+    shutil.copy("job_template.yaml", "parent/bin/job_template.yaml")
     
 #----Despite not being used, there needs to be a "configuration..."
     with open(f"parent/bin/starexec_run_{archiveName}", "w") as f:
