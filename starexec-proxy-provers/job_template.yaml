@@ -1,0 +1,96 @@
+# A jinja template for a k8s yaml for a job.
+# Template parameters include:
+#   - name: the name of the job
+#   - image: the image to use
+#   - cpu_limit: the cpu time limit in seconds
+#   - wall_clock_limit: the wall clock time limit in seconds
+#   - memory_limit: the memory limit in MiB
+#   - intent: "THM" or "SAT"
+#   - sandbox: "sandbox" or "sandbox2"
+
+# Reference podman run command from run_image.py:
+# podman --remote --connection host-machine-podman-connection run \
+# -e RLR_INPUT_FILE='/export/starexec/sandbox/benchmark/theBenchmark.p' \
+# -e RLR_CPU_LIMIT='0' -e RLR_WC_LIMIT='0' -e RLR_MEM_LIMIT='0' -e RLR_INTENT='THM'  \
+# -v volExport:/export \
+# -t eprover:3.0.03-RLR \
+# --timestamp  \
+# --add-eof \
+# --watcher-data /export/starexec/sandbox/output/watcher.out \
+# -o /export/starexec/sandbox/output/stdout.txt \
+# -v /export/starexec/sandbox/output/var.out \
+# -C 0 \
+# -W 0 \
+# run_system
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ name }}
+spec:
+  template:
+    metadata:
+      labels:
+        job-type: single-job-type
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  job-type: single-job-type
+              topologyKey: "kubernetes.io/hostname"
+
+      nodeSelector:
+        nodegroup: computenodes
+
+      containers:
+      - name: {{ name }}-container
+        image: {{ image }}
+        workingDir: /artifacts
+        args: 
+        - "--timestamp"
+        - "--add-eof"
+        - "--watcher-data"
+        - "{{ sandbox }}/output/watcher.out"
+        - "-o"
+        - "{{ sandbox }}/output/stdout.txt"
+        - "-v"
+        - "{{ sandbox }}/output/var.out"
+        - "-C"
+        - "{{ cpu_limit }}"
+        - "-W"
+        - "{{ wall_clock_limit }}"
+        - "run_system"
+
+        env:
+        - name: PATH
+          value: "/artifacts:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        - name: RLR_INPUT_FILE
+          value: "{{ sandbox }}/benchmark/theBenchmark.p"
+        - name: RLR_CPU_LIMIT
+          value: "{{ cpu_limit }}"
+        - name: RLR_WC_LIMIT
+          value: "{{ wall_clock_limit }}"
+        - name: RLR_MEM_LIMIT
+          value: "{{ memory_limit }}"
+        - name: RLR_INTENT
+          value: "{{ intent }}"
+
+        volumeMounts:
+        - name: vol-star
+          mountPath: /home/starexec
+
+        resources:
+          requests:
+            cpu: "1"
+          limits:
+            cpu: "1"
+        
+      restartPolicy: Never
+
+      volumes:
+      - name: vol-star
+        persistentVolumeClaim:
+          claimName: volstar
+  backoffLimit: 4

@@ -1,4 +1,4 @@
-# StarExec-ARC <br>(Automated Reasoning Containerisation)
+# StarExec-ARC <BR>(Automated Reasoning Containerisation)
 
 This folder contains code for the containerization of Automated Theorem Provering (ATP) systems. 
 It also contains code for the deployment of these ATP containers within a containerized StarExec 
