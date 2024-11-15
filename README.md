@@ -11,10 +11,8 @@ The following steps are required to get it all working
     * The [README](provers-containerised/README.md) has instructions.
   - The proxy-prover versions are then built in the 
     [`starexec-proxy-provers`](starexec-proxy-provers) directory.
-  - The [README](starexec-proxy-provers/README.md) file has instructions.
 * Deploy StarExec in microk8s or EKS
   - That is done in the [`starexec-kubernetes`](starexec-kubernetes) directory.
-  - The [README](starexec-kubernetes/README.md) file has instructions.
 * Navigate to the StarExec website as deployed, upload your proxy-prover ATP system and problem 
   files, and away you go.
   - The URL for the website depends how you deployed StarExec

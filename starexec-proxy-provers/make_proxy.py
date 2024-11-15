@@ -29,9 +29,12 @@ def makeProxyProver(prover, archiveName, local):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("prover", help="The name:tag of a podman image existing in the host where the proxy prover will be run.")
-    parser.add_argument("archiveName", help="The name of the archive/proxy prover to be created.")
-    parser.add_argument("--local", action="store_true", help="If set, the proxy prover will NOT use kubectl with a templated job.yaml file, instead it'll invoke podman directly.")
+    parser.add_argument("prover", \
+help="The name:tag of a podman image existing in the host where the proxy prover will be run.")
+    parser.add_argument("archiveName", \
+help="The name of the archive/proxy prover to be created.")
+    parser.add_argument("--local", action="store_true", \
+help="If set, the proxy prover will NOT use kubectl with a templated job.yaml file, instead it'll invoke podman directly.")
     args = parser.parse_args()
 
     makeProxyProver(args.prover, args.archiveName, args.local)

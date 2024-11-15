@@ -2,9 +2,9 @@
 
 ## Deploying StarExec in microk8s
 
-`cd microk8s` and see the README 
+- That is done in the [`microk8s`](microk8s) directory.
 
 ## Deploying StarExec in terraform/EKS
 
-`cd terraform` and see the README 
+- That is done in the [`terraform`](terraform) directory.
 
