@@ -37,8 +37,8 @@
       * Run ```kubectl get svc``` to get the AWS domain name for the service
       * Separately forward your domain name to the service using a `CNAME` record.
     - Tell the cluster about the domain:
-      * Run ```make reconfig-starexec``` to reconfigure the java ant build which uses the 
-        domain for some internal redirects like on the job-pairs page.
+      * Run ```make reconfig-starexec``` to reconfigure the StarExec ant build, which uses the 
+        domain for some internal redirects, e.g., on the job-pairs page.
       * Run ```make get-certificate``` to use certbot to obtain a certificate for the domain 
         **(The domain must be forwarding to the cluster for this to work!)**
 
@@ -47,14 +47,9 @@
     - username and password are both `admin`
 
 6. Normal StarExec tar.gz packages for provers do not work in this setup.
-   Instead, upload <i>proxy</i> prover packages:
-   - These can be created from the 
-     <a href="https://github.com/StarExecMiami/starexec-ARC/tree/master/starexec-proxy-provers/README.md">starexec-proxy-provers</a>
-     subdirectory of this repository.
-   - These proxy packages reference containerized provers hosted in online repositories like 
-     dockerhub.
+   Instead, upload proxy prover packages:
+   - These are created in the [`starexec-proxy-provers`](../../starexec-proxy-provers) directory.
+   - Proxy provers reference containerized provers hosted online, e.g., in dockerhub.
 
 7. To run a first example job, you can upload the PUZ001+1.p problem and eprover proxy package 
-   that are provided in the 
-   <a href="https://github.com/StarExecMiami/starexec-ARC/tree/master/starexec-proxy-provers">
-   starexec-proxy-provers</a> subdirectory of this repository.
+   that are provided in the [`starexec-proxy-provers`](../../starexec-proxy-provers) directory.

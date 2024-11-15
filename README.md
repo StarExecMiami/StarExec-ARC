@@ -8,7 +8,6 @@ The following steps are required to get it all working
 * Build containerised proxy-prover versions of the ATP systems.
   - That requires containerised (non-proxy) versions of the ATP systems.
     * Those are built in the [`provers-containerised`](provers-containerised) directory.
-    * The [README](provers-containerised/README.md) has instructions.
   - The proxy-prover versions are then built in the 
     [`starexec-proxy-provers`](starexec-proxy-provers) directory.
 * Deploy StarExec in microk8s or EKS
