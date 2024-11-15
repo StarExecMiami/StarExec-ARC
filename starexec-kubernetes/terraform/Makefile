@@ -98,28 +98,8 @@ populate-cluster: label-nodes
 	fi
 	kubectl create secret generic starexec-ssh-key --from-file=starexec_ssh_key=../../starexec-containerised/starexec_podman_key -n default;
 
-connect:
-	kubectl exec -it $$(kubectl get pods --selector=app=starexec -o jsonpath='{.items[0].metadata.name}') -- /bin/bash
-
 depopulate-cluster:
 	kubectl delete -f YAMLFiles
-
-info:
-	kubectl get all --all-namespaces
-
-######################
-# Terraform/EKS/AWS  #
-######################
-
-# Creates EKS infrastructure
-create-cluster:
-	@AWS_REGION=$$(aws configure list | grep region | awk '{print $$2}' | tr -d "'"); \
-	if [ -z "$$AWS_REGION" ]; then \
-		echo "Please first configure your aws region (you can verify it using 'aws configure list')"; \
-		exit 1; \
-	fi; \
-	terraform apply -var="region=$$AWS_REGION" -target=module.vpc -auto-approve; \
-	terraform apply -var="region=$$AWS_REGION" -auto-approve;
 
 # For changing the number of nodes in the EKS cluster (applying a change made in configuration.sh)
 update-node-count:
@@ -135,6 +115,26 @@ update-node-count:
 		echo "Please first configure your aws region (you can verify it using 'aws configure list')"; \
 		exit 1; \
 	fi; \
+	terraform apply -var="region=$$AWS_REGION" -auto-approve;
+
+info:
+	kubectl get all --all-namespaces
+
+connect:
+	kubectl exec -it $$(kubectl get pods --selector=app=starexec -o jsonpath='{.items[0].metadata.name}') -- /bin/bash
+
+######################
+# Terraform/EKS/AWS  #
+######################
+
+# Creates EKS infrastructure
+create-cluster:
+	@AWS_REGION=$$(aws configure list | grep region | awk '{print $$2}' | tr -d "'"); \
+	if [ -z "$$AWS_REGION" ]; then \
+		echo "Please first configure your aws region (you can verify it using 'aws configure list')"; \
+		exit 1; \
+	fi; \
+	terraform apply -var="region=$$AWS_REGION" -target=module.vpc -auto-approve; \
 	terraform apply -var="region=$$AWS_REGION" -auto-approve;
 
 # Destroys EKS infrastructure
@@ -165,18 +165,9 @@ kubectl-setup:
 	aws eks --region $$(terraform output -raw region) update-kubeconfig \
 		--name $$(terraform output -raw cluster_name)
 
-
-
-
-
-
-
-
 ######################
 # S3 Backups         #
 ######################
-
-
 
 BUCKET_NAME := $(shell terraform output -raw cluster_name | tr '[:upper:]' '[:lower:]')-bucket
 REGION := $(shell terraform output -raw region)
