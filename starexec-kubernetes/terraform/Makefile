@@ -337,16 +337,6 @@ delete-s3-bucket:
 	@echo "Deleting S3 bucket: $(BUCKET_NAME)"
 	@aws s3 rb s3://$(BUCKET_NAME) --force
 
-
-
-
-
-
-
-
-
-
-
 ######################
 # S3 Backups         #
 ######################

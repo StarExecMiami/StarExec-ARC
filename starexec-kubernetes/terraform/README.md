@@ -52,7 +52,7 @@
 7. To run a first example job, you can upload the PUZ001+1.p problem and eprover proxy package 
    tk8s hat are provided in the [`starexec-proxy-provers`](../../starexec-proxy-provers) directory.
 
---
+---
 
 # Managing the EKS cluster
 
