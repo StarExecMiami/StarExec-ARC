@@ -64,9 +64,31 @@
 - Putting StarExec on the cluster
   * `make populate-cluster`
   * Wait a bit for the head node to be up-and-running
-  * If you have a Route53 domain to forward
+  * If you have a Route53 domain to forward to:
     + Edit `configuration.sh` to put in the domain
     + `make forward-domain-route53`
     + `make reconfig-starexec` 
     + Wait a few minutes
     + `make get-certificate`
+  * If you have a non-Route53 domain to forward to:
+    + Edit `configuration.sh` to put in the domain
+    + Use a CNAME entry to forward the domain
+    + `make reconfig-starexec` 
+    + Wait a few minutes
+    + `make get-certificate`   CHECK WITH JACK
+- Saving and Restoring StarExec data (solvers, benchmarks, jobs, etc.) via S3
+  * Saving StarExec data to S3
+    + Stop StarExec with `make depopulate-cluster`
+    + `make create-s3-bucket`
+    + `make backup-to-s3-from-efs`
+    + Restart StarExec with `make populate-cluster`
+  * Restoring StarExec data from S3
+    + Stop StarExec with `make depopulate-cluster`
+    + `make restore-to-efs-from-s3
+    + Restart StarExec with `make populate-cluster`
+  * Downloading StarExec data from S3
+    + `make download-from-s3` (this also does `make create-s3-bucket` DOES IT DO backup-to-s3-from-efs?
+      The data is saved in `./s3-backup`
+  * Uploading StarExec data to S3
+    + `make upload-to-s3`
+      The data is uploaded from `./s3-backup`
