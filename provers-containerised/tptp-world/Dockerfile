@@ -26,8 +26,8 @@ RUN cp TPTP4X/tptp4X /artifacts/
 # RUN make
 # RUN cp /runsolver/src/runsolver /artifacts/
 
-# Instead get it from here: https://github.com/StarExecMiami/StarExec/tree/pullingUpdates/src/org/starexec/config/sge/RunSolverSource
-RUN git clone -n --depth=1 --branch pullingUpdates --filter=tree:0 https://github.com/StarExecMiami/StarExec.git
+# Instead get it from here: https://github.com/StarExecMiami/StarExec/tree/UMprod/src/org/starexec/config/sge/RunSolverSource
+RUN git clone -n --depth=1 --branch UMprod --filter=tree:0 https://github.com/StarExecMiami/StarExec.git
 WORKDIR StarExec
 RUN git sparse-checkout set --no-cone src/org/starexec/config/sge/RunSolverSource
 RUN git checkout
