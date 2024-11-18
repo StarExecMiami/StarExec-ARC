@@ -75,7 +75,7 @@
     + Use a CNAME entry to forward the domain
     + `make reconfig-starexec` 
     + Wait a few minutes
-    + `make get-certificate`   CHECK WITH JACK
+    + `make get-certificate`
 - Saving and Restoring StarExec data (solvers, benchmarks, jobs, etc.) via S3
   * Saving StarExec data to S3
     + Stop StarExec with `make depopulate-cluster`

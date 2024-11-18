@@ -33,7 +33,7 @@ The following steps are required to get it all working
   Stuff for building a containerized 
   [StarExec](https://github.com/StarExecMiami/StarExec/) (head node software only).
 - [`starexec-proxy-provers`](starexec-proxy-provers/README.md) - 
-  Stuff for building prover archives that can run in ``starexec-containerised``.
+  Stuff for building prover archives that can run in `starexec-containerised`.
 - [`starexec-kubernetes`](starexec-kubernetes/README.md) - 
   Stuff for deploying `starexec-containerised` in Kubernetes (using microk8s or Amazon EKS).
 - [`starexec-provers`](starexec-provers/README.md) - Source code for example provers.
