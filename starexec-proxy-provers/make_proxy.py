@@ -1,5 +1,7 @@
 import argparse
 import os, shutil
+from helpers import verifyImageExists
+
 #--------------------------------------------------------------------------------------------------
 def makeProxyProver(prover, archiveName, local):
     
@@ -12,6 +14,8 @@ def makeProxyProver(prover, archiveName, local):
     else:
         shutil.copy("../starexec-kubernetes/run_image_k8s.py", "parent/bin/run_image_k8s.py")
 
+    # Check if prover image exists (in docker.io / whatever registry, or locally if no registry)
+    verifyImageExists(prover)
     with open(f"parent/bin/prover.txt", "w") as f:
         f.write(prover)
 
