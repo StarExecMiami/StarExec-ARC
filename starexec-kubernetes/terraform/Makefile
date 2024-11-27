@@ -99,7 +99,33 @@ populate-cluster: label-nodes
 	kubectl create secret generic starexec-ssh-key --from-file=starexec_ssh_key=../../starexec-containerised/starexec_podman_key -n default;
 
 depopulate-cluster:
-	kubectl delete -f YAMLFiles
+	@echo "Deleting Ingress..."
+	@kubectl delete -f YAMLFiles/ingress.yaml --wait=true --timeout=1m || echo "Failed to delete ingress."
+	
+	@echo "Deleting Service..."
+	@kubectl delete -f YAMLFiles/service.yaml --wait=true --timeout=1m || echo "Failed to delete service."
+	
+	@echo "Deleting Deployment..."
+	@kubectl delete -f YAMLFiles/deployment.yaml --wait=true --timeout=1m || echo "Failed to delete deployment."
+	
+	@echo "Deleting Headnode Role Binding..."
+	@kubectl delete -f YAMLFiles/headnode-role-binding.yaml --wait=true --timeout=1m || echo "Failed to delete headnode role binding."
+	
+	@echo "Deleting Headnode Role..."
+	@kubectl delete -f YAMLFiles/headnode-role.yaml --wait=true --timeout=1m || echo "Failed to delete headnode role."
+	
+	@echo "Deleting Headnode Service Account..."
+	@kubectl delete -f YAMLFiles/headnode-service-account.yaml --wait=true --timeout=1m || echo "Failed to delete headnode service account."
+	
+	@echo "Deleting PVCs..."
+	@kubectl delete -f YAMLFiles/pvcs.yaml --wait=true --timeout=1m || echo "Failed to delete PVCs."
+	
+	@echo "Deleting Storage..."
+	@kubectl delete -f YAMLFiles/storage.yaml --wait=true --timeout=1m || echo "Failed to delete storage."
+
+
+
+
 
 # For changing the number of nodes in the EKS cluster (applying a change made in configuration.sh)
 update-node-count:
