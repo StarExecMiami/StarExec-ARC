@@ -37,6 +37,9 @@
     - Tell the cluster about the domain:
       * Run `make reconfig-starexec` to reconfigure the StarExec ant build, which uses the 
         domain for some internal redirects, e.g., on the job-pairs page.
+      * Test if your domain works in a browser - it will complain that it's insecure, but then
+        you do the next step. But **you must wait until the domain is working** (insecurely) before 
+        you do the next step.
       * Run `make get-certificate` to use certbot to obtain a certificate for the domain 
         **(The domain must be forwarding to the cluster for this to work!)**
 
