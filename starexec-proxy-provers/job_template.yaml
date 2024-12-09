@@ -83,9 +83,9 @@ spec:
 
         resources:
           requests:
-            cpu: "1"
+            cpu: "1.9"
           limits:
-            cpu: "1"
+            cpu: "2.0"
         
       restartPolicy: Never
 
