@@ -1,5 +1,5 @@
 #------------------------------------------------------------
-#----To build: podman build -t vampire:4.8 .
+#----To build: podman build -t vampire:version_number_here .
 
 FROM ubuntu-arc
 
@@ -21,7 +21,7 @@ WORKDIR vampire
 RUN mkdir -p build && cd build
 RUN cmake /vampire -DBUILD_SHARED_LIBS=0
 RUN make
-RUN cp bin/vampire* /artifacts/vampire
+RUN cp vampire /artifacts/vampire
 RUN cd / && rm -rf build && rm -rf vampire
 
 #----Build Vampire HO

@@ -87,7 +87,7 @@ module "eks" {
   version = "20.8.5"
 
   cluster_name    = local.cluster_name
-  cluster_version = "1.31"
+  cluster_version = "1.32"
   # cluster_version = local.latest_k8s_version
 
   cluster_endpoint_public_access           = true
