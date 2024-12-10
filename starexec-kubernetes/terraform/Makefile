@@ -4,11 +4,37 @@ SHELL = bash
 domain := $(shell ./configuration.sh domain)
 
 default:
-	echo "0. init 1. create-cluster, 2. kubectl-setup, 3. populate-cluster"
+	@echo "0. init 1. create-cluster, 2. kubectl-setup, 3. populate-cluster"
 	make init create-cluster kubectl-setup populate-cluster
 
-	# echo "Getting certificate and reconfiguring starexec (java ant build config)"
-	# make reconfig-starexec get-certificate
+	@echo "1.) Initializing Terraform"
+	make init
+
+	@echo "2.) Using Terraform to create EKS/EFS/etc in AWS"
+	make create-cluster
+
+	@echo "3.) Connecting kubectl to EKS cluster"
+	make kubectl-setup
+
+	@echo "4.) Deploying StarExec in the EKS cluster"
+	make populate-cluster
+
+	@echo "5.) Auto-forwarding domain name (from configuration.sh) and getting TLS/SSL certificate if it's a domain AWS can find in route53"
+	@echo "    If you have a different registrar, you'll need to manually forward the domain to the address found by doing 'kubectl get svc'"
+	@echo "    and then you'll have to run 'make reconfig-starexec' and 'make get-certificate' after the domain is forwarded."
+	@if aws route53 list-hosted-zones | grep -q "$(domain)"; then \
+		echo "Domain $(domain) found in Route53. Proceeding with setup..."; \
+		make forward-domain-route53; \
+		make reconfig-starexec; \
+		sleep 120; \
+		make get-certificate; \
+	else \
+		echo "Domain $(domain) not found in Route53."; \
+		echo "Please manually forward $(domain) to the address found by 'kubectl get svc'"; \
+		echo "Then run 'make reconfig-starexec' and 'make get-certificate'"; \
+	fi
+
+
 
 reconfig-starexec:
 	@echo "Finding running pod for se-depl..."
@@ -63,16 +89,53 @@ forward-domain-route53:
 ######################
 #     Kubernetes     #
 ######################
-label-nodes:
+
+cache-prover-image:
+	@if [ -z "$(prover_image)" ]; then \
+		echo "No prover_image specified. Please run as 'make cache-prover-image prover_image=\"docker.io/someProverImage\"'"; \
+	else \
+		echo "Caching prover image '$(prover_image)'..."; \
+		kubectl create deployment test --image=$(prover_image); \
+		while [ "$$(kubectl get pods -l app=test -o jsonpath='{.items[0].status.phase}')" != "Running" ]; do \
+			echo "Waiting for image to be pulled and pod to be in Running state..."; \
+			sleep 5; \
+		done; \
+		kubectl delete deployment test; \
+	fi
+
+
+enable-k8s-api-proxy:
+	@echo "Restarting k8s api proxy..."
+	@# List all kubectl proxy processes, filter out any that might affect the make process
+	@pids=$$(ps aux | grep '[k]ubectl proxy' | grep -v grep | awk '{print $$2}'); \
+	if [ -n "$$pids" ]; then \
+		echo "Stopping existing kubectl proxy processes..."; \
+		echo $$pids | xargs kill; \
+		sleep 2; \
+	fi
+	@# Start kubectl proxy in the background
+	@echo "Starting kubectl proxy..."
+	@kubectl proxy > /dev/null 2>&1 &
+
+
+
+
+label-nodes: enable-k8s-api-proxy
+	@echo "Labeling compute nodes (compute node labels + k8s extended resource)..."
 	# Label compute nodes
 	for node in $$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}'); do \
 		if kubectl get node $$node -o jsonpath='{.metadata.labels.eks\.amazonaws\.com/nodegroup}' | grep -q "computenodes"; then \
 			echo "Labeling compute node: $$node"; \
 			kubectl label nodes $$node nodegroup=computenodes --overwrite; \
+			curl --header "Content-Type: application/json-patch+json" \
+				--request PATCH \
+				--data '[{"op": "add", "path": "/status/capacity/example.com~1unicorn", "value": "1"}]' \
+				http://localhost:8001/api/v1/nodes/$$node/status; \
 		fi; \
 	done
 
 	# Label head node
+	@echo "Labeling head node..."
 	for node in $$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}'); do \
 		if kubectl get node $$node -o jsonpath='{.metadata.labels.eks\.amazonaws\.com/nodegroup}' | grep -q "headnode"; then \
 			echo "Labeling head node: $$node"; \
@@ -89,14 +152,20 @@ populate-cluster: label-nodes
 	export VOLDB_LABEL=$$(terraform output -raw efs_voldb_access_point_id) && \
 	export VOLSTAR_LABEL=$$(terraform output -raw efs_volstar_access_point_id) && \
 	export VOLPRO_LABEL=$$(terraform output -raw efs_volpro_access_point_id) && \
-	# export VOLEXPORT_LABEL=$$(terraform output -raw efs_volexport_access_point_id) && \
 	envsubst < YAMLFiles/storage.yaml.template > YAMLFiles/storage.yaml 
 	
 	cd YAMLFiles && kubectl apply -f .
 	if [ ! -f ../../starexec-containerised/starexec_podman_key ]; then \
 		ssh-keygen -t rsa -N "" -f ../../starexec-containerised/starexec_podman_key; \
 	fi
-	kubectl create secret generic starexec-ssh-key --from-file=starexec_ssh_key=../../starexec-containerised/starexec_podman_key -n default;
+
+	@if ! kubectl get secret starexec-ssh-key -n default > /dev/null 2>&1; then \
+		echo "Creating Kubernetes secret for SSH key..."; \
+		kubectl create secret generic starexec-ssh-key --from-file=starexec_ssh_key=../../starexec-containerised/starexec_podman_key -n default; \
+	else \
+		echo "Kubernetes secret 'starexec-ssh-key' already exists. No need to recreate."; \
+	fi
+
 
 depopulate-cluster:
 	@echo "Deleting Ingress..."
