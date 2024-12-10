@@ -83,9 +83,9 @@ spec:
 
         resources:
           requests:
-            cpu: "1"
+            example.com/unicorn: "1"
           limits:
-            cpu: "1"
+            example.com/unicorn: "1"
         
       restartPolicy: Never
 
