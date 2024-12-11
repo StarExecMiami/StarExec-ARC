@@ -21,7 +21,7 @@
      Note that regardless of what you choose, one and only one StarExec job pair will run at
      a time on each node, i.e., using more powerful nodes give more power to the job pair,
      but does not make the queue of job pairs get run faster.
-     The `t3.small type is the cheapest, with two CPUs.
+     The `t3.small` type is cheap, with two CPUs.
 
 2. Run `make`, which does the following:
     - `make init`: Initializes terraform by running `terraform init -upgrade`.
