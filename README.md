@@ -6,7 +6,8 @@ It also contains code for the deployment of these ATP containers within a contai
 
 The following steps are required to get it all working
 * Install `podman`, [as explained here](https://podman.io/docs/installation).
-  - `brew install kubectl` or in Ubuntu `sudo apt install podman` or `snap install podman --classic`
+  - On a Mac: `brew install kubectl` 
+  - In Ubuntu `sudo apt install podman` or `snap install podman --classic`
   - Check with `podman version`
 * Build containerised proxy-prover versions of the ATP systems.
   - That requires containerised (non-proxy) versions of the ATP systems.
@@ -41,6 +42,33 @@ The following steps are required to get it all working
   Stuff for deploying `starexec-containerised` in Kubernetes (using microk8s or Amazon EKS).
 - [`starexec-provers`](starexec-provers/README.md) - Source code for example provers.
 - [`starExec-tptp`](starexec-tptp/README.md) - Code for supporting TPTP.
+
+## How to do podman/docker actions
+
+Building a container image:
+```shell
+podman/docker build -t <TAG_NAME> <PATH_TO_DIRECTORY_WHERE_DOCKERFILE_LIES>
+```
+Running a container (entrypoint):
+```shell
+podman/docker run --rm [--entrypoint <ENTRYPOINT_FILE>] <TAG_NAME> <ARGS>
+```
+Running a container (interactive shell):
+```shell
+podman/docker run --rm -it <TAG_NAME>
+```
+Cleanup everything (podman):
+```shell
+podman system prune --all --force && podman rmi --all
+```
+Forced cleanup (podman):
+```shell
+podman rmi --all --force
+```
+Cleanup everything (docker):
+```shell
+docker system prune --all --force &&  docker rmi $(docker images -a -q)
+```
 
 ## Documentation
 

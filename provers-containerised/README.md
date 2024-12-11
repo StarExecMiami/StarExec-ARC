@@ -60,33 +60,3 @@ it can be run in `podman`.
      ```shell
      podman pull tptpstarexec/eprover:3.0.03-RLR-your_architecture
      ```
-# How to do podman/docker actions
-
-We recommend using Podman (which is intended to work as a drop-in replacement for Docker).
-See Podman installation instructions: https://podman.io/docs/installation
-
-Building a container image with Podman/Docker:
-```shell
-podman/docker build -t <TAG_NAME> <PATH_TO_DIRECTORY_WHERE_DOCKERFILE_LIES>
-```
-Running a container (from an image) with Podman/Docker (entrypoint):
-```shell
-podman/docker run --rm [--entrypoint <ENTRYPOINT_FILE>] <TAG_NAME> <ARGS>
-```
-Running a container with Podman/Docker (interactive shell):
-```shell
-podman/docker run --rm -it <TAG_NAME>
-```
-Cleanup everything (Podman):
-```shell
-podman system prune --all --force && podman rmi --all
-```
-Forced cleanup (Podman):
-```shell
-podman rmi --all --force
-```
-Cleanup everything (Docker):
-```shell
-docker system prune --all --force &&  docker rmi $(docker images -a -q)
-```
-
