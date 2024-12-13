@@ -1,4 +1,4 @@
-# Making and Deploying StarExec in an EKS cluster, using `terraform`
+# Making and Deploying StarExec in EKS<BR>using `terraform`
 
 0. Prepare:
    - Install terraform:
