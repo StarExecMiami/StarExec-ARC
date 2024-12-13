@@ -9,10 +9,6 @@
      * In Ubuntu: `snap install aws-cli --classic`
      * Check configuration with `aws sts get-caller-identity` or, if needed, 
        [configure AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)
-   - Install kubectl:
-     * On a Mac: `brew install kubectl` 
-     * In Ubuntu `snap install kubectl --classic`
-     * Check with `kubectl version`
 
 1. Edit `configuration.sh` to set your domain name, number of nodes, etc.
    - It's nice to have your own domain, and even better if you use Route53 as the registrar.

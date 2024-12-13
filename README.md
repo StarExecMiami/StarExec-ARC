@@ -6,9 +6,13 @@ It also contains code for the deployment of these ATP containers within a contai
 
 The following steps are required to get it all working
 * Install `podman`, [as explained here](https://podman.io/docs/installation).
-  - On a Mac: `brew install kubectl` 
+  - On a Mac: `brew install podman` 
   - In Ubuntu `sudo apt install podman` or `snap install podman --classic`
-  - Check with `podman version`
+  - Check with `podman --version`
+* Install kubectl:
+  - On a Mac: `brew install kubectl` 
+  - In Ubuntu `snap install kubectl --classic`
+  - Check with `kubectl version`
 * Build containerised proxy-prover versions of the ATP systems.
   - That requires containerised (non-proxy) versions of the ATP systems.
     * Those are built in the [`provers-containerised`](provers-containerised) directory.
