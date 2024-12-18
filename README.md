@@ -9,10 +9,19 @@ The following steps are required to get it all working
   - On a Mac: `brew install podman` 
   - In Ubuntu `sudo apt install podman` or `snap install podman --classic`
   - Check with `podman --version`
-* Install kubectl:
+* If you will be using EKS, install kubectl:
   - On a Mac: `brew install kubectl` 
   - In Ubuntu `snap install kubectl --classic`
   - Check with `kubectl version`
+* If you will be using microk8s, install microk8s:
+  - On a Mac: MicroK8s is not natively supported on macOS. 
+    However, you can install MicroK8s by running it inside a Multipass virtual machine.
+    See [`https://microk8s.io/docs/install-macos`](https://microk8s.io/docs/install-macos).
+  - In Ubuntu:
+    * `snap install kubectl --classic`
+    * `sudo usermod -aG microk8s $USER && sudo chown -f -R $USER ~/.kube && newgrp microk8s`
+    * Optionally `alias kubectl='microk8s kubectl'` in your shell resource file.
+  - Check with `microk8s status --wait-ready` and `microk8s kubectl get nodes`
 * Build containerised proxy-prover versions of the ATP systems.
   - That requires containerised (non-proxy) versions of the ATP systems.
     * Those are built in the [`provers-containerised`](provers-containerised) directory.
