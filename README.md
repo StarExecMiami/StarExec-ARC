@@ -19,7 +19,7 @@ The following steps are required to get it all working
     See [`https://microk8s.io/docs/install-macos`](https://microk8s.io/docs/install-macos).
   - In Ubuntu:
     * `snap install microk8s --classic`
-    * `sudo usermod -aG microk8s $USER && sudo chown -f -R $USER ~/.kube && newgrp microk8s`
+    * `sudo usermod -aG microk8s $USER` then `sudo chown -f -R $USER ~/.kube` then `newgrp microk8s`
     * Optionally `alias kubectl='microk8s kubectl'` in your shell resource file.
   - Check with `microk8s status --wait-ready` and `microk8s kubectl get nodes`
 * Build containerised proxy-prover versions of the ATP systems.
