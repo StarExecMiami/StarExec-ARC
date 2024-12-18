@@ -18,7 +18,7 @@ The following steps are required to get it all working
     However, you can install MicroK8s by running it inside a Multipass virtual machine.
     See [`https://microk8s.io/docs/install-macos`](https://microk8s.io/docs/install-macos).
   - In Ubuntu:
-    * `snap install kubectl --classic`
+    * `snap install microk8s --classic`
     * `sudo usermod -aG microk8s $USER && sudo chown -f -R $USER ~/.kube && newgrp microk8s`
     * Optionally `alias kubectl='microk8s kubectl'` in your shell resource file.
   - Check with `microk8s status --wait-ready` and `microk8s kubectl get nodes`
