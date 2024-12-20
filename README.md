@@ -7,7 +7,8 @@ The following explains how get it all working.
 
 ### For all use cases:
 * Install `podman`, [as explained here](https://podman.io/docs/installation).
-  - On a Mac: `brew install podman` 
+  - On a Mac: `brew install podman` then start a podman daemon with
+    `podman machine start`.
   - In Ubuntu `sudo apt install podman` or `snap install podman --classic`
   - Check with `podman --version`
 * Containerise StarExec, in the [`starexec-containerised`](starexec-containerised) directory.
@@ -48,7 +49,6 @@ Containerised proxy-prover ATP systems can also be run in containerised StarExec
     * For EKS with a Route53 domain, the URL is 
       `https://`*your_Route53_domain*
   - Put the URL in your browser.
-* More about uploading to be written here.
 
 ## Documentation
 
