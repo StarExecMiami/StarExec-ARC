@@ -1,13 +1,13 @@
 # StarExec Containerized
 
 * `dockerPackage` contains shell scripts used by the dockerfile for building the app image.
-* `dockerPackage/configFiles` contains configuration files for 
-* `dockerPackage/allScripts/starexecScripts/overridesproperties.txt` contains configuration files
-   for StarExec.
+* `dockerPackage/configFiles` contains network configuration files.
+* `dockerPackage/allScripts/starexecScripts/overridesproperties.txt` contains StarExec
+   configuration files.
 
-Make sure you have podman installed.
 
 ## Build the image 
+* Make sure you have podman installed, [as explained here](../README.md)
 * `make` (see the `Makefile` for details)
 * You should have to do this only once.
 
