@@ -10,10 +10,22 @@ The following explains how get it all working.
   - On a Mac: `brew install podman` 
   - In Ubuntu `sudo apt install podman` or `snap install podman --classic`
   - Check with `podman --version`
-* Containerise your ATP systems, in the [`provers-containerised`](provers-containerised) directory.
 * Containerise StarExec, in the [`starexec-containerised`](starexec-containerised) directory.
+  - Test the containerised StarExec with traditional StarExec `.tgz` ATP system packges.
 
-### To deploy StarExec in Kubernetes
+### Building containerised proxy-prover ATP systems:
+
+Containerised proxy-prover ATP systems are run in containerised StarExec on Kubernetes.
+Containerised proxy-prover ATP systems can also be run in containerised StarExec.
+* Plain containerised ATP systems are required for building containerised proxy-prover ATP systems.
+  Build containerised ATP systems in the 
+  [`provers-containerised`](provers-containerised) directory.
+* Build containerised proxy-prover ATP systems in the 
+  [`starexec-proxy-provers`](starexec-proxy-provers) directory.
+  - Test the containerised proxy-prover ATP systems using 
+    [containerised StarExec](starexec-containerised).
+
+### Deploying StarExec in Kubernetes
 * If you will be using EKS, install kubectl:
   - On a Mac: `brew install kubectl` 
   - In Ubuntu `snap install kubectl --classic`
@@ -27,10 +39,6 @@ The following explains how get it all working.
     * `sudo usermod -aG microk8s $USER` then `sudo chown -f -R $USER ~/.kube` then `newgrp microk8s`
     * Optionally `alias kubectl='microk8s kubectl'` in your shell resource file.
   - Check with `microk8s status --wait-ready` and `microk8s kubectl get nodes`
-* Build containerised proxy-prover versions of the ATP systems in the 
-  [`starexec-proxy-provers`](starexec-proxy-provers) directory.
-  That requires [`provers-containerised`](provers-containerised) versions of the ATP systems, 
-  mentioned above.
 * Deploy StarExec in microk8s or EKS in the [`starexec-kubernetes`](starexec-kubernetes) directory.
 * Navigate to the StarExec website as deployed, upload your proxy-prover ATP system and problem 
   files, and away you go.

@@ -11,9 +11,10 @@ it can be run in `podman`.
   program (currently `runsolver`) with appropriate leading output for the TPTP World, and
   a `Dockerfile` to build a containers for specified prover (see the comments in the `Dockerfile`).
   * Each prover's folder contains a `Dockerfile` for building the prover in a container.
-  * The tag name convention for prover containers is *prover*`:`*version*s.
-    - This has to be provided as the `--build-arg PROVER_IMAGE` value for building the resource
-      limited prover container.
+  * The tag name convention for prover containers is *prover*`:`*version*.
+    - The *prover* has to be lowercase (because of docker/podman).
+    - The tag name has to be provided as the `--build-arg PROVER_IMAGE` value for building the 
+      resource limited prover container.
   * The tag name convention for resource limited prover containers is the prover container
     name plus the suffix `-RLR`.
 - The `run_image.py` script for running a resource limited prover container on a given ATP
@@ -21,30 +22,31 @@ it can be run in `podman`.
 - A `Makefile` that builds `ubuntu-arc`, `tptp-world`, and some resource limited prover
   containers - look in the Makefile to see which provers are supported so far.
 
-# To build and run a TPTP docker image for E (example)
+# To build and run a TPTP docker image for (using E 3.0.03 as an example)
 
-1. First clone this repo and build `ubuntu-arc` image:
+1. Clone this repo and build `ubuntu-arc` image:
     ```shell
     git clone https://github.com/StarExecMiami/starexec-arc
     cd starexec-ARC/provers-containerised/ubuntu-arc
     podman build --no-cache -t ubuntu-arc .
     ```
-2. Now build `tptp-world` image:
+2. Build the `tptp-world` image:
     ```shell
     cd ../tptp-world
     podman build --no-cache -t tptp-world .
     ```
-3. Now build `eprover` image. 
+3. Build the `eprover` image. 
+   Note it is called `eprover` instead of `E`, because it has to be lowercase.
     ```shell
     cd ../provers/E---3.0.03 
     podman build --no-cache -t eprover:3.0.03 .
     ```
-4. Now build `eprover:version-RLR` image using the generic RLR Dockerfile
+4. Build `eprover:version-RLR` image using the generic RLR Dockerfile
     ```shell
     cd ..
     podman build -t eprover:3.0.03-RLR --build-arg PROVER_IMAGE=eprover:3.0.03 .
     ```
-5. Run using the `run_image.py` script
+5. Test using the `run_image.py` script
    ```shell
    cd ..
    run_image.py eprover:3.0.03-RLR -P ../../TPTP-problems/PUZ001+1.p -W 60 -I THM
