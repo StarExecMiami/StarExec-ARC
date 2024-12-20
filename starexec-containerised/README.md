@@ -6,34 +6,35 @@
    configuration files.
 
 
-## Build the image 
+### Build the image 
 * Make sure you have podman installed, [as explained here](../README.md)
 * `make` (see the `Makefile` for details)
 * You should have to do this only once.
 
-## Run the image 
+### Run the image 
 * `make run` (see Makefile for details).
   You must be able to use port 80 without sudo/root:
   - On a Mac: TBA.
   - In Ubuntu, add "net.ipv4.ip_unprivileged_port_start=80" to `/etc/sysctl.conf` outside the 
     container)
 
-## Login at https://localhost
+### Login at https://localhost
 The interface may take about a minute to become stable because the StarExec tomcat app is 
 redeployed on every restart.
 
 Default username: **admin**<br>
 Default password: **admin**
 
-## Kill the container 
-* `make kill`
-
-## For debugging 
+### Debug if you need to 
 * `make connect` (runs a bash shell in the container)
 
-If you are having trouble, but aren't afraid of erasing any state you've set up, you can 
-`make clean` and `make cleanVolumes` to totally remove everything - you have to rebuild the
-container.
+### Kill the running image (if you want) 
+* `make kill`
+
+### Destroy the image
+If you are having trouble, and aren't afraid of erasing any state you've set up, you can 
+totally remove everything - you have to rebuild the container.
+* `make clean` then `make cleanVolumes` 
 
 # Here's how the magic works
 
