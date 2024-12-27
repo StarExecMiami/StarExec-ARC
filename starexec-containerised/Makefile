@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-USER=`whoami`
+USER=$(shell whoami)
 PODMAN_SOCKET_PATH="/run/user/1000/podman/podman.sock"
 
 .PHONY: all starexec clean cleanVolumes connect
