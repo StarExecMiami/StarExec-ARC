@@ -5,22 +5,22 @@
 * `dockerPackage/allScripts/starexecScripts/overridesproperties.txt` contains StarExec
    configuration files.
 
-
 ### Build the image 
 * Make sure you have podman installed, [as explained here](../README.md)
 * `make` (see the `Makefile` for details)
 * You should have to do this only once.
 
 ### Run the image 
-* `make run` (see Makefile for details).
-  You must be able to use port 80 without sudo/root:
+* Make it possible to use port 80 without sudo/root:
   - On a Mac: TBA.
-  - In Ubuntu, add "net.ipv4.ip_unprivileged_port_start=80" to `/etc/sysctl.conf` outside the 
-    container)
+  - In Ubuntu, add `net.ipv4.ip_unprivileged_port_start=80` to `/etc/sysctl.conf` 
+  - `sudo sysctl --system` to reload `net.ipv4.ip_unprivileged_port_start=80`
+* `make run` (see Makefile for details).
 
-### Login at https://localhost
-The interface may take about a minute to become stable because the StarExec tomcat app is 
-redeployed on every restart.
+### Login at `https://localhost`
+* The interface may take about a minute to become available, because the StarExec `tomcat` app is 
+  redeployed on every restart.
+* For access to a remote server `ssh -L 8080:geoff@quenda:80 geoff@johnston` (FIX THIS)
 
 Default username: **admin**<br>
 Default password: **admin**

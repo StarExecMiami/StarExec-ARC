@@ -4,37 +4,37 @@ SHELL = bash
 domain := $(shell ./configuration.sh domain)
 
 default:
-	@echo "0. init 1. create-cluster, 2. kubectl-setup, 3. populate-cluster"
-	make init create-cluster kubectl-setup populate-cluster
-
-	@echo "1.) Initializing Terraform"
+	@echo "---- 1. Initializing Terraform"
 	make init
 
-	@echo "2.) Using Terraform to create EKS/EFS/etc in AWS"
+	@echo "---- 2. Using Terraform to create EKS/EFS/etc in AWS"
 	make create-cluster
 
-	@echo "3.) Connecting kubectl to EKS cluster"
+	@echo "---- 3. Connecting kubectl to EKS cluster"
 	make kubectl-setup
 
-	@echo "4.) Deploying StarExec in the EKS cluster"
+	@echo "---- 4. Deploying StarExec in the EKS cluster"
 	make populate-cluster
+	@echo "---- 4a. Waiting a bit for the head node to be up-and-running"
+	sleep 120
+	@echo "---- 4b. Testing (Initial lines saying "FailedScheduling" can be ignored)"
+	kubectl describe pod se-depl
 
-	@echo "5.) Auto-forwarding domain name (from configuration.sh) and getting TLS/SSL certificate if it's a domain AWS can find in route53"
-	@echo "    If you have a different registrar, you'll need to manually forward the domain to the address found by doing 'kubectl get svc'"
-	@echo "    and then you'll have to run 'make reconfig-starexec' and 'make get-certificate' after the domain is forwarded."
+	@echo "---- 5. Forwarding domain "
 	@if aws route53 list-hosted-zones | grep -q "$(domain)"; then \
-		echo "Domain $(domain) found in Route53. Proceeding with setup..."; \
+		echo "---- 5a. Forwarding the domain to the head node URL provided by AWS"; \
 		make forward-domain-route53; \
+		echo "---- 5b. Installing the domain in StarExec"; \
 		make reconfig-starexec; \
+		echo "---- 5b. Waiting a bit for the domain to be available"; \
 		sleep 120; \
+		echo "---- 5c. Getting TLS/SSL certificate"; \
 		make get-certificate; \
 	else \
 		echo "Domain $(domain) not found in Route53."; \
 		echo "Please manually forward $(domain) to the address found by 'kubectl get svc'"; \
 		echo "Then run 'make reconfig-starexec' and 'make get-certificate'"; \
 	fi
-
-
 
 reconfig-starexec:
 	@echo "Finding running pod for se-depl..."
