@@ -32,16 +32,14 @@
    - `make kubectl-setup`: Connects kubectl to EKS cluster.
    - `make populate-cluster`: Deploy StarExec in the EKS cluster.
    - Waits a bit for the head node to be up-and-running:
-   - Tests with `kubectl describe pod se-depl`
+   - `kubectl describe pod se-depl`: Tests that the deployment is running.
      (Initial lines saying "FailedScheduling" can be ignored)"
    - If the domain is in Route53
      * `make forward-domain-route53`: Forwards the domain to the head node URL provided by AWS
-     * `make reconfig-starexec`: Installs the domain in StarExec
-     * Waits a bit for the domain to be available.
-     * `make get-certificate`: Gets TLS/SSL certificate
      * `make reconfig-starexec`: Reconfigures the StarExec `ant` build, which uses the 
        domain for some internal redirects, e.g., on the job-pairs page.
-     * `make get-certificate`:s Use `certbot` to obtain a certificate for the domain 
+     * Waits a bit for the domain to be available.
+     * `make get-certificate`: Uses `certbot` to obtain a TLS/SSL certificate for the domain 
    - Otherwise the user must: 
      * Run `kubectl get svc` to get the AWS domain name for the service
      * Separately forward the domain name to the service using a `CNAME` record.
