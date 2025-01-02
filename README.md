@@ -1,85 +1,81 @@
-# StarExec-ARC <BR>(Automated Reasoning Containerisation)
+# StarExec-ARC <BR>(Automated Reasoning Containerization)
 
-This folder contains code for the containerization of Automated Theorem Provering (ATP) systems. 
-It also contains code for the deployment of these ATP containers within a containerized StarExec 
-(in podman, or kubernetes using MicroK8s or Amazon EKS). 
-The following explains how get it all working.
+This repository contains code for the containerization of Automated Theorem Proving (ATP) systems. It also includes deployment scripts for these ATP containers within a containerized StarExec environment, utilizing Podman or Kubernetes with MicroK8s or Amazon EKS. The following guide explains how to set up the system.
 
-### For all use cases:
-* Install `podman`, [as explained here](https://podman.io/docs/installation).
-  - On a Mac: `brew install podman` then start a podman daemon with
-    `podman machine start`.
-  - In Ubuntu `sudo apt install podman` or `snap install podman --classic`
-  - Check with `podman --version`
-* Containerise StarExec, in the [`starexec-containerised`](starexec-containerised) directory.
-  - Test the containerised StarExec with traditional StarExec `.tgz` ATP system packges.
+### Prerequisites for All Use Cases:
+* **Install `podman`**: Follow the [installation guide](https://podman.io/docs/installation).
+  - **macOS**: Run `brew install podman` and start the Podman daemon with `podman machine start`.
+  - **Ubuntu**: Execute `sudo apt install podman` or `snap install podman --classic`.
+  - Verify installation with `podman --version`.
+* **Containerize StarExec**: Navigate to the [`starexec-containerised`](starexec-containerised) directory.
+  - Test the containerized StarExec using traditional StarExec `.tgz` ATP system packages.
 
-### Building containerised proxy-prover ATP systems:
+### Building Containerized Proxy-Prover ATP Systems
 
-Containerised proxy-prover ATP systems are run in containerised StarExec on Kubernetes.
-Containerised proxy-prover ATP systems can also be run in containerised StarExec.
-* Plain containerised ATP systems are required for building containerised proxy-prover ATP systems.
-  Build containerised ATP systems in the 
-  [`provers-containerised`](provers-containerised) directory.
-* Build containerised proxy-prover ATP systems in the 
-  [`starexec-proxy-provers`](starexec-proxy-provers) directory.
-  - Test the containerised proxy-prover ATP systems using 
-    [containerised StarExec](starexec-containerised).
+Containerized proxy-prover ATP systems operate within a containerized StarExec on Kubernetes. They can also run directly within containerized StarExec.
 
-### Deploying StarExec in Kubernetes
-* If you will be using EKS, install kubectl:
-  - On a Mac: `brew install kubectl` 
-  - In Ubuntu `snap install kubectl --classic`
-  - Check with `kubectl version`
-* If you will be using MicroK8s, install microk8s:
-  - On a Mac: MicroK8s is not natively supported on macOS. 
-    However, you can install MicroK8s by running it inside a Multipass virtual machine.
-    See [`https://microk8s.io/docs/install-macos`](https://microk8s.io/docs/install-macos).
-  - In Ubuntu:
-    * `snap install microk8s --classic`
-    * `sudo usermod -aG microk8s $USER` then `sudo chown -f -R $USER ~/.kube` then `newgrp microk8s`
-    * Optionally `alias kubectl='microk8s kubectl'` in your shell resource file.
-  - Check with `microk8s status --wait-ready` and `microk8s kubectl get nodes`
-* Deploy StarExec in microk8s or EKS in the [`starexec-kubernetes`](starexec-kubernetes) directory.
-* Navigate to the StarExec website as deployed, upload your proxy-prover ATP system and problem 
-  files, and away you go.
-  - The URL for the website depends how you deployed StarExec
-    * For microk8s run `microk8s kubectl get svc` to get the URL.
-    * For EKS without a Route53 domain run `kubectl get svc` to get the URL.
-    * For EKS with a Route53 domain, the URL is 
-      `https://`*your_Route53_domain*
-  - Put the URL in your browser.
+* **Build Plain Containerized ATP Systems**: Necessary for proxy-prover ATP systems.
+  - Navigate to the [`provers-containerised`](provers-containerised) directory and build the ATP systems.
+* **Build Proxy-Prover ATP Systems**:
+  - Access the [`starexec-proxy-provers`](starexec-proxy-provers) directory to build proxy-prover ATP systems.
+  - Test the proxy-prover ATP systems using [containerized StarExec](starexec-containerised).
+
+### Deploying StarExec on Kubernetes
+
+* **Using EKS**:
+  * **Install `kubectl`**:
+    - **macOS**: Run `brew install kubectl`.
+    - **Ubuntu**: Execute `snap install kubectl --classic`.
+    - Verify installation with `kubectl version`.
+* **Using MicroK8s**:
+  * **Installation**:
+    - **macOS**: MicroK8s is not natively supported. Install via a Multipass virtual machine as per the [MicroK8s macOS installation guide](https://microk8s.io/docs/install-macos).
+    - **Ubuntu**:
+      - Run `snap install microk8s --classic`.
+      - Add your user to the `microk8s` group: `sudo usermod -aG microk8s $USER`.
+      - Change ownership: `sudo chown -f -R $USER ~/.kube`.
+      - Reload group memberships: `newgrp microk8s`.
+      - Optionally, add `alias kubectl='microk8s kubectl'` to your shell configuration file.
+  * **Verification**:
+    - Check status with `microk8s status --wait-ready`.
+    - List nodes using `microk8s kubectl get nodes`.
+* **Deploy StarExec**:
+  - Navigate to the [`starexec-kubernetes`](starexec-kubernetes) directory to deploy StarExec on MicroK8s or EKS.
+  - Access the deployed StarExec website to upload your proxy-prover ATP systems and problem files.
+    - **URL Access**:
+      * **MicroK8s**: Run `microk8s kubectl get svc` to obtain the URL.
+      * **EKS without Route53**: Execute `kubectl get svc` to get the URL.
+      * **EKS with Route53**: The URL follows the format `https://your_Route53_domain`.
+    - Open the URL in your browser to start using StarExec.
 
 ## Documentation
 
-- [A workshop paper about this project](https://www.eprover.org/EVENTS/IWIL-2024/IWIL-24-Preproceedings.pdf)
+- [Workshop Paper on This Project](https://www.eprover.org/EVENTS/IWIL-2024/IWIL-24-Preproceedings.pdf)
+- [ARA Proposal](https://www.amazon.science/research-awards/recipients/geoffrey-sutcliffe)
 
-- [The ARA proposal](https://www.amazon.science/research-awards/recipients/geoffrey-sutcliffe)
+## Managing Podman/Docker Containers
 
-## How to do podman/docker actions
-
-Building a container image:
+**Building a Container Image:**
 ```shell
-podman/docker build -t <TAG_NAME> <PATH_TO_DIRECTORY_WHERE_DOCKERFILE_LIES>
+podman/docker build -t <TAG_NAME> <PATH_TO_DIRECTORY_WITH_DOCKERFILE>
 ```
-Running a container (entrypoint):
+**Running a Container (Entrypoint):**
 ```shell
 podman/docker run --rm [--entrypoint <ENTRYPOINT_FILE>] <TAG_NAME> <ARGS>
 ```
-Running a container (interactive shell):
+**Running a Container (Interactive Shell):**
 ```shell
 podman/docker run --rm -it <TAG_NAME>
 ```
-Cleanup everything (podman):
+**Cleanup (Podman):**
 ```shell
 podman system prune --all --force && podman rmi --all
 ```
-Forced cleanup (podman):
+**Forced Cleanup (Podman):**
 ```shell
 podman rmi --all --force
 ```
-Cleanup everything (docker):
+**Cleanup (Docker):**
 ```shell
-docker system prune --all --force &&  docker rmi $(docker images -a -q)
+docker system prune --all --force && docker rmi $(docker images -a -q)
 ```
-
