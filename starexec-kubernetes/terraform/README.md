@@ -1,6 +1,6 @@
 # Making and Deploying StarExec in EKS<BR>using `terraform`
 
-0. Prepare:
+0. **Prepare**:
    - Install terraform:
      * On a Mac: `brew install terraform` 
      * In Ubuntu: `snap install terraform --classic` [`more info`](https://askubuntu.com/questions/983351/how-to-install-terraform-in-ubuntu)
@@ -12,8 +12,9 @@
    - It's nice to have your own domain, and even better if it's registered with Route53 using 
      the account signed into the AWS cli: 
      * Make sure you have created a hosted zone
+  ---
 
-1. Edit `configuration.sh` to set your domain name, number of nodes, etc.
+1. **Edit `configuration.sh` to set your domain name, number of nodes, etc.**
    - If you have a domain to use, set it.
    - The `desiredNodes` and `maxNodes` determine how many StarExec compute node will be in
      your EKS cluster.
@@ -22,8 +23,8 @@
      a time on each node, i.e., using more powerful nodes give more power to the job pair,
      but does not make the queue of job pairs get run faster.
      The `t3.small` type is cheap, with two CPUs.
-
-2. Run `make`, which does the following (you can do these one-by-one yourself if you want):
+  ---
+2. **Run `make`, which does the following (you can do these one-by-one yourself if you want)**:
    - `make init`: Initializes terraform by running `terraform init -upgrade`.
       * If you change .tf files, you should run `terraform init` again to reinitialize the 
         working directory, although take care because doing so can cause you to lose track 
@@ -49,29 +50,32 @@
        you do the next step. But **you must wait until the domain is working** (insecurely) before 
        you do the next step.
      * Run `make get-certificate`
-
-5. You should now be able to login to your new StarExec instance from `https://domainname`
+  ---
+3. **You should now be able to login to your new StarExec instance from `https://domainname/starexec`**
    - `domainname` is your domain if forwarded, otherwise the auto-generated AWS domain.
    - The default user name and password are both `admin`
-
-6. Normal StarExec `tgz` packages for provers do not work in this setup.
+  ---
+4. **Normal StarExec `tgz` packages for provers do not work in this setup.**
    Instead, upload proxy prover packages:
    - These are created in the [`starexec-proxy-provers`](../../starexec-proxy-provers) directory.
    - Proxy provers reference containerized provers hosted online, e.g., in dockerhub.
+   - These prover images can be pre-cached so StarExec doesn't need to download them, by using 
+     `make cache-prover-image prover_image="docker.io/someProverImage"`.
 
-7. To run a first example job, you can upload the PUZ001+1.p problem and the eprover proxy package 
+5. **To run a first example job, you can upload the PUZ001+1.p problem and the eprover proxy package**
    that are provided in the [`starexec-proxy-provers`](../../starexec-proxy-provers) directory.
-
----
+  ---
 
 # Managing the EKS cluster
 
-- Changing the number of compute nodes
+- **Changing the number of compute nodes**
   * Edit `configuration.sh`
   * `make update-node-count`
-- Taking StarExec off the cluster
+  ---
+- **Taking StarExec off the cluster**
   * `make depopulate-cluster`
-- Putting StarExec on the cluster
+  ---
+- **Putting StarExec on the cluster**
   * `make populate-cluster`
   * Wait a bit for the head node to be up-and-running
   * If you have a Route53 domain to forward to:
@@ -86,7 +90,8 @@
     + `make reconfig-starexec` 
     + Wait a few minutes
     + `make get-certificate`
-- Saving and Restoring StarExec data (solvers, benchmarks, jobs, etc.) via S3
+  ---
+- **Saving and Restoring StarExec data (solvers, benchmarks, jobs, etc.) via S3**
   * Saving StarExec data to S3
     + Stop StarExec with `make depopulate-cluster`
     + `make create-s3-bucket`
