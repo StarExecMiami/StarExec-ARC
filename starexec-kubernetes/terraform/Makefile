@@ -26,7 +26,7 @@ default:
 		make forward-domain-route53; \
 		echo "---- 5b. Installing the domain in StarExec"; \
 		make reconfig-starexec; \
-		echo "---- 5b. Waiting a bit for the domain to be available"; \
+		echo "---- 5b. Waiting a bit for StarExec and the domain to be available"; \
 		sleep 120; \
 		echo "---- 5c. Getting TLS/SSL certificate"; \
 		make get-certificate; \

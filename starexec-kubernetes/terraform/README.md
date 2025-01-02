@@ -50,7 +50,7 @@
        you do the next step.
      * Run `make get-certificate`
 
-5. You should now be able to login to your new StarExec instance from `https://domainname/starexec`
+5. You should now be able to login to your new StarExec instance from `https://domainname`
    - `domainname` is your domain if forwarded, otherwise the auto-generated AWS domain.
    - The default user name and password are both `admin`
 
