@@ -51,7 +51,7 @@
        you do the next step.
      * Run `make get-certificate`
   ---
-3. **You should now be able to login to your new StarExec instance from `https://domainname/starexec`**
+3. **You should now be able to login to your new StarExec instance from `https://domainname`**
    - `domainname` is your domain if forwarded, otherwise the auto-generated AWS domain.
    - The default user name and password are both `admin`
   ---
@@ -91,6 +91,11 @@
     + Wait a few minutes
     + `make get-certificate`
   ---
+- **Precaching ATP system images**
+  * ATP system images can be pre-cached so StarExec doesn't need to download them when running a
+    job:
+    + `make cache-prover-image prover_image="docker.io/someProverImage"`.
+  ---
 - **Saving and Restoring StarExec data (solvers, benchmarks, jobs, etc.) via S3**
   * Saving StarExec data to S3
     + Stop StarExec with `make depopulate-cluster`
@@ -107,3 +112,4 @@
   * Uploading StarExec data to S3
     + `make upload-to-s3`
       The data is uploaded from `./s3-backup`
+  ---
