@@ -1,10 +1,9 @@
 # Deploying StarExec in Kubernetes
 
-## Deploying StarExec in microk8s
+## Deploying StarExec with MicroK8s
 
-- That is done in the [`microk8s`](microk8s) directory.
+To deploy StarExec using MicroK8s, follow the instructions provided in the [`microk8s`](microk8s) directory.
 
-## Deploying StarExec in terraform/EKS
+## Deploying StarExec with Terraform on EKS
 
-- That is done in the [`terraform`](terraform) directory.
-
+To deploy StarExec using Terraform on Amazon EKS, refer to the guidelines in the [`terraform`](terraform) directory.

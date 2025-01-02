@@ -1,31 +1,28 @@
 # StarExec Proxy Provers
 
-This folder contains things building to build `.tgz` prover archives that can be uploaded and 
-run in [containerised StarExec](../starexec-containerised).
-In order to make a proxy-prover you first need a 
-[resource limited prover container](../provers-containerised).
+This directory contains resources for building `.tgz` prover archives that can be uploaded and run in [containerised StarExec](../starexec-containerised). To create a proxy-prover, you first need a [resource-limited prover container](../provers-containerised).
 
-## To make a proxy-prover that can run in containerised StarExec deployed in Kubernetes
+## Creating a Proxy-Prover for Kubernetes
 
-`python make_proxy.py docker.io/tptpstarexec/`*prover*:*version*`-RLR-amd64` *prover*---*version*`-K8sProxy`
+To create a proxy-prover that can run in containerised StarExec deployed in Kubernetes, use the following command:
 
-That creates *prover*:*version*`-K8sProxy.tgz` that can be uploaded to containerised StarExec, and
-run using Kubernetes from inside containerised StarExec.
-The `.tgz` contains a script `run_image_K8s.py`.
+```sh
+python make_proxy.py docker.io/tptpstarexec/<prover>:<version>-RLR-amd64 <prover>:<version>-K8sProxy
+```
 
-## To make a proxy-prover that can run in containerised StarExec using podman
+This command generates `<prover>:<version>-K8sProxy.tgz`, which can be uploaded to containerised StarExec and run using Kubernetes from within containerised StarExec. The `.tgz` file includes a script named `run_image_K8s.py`.
 
-`python make_proxy.py docker.io/tptpstarexec/`*prover*:*version*`-RLR-amd64` *prover*:*version*`--PodmanProxy --local`
+## Creating a Proxy-Prover for Podman
 
-That creates *prover*:*version*`--PodmanProxy.tgz` that can be uploaded to containerised 
-StarExec, and run using podman from inside containerised StarExec.
-The `.tgz` contains a script `run_image.py`.
+To create a proxy-prover that can run in containerised StarExec using Podman, use the following command:
 
-## To run a proxy-prover 
+```sh
+python make_proxy.py docker.io/tptpstarexec/<prover>:<version>-RLR-amd64 <prover>:<version>--PodmanProxy --local
+```
 
-- Directly in containerised StarExec, see the [README](../starexec-containerised/README.md) in
-  [`starexec-containerised`](../starexec-containerised).
-- In containerised StarExec deployed in Kubernetes, see the 
-  [README](../starexec-kubernetes/README.md) in
-  [`starexec-kubernetes`](../starexec-kubernetes).
+This command generates `<prover>:<version>--PodmanProxy.tgz`, which can be uploaded to containerised StarExec and run using Podman from within containerised StarExec. The `.tgz` file includes a script named `run_image.py`.
 
+## Running a Proxy-Prover
+
+- To run directly in containerised StarExec, refer to the [README](../starexec-containerised/README.md) in the [`starexec-containerised`](../starexec-containerised) directory.
+- To run in containerised StarExec deployed in Kubernetes, refer to the [README](../starexec-kubernetes/README.md) in the [`starexec-kubernetes`](../starexec-kubernetes) directory.
