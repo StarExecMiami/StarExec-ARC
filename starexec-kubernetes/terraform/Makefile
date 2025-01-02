@@ -4,8 +4,8 @@ SHELL = bash
 domain := $(shell ./configuration.sh domain)
 
 default:
-	@echo "0. init 1. create-cluster, 2. kubectl-setup, 3. populate-cluster"
-	make init create-cluster kubectl-setup populate-cluster
+	# @echo "0. init 1. create-cluster, 2. kubectl-setup, 3. populate-cluster"
+	# # make init create-cluster kubectl-setup populate-cluster
 
 	@echo "1.) Initializing Terraform"
 	make init
@@ -25,6 +25,7 @@ default:
 	@if aws route53 list-hosted-zones | grep -q "$(domain)"; then \
 		echo "Domain $(domain) found in Route53. Proceeding with setup..."; \
 		make forward-domain-route53; \
+		sleep 120; \
 		make reconfig-starexec; \
 		sleep 120; \
 		make get-certificate; \
@@ -301,12 +302,6 @@ backup-to-s3-from-efs: create-s3-bucket create-datasync-iam-role
 	DATASYNC_S3_ACCESS_ROLE_ARN=$$(aws iam get-role --role-name $(DATASYNC_S3_ACCESS_ROLE_NAME) --query 'Role.Arn' --output text); \
 	S3_LOCATION_ARN=$$(aws datasync create-location-s3 --s3-bucket-arn arn:aws:s3:::$(BUCKET_NAME) --s3-config '{ "BucketAccessRoleArn": "'"$$DATASYNC_S3_ACCESS_ROLE_ARN"'" }' --query 'LocationArn' --output text); \
 	TASK_ARN=$$(aws datasync create-task --source-location-arn $$EFS_LOCATION_ARN --destination-location-arn $$S3_LOCATION_ARN --name EFS-to-S3-Backup --query 'TaskArn' --output text); \
-	# echo "Creating CloudWatch log group for DataSync task"; \
-	# aws logs create-log-group --log-group-name /aws/datasync/EFS-to-S3-Backup; \
-	# echo "Update DataSync task with CloudWatch logging"; \
-	# aws datasync update-task \
-	# 	--task-arn $$TASK_ARN \
-	# 	--cloud-watch-log-group-arn arn:aws:logs:$$REGION:$$AWS_ACCOUNT_ID:log-group:/aws/datasync/EFS-to-S3-Backup; \
 	echo "Starting DataSync task $$TASK_ARN"; \
 	EXECUTION_ARN=$$(aws datasync start-task-execution --task-arn $$TASK_ARN --query 'TaskExecutionArn' --output text); \
 	echo "Waiting for DataSync task to complete (Execution arn $$EXECUTION_ARN)"; \
