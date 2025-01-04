@@ -4,8 +4,11 @@ This repository contains code for the containerization of Automated Theorem Prov
 
 ### Prerequisites for All Use Cases:
 * **Install `podman`**: Follow the [installation guide](https://podman.io/docs/installation).
+  - Ensure that you own `$HOME/.config` and you have read-write permission.
+  - Check if you already have it installed with `podman --version`.
   - **macOS**: Run `brew install podman` and start the Podman daemon with `podman machine start`.
   - **Ubuntu**: Execute `sudo apt install podman` or `snap install podman --classic`.
+  - **Fedora**: Execute `sudo dnf install podman`.
   - Verify installation with `podman --version`.
 * **Containerize StarExec**: Navigate to the [`starexec-containerised`](starexec-containerised) directory.
   - Test the containerized StarExec using traditional StarExec `.tgz` ATP system packages.

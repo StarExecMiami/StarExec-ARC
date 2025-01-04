@@ -6,8 +6,12 @@
 
 ### Build the Image
 1. Ensure you have Podman installed, as explained [here](../README.md).
-2. Run `make` (refer to the `Makefile` for details).
-  - This step typically needs to be done only once.
+2. Ensure that `$HOME/.ssh` exists and you have read-write permission.
+3. Ensure that the `sshd` daemon is running with `systemctl status sshd.service`.
+   - If necessary start it with `sudo service sshd restart`.
+   - On Fedora, this step needs to be done before every new start of StarExec.
+4. Run `make` (refer to the `Makefile` for details).
+   - This step typically needs to be done only once.
 
 ### Run the Image
 1. Configure port 80 for non-root usage:
@@ -15,6 +19,12 @@
   - **Ubuntu**:
     - Add `net.ipv4.ip_unprivileged_port_start=80` to `/etc/sysctl.conf`.
     - Execute `sudo sysctl --system` to reload the configuration.
+  - **Fedora**:
+    - Add `net.ipv4.ip_unprivileged_port_start=80` to a file in
+      `/etc/sysctl.d` directory, e.g., create a file
+      `/etc/sysctl.d/80-override.conf` with that line.
+    - Execute `sudo sysctl --system` to reload the configuration.
+      On Fedora, this must be done before every `make run`.
 2. Run `make run` (refer to the `Makefile` for details).
 
 ### Accessing StarExec
