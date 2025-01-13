@@ -31,8 +31,8 @@
 - Navigate to [https://localhost](https://localhost).
   - The interface may take about a minute to become available as the StarExec `tomcat` app redeploys on each restart.
 - For remote server access, use:
-  `ssh -f -N -L 8080:_starexec_server.your_domain_:80 _your_account@starexec_server.your_domain_
-  - If necessary, add jump host options, ala `-J _your_account@jumphost.jumphost_domain_`
+  `ssh -f -N -L 8080:*starexec_server.domain*:80 *your_account\@starexec_server.domain*
+  - If necessary, add jump host options, ala `-J *your_account\@jumphost.domain*`
 - Default Username: `admin`  
   Default Password: `admin`
 
