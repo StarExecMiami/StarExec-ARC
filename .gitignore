@@ -14,3 +14,5 @@ starexec-kubernetes/terraform/terraform.tfstate.backup
 starexec-kubernetes/terraform/s3-backup
 
 starexec-proxy-provers/__pycache__
+.env
+*.log
