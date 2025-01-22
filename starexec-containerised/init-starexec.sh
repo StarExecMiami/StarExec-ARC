@@ -1,11 +1,11 @@
 #!/bin/bash
 
 function cleanup() {
-    echo 'Container stopped, performing cleanup...'
-    /project/apache-tomcat-7/bin/shutdown.sh
-    /usr/bin/mysqladmin -u root shutdown
-    /usr/sbin/apache2ctl -k graceful-stop
-    exit 0
+  echo 'Container stopped, performing cleanup...'
+  /project/apache-tomcat-7/bin/shutdown.sh
+  /usr/bin/mysqladmin -u root shutdown
+  /usr/sbin/apache2ctl -k graceful-stop
+  exit 0
 }
 
 trap cleanup SIGINT SIGTERM
@@ -13,63 +13,63 @@ trap cleanup SIGINT SIGTERM
 set -e
 set -o pipefail
 
-# Configurar permisos
+# Configure permissions
 chown -R tomcat:star-web /project
 chown -R tomcat:star-web /home/starexec
 chown -R tomcat:star-web /home/sandbox
 chown -R mysql:mysql /var/lib/mysql
 chmod 755 -R /home/starexec
 
-# Iniciar Apache2
+# Start Apache2
 /usr/sbin/apache2ctl -D FOREGROUND &
 
-# Iniciar MySQL
+# Start MySQL
 /usr/bin/mysqld_safe --basedir=/usr --user=mysql &
 
-# Esperar a que MySQL inicie
+# Wait for MySQL to start
 until mysqladmin ping &>/dev/null; do
-    echo "Esperando a que MySQL inicie..."
-    sleep 1
+  echo "Waiting for MySQL to start..."
+  sleep 1
 done
 
-# Configurar base de datos
+# Configure database
 mysql -u root -e "
-    DROP DATABASE IF EXISTS $DB_NAME;
-    CREATE DATABASE $DB_NAME;
-    GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
-    FLUSH PRIVILEGES;
+  DROP DATABASE IF EXISTS $DB_NAME;
+  CREATE DATABASE $DB_NAME;
+  GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
+  FLUSH PRIVILEGES;
 "
 
-# Configurar conexión Podman
-echo "Configurando conexión Podman"
+# Configure Podman connection
+echo "Configuring Podman connection"
 podman system connection add host-machine-podman-connection \
-    ssh://${SSH_USERNAME}@${HOST_MACHINE}:${SSH_PORT}${SOCKET_PATH} \
-    --identity=/root/.ssh/starexec_podman_key || echo "Falló la configuración de la conexión Podman"
+  ssh://${SSH_USERNAME}@${HOST_MACHINE}:${SSH_PORT}${SOCKET_PATH} \
+  --identity=/root/.ssh/starexec_podman_key || echo "Podman connection configuration failed"
 
-# Iniciar Tomcat
+# Start Tomcat
 /project/apache-tomcat-7/bin/catalina.sh run &
 
-# Esperar a que Tomcat inicie
+# Wait for Tomcat to start
 until curl -s http://localhost:8080 >/dev/null; do
-    echo "Esperando a que Tomcat inicie..."
-    sleep 1
+  echo "Waiting for Tomcat to start..."
+  sleep 1
 done
 
-# Despliegue suave de StarExec
+# Soft deploy StarExec
 cd $DEPLOY_DIR
-echo "Ejecutando ant build -buildfile $BUILD_FILE reload-sql update-sql"
+echo "Running ant build -buildfile $BUILD_FILE reload-sql update-sql"
 if ! ant build -buildfile $BUILD_FILE reload-sql update-sql; then
-    echo "Ejecutando NewInstall.sql"
-    cd $DEPLOY_DIR/sql && mysql -u root $DB_NAME < $SQL_FILE
-    cd $DEPLOY_DIR
+  echo "Running NewInstall.sql"
+  cd $DEPLOY_DIR/sql && mysql -u root $DB_NAME < $SQL_FILE
+  cd $DEPLOY_DIR
 
-    if ! ant build -buildfile $BUILD_FILE reload-sql update-sql; then
-        echo "ERROR! Por favor, vuelva a ejecutar docker build..."
-        exit 1
-    fi
+  if ! ant build -buildfile $BUILD_FILE reload-sql update-sql; then
+    echo "ERROR! Please rebuild the Docker image..."
+    exit 1
+  fi
 fi
 
-script/soft-deploy.sh && printf "¡ÉXITO! ACCEDE EN TU NAVEGADOR A: http://localhost \n\nusuario: admin \ncontraseña: admin\n\n"
+script/soft-deploy.sh && printf "SUCCESS! VISIT IN YOUR BROWSER: http://localhost \n\nuser: admin \npassword: admin\n\n"
 
-# Mantener el contenedor en ejecución
+# Keep the container running
 tail -f /dev/null
