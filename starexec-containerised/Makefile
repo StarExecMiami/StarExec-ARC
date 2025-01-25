@@ -7,13 +7,15 @@ PODMAN_SOCKET_PATH="/run/user/1000/podman/podman.sock"
 all: starexec
 
 starexec:
-	echo "using ssh-keygen to make pub/priv keys in the current directory"
-	echo "(only if they don't already exist)"
-	[ -f starexec_podman_key ] || ssh-keygen -t ed25519 -N '' -f starexec_podman_key 
+	@if [ "$(USER)" != "jenkins" ]; then \
+		echo "Using ssh-keygen to create keys (if needed)"; \
+		[ -f starexec_podman_key ] || ssh-keygen -t ed25519 -N '' -f starexec_podman_key; \
+		ssh-keyscan -H localhost >> ~/.ssh/known_hosts; \
+		ssh-copy-id -i starexec_podman_key.pub ${USER}@localhost; \
+	else \
+		echo "Skipping SSH key setup for Jenkins user."; \
+	fi
 
-	# Make this key is trusted by the host.
-	ssh-copy-id -i starexec_podman_key.pub ${USER}@localhost
-	
 	podman build --no-cache -t starexec . --ulimit="nofile=100000:100000"
 
 run:
@@ -33,17 +35,17 @@ clean:
 	podman rmi -f starexec
 
 	# Also clear cached parts of the image:
-	podman rmi -f `podman images -q --filter ancestor=starexec`
+	podman rmi -f `podman images -q --filter reference=starexec`
 
 # kills the container only.
 kill:
-	podman rm -f `podman ps -a -q --filter ancestor=starexec`
+	podman rm -f `podman ps -a -q --filter reference=starexec`
 
 cleanVolumes:
 	podman volume rm -f volDB volStar volPro volExport
 
 connect:
-	podman exec -it `podman ps -a -q --filter ancestor=starexec` bash
+	podman exec -it `podman ps -a -q --filter reference=starexec` /bin/bash
 
 push:
 	podman push starexec docker.io/tptpstarexec/starexec
