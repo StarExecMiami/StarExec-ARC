@@ -1,6 +1,10 @@
 FROM ubuntu:latest
 
 ENV LANG=en_US.UTF-8
+ENV TZ=America/Miami
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone
 
 # Copy 
 ADD --chmod=0777 ./dockerPackage/configFiles ./configFiles
