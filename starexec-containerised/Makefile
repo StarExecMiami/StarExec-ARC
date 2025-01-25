@@ -7,11 +7,15 @@ PODMAN_SOCKET_PATH="/run/user/1000/podman/podman.sock"
 all: starexec
 
 starexec:
+	echo "using ssh-keygen to make pub/priv keys in the current directory"; \
+	echo "(only if they don't already exist)"; \
+	[ -f starexec_podman_key ] || ssh-keygen -t ed25519 -N '' -f starexec_podman_key; \
+	ssh-keyscan -H localhost >> ~/.ssh/known_hosts; \
+
 	@if [ "$(USER)" != "jenkins" ]; then \
-		echo "Using ssh-keygen to create keys (if needed)"; \
-		[ -f starexec_podman_key ] || ssh-keygen -t ed25519 -N '' -f starexec_podman_key; \
-		ssh-keyscan -H localhost >> ~/.ssh/known_hosts; \
-		ssh-copy-id -i starexec_podman_key.pub ${USER}@localhost; \
+		echo "Setting up SSH key for $(USER) user."; \
+		[ -f starexec_podman_key.pub ] && \
+		ssh-copy-id -i starexec_podman_key.pub $(USER)@localhost; \
 	else \
 		echo "Skipping SSH key setup for Jenkins user."; \
 	fi
