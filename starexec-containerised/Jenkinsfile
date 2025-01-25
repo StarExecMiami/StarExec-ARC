@@ -59,7 +59,7 @@ pipeline {
 
                         // Get image size in MB
                         def imageSize = sh(
-                            script: "podman image inspect --format='{{.Size}}' ${params.IMAGE_NAME}:${params.VERSION} | awk '{printf \"%.2f\", \$1/1024/1024}'",
+                            script: "podman image inspect --format='{{.Size}}' ${params.IMAGE_NAME}:${params.VERSION} | awk '{printf \"%.2f\", \$1/1024/1024}' | sed 's/,/./g'",
                             returnStdout: true
                         ).trim()
 
