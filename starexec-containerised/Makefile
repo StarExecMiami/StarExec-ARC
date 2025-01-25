@@ -49,7 +49,7 @@ cleanVolumes:
 	podman volume rm -f volDB volStar volPro volExport
 
 connect:
-	podman exec -it `podman ps -a -q --filter ancestor=starexec` /bin/bash
+	podman exec -it `podman ps -a -q --filter ancestor=starexec` bash
 
 push:
 	podman push starexec docker.io/tptpstarexec/starexec
