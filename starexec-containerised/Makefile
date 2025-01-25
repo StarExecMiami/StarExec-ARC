@@ -39,17 +39,17 @@ clean:
 	podman rmi -f starexec
 
 	# Also clear cached parts of the image:
-	podman rmi -f `podman images -q --filter "dangling=true"`
+	podman rmi -f `podman images -q --filter dangling=true`
 
 # kills the container only.
 kill:
-	podman rm -f `podman ps -a -q --filter "ancestor=starexec"`
+	podman rm -f `podman ps -a -q --filter ancestor=starexec`
 
 cleanVolumes:
 	podman volume rm -f volDB volStar volPro volExport
 
 connect:
-	podman exec -it `podman ps -a -q --filter "ancestor=starexec"` /bin/bash
+	podman exec -it `podman ps -a -q --filter ancestor=starexec` /bin/bash
 
 push:
 	podman push starexec docker.io/tptpstarexec/starexec
