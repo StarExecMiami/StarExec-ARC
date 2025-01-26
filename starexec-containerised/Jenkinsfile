@@ -75,6 +75,11 @@ pipeline {
                         writeFile file: REPORT_FILE, text: currentReport + reportLine
 
                         echo "Execution #${i}: Time=${buildTime}s, Size=${imageSize}MB, Layers=${layerCount}"
+
+                        // Clean up the image after each build
+                        sh "podman rmi ${params.IMAGE_NAME}:${params.VERSION}"
+
+                        echo "Build #${i} completed successfully."
                     }
                 }
             }
