@@ -1,10 +1,12 @@
 FROM ubuntu:latest
 
 ENV LANG=en_US.UTF-8
-ENV TZ=America/Miami
+ENV TZ=America/New_York
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
-    echo $TZ > /etc/timezone
+    echo $TZ > /etc/timezone && \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
 
 # Copy 
 ADD --chmod=0777 ./dockerPackage/configFiles ./configFiles
