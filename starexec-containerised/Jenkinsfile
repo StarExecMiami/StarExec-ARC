@@ -78,7 +78,8 @@ pipeline {
 
                         // Clean up the image after each build
                         sh "podman rmi ${params.IMAGE_NAME}:${params.VERSION}"
-
+                        sh "podman image rm -af"
+                        
                         echo "Build #${i} completed successfully."
                     }
                 }
