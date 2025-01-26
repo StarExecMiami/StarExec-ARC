@@ -1,5 +1,5 @@
 # Base image
-FROM debian:bullseye-slim
+FROM ubuntu:22.04
 
 # Maintainer
 LABEL maintainer="Starexec Team"
