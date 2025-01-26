@@ -29,6 +29,7 @@ sudo mkdir -p /etc/apache2/logs/
 
 
 # reload apache
+sudo sh -c 'echo "ServerName localhost" >> /etc/apache2/apache2.conf'
 sudo service apache2 restart
 
 
