@@ -31,13 +31,10 @@
 - Navigate to [https://localhost](https://localhost).
   - The interface may take about a minute to become available as the StarExec `tomcat` app redeploys on each restart.
 - For remote server access, use:
-  ```bash
-  ssh -L 8080:geoff@quenda:80 geoff@johnston
-  ```
-  - **Note**: (FIX THIS)
-
-**Default Username**: `admin`  
-**Default Password**: `admin`
+  `ssh -f -N -L 8080:starexec_server.domain:80 your_account@starexec_server.domain`
+  - If necessary, add jump host options, ala `-J your_account@jumphost.domain`
+- Default Username: `admin`  
+  Default Password: `admin`
 
 ### Debugging
 - Run `make connect` to open a bash shell within the container.
