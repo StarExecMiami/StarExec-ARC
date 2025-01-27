@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cpu-stress-job-27557984959
+spec:
+  template:
+    metadata:
+      labels:
+        app: "cpu-stress-job"
+    spec:
+      nodeSelector:
+        nodegroup: computenodes
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - "cpu-stress-job"
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: cpu-stress
+        image: tptpstarexec/testingjoboverlap
+        args:
+          - "--timeout"
+          - "60"      # Stress CPU for 60 seconds
+        resources:
+          limits:
+            cpu: "1700m"
+          requests:
+            cpu: "1700m"
+      restartPolicy: Never
+  backoffLimit: 4
