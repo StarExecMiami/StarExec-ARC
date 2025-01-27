@@ -1,53 +1,73 @@
-# Base image
+# ---------------------------
+# Stage 1: Build runsolver
+# ---------------------------
+FROM ubuntu:22.04 AS builder
+
+# Install build dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    make \
+    gcc \
+    g++ \
+    git \
+    libnuma-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Clone StarExec repository specifically for runsolver
+RUN git -c http.sslVerify=false clone -b UMprod --single-branch https://github.com/StarexecMiami/StarExec.git /StarExec
+
+# Build runsolver
+WORKDIR /StarExec/src/org/starexec/config/sge/RunSolverSource
+RUN make clean && make
+
+# ---------------------------
+# Stage 2: Final runtime
+# ---------------------------
 FROM ubuntu:22.04
 
-# Maintainer
 LABEL maintainer="Starexec Team"
 
-# Arguments
 ARG DB_USER
 ARG DB_PASS
 
-# Environment variables
 ENV DEBIAN_FRONTEND=noninteractive \
     TOMCAT_VERSION=7.0.90 \
     MYSQL_CON_VERSION=8.0.30 \
     DB_NAME=starexec \
     DB_USER=${DB_USER} \
     DB_PASS=${DB_PASS} \
-    DEPLOY_DIR=/home/starexec/StarExec-deploy
-ENV SQL_FILE=${DEPLOY_DIR}/sql/NewInstall.sql \
+    DEPLOY_DIR=/home/starexec/StarExec-deploy \
+    SQL_FILE=/home/starexec/StarExec-deploy/sql/NewInstall.sql \
     BUILD_FILE=build.xml \
     SSH_USERNAME=starexec \
     HOST_MACHINE=localhost \
     SSH_PORT=22 \
-    SOCKET_PATH=/run/user/1000/podman/podman.sock
+    SOCKET_PATH=/run/user/1000/podman/podman.sock \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8 \
+    JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
 
-# Update system and install dependencies
+# Update and install runtime dependencies
 RUN apt-get update --fix-missing && apt-get upgrade -y && \
     apt-get install -y --no-install-recommends --no-install-suggests \
     apt-utils sudo git unzip file apache2 tcsh libnuma-dev \
-    build-essential libssl-dev openssl dnsutils ca-certificates \
-    openjdk-11-jdk curl ant ant-optional gcc g++ make mariadb-client \
-    mariadb-server podman locales && \
+    openssl dnsutils ca-certificates openjdk-11-jdk curl ant \
+    ant-optional mariadb-client mariadb-server podman locales && \
     a2enmod ssl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install and configure locales
 RUN sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen && \
     locale-gen en_US.UTF-8
-ENV LANG=en_US.UTF-8 \
-    LANGUAGE=en_US:en \
-    LC_ALL=en_US.UTF-8 \
-    JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
 
 # Generate local SSL key and certificate
 RUN printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth" > /tmp/openssl.cnf && \
     openssl req -x509 -out /etc/ssl/certs/localhost.crt -keyout /etc/ssl/private/localhost.key \
     -newkey rsa:2048 -nodes -sha256 \
     -subj '/CN=localhost' -extensions EXT -config /tmp/openssl.cnf && \
-    rm /tmp/openssl.cnf && \
-    echo 'Key and certificate created and moved to appropriate directories'
+    rm /tmp/openssl.cnf
 
 # Install Node.js and Sass
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
@@ -73,10 +93,12 @@ RUN mkdir -p /project && cd /project && \
 # Create groups and users
 RUN groupadd -g 160 star-web && \
     groupadd -g 153 tomcat && \
+    groupadd -g 111 sandbox && \
+    groupadd -g 112 sandbox2 && \
     useradd -r -m -d /home/tomcat -s /bin/bash -c "Tomcat User" -u 153 -g 160 tomcat && \
     useradd -r -m -d /home/starexec -s /bin/bash -c "Starexec User" -u 152 -g 160 starexec && \
-    useradd -r -m -d /home/sandbox -s /bin/bash -c "Cluster UserOne" -u 111 sandbox && \
-    useradd -r -m -d /home/sandbox2 -s /bin/bash -c "Cluster UserTwo" -u 112 sandbox2 && \
+    useradd -r -m -d /home/sandbox -s /bin/bash -c "Cluster UserOne" -u 111 -g 111 sandbox && \
+    useradd -r -m -d /home/sandbox2 -s /bin/bash -c "Cluster UserTwo" -u 112 -g 112 sandbox2 && \
     usermod -aG star-web sandbox && \
     usermod -aG star-web sandbox2 && \
     usermod -aG star-web tomcat && \
@@ -100,7 +122,6 @@ RUN su - starexec -c "git clone -b UMprod --single-branch https://github.com/Sta
     chown -R tomcat:star-web /home/starexec
 
 COPY dockerPackage/allScripts/starexecScripts/overridesproperties.txt /tmp/
-# Configure StarExec
 RUN mkdir -p ${DEPLOY_DIR}/build && \
     touch ${DEPLOY_DIR}/build/Cluster.MachineSpecs.txt && \
     chown starexec:star-web ${DEPLOY_DIR}/build/Cluster.MachineSpecs.txt && \
@@ -114,16 +135,16 @@ COPY dockerPackage/allScripts/starexecScripts/sudoRules.txt /etc/sudoers.d/stare
 RUN chmod 0440 /etc/sudoers.d/starexec && \
     visudo -c -f /etc/sudoers.d/starexec
 
-# Configure GetComputerInfo and runsolver
+# Configure GetComputerInfo
 RUN mkdir -p /home/starexec/bin && \
     chown tomcat:star-web /home/starexec/bin && \
     chmod 755 /home/starexec/bin
 COPY dockerPackage/solverAdditions/GetComputerInfo /home/starexec/bin/
 RUN chown tomcat:star-web /home/starexec/bin/GetComputerInfo && \
     chmod 755 /home/starexec/bin/GetComputerInfo
-WORKDIR ${DEPLOY_DIR}/src/org/starexec/config/sge/RunSolverSource
-RUN make clean && make && \
-    cp runsolver ${DEPLOY_DIR}/src/org/starexec/config/sge/
+
+# Copy the compiled runsolver from the builder stage
+COPY --from=builder /StarExec/src/org/starexec/config/sge/RunSolverSource/runsolver ${DEPLOY_DIR}/src/org/starexec/config/sge/
 
 # Install kubectl
 RUN if [ "$(uname -m)" = "x86_64" ]; then \
@@ -148,5 +169,4 @@ EXPOSE 443 8080 3306
 
 WORKDIR ${DEPLOY_DIR}
 
-# Command to start services
 CMD ["/usr/local/bin/init-starexec.sh"]
