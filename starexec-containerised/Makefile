@@ -24,8 +24,6 @@ starexec:
 	VERSION=${VERSION} && \
 	START_TIME=$$(date +%Y-%m-%d\ %H:%M:%S) && echo "Build started at: $$START_TIME" | tee build-$$VERSION.log && \
 	time podman build \
-			--build-arg DB_USER=$$(grep DB_USER .env | cut -d '=' -f2) \
-			--build-arg DB_PASS=$$(grep DB_PASS .env | cut -d '=' -f2) \
 			-t starexec:$$VERSION . \
 			--ulimit="nofile=100000:100000" 2> >(tee -a build-$$VERSION.log >&2) && \
 	END_TIME=$$(date +%Y-%m-%d\ %H:%M:%S) && echo "Build finished at: $$END_TIME" | tee -a build-$$VERSION.log && \
