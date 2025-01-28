@@ -12,10 +12,21 @@ def run_command(command):
         exit(1)
     return result.stdout.strip()
 
-def parse_iso8601(date_string):
-    if not date_string:
+def parse_datetime(timestamp_string):
+    if not timestamp_string:
         return None
-    return datetime.fromisoformat(date_string.replace('Z', '+00:00'))
+    # Convert string timestamp to datetime object
+    return datetime.fromtimestamp(float(timestamp_string))
+
+def extract_start_end_times(output):
+    lines = output.split('\n')
+    start_time = end_time = None
+    for line in lines:
+        if 'Starting job at' in line:
+            start_time = line.split()[-1]  # Assume the timestamp is the second to last word
+        elif 'Job completed at' in line:
+            end_time = line.split()[-1]  # Assume the timestamp is the second to last word
+    return parse_datetime(start_time), parse_datetime(end_time)
 
 def check_job_overlap(jobs):
     overlaps = []
@@ -38,27 +49,26 @@ def main():
 
     for job in jobs_data['items']:
         job_name = job['metadata']['name']
-        start_time = parse_iso8601(job['status'].get('startTime'))
-        completion_time = parse_iso8601(job['status'].get('completionTime'))
-
-        print(f"Job: {job_name}")
-        print(f"  Start Time: {start_time}")
-        print(f"  Completion Time: {completion_time}")
-
-        # Get the pod for this job
         pod_json = run_command(f"kubectl get pods --selector=job-name={job_name} -o json")
         pod_data = json.loads(pod_json)
-
+        
         for pod in pod_data['items']:
+            # Execute the job to get output with start and end times
+            job_output = run_command(f"kubectl logs {pod['metadata']['name']}")
+            start_time, completion_time = extract_start_end_times(job_output)
+            
+            print(f"Job: {job_name}")
+            print(f"  Start Time: {start_time}")
+            print(f"  Completion Time: {completion_time}")
+
             node_name = pod['spec']['nodeName']
             print(f"  Pod: {pod['metadata']['name']}")
             print(f"    Node: {node_name}")
 
-            # Get node labels
             node_json = run_command(f"kubectl get node {node_name} -o json")
             node_data = json.loads(node_json)
             nodegroup = node_data['metadata']['labels'].get('nodegroup', 'Unknown')
-
+            
             if nodegroup == 'computenodes':
                 print("    Node Type: Compute Node")
             elif nodegroup == 'headnode':
