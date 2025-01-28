@@ -165,7 +165,7 @@ COPY starexec_podman_key /root/.ssh/starexec_podman_key
 RUN chmod 600 /root/.ssh/starexec_podman_key
 
 # Expose necessary ports
-EXPOSE 443 8080 3306
+EXPOSE 80 443 3306
 
 WORKDIR ${DEPLOY_DIR}
 
