@@ -8,15 +8,6 @@ VERSION ?= latest
 all: starexec
 
 starexec:
-	@if [ ! -f .env ]; then \
-			echo "Error: .env file not found. Please create it with required credentials."; \
-			echo "Example contents:"; \
-			echo "DB_USER=se_admin"; \
-			echo "DB_PASS=your_password_here"; \
-			exit 1; \
-	fi
-
-
 	echo "using ssh-keygen to make pub/priv keys in the current directory"; \
 	echo "(only if they don't already exist)"; \
 	[ -f starexec_podman_key ] || ssh-keygen -t ed25519 -N '' -f starexec_podman_key; \
@@ -33,10 +24,7 @@ starexec:
 	VERSION=${VERSION} && \
 	START_TIME=$$(date +%Y-%m-%d\ %H:%M:%S) && echo "Build started at: $$START_TIME" | tee build-$$VERSION.log && \
 	time podman build \
-			--build-arg DB_USER=$$(grep DB_USER .env | cut -d '=' -f2) \
-			--build-arg DB_PASS=$$(grep DB_PASS .env | cut -d '=' -f2) \
 			-t starexec:$$VERSION . \
-			--no-cache \
 			--ulimit="nofile=100000:100000" 2> >(tee -a build-$$VERSION.log >&2) && \
 	END_TIME=$$(date +%Y-%m-%d\ %H:%M:%S) && echo "Build finished at: $$END_TIME" | tee -a build-$$VERSION.log && \
 	echo "Build duration: $$(date -u -d @$$(( $$(date -d "$$END_TIME" +%s) - $$(date -d "$$START_TIME" +%s) )) +%H:%M:%S)" | tee -a build-$$VERSION.log
