@@ -28,8 +28,8 @@ FROM ubuntu:22.04
 
 LABEL maintainer="Starexec Team"
 
-ARG DB_USER
-ARG DB_PASS
+ENV DB_USER se_admin
+ENV DB_PASS dfsdf34RFerfg3TFGRfrF3edFVg12few2
 
 ENV DEBIAN_FRONTEND=noninteractive \
     TOMCAT_VERSION=7.0.90 \
