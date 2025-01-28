@@ -8,15 +8,6 @@ VERSION ?= latest
 all: starexec
 
 starexec:
-	@if [ ! -f .env ]; then \
-			echo "Error: .env file not found. Please create it with required credentials."; \
-			echo "Example contents:"; \
-			echo "DB_USER=se_admin"; \
-			echo "DB_PASS=your_password_here"; \
-			exit 1; \
-	fi
-
-
 	echo "using ssh-keygen to make pub/priv keys in the current directory"; \
 	echo "(only if they don't already exist)"; \
 	[ -f starexec_podman_key ] || ssh-keygen -t ed25519 -N '' -f starexec_podman_key; \
@@ -58,7 +49,7 @@ clean:
 	podman rmi -f starexec
 
 	# Also clear cached parts of the image:
-	podman rmi -f `podman images -q --filter ancestor=starexec`
+	podman rmi -f `podman images -q --filter dangling=true`
 
 # kills the container only.
 kill:
