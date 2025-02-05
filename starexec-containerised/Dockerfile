@@ -15,7 +15,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Clone StarExec repository specifically for runsolver
-RUN git -c http.sslVerify=false clone -b UMprod --single-branch https://github.com/StarexecMiami/StarExec.git /StarExec
+RUN git -c http.sslVerify=false clone -b containerised --single-branch https://github.com/StarexecMiami/StarExec.git /StarExec
 
 # Build runsolver
 WORKDIR /StarExec/src/org/starexec/config/sge/RunSolverSource
