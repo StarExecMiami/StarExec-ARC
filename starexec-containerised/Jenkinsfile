@@ -1,0 +1,114 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: 'BUILD_COUNT', defaultValue: '1', description: 'Number of times to run make build')
+        string(name: 'IMAGE_NAME', defaultValue: 'starexec', description: 'StarExec Docker image')
+        string(name: 'VERSION', defaultValue: 'latest', description: 'Docker image version')
+        string(name: 'REPO_WORKSPACE', description: 'Repository workspace directory')
+    }
+    environment {
+        WORKSPACE_DIR = "${REPO_WORKSPACE}"
+        REPORT_FILE = "build_report-${IMAGE_NAME}-${VERSION}.csv"
+        BUILD_LOG = "build-${VERSION}.log"
+    }
+    stages {
+        stage('Setup') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'starexec-db', 
+                        usernameVariable: 'DB_USER', 
+                        passwordVariable: 'DB_PASS')]) {
+                        
+                        echo "Creating .env file..."
+                        writeFile file: "${WORKSPACE_DIR}/.env", 
+                                  text: "DB_USER=${DB_USER}\nDB_PASS=${DB_PASS}"
+                        echo "File .env created successfully."
+                    }
+
+                    if (!fileExists(REPORT_FILE) || readFile(REPORT_FILE).trim() == '') {
+                        echo "Registry file not found, creating new one."
+                        writeFile file: REPORT_FILE, 
+                                  text: "Execution,Time,Size,Layers\n"
+                    } else {
+                        echo "Registry file found, appending new entries."
+                    }
+                }
+            }
+        }
+        stage('Build Loop') {
+            steps {
+                script {
+                    def buildCount = params.BUILD_COUNT.toInteger()
+                    for (int i = 1; i <= buildCount; i++) {
+                        echo "Starting build #${i}"
+                        
+                        def startTime = System.currentTimeMillis()
+
+                        // Execute the build within the local repository directory
+                        def buildResult = sh(
+                            script: "cd ${WORKSPACE_DIR} && make starexec -e 'VERSION=${params.VERSION}'",
+                            returnStatus: true
+                        )
+
+                        if (buildResult != 0) {
+                            error "Build #${i} failed, aborting pipeline."
+                        }
+
+                        def endTime = System.currentTimeMillis()
+                        def buildTime = (endTime - startTime) / 1000  // Time in seconds
+
+                        // Get image size in MB
+                        def imageSize = sh(
+                            script: "podman image inspect --format='{{.Size}}' ${params.IMAGE_NAME}:${params.VERSION} | awk '{printf \"%.2f\", \$1/1024/1024}' | sed 's/,/./g'",
+                            returnStdout: true
+                        ).trim()
+
+                        // Get number of image layers
+                        def layerCount = sh(
+                            script: "podman inspect ${params.IMAGE_NAME}:${params.VERSION} | python3 -c 'import json,sys;print(len(json.load(sys.stdin)[0][\"RootFS\"][\"Layers\"]))'",
+                            returnStdout: true
+                        ).trim()
+
+                        // Read current file content and add the new line
+                        def currentReport = fileExists(REPORT_FILE) ? readFile(REPORT_FILE) : ""
+                        def reportLine = "${i},${buildTime},${imageSize},${layerCount}\n"
+                        writeFile file: REPORT_FILE, text: currentReport + reportLine
+
+                        echo "Execution #${i}: Time=${buildTime}s, Size=${imageSize}MB, Layers=${layerCount}"
+
+                        // Clean up the image after each build
+                        sh "podman rmi ${params.IMAGE_NAME}:${params.VERSION}"
+                        sh "podman image rm -af"
+                        
+                        echo "Build #${i} completed successfully."
+                    }
+                }
+            }
+        }
+    }    
+    post {
+        always {
+            dir("${WORKSPACE_DIR}") {
+                script {
+                    def buildLogPattern = 'build-*.log'
+                    archiveArtifacts allowEmptyArchive: true, artifacts: buildLogPattern, fingerprint: true
+                    echo "Logs: ${WORKSPACE_DIR}/${buildLogPattern}"
+                }
+            }
+        }
+        failure {
+            echo 'The pipeline has failed. Please check the logs for more information.'
+        }
+        success {
+            script {
+                def reportPattern = "**/build_report-${params.IMAGE_NAME}-${params.VERSION}.csv"
+                archiveArtifacts allowEmptyArchive: true, artifacts: reportPattern, fingerprint: true
+                echo "Searching with pattern: ${reportPattern}"
+
+                sh "rm -f ${WORKSPACE_DIR}/.env || true"
+                echo '.env file removed successfully.'
+                echo 'Pipeline completed successfully.'
+            }
+        }
+    }
+}

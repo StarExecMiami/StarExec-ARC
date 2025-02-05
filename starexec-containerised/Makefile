@@ -47,7 +47,7 @@ clean:
 	podman rmi -f starexec
 
 	# Also clear cached parts of the image:
-	podman rmi -f `podman images -q --filter ancestor=starexec`
+	podman rmi -f `podman images -q --filter dangling=true`
 
 # kills the container only.
 kill:
