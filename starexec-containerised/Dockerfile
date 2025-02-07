@@ -47,16 +47,22 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US:en \
     LC_ALL=en_US.UTF-8 \
-    JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
+    JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8" \
+    TZ=UTC
 
 # Update and install runtime dependencies
 RUN apt-get update --fix-missing && apt-get upgrade -y && \
     apt-get install -y --no-install-recommends --no-install-suggests \
-    apt-utils sudo git unzip file apache2 tcsh libnuma-dev \
+    apt-utils tzdata sudo git unzip file apache2 tcsh libnuma-dev \
     openssl dnsutils ca-certificates openjdk-11-jdk curl ant \
     ant-optional mariadb-client mariadb-server podman locales && \
     a2enmod ssl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Configure timezone
+RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
+echo "UTC" > /etc/timezone && \
+dpkg-reconfigure -f noninteractive tzdata
 
 # Install and configure locales
 RUN sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen && \
@@ -116,7 +122,7 @@ RUN mkdir -p /export/starexec/sandbox /export/starexec/sandbox2 && \
     usermod -aG sandbox2 tomcat
 
 # Clone StarExec repository
-RUN su - starexec -c "git clone -b UMprod --single-branch https://github.com/StarexecMiami/StarExec.git ${DEPLOY_DIR}" && \
+RUN su - starexec -c "git clone -b containerised --single-branch https://github.com/StarexecMiami/StarExec.git ${DEPLOY_DIR}" && \
     git config --global --add safe.directory ${DEPLOY_DIR} && \
     cd ${DEPLOY_DIR}/WebContent/css/details && ln -s ../shared && \
     chown -R tomcat:star-web /home/starexec
