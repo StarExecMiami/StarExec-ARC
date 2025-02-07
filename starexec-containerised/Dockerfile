@@ -32,7 +32,7 @@ ENV DB_USER se_admin
 ENV DB_PASS dfsdf34RFerfg3TFGRfrF3edFVg12few2
 
 ENV DEBIAN_FRONTEND=noninteractive \
-    TOMCAT_VERSION=7.0.90 \
+    TOMCAT_VERSION=7.0.109 \
     MYSQL_CON_VERSION=8.0.30 \
     DB_NAME=starexec \
     DB_USER=${DB_USER} \
@@ -53,9 +53,17 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # Update and install runtime dependencies
 RUN apt-get update --fix-missing && apt-get upgrade -y && \
     apt-get install -y --no-install-recommends --no-install-suggests \
-    apt-utils tzdata sudo git unzip file apache2 tcsh libnuma-dev \
-    openssl dnsutils ca-certificates openjdk-11-jdk curl ant \
-    ant-optional mariadb-client mariadb-server podman locales && \
+    ca-certificates tzdata sudo git unzip file apache2 tcsh libnuma-dev \
+    openssl dnsutils curl ant ant-optional mariadb-client mariadb-server podman locales && \
+    # Download and install Temurin JDK 16 directly
+    curl -fsSL -o /tmp/jdk16.tar.gz https://github.com/adoptium/temurin16-binaries/releases/download/jdk-16.0.2%2B7/OpenJDK16U-jdk_x64_linux_hotspot_16.0.2_7.tar.gz && \
+    mkdir -p /usr/lib/jvm && \
+    tar xzf /tmp/jdk16.tar.gz -C /usr/lib/jvm && \
+    rm /tmp/jdk16.tar.gz && \
+    # Set Java alternatives
+    update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-16.0.2+7/bin/java 1 && \
+    update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk-16.0.2+7/bin/javac 1 && \
+    # Cleanup and final steps
     a2enmod ssl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -76,8 +84,9 @@ RUN printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAl
     rm /tmp/openssl.cnf
 
 # Install Node.js and Sass
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs --no-install-recommends --no-install-suggests && \
+    npm install -g npm@latest && \
     npm install -g sass
 
 # Configure Apache2

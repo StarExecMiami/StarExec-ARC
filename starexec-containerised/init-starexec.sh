@@ -10,15 +10,21 @@ function error() {
 
 function cleanup() {
   echo "Container stopped, performing cleanup..."
+  
+  # Attempt a graceful shutdown of Tomcat
   /project/apache-tomcat-7/bin/shutdown.sh || true
-
+  
   # Wait briefly for Tomcat to finish cleaning up
   sleep 5
-
+  
+  # Forcibly kill any remaining Tomcat processes (matching the Bootstrap class)
+  pkill -f 'org.apache.catalina.startup.Bootstrap' || true
+  
   /usr/bin/mysqladmin -u root shutdown || true
   /usr/sbin/apache2ctl -k graceful-stop || true
   exit 0
 }
+
 
 # Trap signals for cleanup
 trap cleanup SIGINT SIGTERM
