@@ -40,7 +40,7 @@ run:
 			-e HOST_MACHINE=localhost \
 			-e SSH_PORT=22 \
 			-e SSH_SOCKET_PATH=${PODMAN_SOCKET_PATH} \
-			-p 80:80 -p 443:443 starexec
+			-p 80:80 -p 443:443 starexec:${VERSION}
 
 	# ${SSH_USERNAME}@${HOST_MACHINE}:${SSH_PORT}${SOCKET_PATH}
 clean:
