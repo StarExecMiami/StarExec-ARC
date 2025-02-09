@@ -25,7 +25,6 @@ starexec:
 	START_TIME=$$(date +%Y-%m-%d\ %H:%M:%S) && echo "Build started at: $$START_TIME" | tee build-$$VERSION.log && \
 	time podman build \
 			-t starexec:$$VERSION . \
-			--no-cache \
 			--ulimit="nofile=100000:100000" 2> >(tee -a build-$$VERSION.log >&2) && \
 	END_TIME=$$(date +%Y-%m-%d\ %H:%M:%S) && echo "Build finished at: $$END_TIME" | tee -a build-$$VERSION.log && \
 	echo "Build duration: $$(date -u -d @$$(( $$(date -d "$$END_TIME" +%s) - $$(date -d "$$START_TIME" +%s) )) +%H:%M:%S)" | tee -a build-$$VERSION.log
@@ -44,10 +43,27 @@ run:
 
 	# ${SSH_USERNAME}@${HOST_MACHINE}:${SSH_PORT}${SOCKET_PATH}
 clean:
-	podman rmi -f starexec
+	@echo "Checking for existing 'starexec' image..."
+	@podman image inspect starexec > /dev/null 2>&1 && { \
+		echo "Removing 'starexec' image..."; \
+		podman image rm -f starexec; \
+	} || echo "'starexec' image not found."
 
-	# Also clear cached parts of the image:
-	podman rmi -f `podman images -q --filter dangling=true`
+	@echo "Cleaning up dangling images..."
+	@dangling="$$(podman images -q --filter dangling=true)"; \
+	if [ -n "$$dangling" ]; then \
+		echo "Removing dangling images: $$dangling"; \
+		podman image rm -f $$dangling; \
+	else \
+		echo "No dangling images to remove."; \
+	fi
+
+	@echo "WARNING: This will reset Podman and remove ALL containers, images, and volumes."
+	@read -r -p "Are you sure you want to continue? [y/N] " answer && \
+	case "$$answer" in \
+		[yY]) echo "Resetting Podman..."; podman system reset -f;; \
+		*)  echo "Operation cancelled.";; \
+	esac
 
 # kills the container only.
 kill:
