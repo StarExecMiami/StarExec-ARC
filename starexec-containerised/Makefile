@@ -42,6 +42,7 @@ run:
 			-p 80:80 -p 443:443 starexec:${VERSION}
 
 	# ${SSH_USERNAME}@${HOST_MACHINE}:${SSH_PORT}${SOCKET_PATH}
+
 clean:
 	@echo "Checking for existing 'starexec' image..."
 	@podman image inspect starexec > /dev/null 2>&1 && { \
@@ -58,6 +59,7 @@ clean:
 		echo "No dangling images to remove."; \
 	fi
 
+real-clean:
 	@echo "WARNING: This will reset Podman and remove ALL containers, images, and volumes."
 	@read -r -p "Are you sure you want to continue? [y/N] " answer && \
 	case "$$answer" in \
