@@ -73,7 +73,7 @@ data_dir: /home/starexec
 tomcat-dir: /project/apache-tomcat-7
 web-home: /project/apache-tomcat-7/webapps
 
-logging_levels: DEBUG,STAREXEC
+logging_level: DEBUG
 ALLOW_TESTING: true
 
 # The following values are not declared in Iowa's override.properties files. I'm
