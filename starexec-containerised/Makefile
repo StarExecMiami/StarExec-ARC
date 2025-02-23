@@ -78,4 +78,5 @@ connect:
 	podman exec -it `podman ps -a -q --filter ancestor=starexec` bash
 
 push:
+	podman login docker.io
 	podman push starexec docker.io/tptpstarexec/starexec

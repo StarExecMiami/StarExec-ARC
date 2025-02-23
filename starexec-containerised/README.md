@@ -49,6 +49,7 @@
    make cleanVolumes
    ```
   - _Note_: This will erase all state, and you will need to rebuild the container.
+  - To do a complete cleanup of your podman life do `make real-clean`
 
 ## How It Works
 
