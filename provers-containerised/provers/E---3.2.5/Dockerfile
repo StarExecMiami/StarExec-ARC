@@ -1,5 +1,5 @@
 #------------------------------------------------------------
-#----To build: podman build -t eprover:3.0.03 .
+#----To build: podman build -t eprover:3.2.5 .
 FROM ubuntu-arc
 
 #----Clone repository
@@ -12,13 +12,13 @@ WORKDIR /eprover
 #----Builds first-order executable
 RUN ./configure --bindir=/artifacts && \
     make && \
-    make install
-RUN cp PROVER/eprover /artifacts/eprover
+    make install && \
+    cp PROVER/eprover /artifacts/eprover
 
 #----Builds higher-order executable
 RUN ./configure --enable-ho && \
-    make rebuild
-RUN cp PROVER/eprover-ho /artifacts/eprover-ho
+    make rebuild && \
+    cp PROVER/eprover-ho /artifacts/eprover-ho
 
 #----Add run_system script 
 ADD run_system /artifacts/
