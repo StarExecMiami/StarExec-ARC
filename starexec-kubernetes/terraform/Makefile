@@ -243,8 +243,14 @@ destroy-cluster:
 	else \
 		echo "Cluster is not up. Skipping make depopulate-cluster."; \
 	fi
-	terraform destroy -var="region=$$AWS_REGION" -target=module.eks -auto-approve
-	terraform destroy -var="region=$$AWS_REGION" -target=module.vpc -auto-approve
+	
+	# # Delete EKS
+	# terraform destroy -var="region=$$AWS_REGION" -target=module.eks -auto-approve
+	# # Delete EFS
+	# terraform destroy -var="region=$$AWS_REGION" -target=module.efs -auto-approve
+	# # # Delete VPC
+	# # terraform destroy -var="region=$$AWS_REGION" -target=module.vpc -auto-approve
+	# Delete Everything else
 	terraform destroy -var="region=$$AWS_REGION" -auto-approve
 
 # Show what *will* be created with "terraform apply" (or make create-cluster)

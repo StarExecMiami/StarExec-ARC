@@ -175,9 +175,11 @@ RUN if [ "$(uname -m)" = "x86_64" ]; then \
 COPY init-starexec.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/init-starexec.sh
 
-# Copy SSH key for Podman
-COPY starexec_podman_key /root/.ssh/starexec_podman_key
-RUN chmod 600 /root/.ssh/starexec_podman_key
+# Copy SSH key for Podman 
+# (DON'T DO THIS HERE FOR SECURITY!!!)
+# Instead, it's a docker/k8s volume instead and the permissions can be changed at runtime, if needed
+# COPY starexec_podman_key /root/.ssh/starexec_podman_key
+# RUN chmod 600 /root/.ssh/starexec_podman_key
 
 # Expose necessary ports
 EXPOSE 8080 443 3306
