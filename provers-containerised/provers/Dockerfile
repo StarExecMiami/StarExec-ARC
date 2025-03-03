@@ -10,14 +10,12 @@ FROM tptp-world
 ENV PATH=".:${PATH}"
 WORKDIR /artifacts
 
-# System specific stuff 
-COPY --from=builder /artifacts/* /artifacts/
+# Copy artifacts from the builder stage
+COPY --from=builder /artifacts/ /artifacts/
 
-# ADD InstallCGroup.tcsh /artifacts/
-
-#----Add GetComputerInfo for headers
+# Add GetComputerInfo for headers
 ADD start_RLR /artifacts/
 
-# ENTRYPOINT ["runsolver"]
+# Set the entrypoint to start_RLR
 ENTRYPOINT ["start_RLR"]
 #------------------------------------------------------------
