@@ -17,3 +17,10 @@ starexec-proxy-provers/__pycache__
 .env
 *.log
 *~
+venv/
+# SSH keys for Podman
+starexec_podman_key
+starexec_podman_key.pub
+
+# Build logs
+build-*.log
