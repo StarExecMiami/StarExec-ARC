@@ -38,7 +38,6 @@ eprover-RLR: eprover-RAW tptp-world
 eprover-RAW: ubuntu-arc
 	podman build -t eprover:$(EPROVER_VERSION) ./provers/E---$(EPROVER_VERSION)
 
-
 #----Vampire targets
 vampire: vampire-RLR
 
@@ -47,7 +46,6 @@ vampire-RLR: vampire-RAW tptp-world
 
 vampire-RAW: ubuntu-arc
 	podman build -t vampire:$(VAMPIRE_VERSION) ./provers/Vampire---$(VAMPIRE_VERSION)
-
 
 #----Leo3 targets
 leo3: leo3-RLR
