@@ -3,48 +3,46 @@
 
 FROM ubuntu-arc
 
-#----Installs 
-RUN apt-get update && apt-get install -y --no-install-recommends libcurl4 libcurl4-gnutls-dev numactl libnuma-dev
+#----Install necessary packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libcurl4 \
+    libcurl4-gnutls-dev \
+    numactl \
+    libnuma-dev \
+    git \
+    make \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-#----Build tptp stuff. 
-RUN git clone --recurse-submodules https://github.com/TPTPWorld/ServiceTools.git
-RUN git clone --recurse-submodules https://github.com/TPTPWorld/TPTP4X.git
-
+#----Set environment variable
 ENV TPTP_HOME /
-RUN cd ServiceTools/JJUsers && make SPCForProblem 
-RUN cd TPTP4X && make tptp4X
-#----/artifacts is is the working dir, where we put all executables. It is created in ubuntu-build
-RUN cp ServiceTools/JJUsers/SPCForProblem /artifacts/
-RUN cp TPTP4X/tptp4X /artifacts/
 
-#----Build runsolver
-# RUN wget --no-check-certificate https://www.cril.univ-artois.fr/~roussel/runsolver/runsolver-3.4.1.tar.bz2
-# RUN tar -xjf runsolver-3.4.1.tar.bz2 
-# WORKDIR /runsolver/src
-#----runsolver is old and broken - hacking workarounds
-# RUN sed -i -e "s/CFLAGS=/CFLAGS=-fpermissive /" Makefile
-# RUN make
-# RUN cp /runsolver/src/runsolver /artifacts/
+#----Clone and build TPTP tools
+RUN git clone --recurse-submodules https://github.com/TPTPWorld/ServiceTools.git && \
+    git clone --recurse-submodules https://github.com/TPTPWorld/TPTP4X.git && \
+    cd ServiceTools/JJUsers && make SPCForProblem && \
+    cd ../../TPTP4X && make tptp4X && \
+    cp ServiceTools/JJUsers/SPCForProblem /artifacts/ && \
+    cp TPTP4X/tptp4X /artifacts/ && \
+    rm -rf ServiceTools TPTP4X
 
-# Instead get it from here: https://github.com/StarExecMiami/StarExec/tree/containerised/src/org/starexec/config/sge/RunSolverSource
-RUN git clone -n --depth=1 --branch containerised --filter=tree:0 https://github.com/StarExecMiami/StarExec.git
-WORKDIR StarExec
-RUN git sparse-checkout set --no-cone src/org/starexec/config/sge/RunSolverSource
-RUN git checkout
-RUN cd src/org/starexec/config/sge/RunSolverSource && make clean && make
-RUN cp src/org/starexec/config/sge/RunSolverSource/runsolver /artifacts/
+#----Clone and build runsolver
+RUN git clone -n --depth=1 --branch containerised --filter=tree:0 https://github.com/StarExecMiami/StarExec.git && \
+    cd StarExec && \
+    git sparse-checkout set --no-cone src/org/starexec/config/sge/RunSolverSource && \
+    git checkout && \
+    cd src/org/starexec/config/sge/RunSolverSource && make clean && make && \
+    cp runsolver /artifacts/ && \
+    cd / && rm -rf StarExec
 
-#----Build RLR
-RUN git clone https://github.com/StarExecMiami/ResourceLimitedRun.git
-RUN cd ResourceLimitedRun && make ResourceLimitedRun
-RUN cp ResourceLimitedRun/ResourceLimitedRun /artifacts/
+#----Clone and build ResourceLimitedRun
+RUN git clone https://github.com/StarExecMiami/ResourceLimitedRun.git && \
+    cd ResourceLimitedRun && make ResourceLimitedRun && \
+    cp ResourceLimitedRun /artifacts/ && \
+    cd / && rm -rf ResourceLimitedRun
 
-#----Cleanup - necessary because this is the base for all the -RLR container images
-WORKDIR /
-RUN rm -rf ServiceTools TPTP4X
-
-#----/benchmark is where we put the TPTP problem.
-RUN mkdir -p /benchmark
+#----Create necessary directories
+RUN mkdir -p /benchmark /artifacts
 
 WORKDIR /artifacts
 
