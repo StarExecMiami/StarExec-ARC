@@ -3,7 +3,7 @@ name: Build StarExec Container
 on:
   push:
     branches:
-      - master
+      - "**"
     paths:
       - 'starexec-containerised/**'
   pull_request:
