@@ -25,6 +25,25 @@ function cleanup() {
   exit 0
 }
 
+# Function to check and restart services
+function monitor_service() {
+  local name=$1
+  local check_cmd=$2
+  local restart_cmd=$3
+  
+  while true; do
+    if ! eval "$check_cmd"; then
+      echo "$name is not running, restarting..."
+      eval "$restart_cmd"
+    fi
+    sleep 30
+  done
+}
+
+# Generate SQL install file using Ant build target
+echo "Generating SQL install file..."
+ant -buildfile "${BUILD_FILE}" compile-sql
+SQL_FILE="${DEPLOY_DIR}/sql/NewInstall.sql"
 
 # Trap signals for cleanup
 trap cleanup SIGINT SIGTERM
@@ -88,18 +107,29 @@ done
 cd "$DEPLOY_DIR" || error "Cannot change directory to $DEPLOY_DIR"
 echo "Running ant build -buildfile $BUILD_FILE reload-sql update-sql..."
 
-if ! ant build -buildfile "$BUILD_FILE" reload-sql update-sql; then
-  echo "reload-sql/update-sql failed, applying NewInstall.sql..."
-  cd "$DEPLOY_DIR/sql" || error "Cannot change directory to $DEPLOY_DIR/sql"
-  mysql -u root "$DB_NAME" < "$SQL_FILE"
-  cd "$DEPLOY_DIR" || error "Cannot change directory back to $DEPLOY_DIR"
-  
-  if ! ant build -buildfile "$BUILD_FILE" reload-sql update-sql; then
-    error "ERROR: Build still failing after applying NewInstall.sql. Please rebuild the Docker image."
-  fi
+# First initialize the database with NewInstall.sql
+echo "Initializing database with NewInstall.sql..."
+cd "$DEPLOY_DIR/sql" || error "Cannot change directory to $DEPLOY_DIR/sql"
+mysql -u root "$DB_NAME" < "$SQL_FILE"
+cd "$DEPLOY_DIR" || error "Cannot change directory back to $DEPLOY_DIR"
+
+# Then run reload-sql to load procedures
+if ! ant build -buildfile "$BUILD_FILE" reload-sql; then
+  error "ERROR: reload-sql failed after initializing database. Please check the build file and try again."
 fi
 
-script/soft-deploy.sh && printf "SUCCESS! VISIT IN YOUR BROWSER: http://localhost\n\nuser: admin\npassword: admin\n\n"
+# Finally run update-sql to apply schema changes
+if ! ant -buildfile "$BUILD_FILE" update-sql; then
+  error "ERROR: update-sql failed. Please check the build file and try again."
+fi
+
+script/soft-deploy.sh && printf "SUCCESS! VISIT IN YOUR BROWSER: https://localhost:8443\n\nuser: admin\npassword: admin\n\n"
+
+# Start monitoring all critical services in the background
+echo "Starting service monitoring..."
+
+# Monitor Apache
+monitor_service "Apache2" "service apache2 status" "service apache2 restart" &> /dev/null &
 
 # Keep the container running; wait on background jobs
 wait
