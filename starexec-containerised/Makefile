@@ -12,11 +12,13 @@ starexec:
 	echo "(only if they don't already exist)"; \
 	[ -f starexec_podman_key ] || ssh-keygen -t ed25519 -N '' -f starexec_podman_key; \
 	ssh-keyscan -H localhost >> ~/.ssh/known_hosts; \
+	chmod 600 starexec_podman_key;
 
 	@if [ "$(USER)" != "jenkins" ]; then \
 		echo "Setting up SSH key for $(USER) user."; \
-		[ -f starexec_podman_key.pub ] && \
-		ssh-copy-id -i starexec_podman_key.pub $(USER)@localhost; \
+		if [ -f starexec_podman_key.pub ]; then \
+			cat starexec_podman_key.pub >> ~/.ssh/authorized_keys; \
+		fi \
 	else \
 		echo "Skipping SSH key setup for Jenkins user."; \
 	fi
@@ -25,12 +27,12 @@ starexec:
 	START_TIME=$$(date +%Y-%m-%d\ %H:%M:%S) && echo "Build started at: $$START_TIME" | tee build-$$VERSION.log && \
 	time podman build \
 			-t starexec:$$VERSION . \
-			--ulimit="nofile=100000:100000" 2> >(tee -a build-$$VERSION.log >&2) && \
+			--no-cache 2> >(tee -a build-$$VERSION.log >&2) && \
 	END_TIME=$$(date +%Y-%m-%d\ %H:%M:%S) && echo "Build finished at: $$END_TIME" | tee -a build-$$VERSION.log && \
 	echo "Build duration: $$(date -u -d @$$(( $$(date -d "$$END_TIME" +%s) - $$(date -d "$$START_TIME" +%s) )) +%H:%M:%S)" | tee -a build-$$VERSION.log
 
 run:
-	podman run --network=host --rm -it -v volDB:/var/lib/mysql \
+	podman run --rm -it -v volDB:/var/lib/mysql \
 			-v volStar:/home/starexec \
 			-v volPro:/project \
 			-v volExport:/export \
@@ -39,7 +41,7 @@ run:
 			-e HOST_MACHINE=localhost \
 			-e SSH_PORT=22 \
 			-e SSH_SOCKET_PATH=${PODMAN_SOCKET_PATH} \
-			-p 80:80 -p 443:443 starexec:${VERSION}
+			-p 8443:443 starexec:${VERSION}
 
 	# ${SSH_USERNAME}@${HOST_MACHINE}:${SSH_PORT}${SOCKET_PATH}
 
@@ -64,19 +66,32 @@ real-clean:
 	@read -r -p "Are you sure you want to continue? [y/N] " answer && \
 	case "$$answer" in \
 		[yY]) echo "Resetting Podman..."; podman system reset -f;; \
-		*)  echo "Operation cancelled.";; \
+		*) echo "Operation cancelled.";; \
 	esac
 
-# kills the container only.
 kill:
-	podman rm -f `podman ps -a -q --filter ancestor=starexec`
+	@echo "Killing container(s) running the 'starexec' image..."
+	@container_ids="$$(podman ps -q --filter ancestor=starexec)"; \
+	if [ -n "$$container_ids" ]; then \
+		podman rm -f $$container_ids; \
+	else \
+		echo "No containers based on 'starexec' are running."; \
+	fi
 
 cleanVolumes:
-	podman volume rm -f volDB volStar volPro volExport
+	@echo "Removing volumes: volDB, volStar, volPro, volExport"
+	@podman volume rm -f volDB volStar volPro volExport
 
 connect:
-	podman exec -it `podman ps -a -q --filter ancestor=starexec` bash
+	@container_id=$$(podman ps -q --filter name=starexec --format '{{.ID}}' | head -n 1); \
+	if [ -n "$$container_id" ]; then \
+		podman exec -it $$container_id /bin/bash; \
+	else \
+		echo "Error: No running StarExec container found."; \
+		exit 1; \
+	fi
 
 push:
-	podman login docker.io
-	podman push starexec docker.io/tptpstarexec/starexec
+	@echo "Pushing starexec image to Docker Hub..."
+	@podman login docker.io
+	@podman push starexec docker.io/tptpstarexec/starexec

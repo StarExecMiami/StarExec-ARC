@@ -61,7 +61,7 @@ jobs:
           echo "Building and pushing Docker images..."
           REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           docker buildx build --builder ${{ steps.buildx.outputs.name }} \
-            --platform linux/amd64,linux/arm64 \
+            --platform linux/amd64 \
             --tag ghcr.io/$REPO_LOWER:latest \
             --tag ghcr.io/$REPO_LOWER:${{ github.sha }} \
             --push ${{ env.WORKDIR }}
