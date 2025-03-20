@@ -41,7 +41,7 @@ run:
 			-e HOST_MACHINE=localhost \
 			-e SSH_PORT=22 \
 			-e SSH_SOCKET_PATH=${PODMAN_SOCKET_PATH} \
-			-p 8443:443 starexec:${VERSION}
+			-p 7827:443 starexec:${VERSION}
 
 	# ${SSH_USERNAME}@${HOST_MACHINE}:${SSH_PORT}${SOCKET_PATH}
 
