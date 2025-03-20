@@ -15,7 +15,7 @@ function cleanup() {
   /project/apache-tomcat-7/bin/shutdown.sh || true
   
   # Wait briefly for Tomcat to finish cleaning up
-  sleep 5
+  sleep 1
   
   # Forcibly kill any remaining Tomcat processes (matching the Bootstrap class)
   pkill -f 'org.apache.catalina.startup.Bootstrap' || true
@@ -67,14 +67,29 @@ chmod 755 -R /home/starexec
 echo "Starting Apache..."
 /usr/sbin/apache2ctl -D FOREGROUND &
 
+# Initialize MySQL data directory if not already initialized
+if [ ! -d "/var/lib/mysql/mysql" ]; then
+  echo "Initializing MySQL data directory..."
+  mysql_install_db --user=mysql --ldata=/var/lib/mysql
+  chown -R mysql:mysql /var/lib/mysql
+fi
+
 # Start MySQL in the background
 echo "Starting MySQL..."
 /usr/bin/mysqld_safe --basedir=/usr --user=mysql &
 
 # Wait for MySQL to start
+MYSQL_START_TIMEOUT=60
+MYSQL_START_INTERVAL=1
+MYSQL_START_ELAPSED=0
+
 until mysqladmin ping &>/dev/null; do
-  echo "Waiting for MySQL to start..."
-  sleep 1
+  if [ "$MYSQL_START_ELAPSED" -ge "$MYSQL_START_TIMEOUT" ]; then
+    error "MySQL failed to start within $MYSQL_START_TIMEOUT seconds."
+  fi
+  echo "Waiting for MySQL to start... ($MYSQL_START_ELAPSED/$MYSQL_START_TIMEOUT)"
+  sleep "$MYSQL_START_INTERVAL"
+  MYSQL_START_ELAPSED=$((MYSQL_START_ELAPSED + MYSQL_START_INTERVAL))
 done
 
 # Configure the database
@@ -94,7 +109,8 @@ podman system connection add host-machine-podman-connection \
 
 # Start Tomcat
 echo "Starting Tomcat..."
-CATALINA_OPTS="${CATALINA_OPTS:-} -Dcatalina.loader.webappClassLoader.ENABLE_CLEAR_REFERENCES=false"
+# Setting both properties to handle different Tomcat versions
+export CATALINA_OPTS="-Dorg.apache.catalina.loader.WebappClassLoader.ENABLE_CLEAR_REFERENCES=false -Dorg.apache.catalina.loader.WebappClassLoaderBase.ENABLE_CLEAR_REFERENCES=false ${CATALINA_OPTS:-}"
 /project/apache-tomcat-7/bin/catalina.sh run &
 
 # Wait for Tomcat to start
