@@ -24,8 +24,6 @@ default:
 	@if aws route53 list-hosted-zones | grep -q "$(domain)"; then \
 		echo "---- 5a. Forwarding the domain to the head node URL provided by AWS"; \
 		make forward-domain-route53; \
-		echo "---- 5b. Installing the domain in StarExec"; \
-		make reconfig-starexec; \
 		echo "---- 5b. Waiting a bit for StarExec and the domain to be available"; \
 		sleep 120; \
 		echo "---- 5c. Getting TLS/SSL certificate"; \
@@ -33,21 +31,21 @@ default:
 	else \
 		echo "Domain $(domain) not found in Route53."; \
 		echo "Please manually forward $(domain) to the address found by 'kubectl get svc'"; \
-		echo "Then run 'make reconfig-starexec' and 'make get-certificate'"; \
+		echo "Then run 'make get-certificate'"; \
 	fi
 
-reconfig-starexec:
-	@echo "Finding running pod for se-depl..."
-	@POD_NAME=$$(kubectl get pods --selector=app=starexec -o jsonpath='{.items[0].metadata.name}'); \
-	if [ -z "$$POD_NAME" ]; then \
-		echo "No pod found for se-depl"; \
-		exit 1; \
-	fi; \
-	echo "Pod found: $$POD_NAME"; \
-	echo "External IP for starexec-service: $(domain)"; \
-	echo "Executing reconfig script in the pod with domain $(domain)..."; \
-	kubectl cp reconfig_starexec.sh $$POD_NAME:/tmp/reconfig_starexec.sh; \
-	kubectl exec $$POD_NAME -- /bin/sh -c "chmod +x /tmp/reconfig_starexec.sh && /tmp/reconfig_starexec.sh $(domain)"
+# reconfig-starexec:
+# 	@echo "Finding running pod for se-depl..."
+# 	@POD_NAME=$$(kubectl get pods --selector=app=starexec -o jsonpath='{.items[0].metadata.name}'); \
+# 	if [ -z "$$POD_NAME" ]; then \
+# 		echo "No pod found for se-depl"; \
+# 		exit 1; \
+# 	fi; \
+# 	echo "Pod found: $$POD_NAME"; \
+# 	echo "External IP for starexec-service: $(domain)"; \
+# 	echo "Executing reconfig script in the pod with domain $(domain)..."; \
+# 	kubectl cp reconfig_starexec.sh $$POD_NAME:/tmp/reconfig_starexec.sh; \
+# 	kubectl exec $$POD_NAME -- /bin/sh -c "chmod +x /tmp/reconfig_starexec.sh && /tmp/reconfig_starexec.sh $(domain)"
 
 get-certificate:
 	@echo "Finding running pod for se-depl..."
