@@ -54,7 +54,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get update --fix-missing && apt-get upgrade -y && \
     apt-get install -y --no-install-recommends --no-install-suggests \
     ca-certificates tzdata sudo git unzip file apache2 tcsh libnuma-dev \
-    openssl dnsutils curl ant ant-optional mariadb-client mariadb-server podman locales && \
+    openssl dnsutils curl ant ant-optional mariadb-client mariadb-server podman locales vim && \
     # Download and install Temurin JDK 16 directly
     curl -fsSL -o /tmp/jdk16.tar.gz https://github.com/adoptium/temurin16-binaries/releases/download/jdk-16.0.2%2B7/OpenJDK16U-jdk_x64_linux_hotspot_16.0.2_7.tar.gz && \
     mkdir -p /usr/lib/jvm && \
