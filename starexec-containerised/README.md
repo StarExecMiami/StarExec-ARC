@@ -29,7 +29,7 @@
 
 ### Accessing StarExec
 - The interface may take about a minute to become available as the StarExec `tomcat` app redeploys on each restart.
-- Navigate to [https://localhost:7827](https://localhost:7827).
+- Navigate to [http://localhost:7827](http://localhost:7827).
 - For remote server access, use:
   `ssh -f -N -L 7827:starexec_server.domain:7827 your_account@starexec_server.domain`
   - If necessary, add jump host options, ala `-J your_account@jumphost.domain`
