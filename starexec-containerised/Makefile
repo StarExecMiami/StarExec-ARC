@@ -83,7 +83,7 @@ cleanVolumes:
 	@podman volume rm -f volDB volStar volPro volExport
 
 connect:
-	@container_id=$$(podman ps -q --filter name=starexec --format '{{.ID}}' | head -n 1); \
+	@container_id=$$(podman ps -q --filter ancestor=starexec --format '{{.ID}}' | head -n 1); \
 	if [ -n "$$container_id" ]; then \
 		podman exec -it $$container_id /bin/bash; \
 	else \

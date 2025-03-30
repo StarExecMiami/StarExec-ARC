@@ -28,10 +28,10 @@
 2. Run `make run` (refer to the `Makefile` for details).
 
 ### Accessing StarExec
-- Navigate to [https://localhost](https://localhost).
-  - The interface may take about a minute to become available as the StarExec `tomcat` app redeploys on each restart.
+- The interface may take about a minute to become available as the StarExec `tomcat` app redeploys on each restart.
+- Navigate to [http://localhost:7827](http://localhost:7827).
 - For remote server access, use:
-  `ssh -f -N -L 8080:starexec_server.domain:80 your_account@starexec_server.domain`
+  `ssh -f -N -L 7827:starexec_server.domain:7827 your_account@starexec_server.domain`
   - If necessary, add jump host options, ala `-J your_account@jumphost.domain`
 - Default Username: `admin`  
   Default Password: `admin`

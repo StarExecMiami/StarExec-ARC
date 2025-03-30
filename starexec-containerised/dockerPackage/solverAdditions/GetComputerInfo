@@ -2,7 +2,7 @@
 
 use strict "vars";
 use Getopt::Std;
-#-----------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 my $TPTPDirectory = "/home/tptp";
 
 if (exists($ENV{TPTP_HOME})) {
@@ -19,7 +19,7 @@ my $AvailableComputersFile = "$TPTPDirectory/SystemExecution/AvailableComputers"
 #----For central installation at starexec
 # my $GetComputerInfoCommand = "/home/starexec/bin/GetComputerInfo";
 # my $AvailableComputersFile = "NOT EXISTING";
-#-----------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 my $OperatingSystemInfo;
 my $RemoteShellCommand;
 my $nslookupCommand;
@@ -82,7 +82,7 @@ if ($OSX) {
     $catCommand = "/bin/cat";
     $hostnameCommand = "/bin/hostname";
 }
-#-----------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 
     my $Flags;
     my $PrettyPrint;
@@ -95,7 +95,8 @@ if ($OSX) {
     my %Options;
 
     if (scalar(@ARGV) < 1) {
-        die("Usage: TBA\n");
+        Usage();
+        exit;
     }
 
     $PrettyPrint = 0;
@@ -171,7 +172,7 @@ if ($OSX) {
             system("$RemoteShellCommand $TargetComputer $GetComputerInfoCommand $Flags $TargetComputer @Fields");
         }
     }
-#-----------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 sub Usage {
 
 print("
@@ -187,7 +188,7 @@ print("
 
     Fields are  Model                     = Computer model
                 CPUModel                  = CPU model
-                NumberOfCPUs              = Number of CPUs
+                TotalCPUs                 = Number of CPUs
                 SpareCPUs                 = Idle percentage
                 RAMPerCPU                 = RAM per CPU
                 FreeRAM                   = Free RAM
@@ -197,7 +198,7 @@ print("
                 ALL                       = All fields
 ");
 }
-#-----------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 sub GetComputerInfo {
     my ($Computer,$PrettyPrint,@Fields) = @_;
 
@@ -219,14 +220,12 @@ sub GetComputerInfo {
     $OneMachine{"Model"} = GetComputerModel($Computer);
 
 #----Get CPU information
-    ($OneMachine{"CPUModel"},$OneMachine{"NumberOfCPUs"}) =
-GetCPUModel($Computer);
+    ($OneMachine{"CPUModel"},$OneMachine{"TotalCPUs"}) = GetCPUModel($Computer);
 
 #----Get memory information
     ($OneMachine{"TotalRAM"},$OneMachine{"FreeRAM"},$OneMachine{"SwapInUse"},
 $OneMachine{"FreeSwap"}) = GetMemory($Computer);
-    $OneMachine{"RAMPerCPU"} = $OneMachine{"TotalRAM"}/
-$OneMachine{"NumberOfCPUs"};
+    $OneMachine{"RAMPerCPU"} = $OneMachine{"TotalRAM"}/$OneMachine{"TotalCPUs"};
     $OneMachine{"TotalRAM"} .= "MB";
     $OneMachine{"RAMPerCPU"} .= "MB";
     $OneMachine{"FreeRAM"} .= "MB";
@@ -237,8 +236,8 @@ $OneMachine{"NumberOfCPUs"};
     $OneMachine{"OS"} = GetOperatingSystem($Computer);
 
 #----Get load as percentage
-    $OneMachine{"SpareCPUs"} = $OneMachine{"NumberOfCPUs"} *
-GetIdlePercentage($Computer,$OneMachine{"NumberOfCPUs"}) / 100;
+    $OneMachine{"SpareCPUs"} = $OneMachine{"TotalCPUs"} *
+GetIdlePercentage($Computer,$OneMachine{"TotalCPUs"}) / 100;
 
 #----Print it out
     if (scalar(@Fields) == 1 && $Fields[0] eq "ALL") {
@@ -251,13 +250,13 @@ GetIdlePercentage($Computer,$OneMachine{"NumberOfCPUs"}) / 100;
     }
 
     if ($PrettyPrint) {
-        printf("%-12s : %s\n","Computer",$OneMachine{"Computer"});
+        printf("%-10s : %s\n","Computer",$OneMachine{"Computer"});
     } else {
         printf("%-20s => ",$OneMachine{"Computer"});
     }
     foreach $Field (@Fields) {
         if ($PrettyPrint) {
-            printf("%-12s : ",$Field);
+            printf("%-10s : ",$Field);
         }
         if (exists($OneMachine{$Field})) {
             printf("%s",$OneMachine{$Field});
@@ -274,11 +273,12 @@ GetIdlePercentage($Computer,$OneMachine{"NumberOfCPUs"}) / 100;
         printf("\n");
     }
 }
-#-----------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 sub GetFullyQualifiedName {
     my ($Computer) = @_;
 
     my @InfoLines;
+    my $FullyQualifiedName;
 
 #DEBUG print("Get fully qualified name for $Computer\n");
     if ($Computer !~ /\.local$/) {
@@ -289,16 +289,20 @@ sub GetFullyQualifiedName {
         } else {
             @InfoLines = `$nslookupCommand $Computer`;
 #DEBUG print("nslookupCommand lines are ==@InfoLines==\n");
-            ($Computer) = SelectNLines("Name:",1,@InfoLines);
-            ($Computer) = ($Computer =~ /Name:\s*(.*)/);
-#DEBUG print("nslookup Computer name is ==$Computer==\n");
+            ($FullyQualifiedName) = SelectNLines("Name:",1,0,@InfoLines);
+            if ($FullyQualifiedName =~ /Unknown/) {
+                $FullyQualifiedName = $Computer;
+            } else {
+                ($FullyQualifiedName) = ($FullyQualifiedName =~ /Name:\s*(.*)/);
+            }
+#DEBUG print("nslookup Computer name is ==$FullyQualifiedName==\n");
         }
     }
-#DEBUG print("Computer name is ==$Computer==\n");
+#DEBUG print("Computer name is ==$FullyQualifiedName==\n");
 
-    return($Computer);
+    return($FullyQualifiedName);
 }
-#-----------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 sub GetComputerModel {
     my ($Computer) = @_;
 
@@ -306,12 +310,12 @@ sub GetComputerModel {
     my $ComputerModel;
 
     @InfoLines = `$unameGetComputerModelCommand`;
-    ($ComputerModel) = SelectNLines(".",1,@InfoLines);
+    ($ComputerModel) = SelectNLines(".",1,1,@InfoLines);
 #DEBUG print("Computer model ==$ComputerModel==\n");
 
     return($ComputerModel);
 }
-#-----------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 sub GetCPUModel {
     my ($Computer) = @_;
 
@@ -323,13 +327,13 @@ sub GetCPUModel {
     my $CPUSpeed;
     my $AnotherCPUModel;
     my $AnotherCPUSpeed;
-    my $NumberOfCPUs;
+    my $TotalCPUs;
 
     if ($LINUX) {
         @InfoLines = `$catCommand /proc/cpuinfo`;
-        @CPUModels = SelectNLines("model name",undef,@InfoLines);
-        $NumberOfCPUs = scalar(@CPUModels);
-        if ($NumberOfCPUs <= 0) {
+        @CPUModels = SelectNLines("model name",undef,0,@InfoLines);
+        $TotalCPUs = scalar(@CPUModels);
+        if ($TotalCPUs <= 0) {
             print("ERROR: No CPU models found for $Computer\n");
             exit(-1);
         }
@@ -343,7 +347,7 @@ sub GetCPUModel {
         }
 #----Cannot use CPU speeds now because modern OS uses dynamic clock speed
 #----control to save energy and heat
-#        @CPUSpeeds = SelectNLines("cpu MHz",undef,@InfoLines);
+#        @CPUSpeeds = SelectNLines("cpu MHz",undef,1,@InfoLines);
 #        if (scalar(@CPUSpeeds) <= 0) {
 #            print("ERROR: No CPU speeds found for $Computer\n");
 #            exit(-1);
@@ -359,12 +363,12 @@ sub GetCPUModel {
 #        $CPUSpeed = "${CPUSpeed}MHz";
     }
 
-#DEBUG print("# of CPUs ==$NumberOfCPUs==\n");
+#DEBUG print("# of CPUs ==$TotalCPUs==\n");
 #DEBUG print("CPU model ==$CPUModel==\n");
 #DEBUG print("CPU speed ==$CPUSpeed==\n");
-    return($CPUModel,$NumberOfCPUs);
+    return($CPUModel,$TotalCPUs);
 }
-#-----------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 sub GetMemory {
     my ($Computer) = @_;
 
@@ -380,11 +384,11 @@ sub GetMemory {
 #DEBUG print("=========\n");
 #DEBUG print("@InfoLines\n");
 #DEBUG print("=========\n");
-        ($MemoryLine) = SelectNLines("Mem *:",undef,@InfoLines);
+        ($MemoryLine) = SelectNLines("Mem *:",undef,1,@InfoLines);
         ($Memory,$FreeMemory) = ($MemoryLine =~ /Mem *:\s*(\d+)\s+\d+\s+(\d+)/);
 #DEBUG print("Memory = $Memory\n");
 #DEBUG print("FreeMemory = $FreeMemory\n");
-        ($MemoryLine) = SelectNLines("Swap:",undef,@InfoLines);
+        ($MemoryLine) = SelectNLines("Swap:",undef,1,@InfoLines);
         ($SwapInUse,$FreeSwap) = ($MemoryLine =~ /Swap *:\s*\d+\s+(\d+)\s+(\d+)/);
 #DEBUG print("SwapInUse = $SwapInUse\n");
 #DEBUG print("FreeSwap = $FreeSwap\n");
@@ -392,7 +396,7 @@ sub GetMemory {
 
     return($Memory,$FreeMemory,$SwapInUse,$FreeSwap);
 }
-#-----------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 sub GetMemoryOld {
     my ($Computer) = @_;
 
@@ -408,14 +412,14 @@ sub GetMemoryOld {
 #DEBUG print("=========\n");
 #DEBUG print("@InfoLines\n");
 #DEBUG print("=========\n");
-        ($MemoryLine) = SelectNLines("Mem *:",undef,@InfoLines);
+        ($MemoryLine) = SelectNLines("Mem *:",undef,1,@InfoLines);
         ($Memory) = ($MemoryLine =~ /Mem *:\s*(\d+)/);
         ($FreeMemory) = ($MemoryLine =~ /Mem *:.* (\d+) free/);
         $Memory = int($Memory/1024);
         $FreeMemory = int($FreeMemory/(1024*1));
 #DEBUG print("Memory = $Memory\n");
 #DEBUG print("FreeMemory = $FreeMemory\n");
-        ($MemoryLine) = SelectNLines("Swap:",undef,@InfoLines);
+        ($MemoryLine) = SelectNLines("Swap:",undef,1,@InfoLines);
         ($SwapInUse) = ($MemoryLine =~ /Swap *:.* (\d*) used/);
         ($FreeSwap) = ($MemoryLine =~ /Swap *:.* (\d*) free/);
         $SwapInUse = int($SwapInUse/(1024*1));
@@ -426,7 +430,7 @@ sub GetMemoryOld {
 
     return($Memory,$FreeMemory,$SwapInUse,$FreeSwap);
 }
-#-----------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 sub GetOperatingSystem {
     my ($Computer) = @_;
 
@@ -434,14 +438,14 @@ sub GetOperatingSystem {
     my $OperatingSystem;
 
     @InfoLines = `$unameGetOperatingSystemCommand -sr`;
-    ($OperatingSystem) = SelectNLines(".",1,@InfoLines);
+    ($OperatingSystem) = SelectNLines(".",1,1,@InfoLines);
 #DEBUG print("OS ==$OperatingSystem==\n");
 
     return($OperatingSystem);
 }
-#-----------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 sub GetIdlePercentage {
-    my ($Computer,$NumberOfCPUs) = @_;
+    my ($Computer,$TotalCPUs) = @_;
 
     my @InfoLines;
     my $TwoLineVersionOfTop;
@@ -459,11 +463,11 @@ sub GetIdlePercentage {
 #DEBUG print("=========\n");
 #DEBUG print("@InfoLines\n");
 #DEBUG print("=========\n");
-        @IdleLines = SelectNLines('C[Pp][Uu].+:',undef,@InfoLines);
+        @IdleLines = SelectNLines('C[Pp][Uu].+:',undef,1,@InfoLines);
 #-----Check if it's the new top from RedhAt Enterprise
         if ($IdleLines[0] =~ /CPU states:  cpu    user    nice  system/) {
             $TwoLineVersionOfTop = 1;
-            @IdleLines = SelectNLines(' total ',undef,@InfoLines);
+            @IdleLines = SelectNLines(' total ',undef,1,@InfoLines);
         } else {
             $TwoLineVersionOfTop = 0;
         }
@@ -479,7 +483,7 @@ sub GetIdlePercentage {
             }
 #DEBUG print(STDERR "$IdleLine => $NicePercentage and $IdlePercentage\n");
             $IdlePercentage += ($NicePercentage/4);
-            $IdlePercentage /= $NumberOfCPUs;
+            $IdlePercentage /= $TotalCPUs;
             if ($IdlePercentage < $MinIdlePercentage) {
 #DEBUG print(STDERR "Min idle down to $IdlePercentage\n");
                 $MinIdlePercentage = $IdlePercentage;
@@ -491,9 +495,9 @@ sub GetIdlePercentage {
 #DEBUG print("IdlePercentage ==$IdlePercentage==\n");
     return($IdlePercentage);
 }
-#-----------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 sub SelectNLines {
-    my ($SelectBy,$SelectNumber,@Lines) = @_;
+    my ($SelectBy,$SelectNumber,$DieOnError,@Lines) = @_;
 
     my @SelectedLines;
     my $SelectedLine;
@@ -501,8 +505,12 @@ sub SelectNLines {
     @SelectedLines = grep(/$SelectBy/,@Lines);
     if (scalar(@SelectedLines) == 0 ||
 (defined($SelectNumber) && scalar(@SelectedLines) != $SelectNumber)) {
-        print("ERROR: Not the right \"$SelectBy\" line(s)\n");
-        exit(1);
+        if ($DieOnError) {
+            print("ERROR: Not the right \"$SelectBy\" line(s)\n");
+            exit(1);
+        } else {
+            return(("$SelectBy Unknown"));
+        }
     }
     foreach $SelectedLine (@SelectedLines) {
         chomp($SelectedLine);
@@ -510,4 +518,4 @@ sub SelectNLines {
 
     return(@SelectedLines);
 }
-#-----------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------

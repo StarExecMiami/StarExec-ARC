@@ -48,6 +48,7 @@ spec:
       - name: {{ name }}-container
         image: {{ image }}
         workingDir: /artifacts
+        tty: true
         args: 
         - "--timestamp"
         - "--add-eof"
