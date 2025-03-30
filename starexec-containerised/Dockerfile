@@ -76,13 +76,6 @@ RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
 RUN sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen && \
     locale-gen en_US.UTF-8
 
-# Generate local SSL key and certificate
-RUN printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth" > /tmp/openssl.cnf && \
-    openssl req -x509 -out /etc/ssl/certs/localhost.crt -keyout /etc/ssl/private/localhost.key \
-    -newkey rsa:2048 -nodes -sha256 \
-    -subj '/CN=localhost' -extensions EXT -config /tmp/openssl.cnf && \
-    rm /tmp/openssl.cnf
-
 # Install Node.js and Sass
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs --no-install-recommends --no-install-suggests && \

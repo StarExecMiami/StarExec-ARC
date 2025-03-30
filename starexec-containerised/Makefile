@@ -27,16 +27,57 @@ starexec:
 	START_TIME=$$(date +%Y-%m-%d\ %H:%M:%S) && echo "Build started at: $$START_TIME" | tee build-$$VERSION.log && \
 	time podman build \
 			-t starexec:$$VERSION . \
-			--no-cache 2> >(tee -a build-$$VERSION.log >&2) && \
+			2> >(tee -a build-$$VERSION.log >&2) && \
 	END_TIME=$$(date +%Y-%m-%d\ %H:%M:%S) && echo "Build finished at: $$END_TIME" | tee -a build-$$VERSION.log && \
 	echo "Build duration: $$(date -u -d @$$(( $$(date -d "$$END_TIME" +%s) - $$(date -d "$$START_TIME" +%s) )) +%H:%M:%S)" | tee -a build-$$VERSION.log
 
+mkcert-setup:
+	@echo "Setting up mkcert and localhost certificates..."
+	@echo "Run this only if certificates are missing."
+	@echo "Checking for mkcert and libnss3-tools..."
+	@if [ "$$(uname)" = "Linux" ]; then \
+		if ! command -v mkcert > /dev/null 2>&1 || ! dpkg -l | grep -q libnss3-tools; then \
+			echo >&2 "mkcert or libnss3-tools is not installed. Installing..."; \
+			sudo apt update && sudo apt install -y mkcert libnss3-tools; \
+			echo "mkcert and libnss3-tools installed successfully."; \
+		else \
+			echo "mkcert and libnss3-tools are already installed."; \
+		fi \
+	elif [ "$$(uname)" = "Darwin" ]; then \
+		if ! command -v mkcert > /dev/null 2>&1; then \
+			brew install mkcert; \
+		fi \
+	else \
+		echo "Unsupported OS. Please install mkcert and libnss3-tools manually."; \
+		exit 1; \
+	fi
+	
+	@echo "Creating mkcert configuration directory..."
+	@mkdir -p $(HOME)/.local/share/mkcert > /dev/null 2>&1
+	
+	@echo "Setting up certificates..."
+	@mkcert -install
+	@mkdir -p $(HOME)/.local/share/mkcert
+	@if [ ! -f "$(HOME)/.local/share/mkcert/localhost.crt" ] || [ ! -f "$(HOME)/.local/share/mkcert/localhost.key" ]; then \
+		echo "Generating localhost certificates..."; \
+		cd $(HOME)/.local/share/mkcert && mkcert -cert-file localhost.crt -key-file localhost.key localhost; \
+	fi
+	
+	@echo "Done. Certificates are ready in $(HOME)/.local/share/mkcert:"
+	@echo "  - localhost.crt"
+	@echo "  - localhost.key"
+
 run:
-	podman run --rm -it -v volDB:/var/lib/mysql \
+	@echo "Running the starexec container..."
+	@echo "Make sure to run 'make mkcert-setup' first to set up mkcert and certificates."
+
+	@podman run --rm -it -v volDB:/var/lib/mysql \
 			-v volStar:/home/starexec \
 			-v volPro:/project \
 			-v volExport:/export \
 			-v ./starexec_podman_key:/root/.ssh/starexec_podman_key \
+			-v $(HOME)/.local/share/mkcert/localhost.key:/etc/ssl/private/localhost.key \
+			-v $(HOME)/.local/share/mkcert/localhost.crt:/etc/ssl/certs/localhost.crt \
 			-e SSH_USERNAME=${USER} \
 			-e HOST_MACHINE=localhost \
 			-e SSH_PORT=22 \
