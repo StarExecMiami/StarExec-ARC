@@ -139,7 +139,7 @@ if ! ant -buildfile "$BUILD_FILE" update-sql; then
   error "ERROR: update-sql failed. Please check the build file and try again."
 fi
 
-script/soft-deploy.sh && printf "SUCCESS! VISIT IN YOUR BROWSER: http://localhost:7827\n\nuser: admin\npassword: admin\n\n"
+script/soft-deploy.sh && printf "SUCCESS! VISIT IN YOUR BROWSER: https://localhost:7827\n\nuser: admin\npassword: admin\n\n"
 
 # Start monitoring all critical services in the background
 echo "Starting service monitoring..."
