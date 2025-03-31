@@ -4,30 +4,56 @@
 - `dockerPackage/configFiles` contains network configuration files.
 - `dockerPackage/allScripts/starexecScripts/overridesproperties.txt` contains StarExec configuration files.
 
-### Build the Image
+## Build the Image
+
 1. Ensure you have Podman installed, as explained [here](../README.md).
 2. Ensure that `$HOME/.ssh` exists and you have read-write permission.
 3. Ensure that the `sshd` daemon is running with `systemctl status sshd.service`.
-   - If necessary start it with `sudo service sshd restart`.
-   - On Fedora, this step needs to be done before every new start of StarExec.
+    - If necessary start it with `sudo service sshd restart`.
+    - On Fedora, this step needs to be done before every new start of StarExec.
 4. Run `make` (refer to the `Makefile` for details).
-   - This step typically needs to be done only once.
+    - This step typically needs to be done only once.
 
-### Run the Image
+## Certificates Creation
+
+1. Ensure `mkcert` and `libnss3-tools` are installed:
+
+    - On **Linux**, run:
+
+    ```bash
+    sudo apt update && sudo apt install -y mkcert libnss3-tools
+    ```
+
+    - On **Mac**, run:
+
+    ```bash
+    brew install mkcert
+    ```
+
+    - For other operating systems, refer to the [mkcert documentation](https://github.com/FiloSottile/mkcert).
+
+2. Run `make mkcert-setup` to generate and install localhost certificates.
+    - This will create the necessary certificates in `~/.local/share/mkcert/`:
+      - `localhost.crt`
+      - `localhost.key`
+
+## Run the Image
+
 1. Configure port 80 for non-root usage:
-  - **Mac**: To Be Announced (TBA).
-  - **Ubuntu**:
-    - Add `net.ipv4.ip_unprivileged_port_start=80` to `/etc/sysctl.conf`.
-    - Execute `sudo sysctl --system` to reload the configuration.
-  - **Fedora**:
-    - Add `net.ipv4.ip_unprivileged_port_start=80` to a file in
-      `/etc/sysctl.d` directory, e.g., create a file
-      `/etc/sysctl.d/80-override.conf` with that line.
-    - Execute `sudo sysctl --system` to reload the configuration.
+   - **Mac**: To Be Announced (TBA).
+   - **Ubuntu**:
+      - Add `net.ipv4.ip_unprivileged_port_start=80` to `/etc/sysctl.conf`.
+      - Execute `sudo sysctl --system` to reload the configuration.
+   - **Fedora**:
+      - Add `net.ipv4.ip_unprivileged_port_start=80` to a file in
+        `/etc/sysctl.d` directory, e.g., create a file
+        `/etc/sysctl.d/80-override.conf` with that line.
+      - Execute `sudo sysctl --system` to reload the configuration.
       On Fedora, this must be done before every `make run`.
 2. Run `make run` (refer to the `Makefile` for details).
 
-### Accessing StarExec
+## Accessing StarExec
+
 - The interface may take about a minute to become available as the StarExec `tomcat` app redeploys on each restart.
 - Navigate to [http://localhost:7827](http://localhost:7827).
 - For remote server access, use:
@@ -36,18 +62,22 @@
 - Default Username: `admin`  
   Default Password: `admin`
 
-### Debugging
+## Debugging
+
 - Run `make connect` to open a bash shell within the container.
 
-### Managing the Image
+## Managing the Image
+
 - **Kill the Running Image**:
   - Execute `make kill` if you need to stop the running image.
 - **Destroy the Image**:
   - If you encounter issues and wish to remove all configurations, execute:
+
    ```bash
    make clean
    make cleanVolumes
    ```
+
   - _Note_: This will erase all state, and you will need to rebuild the container.
   - To do a complete cleanup of your podman life do `make real-clean`
 
