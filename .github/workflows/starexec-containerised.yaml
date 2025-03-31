@@ -3,10 +3,7 @@ name: Build StarExec Container
 on:
   push:
     branches:
-      - "**"
-    paths:
-      - 'starexec-containerised/**'
-  pull_request:
+      - master
     paths:
       - 'starexec-containerised/**'
   workflow_dispatch:
