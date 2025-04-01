@@ -40,6 +40,14 @@ function monitor_service() {
   done
 }
 
+if [ ! -f "/etc/ssl/certs/localhost.crt" ] || [ ! -f "/etc/ssl/private/localhost.key" ]; then
+  printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth" > /tmp/openssl.cnf
+  openssl req -x509 -out /etc/ssl/certs/localhost.crt -keyout /etc/ssl/private/localhost.key \
+    -newkey rsa:2048 -nodes -sha256 \
+    -subj '/CN=localhost' -extensions EXT -config /tmp/openssl.cnf
+  rm /tmp/openssl.cnf
+fi
+
 # Generate SQL install file using Ant build target
 echo "Generating SQL install file..."
 ant -buildfile "${BUILD_FILE}" compile-sql
