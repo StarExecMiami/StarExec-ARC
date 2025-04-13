@@ -1,0 +1,6 @@
+#!/bin/tcsh
+
+setenv HERE `dirname $0`
+
+cd $HERE
+./drodi "-learnfrom(drodi.lrn)" "-timeout($RLR_WC_LIMIT)" $RLR_INPUT_FILE
