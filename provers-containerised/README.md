@@ -57,10 +57,10 @@ This folder contains all the necessary components to containerize an Automated T
     podman build -t eprover:3.0.03-RLR --build-arg PROVER_IMAGE=eprover:3.0.03 .
     ```
 
-5. **Test Using the `run_image.py` Script:**
+5. **Test Using the `run_image.py` Scrip on PUZ001+1 (provided)t:**
     ```shell
     cd ..
-    run_image.py eprover:3.0.03-RLR -P ../../TPTP-problems/PUZ001+1.p -W 60 -I THM
+    run_image.py eprover:3.0.03-RLR -P PUZ001+1.p -W 60 -I THM
     ```
 
 6. **Push to Docker Hub:**
