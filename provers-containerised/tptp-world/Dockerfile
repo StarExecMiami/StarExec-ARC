@@ -22,6 +22,7 @@ RUN git clone --recurse-submodules https://github.com/TPTPWorld/ServiceTools.git
     git clone --recurse-submodules https://github.com/TPTPWorld/TPTP4X.git && \
     cd ServiceTools/JJUsers && make SPCForProblem && \
     cd ../../TPTP4X && make tptp4X && \
+    cd ../.. && \
     cp ServiceTools/JJUsers/SPCForProblem /artifacts/ && \
     cp TPTP4X/tptp4X /artifacts/ && \
     rm -rf ServiceTools TPTP4X

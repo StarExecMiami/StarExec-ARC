@@ -1,5 +1,5 @@
 #------------------------------------------------------------
-#----To build: podman build -t eprover:3.2.5 .
+#----To build: podman build --no-cache -t eprover:3.2.5 .
 FROM ubuntu-arc
 
 #----Clone repository

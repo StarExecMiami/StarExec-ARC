@@ -1,12 +1,12 @@
 #------------------------------------------------------------
-#----To build: podman build -t leo3:1.7.0 .
+#----To build: podman build --no-cache -t leo3:1.7.18 .
 FROM ubuntu-arc
 
 #----Install SBT and Scala
 ARG SCALA_VERSION=2.13.0
-ARG SBT_VERSION=1.6.2
+ARG SBT_VERSION=1.10.7
 
-RUN apt-get update && apt-get install -y wget curl git make && \
+RUN apt update && apt install -y wget curl git make && \
     wget --no-check-certificate https://downloads.lightbend.com/scala/$SCALA_VERSION/scala-$SCALA_VERSION.deb && \
     dpkg -i scala-$SCALA_VERSION.deb && \
     curl -L -o sbt-$SBT_VERSION.deb https://repo.scala-sbt.org/scalasbt/debian/sbt-$SBT_VERSION.deb && \
@@ -19,11 +19,10 @@ RUN apt-get update && apt-get install -y wget curl git make && \
 WORKDIR /app
 
 #----Init SBT
-RUN sbt sbtVersion
+RUN sbt --allow-empty sbtVersion
 
 #----Clone repository and build
-ARG LEO3_VERSION=v1.7.0
-RUN git clone --depth 1 --branch $LEO3_VERSION -c advice.detachedHead=false https://github.com/leoprover/Leo-III.git && \
+RUN git clone https://github.com/leoprover/Leo-III.git && \
     cd Leo-III && \
     make all && \
     cp bin/leo3* /artifacts/
