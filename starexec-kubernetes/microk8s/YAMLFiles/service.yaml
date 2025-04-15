@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: starexec-service
+  labels:
+    app: starexec
 spec:
   selector:
     app: starexec
@@ -14,3 +16,4 @@ spec:
       protocol: TCP
       port: 80
       targetPort: 80
+  type: ClusterIP
