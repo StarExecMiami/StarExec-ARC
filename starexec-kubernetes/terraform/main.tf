@@ -111,18 +111,18 @@ module "eks" {
       name = "computenodes"
 
       instance_types = [data.external.instance_type.result.value]
-      min_size     = 1
-      max_size     = tonumber(data.external.max_nodes.result.value)
-      desired_size = tonumber(data.external.desired_nodes.result.value)
+      min_size       = 1
+      max_size       = tonumber(data.external.max_nodes.result.value)
+      desired_size   = tonumber(data.external.desired_nodes.result.value)
     }
-    
+
     headnode = {
       name = "headnode"
 
       instance_types = [data.external.instance_type.result.value]
-      min_size     = 1
-      max_size     = 1
-      desired_size = 1
+      min_size       = 1
+      max_size       = 1
+      desired_size   = 1
     }
   }
 }
@@ -162,11 +162,11 @@ resource "aws_efs_file_system" "example" {
 }
 
 resource "aws_efs_mount_target" "example" {
-  for_each           = toset(module.vpc.private_subnets)
-  file_system_id     = aws_efs_file_system.example.id
-  subnet_id          = each.value
-  security_groups    = [aws_security_group.efs_sg.id]
-  depends_on = [module.vpc] # vpc shouldn't be destroyed first because this depends on it
+  for_each        = toset(module.vpc.private_subnets)
+  file_system_id  = aws_efs_file_system.example.id
+  subnet_id       = each.value
+  security_groups = [aws_security_group.efs_sg.id]
+  depends_on      = [module.vpc] # vpc shouldn't be destroyed first because this depends on it
 }
 
 resource "aws_security_group" "efs_sg" {
@@ -203,17 +203,17 @@ resource "aws_security_group" "efs_sg" {
 #################### EFS Access Points ######################################
 resource "aws_efs_access_point" "voldb" {
   file_system_id = aws_efs_file_system.example.id
-  
+
   posix_user {
     gid = 0
     uid = 0
   }
-  
+
   root_directory {
     path = "/voldb"
     creation_info {
-      owner_gid = 0
-      owner_uid = 0
+      owner_gid   = 0
+      owner_uid   = 0
       permissions = 0777
     }
   }
@@ -221,17 +221,17 @@ resource "aws_efs_access_point" "voldb" {
 
 resource "aws_efs_access_point" "volstar" {
   file_system_id = aws_efs_file_system.example.id
-  
+
   posix_user {
     gid = 0
     uid = 0
   }
-  
+
   root_directory {
     path = "/volstar"
     creation_info {
-      owner_gid = 0
-      owner_uid = 0
+      owner_gid   = 0
+      owner_uid   = 0
       permissions = 0777
     }
   }
@@ -239,17 +239,17 @@ resource "aws_efs_access_point" "volstar" {
 
 resource "aws_efs_access_point" "volpro" {
   file_system_id = aws_efs_file_system.example.id
-  
+
   posix_user {
     gid = 0
     uid = 0
   }
-  
+
   root_directory {
     path = "/volpro"
     creation_info {
-      owner_gid = 0
-      owner_uid = 0
+      owner_gid   = 0
+      owner_uid   = 0
       permissions = 0777
     }
   }
@@ -257,12 +257,12 @@ resource "aws_efs_access_point" "volpro" {
 
 # resource "aws_efs_access_point" "volexport" {
 #   file_system_id = aws_efs_file_system.example.id
-  
+
 #   posix_user {
 #     gid = 0
 #     uid = 0
 #   }
-  
+
 #   root_directory {
 #     path = "/volexport"
 #     creation_info {
