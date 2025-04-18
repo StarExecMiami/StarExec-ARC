@@ -28,8 +28,10 @@ WAIT_TIMEOUT = 60  # seconds
 WALLCLOCK_TIMEOUT = 600
 CPU_TIMEOUT = WALLCLOCK_TIMEOUT * 2
 MAX_MEMORY = 128
-CHROME_BINARY = "/snap/bin/chromium"
-CHROME_DRIVER = "/snap/chromium/current/usr/lib/chromium-browser/chromedriver"
+CHROME_BINARY = "/bin/google-chrome"          # your chrome path
+CHROME_DRIVER = "/usr/local/bin/chromedriver"     # your chromedriver path
+# CHROME_BINARY = "/snap/bin/chromium"
+# CHROME_DRIVER = "/snap/chromium/current/usr/lib/chromium-browser/chromedriver"
 LOG_FILE = "selenium_starexec.log"
 
 
@@ -121,8 +123,14 @@ class StarExecAutomator:
                 condition((by, selector))
             )
         except TimeoutException as e:
-            logger.error(f"Timed out waiting for element: {selector}")
-            raise
+            logger.error(f"Element not found: {selector} within {timeout} seconds")
+            raise e
+        except WebDriverException as e:
+            logger.error(f"WebDriver exception occurred: {e}")
+            raise e
+        except Exception as e:
+            logger.error(f"Unexpected error occurred: {e}")
+            raise e
             
     def login(self) -> None:
         """
