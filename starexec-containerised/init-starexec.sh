@@ -8,6 +8,35 @@ function error() {
   exit 1
 }
 
+function healthcheck() {
+  # Check if MySQL is running
+  if ! mysqladmin ping -u root --silent --connect-timeout=3; then
+    echo "[HEALTHCHECK] MySQL is not running"
+    exit 1
+  fi
+  
+  # Check if Apache is running
+  if ! service apache2 status | grep -q "running"; then
+    echo "[HEALTHCHECK] Apache is not running"
+    exit 1
+  fi
+  
+  # Check if Tomcat is running
+  if ! ps -ef | grep -v grep | grep -q "org.apache.catalina.startup.Bootstrap"; then
+    echo "[HEALTHCHECK] Tomcat is not running"
+    exit 1
+  fi
+  
+  # Check if the application is responding
+  if ! curl -s -k --max-time 5 -I https://localhost/starexec/ | grep -q "200 OK"; then
+    echo "[HEALTHCHECK] StarExec application is not responding"
+    exit 1
+  fi
+  
+  echo "[HEALTHCHECK] All services are healthy"
+  exit 0
+}
+
 function cleanup() {
   echo "Container stopped, performing cleanup..."
   
@@ -39,6 +68,11 @@ function monitor_service() {
     sleep 30
   done
 }
+
+# If first argument is "healthcheck", run the healthcheck function
+if [ "${1:-}" = "healthcheck" ]; then
+  healthcheck
+fi
 
 if [ ! -f "/etc/ssl/certs/localhost.crt" ] || [ ! -f "/etc/ssl/private/localhost.key" ]; then
   printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth" > /tmp/openssl.cnf
@@ -102,12 +136,37 @@ done
 
 # Configure the database
 echo "Configuring database..."
-mysql -u root -e "
-  DROP DATABASE IF EXISTS $DB_NAME;
-  CREATE DATABASE $DB_NAME;
-  GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
-  FLUSH PRIVILEGES;
-"
+if ! mysql -u root -e "USE $DB_NAME" 2>/dev/null; then
+  echo "Database $DB_NAME does not exist, creating..."
+  mysql -u root -e "
+    CREATE DATABASE $DB_NAME;
+    GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
+    FLUSH PRIVILEGES;
+  "
+
+  # Initialize the database with NewInstall.sql only if it's a fresh install
+  echo "Initializing database with NewInstall.sql..."
+  cd "$DEPLOY_DIR/sql" || error "Cannot change directory to $DEPLOY_DIR/sql"
+  mysql -u root "$DB_NAME" < "$SQL_FILE"
+  cd "$DEPLOY_DIR" || error "Cannot change directory back to $DEPLOY_DIR"
+
+  # Then run reload-sql to load procedures for fresh install
+  if ! ant build -buildfile "$BUILD_FILE" reload-sql; then
+    error "ERROR: reload-sql failed after initializing database. Please check the build file and try again."
+  fi
+
+  # Finally run update-sql to apply schema changes for fresh install
+  if ! ant -buildfile "$BUILD_FILE" update-sql; then
+    error "ERROR: update-sql failed. Please check the build file and try again."
+  fi
+else
+  echo "Database $DB_NAME already exists, skipping initialization..."
+  # Just ensure privileges are set correctly
+  mysql -u root -e "
+    GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
+    FLUSH PRIVILEGES;
+  "
+fi
 
 # Configure Podman connection
 echo "Configuring Podman connection..."
@@ -131,18 +190,11 @@ done
 cd "$DEPLOY_DIR" || error "Cannot change directory to $DEPLOY_DIR"
 echo "Running ant build -buildfile $BUILD_FILE reload-sql update-sql..."
 
-# First initialize the database with NewInstall.sql
-echo "Initializing database with NewInstall.sql..."
-cd "$DEPLOY_DIR/sql" || error "Cannot change directory to $DEPLOY_DIR/sql"
-mysql -u root "$DB_NAME" < "$SQL_FILE"
-cd "$DEPLOY_DIR" || error "Cannot change directory back to $DEPLOY_DIR"
-
-# Then run reload-sql to load procedures
+# Only run reload-sql and update-sql without reinitializing the database
 if ! ant build -buildfile "$BUILD_FILE" reload-sql; then
-  error "ERROR: reload-sql failed after initializing database. Please check the build file and try again."
+  error "ERROR: reload-sql failed. Please check the build file and try again."
 fi
 
-# Finally run update-sql to apply schema changes
 if ! ant -buildfile "$BUILD_FILE" update-sql; then
   error "ERROR: update-sql failed. Please check the build file and try again."
 fi
@@ -153,7 +205,7 @@ script/soft-deploy.sh && printf "SUCCESS! VISIT IN YOUR BROWSER: https://localho
 echo "Starting service monitoring..."
 
 # Monitor Apache
-monitor_service "Apache2" "service apache2 status" "service apache2 restart" &> /dev/null &
+monitor_service "Apache2" "pgrep apache2 > /dev/null" "/usr/sbin/apache2ctl start" &> /dev/null &
 
 # Keep the container running; wait on background jobs
 wait
