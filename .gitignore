@@ -27,3 +27,9 @@ venv/
 
 # Build logs
 build-*.log
+
+# Visual Studio Code workspace settings
+.vscode
+
+# Backup files
+**/state-backup/
