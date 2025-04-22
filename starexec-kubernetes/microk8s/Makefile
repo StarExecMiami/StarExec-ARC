@@ -1,101 +1,399 @@
+# ==============================================================================
+# Makefile for StarExec on MicroK8s
+# ==============================================================================
+
+# Shell to use
 SHELL := /usr/bin/env bash
-SOURCE_DIR := $(CURDIR)
+
+# Kubernetes Configuration
 KUBECTL := microk8s kubectl
 NAMESPACE := default
 APP_NAME := starexec
-SSH_KEY := starexec-ssh-key
-TLS_CERT_KEY := starexec-tls.key
-TLS_CERT_CRT := starexec-tls.crt
-TLS_SECRET_NAME := starexec-tls-secret
+POD_SELECTOR := app=$(APP_NAME)
+YAML_DIR := YAMLFiles
 
-# Colors
+# Secrets and Keys Configuration
+SSH_KEY_NAME := starexec-ssh-key
+SSH_KEY_FILE := $(CURDIR)/$(SSH_KEY_NAME)
+TLS_SECRET_NAME := starexec-tls-secret
+TLS_CERT_KEY_FILE := $(CURDIR)/starexec-tls.key
+TLS_CERT_CRT_FILE := $(CURDIR)/starexec-tls.crt
+TLS_HOSTS := localhost # Add other hosts if needed, space-separated
+
+# State Backup Configuration
+BACKUP_DIR := $(CURDIR)/state-backup
+STATE_PATHS := /var/lib/mysql /home/starexec # Paths inside the container to backup
+
+# Colors for Output
 RED := \033[0;31m
 GREEN := \033[0;32m
 YELLOW := \033[0;33m
-NC := \033[0m
+NC := \033[0m # No Color
 
-# Declare all phony targets
-.PHONY: apply connect clean info list-pods list-services list-deployments list-nodes cert-refresh mkcert-setup mkcert-clean
+# Helper command to get the first running pod name
+GET_POD_CMD = $(KUBECTL) get pods --selector=$(POD_SELECTOR) -n $(NAMESPACE) -o jsonpath='{.items[?(@.status.phase=="Running")].metadata.name}' | cut -d' ' -f1
 
-apply: ## Deploy application and configure ingress
-	@echo -e "${YELLOW}Ensuring TLS secret exists. Run 'make mkcert-setup' if this fails or certs need update.${NC}"
-	@$(KUBECTL) get secret $(TLS_SECRET_NAME) > /dev/null || (echo -e "${RED}TLS secret '$(TLS_SECRET_NAME)' not found. Please run 'make mkcert-setup' first.${NC}" && exit 1)
-	microk8s enable ingress
-	cd YAMLFiles && $(KUBECTL) apply -f .
-	if [ ! -f "$(SOURCE_DIR)/$(SSH_KEY)" ]; then \
-		ssh-keygen -t rsa -N "" -f $(SSH_KEY); \
-	fi
-	$(KUBECTL) delete secret $(SSH_KEY) --ignore-not-found
-	$(KUBECTL) delete secret $(SSH_KEY)-pub --ignore-not-found
-	$(KUBECTL) create secret generic $(SSH_KEY) --from-file=$(SSH_KEY)=$(SSH_KEY)
-	$(KUBECTL) create secret generic $(SSH_KEY)-pub --from-file=$(SSH_KEY)_pub=$(SSH_KEY).pub -n $(NAMESPACE)
+# ==============================================================================
+# Phony Targets Declaration
+# ==============================================================================
+.PHONY: help apply connect clean info list-pods list-services list-deployments \
+		list-nodes cert-refresh mkcert-setup mkcert-clean check-health \
+		backup-state restore-state start stop describe-pod check-volumes \
+		ssh-setup
+
+# Default target: Show help
+default: help
+
+# ==============================================================================
+# Core Application Lifecycle Targets
+# ==============================================================================
+
+apply: ssh-setup mkcert-setup ## Deploy or update the application stack
+	@echo -e "${YELLOW}Ensuring MicroK8s ingress addon is enabled...${NC}"
+	@microk8s status | grep -q 'ingress: enabled' || microk8s enable ingress
+	@echo -e "${YELLOW}Applying Kubernetes manifests from $(YAML_DIR)...${NC}"
+	$(KUBECTL) apply -f $(YAML_DIR) -n $(NAMESPACE)
+	@echo -e "${YELLOW}Updating SSH key secrets...${NC}"
+	-$(KUBECTL) delete secret $(SSH_KEY_NAME) $(SSH_KEY_NAME)-pub -n $(NAMESPACE) --ignore-not-found=true
+	$(KUBECTL) create secret generic $(SSH_KEY_NAME) --from-file=$(SSH_KEY_NAME)=$(SSH_KEY_FILE) -n $(NAMESPACE)
+	$(KUBECTL) create secret generic $(SSH_KEY_NAME)-pub --from-file=$(SSH_KEY_NAME).pub=$(SSH_KEY_FILE).pub -n $(NAMESPACE)
+	@echo -e "${GREEN}Application deployment initiated.${NC}"
 	@echo -e "${GREEN}=== Access Instructions ===${NC}"
-	@echo -e "${YELLOW}Option 1: Using cluster IP:${NC}"
-	@echo -e "  $(KUBECTL) get svc $(APP_NAME)-service -o jsonpath='{.spec.clusterIP}'"
-	@echo -e "${YELLOW}Option 2: Port forward to localhost:${NC}"
-	@echo -e "  $(KUBECTL) port-forward svc/$(APP_NAME)-service 8443:443"
-	@echo -e "  Then visit https://localhost:8443"
+	@echo -e "Wait for pods to be ready ('make list-pods'). Then:"
+	@echo -e "${YELLOW}Option 1: Using ClusterIP (within cluster):${NC}"
+	@cluster_ip=$$( $(KUBECTL) get svc $(APP_NAME)-service -n $(NAMESPACE) -o jsonpath='{.spec.clusterIP}' ); \
+	 echo -e "  Access via https://$${cluster_ip}"
+	@echo -e "${YELLOW}Option 2: Using Port Forward (from localhost):${NC}"
+	@echo -e "  Run: $(KUBECTL) port-forward svc/$(APP_NAME)-service -n $(NAMESPACE) 8443:443"
+	@echo -e "  Then visit: https://localhost:8443"
 
-connect: ## Connect to the application pod
-	$(KUBECTL) exec -it $$($(KUBECTL) get pods --selector=app=$(APP_NAME) -o jsonpath='{.items[0].metadata.name}') -- /bin/bash
+clean: mkcert-clean ## Remove all deployed application resources and SSH keys
+	@echo -e "${YELLOW}Deleting Kubernetes resources from $(YAML_DIR)...${NC}"
+	-$(KUBECTL) delete -f $(YAML_DIR) -n $(NAMESPACE) --ignore-not-found=true
+	@echo -e "${YELLOW}Deleting SSH key secrets...${NC}"
+	-$(KUBECTL) delete secret $(SSH_KEY_NAME) $(SSH_KEY_NAME)-pub -n $(NAMESPACE) --ignore-not-found=true
+	@echo -e "${YELLOW}Deleting local SSH key files...${NC}"
+	-rm -f $(SSH_KEY_FILE) $(SSH_KEY_FILE).pub
+	@echo -e "${GREEN}Cleanup complete.${NC}"
 
-clean: mkcert-clean ## Remove all deployed resources
-	-$(KUBECTL) delete -f YAMLFiles --ignore-not-found || true
-	-$(KUBECTL) delete secret $(SSH_KEY) --ignore-not-found
-	-$(KUBECTL) delete secret $(SSH_KEY)-pub --ignore-not-found
-	-rm -f $(SSH_KEY) $(SSH_KEY).pub
+start: ## Deploy the application and restore state if backup exists
+	@echo -e "${YELLOW}Starting StarExec application...${NC}"
+	@if [ -d "$(BACKUP_DIR)" ]; then \
+		echo -e "${YELLOW}State backup found at $(BACKUP_DIR). Will restore after deployment.${NC}"; \
+	else \
+		echo -e "${YELLOW}No state backup found. Starting with a clean state.${NC}"; \
+	fi
+	$(MAKE) apply
+	@echo -e "${YELLOW}Waiting for StarExec pod to be ready...${NC}"
+	@timeout 180s bash -c '\
+	  while ! $(KUBECTL) get pods --selector=$(POD_SELECTOR) -n $(NAMESPACE) -o jsonpath="{.items[*].status.phase}" | grep -q "Running"; do \
+		echo -n "."; \
+		sleep 5; \
+	  done; echo " Pod is Running."' || (echo -e "\n${RED}Pod did not become ready in time.${NC}" && exit 1)
+	@if [ -d "$(BACKUP_DIR)" ]; then \
+		echo -e "${YELLOW}Restoring state from backup...${NC}"; \
+		$(MAKE) restore-state; \
+	fi
+	@echo -e "${GREEN}StarExec start sequence complete.${NC}"
+	@echo -e "${YELLOW}Access instructions provided during 'apply'. Run 'make apply' again to see them.${NC}"
 
-info: ## Display all resources across namespaces
-	$(KUBECTL) get all --all-namespaces
+stop: ## Backup application state and then remove all resources
+	@echo -e "${YELLOW}Stopping StarExec application...${NC}"
+	@if ! $(KUBECTL) get pods --selector=$(POD_SELECTOR) -n $(NAMESPACE) -o name | grep -q .; then \
+		echo -e "${YELLOW}No StarExec pods found. Nothing to stop.${NC}"; \
+		exit 0; \
+	fi
+	$(MAKE) backup-state
+	$(MAKE) clean
+	@echo -e "${GREEN}StarExec stopped. State backed up to $(BACKUP_DIR).${NC}"
+	@echo -e "${YELLOW}Run 'make start' to redeploy and restore this state.${NC}"
 
-list-pods: ## List all pods
-	$(KUBECTL) get pods --all-namespaces
+# ==============================================================================
+# State Management Targets
+# ==============================================================================
 
-list-services: ## List all services
-	$(KUBECTL) get services --all-namespaces
+backup-state: ## Backup application state from the running pod to local directory
+	@echo -e "${YELLOW}Backing up StarExec state...${NC}"
+	@mkdir -p $(BACKUP_DIR)
+	@pod=$$($(GET_POD_CMD)); \
+	if [ -z "$$pod" ]; then \
+		echo -e "${RED}No running StarExec pod found. Cannot backup state.${NC}"; \
+		exit 1; \
+	fi; \
+	echo -e "Using pod: $$pod"; \
+	for path in $(STATE_PATHS); do \
+		target_dir="$(BACKUP_DIR)$${path}"; \
+		echo -e "${YELLOW}Backing up $$path to $${target_dir}...${NC}"; \
+		mkdir -p "$${target_dir}"; \
+		rm -rf "$${target_dir}/*"; \
+		$(KUBECTL) exec -n $(NAMESPACE) $$pod -- bash -c "cd $${path} && tar cf - ." | tar xf - -C "$${target_dir}"; \
+		if [ $$? -ne 0 ]; then echo -e "${RED}Error during backup of $$path.${NC}"; exit 1; fi; \
+	done
+	@echo -e "${GREEN}State backup completed successfully to $(BACKUP_DIR)${NC}"
+	@echo -e "${YELLOW}Backup size:${NC}"
+	@du -sh $(BACKUP_DIR)
 
-list-deployments: ## List all deployments
-	$(KUBECTL) get deployments --all-namespaces
-
-list-nodes: ## List all nodes
-	$(KUBECTL) get nodes
-
-cert-refresh: ## Refresh the application's TLS certificate and Kubernetes secret using mkcert
-	@echo "Refreshing application TLS certificate and secret using mkcert..."
-	@echo "Checking for mkcert..."
-	@if ! command -v mkcert > /dev/null 2>&1; then \
-		echo >&2 "${RED}mkcert is not installed. Cannot refresh certificates. Run 'make mkcert-setup' first or install mkcert.${NC}"; \
+restore-state: ## Restore application state from local BACKUP_DIR to the running pod
+	@echo -e "${YELLOW}Restoring StarExec state...${NC}"
+	@if [ ! -d "$(BACKUP_DIR)" ]; then \
+		echo -e "${RED}Backup directory $(BACKUP_DIR) not found. Cannot restore state.${NC}"; \
 		exit 1; \
 	fi
-	@echo "Generating new TLS certificate and key ($(TLS_CERT_CRT), $(TLS_CERT_KEY))..."
-	@mkcert -cert-file $(TLS_CERT_CRT) -key-file $(TLS_CERT_KEY) localhost 127.0.0.1 ::1
-	@echo "Updating Kubernetes TLS secret '$(TLS_SECRET_NAME)'..."
-	-$(KUBECTL) delete secret tls $(TLS_SECRET_NAME) --ignore-not-found
-	@$(KUBECTL) create secret tls $(TLS_SECRET_NAME) --cert=$(TLS_CERT_CRT) --key=$(TLS_CERT_KEY)
-	@echo -e "${GREEN}Application TLS certificate and secret '$(TLS_SECRET_NAME)' refreshed successfully.${NC}"
-	@echo "Removing temporary certificate files..."
-	#-rm -f $(TLS_CERT_CRT) $(TLS_CERT_KEY) # Keep files for potential reuse or debugging
+	@pod=$$($(GET_POD_CMD)); \
+	if [ -z "$$pod" ]; then \
+		echo -e "${RED}No running StarExec pod found. Cannot restore state.${NC}"; \
+		exit 1; \
+	fi; \
+	echo -e "${YELLOW}Found pod: $$pod. Restoring from $(BACKUP_DIR)...${NC}"; \
+	for path in $(STATE_PATHS); do \
+		source_item="$(BACKUP_DIR)$${path}"; \
+		if [ ! -e "$$source_item" ]; then \
+			echo -e "${YELLOW}Backup source '$$source_item' not found. Skipping restore for $$path.${NC}"; \
+			continue; \
+		fi; \
+		echo -e "${YELLOW}Restoring $$path to pod $$pod from $$source_item...${NC}"; \
+		cd $(BACKUP_DIR) && tar cf - .$$path | $(KUBECTL) exec -i -n $(NAMESPACE) $$pod -- tar xf - -C / || \
+			{ echo -e "${RED}Failed to restore $$path.${NC}"; exit 1; }; \
+	done; \
+	echo -e "${YELLOW}Restarting services inside the pod after restore...${NC}"; \
+	$(KUBECTL) exec -n $(NAMESPACE) $$pod -- bash -c ' \
+		echo "Stopping web and Tomcat services gracefully..."; \
+		apache2ctl -k graceful || true; \
+		/project/apache-tomcat-7/bin/shutdown.sh || true; \
+		echo "Stopping MySQL gracefully if running..."; \
+		if [ -f /var/run/mysqld/mysqld.pid ]; then \
+			if mysqladmin shutdown; then \
+				echo "MySQL stopped gracefully"; \
+			else \
+				echo "Graceful shutdown failed, forcing stop..."; \
+				pkill -9 mysqld || true; \
+			fi; \
+		fi; \
+		sleep 5; \
+		echo "Ensuring no MySQL processes are running..."; \
+		pkill -9 mysqld || true; \
+		sleep 2; \
+		echo "Freeing up system caches..."; \
+		echo 3 > /proc/sys/vm/drop_caches || true; \
+		sync; \
+		echo "Correcting permissions for /var/lib/mysql..."; \
+		chown -R mysql:mysql /var/lib/mysql; \
+		echo "Setting up MySQL runtime directory..."; \
+		rm -rf /var/run/mysqld; \
+		mkdir -p /var/run/mysqld; \
+		chown mysql:mysql /var/run/mysqld; \
+		chmod 777 /var/run/mysqld; \
+		echo "Creating minimal MySQL config for startup..."; \
+		echo "[mysqld]" > /tmp/minimal.cnf; \
+		echo "innodb_buffer_pool_size=512M" >> /tmp/minimal.cnf; \
+		echo "Starting MySQL with minimal config..."; \
+		mysqld_safe --defaults-file=/tmp/minimal.cnf --user=mysql --skip-syslog & \
+		echo "Waiting for MySQL to start (with timeouts)..."; \
+		for i in $$(seq 1 30); do \
+			if mysqladmin ping --silent; then \
+				echo "MySQL is responding to ping"; \
+				break; \
+			fi; \
+			if [ $$i -eq 30 ]; then \
+				echo "ERROR: MySQL failed to start after 30 attempts"; \
+				echo "Checking MySQL error log..."; \
+				for logfile in /var/log/mysql/error.log /var/lib/mysql/*.err; do \
+					if [ -f "$$logfile" ]; then \
+						echo "=== Contents of $$logfile ==="; \
+						tail -n 50 "$$logfile"; \
+					fi; \
+				done; \
+				exit 1; \
+			fi; \
+			echo "Waiting for MySQL to start (attempt $$i/30)..."; \
+			sleep 2; \
+		done; \
+		echo "MySQL started successfully."; \
+		echo "Restarting Apache and Tomcat..."; \
+		apache2ctl -k graceful || true; \
+		sleep 2; \
+		/project/apache-tomcat-7/bin/startup.sh' || \
+	{ echo -e "${RED}Failed to restart services in the pod.${NC}"; exit 1; }; \
+	echo -e "${GREEN}State restore and service restart completed successfully.${NC}"
 
-mkcert-setup: ## Setup mkcert and generate TLS certificates for the application
-	@echo "Setting up mkcert and localhost certificates..."
-	@echo "Checking for mkcert..."
+# ==============================================================================
+# Certificate Management Targets (using mkcert)
+# ==============================================================================
+
+mkcert-setup: ## Install mkcert CA and generate TLS certificate and secret
+	@echo -e "${YELLOW}Setting up mkcert and generating TLS certificate...${NC}"
 	@if ! command -v mkcert > /dev/null 2>&1; then \
-		echo >&2 "mkcert is not installed. Please install it first."; \
-		echo >&2 "  Linux: sudo apt update && sudo apt install -y mkcert libnss3-tools"; \
-		echo >&2 "  macOS: brew install mkcert"; \
+		echo -e "${RED}mkcert is not installed.${NC} Please install it."; \
+		echo "  Linux: sudo apt update && sudo apt install -y mkcert libnss3-tools"; \
+		echo "  macOS: brew install mkcert"; \
 		exit 1; \
 	fi
+	@echo "Ensuring local CA is installed (may require sudo password)..."
 	@mkcert -install
-	@echo "Generating TLS certificate and key ($(TLS_CERT_CRT), $(TLS_CERT_KEY))..."
-	@mkcert -cert-file $(TLS_CERT_CRT) -key-file $(TLS_CERT_KEY) localhost 127.0.0.1 ::1
+	@echo "Generating TLS certificate for $(TLS_HOSTS)..."
+	@mkcert -cert-file $(TLS_CERT_CRT_FILE) -key-file $(TLS_CERT_KEY_FILE) $(TLS_HOSTS)
 	@echo "Creating/Updating Kubernetes TLS secret '$(TLS_SECRET_NAME)'..."
-	-$(KUBECTL) delete secret tls $(TLS_SECRET_NAME) --ignore-not-found
-	@$(KUBECTL) create secret tls $(TLS_SECRET_NAME) --cert=$(TLS_CERT_CRT) --key=$(TLS_CERT_KEY)
+	-$(KUBECTL) delete secret tls $(TLS_SECRET_NAME) -n $(NAMESPACE) --ignore-not-found=true
+	@$(KUBECTL) create secret tls $(TLS_SECRET_NAME) --cert=$(TLS_CERT_CRT_FILE) --key=$(TLS_CERT_KEY_FILE) -n $(NAMESPACE)
 	@echo -e "${GREEN}mkcert setup complete. TLS secret '$(TLS_SECRET_NAME)' created/updated.${NC}"
 
-mkcert-clean: ## Remove generated TLS certificates and secret
-	@echo "Removing generated TLS certificate files..."
-	-rm -f $(TLS_CERT_CRT) $(TLS_CERT_KEY)
-	@echo "Removing Kubernetes TLS secret '$(TLS_SECRET_NAME)'..."
-	-$(KUBECTL) delete secret tls $(TLS_SECRET_NAME) --ignore-not-found
+cert-refresh: ## Regenerate TLS certificate and update the Kubernetes secret
+	@echo -e "${YELLOW}Refreshing TLS certificate and secret using mkcert...${NC}"
+	@if ! command -v mkcert > /dev/null 2>&1; then \
+		echo -e "${RED}mkcert not found. Run 'make mkcert-setup' first.${NC}"; exit 1; \
+	fi
+	@if [ ! -f "$(HOME)/.local/share/mkcert/rootCA.pem" ]; then \
+		echo -e "${RED}mkcert CA not found. Run 'make mkcert-setup' first.${NC}"; exit 1; \
+	fi
+	@echo "Generating new TLS certificate for $(TLS_HOSTS)..."
+	@mkcert -cert-file $(TLS_CERT_CRT_FILE) -key-file $(TLS_CERT_KEY_FILE) $(TLS_HOSTS)
+	@echo "Updating Kubernetes TLS secret '$(TLS_SECRET_NAME)'..."
+	-$(KUBECTL) delete secret tls $(TLS_SECRET_NAME) -n $(NAMESPACE) --ignore-not-found=true
+	@$(KUBECTL) create secret tls $(TLS_SECRET_NAME) --cert=$(TLS_CERT_CRT_FILE) --key=$(TLS_CERT_KEY_FILE) -n $(NAMESPACE)
+	@echo -e "${GREEN}TLS certificate and secret '$(TLS_SECRET_NAME)' refreshed successfully.${NC}"
+	# Consider keeping cert files: -rm -f $(TLS_CERT_CRT_FILE) $(TLS_CERT_KEY_FILE)
 
+mkcert-clean: ## Remove generated TLS certificate files and Kubernetes secret
+	@echo -e "${YELLOW}Removing generated TLS certificate files...${NC}"
+	-rm -f $(TLS_CERT_CRT_FILE) $(TLS_CERT_KEY_FILE)
+	@echo -e "${YELLOW}Removing Kubernetes TLS secret '$(TLS_SECRET_NAME)'...${NC}"
+	-$(KUBECTL) delete secret tls $(TLS_SECRET_NAME) -n $(NAMESPACE) --ignore-not-found=true
+	@echo -e "${GREEN}TLS cleanup complete.${NC}"
+
+# ==============================================================================
+# SSH Key Management Targets
+# ==============================================================================
+
+ssh-setup: ## Generate SSH key pair if it doesn't exist
+	@echo -e "${YELLOW}Setting up SSH keys...${NC}"
+	@if [ ! -f "$(SSH_KEY_FILE)" ]; then \
+		echo "Generating SSH key pair: $(SSH_KEY_FILE)"; \
+		ssh-keygen -t rsa -b 4096 -N "" -f $(SSH_KEY_FILE); \
+		chmod 600 $(SSH_KEY_FILE); \
+		echo -e "${GREEN}SSH key pair generated.${NC}"; \
+	else \
+		echo "SSH key file $(SSH_KEY_FILE) already exists."; \
+	fi
+	# The following lines might be specific to development setups
+	# Consider if they are necessary for your deployment
+	# @echo "Adding localhost to known_hosts..."
+	# @ssh-keyscan -H localhost >> ~/.ssh/known_hosts 2>/dev/null || true
+	# @if [ "$(USER)" != "jenkins" ]; then \
+	# 	echo "Adding public key to authorized_keys for user $(USER)..."; \
+	# 	mkdir -p ~/.ssh && chmod 700 ~/.ssh; \
+	# 	cat $(SSH_KEY_FILE).pub >> ~/.ssh/authorized_keys; \
+	# 	chmod 600 ~/.ssh/authorized_keys; \
+	# else \
+	# 	echo "Skipping adding public key to authorized_keys for Jenkins user."; \
+	# fi
+	@echo -e "${GREEN}SSH key setup checked/completed.${NC}"
+
+
+# ==============================================================================
+# Utility & Debugging Targets
+# ==============================================================================
+
+connect: ## Open a bash shell into the running application pod
+	@pod=$$($(GET_POD_CMD)); \
+	if [ -z "$$pod" ]; then \
+		echo -e "${RED}No running StarExec pod found.${NC}"; \
+		exit 1; \
+	fi; \
+	echo -e "${YELLOW}Connecting to pod: $$pod...${NC}"; \
+	$(KUBECTL) exec -n $(NAMESPACE) -it $$pod -- /bin/bash
+
+check-health: ## Perform basic health checks on the running application
+	@echo -e "${YELLOW}Performing health checks...${NC}"
+	@pod=$$($(GET_POD_CMD)); \
+	if [ -z "$$pod" ]; then \
+		echo -e "${RED}No running StarExec pod found. Cannot perform checks.${NC}"; \
+		exit 1; \
+	fi; \
+	echo -e "Using pod: $$pod"; \
+	echo -e "\n${YELLOW}--- Checking Pod Status ---${NC}"; \
+	$(KUBECTL) get pod $$pod -n $(NAMESPACE) -o wide; \
+	echo -e "\n${YELLOW}--- Checking Tomcat Process ---${NC}"; \
+	$(KUBECTL) exec -n $(NAMESPACE) $$pod -- ps aux | grep '[t]omcat' || echo -e "${RED}Tomcat process not found!${NC}"; \
+	echo -e "\n${YELLOW}--- Checking Apache Status ---${NC}"; \
+	$(KUBECTL) exec -n $(NAMESPACE) $$pod -- service apache2 status || echo -e "${RED}Apache service not running or status check failed!${NC}"; \
+	echo -e "\n${YELLOW}--- Testing HTTPS Root Redirect ---${NC}"; \
+	$(KUBECTL) exec -n $(NAMESPACE) $$pod -- curl -s -k -I https://localhost/ | grep -i 'Location:.*\/starexec' || echo -e "${RED}Redirect from / to /starexec failed or not configured!${NC}"; \
+	echo -e "\n${YELLOW}--- Testing /starexec Endpoint ---${NC}"; \
+	$(KUBECTL) exec -n $(NAMESPACE) $$pod -- curl -s -k https://localhost/starexec/ | grep -iq "StarExec" && echo -e "${GREEN}StarExec application is responding.${NC}" || echo -e "${RED}StarExec application did NOT respond as expected!${NC}"; \
+	echo -e "\n${YELLOW}--- Checking Recent Tomcat Logs (catalina.out) ---${NC}"; \
+	$(KUBECTL) exec -n $(NAMESPACE) $$pod -- tail -n 20 /project/apache-tomcat-7/logs/catalina.out; \
+	echo -e "\n${GREEN}Health checks complete.${NC}"
+
+describe-pod: ## Show detailed information about the application pod
+	@pod=$$($(GET_POD_CMD)); \
+	if [ -z "$$pod" ]; then \
+		echo -e "${RED}No running StarExec pod found.${NC}"; \
+		exit 1; \
+	fi; \
+	echo -e "${YELLOW}Describing pod: $$pod...${NC}"; \
+	$(KUBECTL) describe pod $$pod -n $(NAMESPACE)
+
+check-volumes: ## Check status of Persistent Volumes and Claims in the namespace
+	@echo -e "${YELLOW}--- Persistent Volume Claims (PVCs) in namespace $(NAMESPACE) ---${NC}"
+	@$(KUBECTL) get pvc -n $(NAMESPACE)
+	@echo -e "\n${YELLOW}--- Persistent Volumes (PVs) (Cluster-wide) ---${NC}"
+	@$(KUBECTL) get pv
+	@echo -e "\n${YELLOW}--- Storage Classes (Cluster-wide) ---${NC}"
+	@$(KUBECTL) get storageclass
+	@echo -e "\n${YELLOW}--- Detailed PVC Description ---${NC}"
+	@for pvc in $$($(KUBECTL) get pvc -n $(NAMESPACE) -o jsonpath='{.items[*].metadata.name}'); do \
+		echo -e "\n${YELLOW}=== Details for PVC $$pvc ===${NC}"; \
+		$(KUBECTL) describe pvc $$pvc -n $(NAMESPACE); \
+	done
+
+# ==============================================================================
+# Informational Targets
+# ==============================================================================
+
+info: ## Display all resources in the application namespace
+	@echo -e "${YELLOW}Listing all resources in namespace: $(NAMESPACE)...${NC}"
+	$(KUBECTL) get all -n $(NAMESPACE)
+
+list-pods: ## List pods in the application namespace
+	@echo -e "${YELLOW}Listing pods in namespace: $(NAMESPACE)...${NC}"
+	$(KUBECTL) get pods -n $(NAMESPACE) -o wide
+
+list-services: ## List services in the application namespace
+	@echo -e "${YELLOW}Listing services in namespace: $(NAMESPACE)...${NC}"
+	$(KUBECTL) get services -n $(NAMESPACE) -o wide
+
+list-deployments: ## List deployments in the application namespace
+	@echo -e "${YELLOW}Listing deployments in namespace: $(NAMESPACE)...${NC}"
+	$(KUBECTL) get deployments -n $(NAMESPACE) -o wide
+
+list-nodes: ## List all nodes in the cluster
+	@echo -e "${YELLOW}Listing cluster nodes...${NC}"
+	$(KUBECTL) get nodes -o wide
+
+# ==============================================================================
+# Help Target
+# ==============================================================================
+
+help: ## Display this help message
+	@echo -e "${GREEN}Makefile Commands:${NC}"
+	@echo "------------------"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  ${YELLOW}%-20s${NC} %s\n", $$1, $$2}' | \
+		sort
+	@echo "------------------"
+	@echo "Usage: make [target]"
+	@echo "Example: make apply"
+
+# ==============================================================================
+# Settings
+# ==============================================================================
+
+# Prevent echoing of commands unless VERBOSE=true
+# ifndef VERBOSE
+# .SILENT:
+# endif
+
+# Ensure CURDIR is set correctly
+ifeq ($(origin CURDIR), undefined)
+	CURDIR := $(shell pwd)
+endif
