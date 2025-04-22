@@ -49,6 +49,58 @@ spec:
         ports:
         - containerPort: 80
         - containerPort: 443
+        readinessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - >
+              # First check if MySQL is running
+              mysqladmin ping -u root --silent --connect-timeout=5 &&
+              # Then check if Tomcat has deployed the app
+              grep -q "Deployment of web application archive" /project/apache-tomcat-7/logs/catalina.*.log &&
+              # Check if Apache is running and listening
+              service apache2 status | grep -q "running" &&
+              # Finally check if the /starexec app is responding
+              curl -s -k --max-time 5 -I https://localhost/starexec/ | grep -q "200 OK"
+          initialDelaySeconds: 120
+          periodSeconds: 15
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 15
+        livenessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - >
+              # Check if all critical services are running
+              mysqladmin ping -u root --silent --connect-timeout=3 &&
+              # Check Apache is running
+              service apache2 status | grep -q "running" &&
+              # Check if Tomcat is running
+              ps -ef | grep -v grep | grep -q "org.apache.catalina.startup.Bootstrap"
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        startupProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - >
+              # Check MySQL
+              mysqladmin ping -u root --silent --connect-timeout=3 &&
+              # Check Tomcat process is running
+              ps -ef | grep -v grep | grep -q "org.apache.catalina.startup.Bootstrap" &&
+              # Check Apache is starting or running
+              (service apache2 status | grep -q "running" || pgrep -f "apache2")
+          initialDelaySeconds: 20
+          periodSeconds: 15
+          timeoutSeconds: 10
+          failureThreshold: 60
         volumeMounts:
         - name: vol-db
           mountPath: /var/lib/mysql
