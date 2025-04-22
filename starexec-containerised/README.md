@@ -49,8 +49,17 @@
         `/etc/sysctl.d` directory, e.g., create a file
         `/etc/sysctl.d/80-override.conf` with that line.
       - Execute `sudo sysctl --system` to reload the configuration.
-      On Fedora, this must be done before every `make run`.
-2. Run `make run` (refer to the `Makefile` for details).
+      On Fedora, this must be done before every `make run` or `make start`.
+2. Choose how to run the container:
+    - **Temporary Run (for testing/dev)**: Run `make run`. The container and its state will be removed upon exit.
+    - **Persistent Run**: Run `make start`. The container will run in the background and persist its state. See the "Persistent Runs and State Management" section below.
+
+## Persistent Runs and State Management
+
+- **Start Persistently**: Use `make start` to launch the StarExec container in detached mode. It will automatically create necessary volumes (`volDB`, `volStar`, `volPro`, `volExport`) to persist data. If a backup exists in `./state-backup`, it will attempt to restore it automatically after starting.
+- **Stop Persistently**: Use `make stop`. This command first backs up the current state of the running container to `./state-backup` and then stops the container.
+- **Backup State**: Use `make backup-state` to manually back up the state from the running persistent container to `./state-backup`. This includes MySQL data and StarExec home directories.
+- **Restore State**: Use `make restore-state` to manually restore the state from `./state-backup` to the running persistent container. This stops relevant services, restores files, and restarts services. *Note*: The container must be running (started with `make start`) for restore to work.
 
 ## Accessing StarExec
 
@@ -69,7 +78,7 @@
 ## Managing the Image
 
 - **Kill the Running Image**:
-  - Execute `make kill` if you need to stop the running image.
+  - Execute `make kill` if you need to stop and remove the *persistent* running image (`starexec-app`). Use this if `make stop` fails or if you want to stop without backing up state.
 - **Destroy the Image**:
   - If you encounter issues and wish to remove all configurations, execute:
 
@@ -78,8 +87,11 @@
    make cleanVolumes
    ```
 
-  - _Note_: This will erase all state, and you will need to rebuild the container.
+  - *Note*: This will erase all state, and you will need to rebuild the container.
   - To do a complete cleanup of your podman life do `make real-clean`
+- **Pushing to Registries**:
+  - Use `make push` to push the built image (`starexec:latest`) to Docker Hub (`docker.io/tptpstarexec/starexec:latest`).
+  - Use `make push REGISTRY=microk8s` to push the image to a local MicroK8s registry (`localhost:32000`). This also involves importing the image into MicroK8s. Related targets: `make list-microk8s`, `make microk8s-clean`.
 
 ## How It Works
 
