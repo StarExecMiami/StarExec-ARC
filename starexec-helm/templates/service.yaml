@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "starexec.fullname" . }}
+  labels:
+    {{- include "starexec.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: https # Target the https port defined in the deployment
+      protocol: TCP
+      name: https
+    # Optionally expose HTTP if needed, though typically handled by Ingress/redirect
+    # - port: 80
+    #   targetPort: http
+    #   protocol: TCP
+    #   name: http
+  selector:
+    {{- include "starexec.selectorLabels" . | nindent 4 }}
