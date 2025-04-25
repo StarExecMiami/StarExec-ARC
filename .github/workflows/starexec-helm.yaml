@@ -1,0 +1,45 @@
+name: Publish Helm Chart
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'starexec-helm/**'
+
+jobs:
+  publish-helm-chart:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      # Step 1: Checkout repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Helm
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'v3.14.4'
+
+      # Step 3: Lint Helm Chart
+      - name: Lint Helm Chart
+        run: helm lint ./starexec-helm
+
+      # Step 4: Package Helm Chart
+      - name: Package Helm Chart
+        run: |
+          helm package ./starexec-helm --destination ./starexec-helm
+          # Store the chart filename for later use
+          echo "CHART_FILE=$(ls ./starexec-helm/*.tgz)" >> $GITHUB_ENV
+
+      # Step 5: Log in to GitHub Container Registry (GHCR)
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      # Step 6: Push Helm Chart to GHCR
+      - name: Push Helm Chart
+        run: helm push ${{ env.CHART_FILE }} oci://ghcr.io/${{ github.repository_owner }}
