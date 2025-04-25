@@ -1,0 +1,21 @@
+{{- if .Values.persistence.voldb.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "starexec.fullname" . }}-voldb
+  labels:
+    {{- include "starexec.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .Values.persistence.voldb.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.voldb.size | quote }}
+  {{- if .Values.persistence.storageClassName }}
+  storageClassName: {{ .Values.persistence.storageClassName }}
+  {{- end }}
+  {{- if .Values.persistence.voldb.volumeHandle }}
+  # If using static provisioning with a pre-existing volume
+  volumeName: {{ include "starexec.fullname" . }}-voldb-pv # Assumes a PV with this name exists
+  {{- end }}
+{{- end }}
