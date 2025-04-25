@@ -1,0 +1,186 @@
+replicaCount: 1
+
+image:
+  repository: tptpstarexec/starexec
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: LoadBalancer # Or ClusterIP if using Ingress controller primarily
+  port: 443
+  targetPort: 443 # Target port on the pod (Apache's HTTPS port)
+  # nodePort: # Required if type is NodePort
+
+ingress:
+  enabled: true
+  className: "" # Specify if using a non-default IngressClass
+  annotations:
+    # Adjust based on your Ingress controller (e.g., nginx, traefik)
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header X-Forwarded-Host $host;
+    # cert-manager.io/cluster-issuer: letsencrypt-prod # Example if using cert-manager
+  hosts:
+    - host: starexec.local # Replace with your domain
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: true # Set to false to disable TLS configuration
+
+resources:
+  limits:
+    cpu: "2"
+    memory: "4Gi"
+  requests:
+    cpu: "1"
+    memory: "2Gi"
+
+# Persistence configuration (assuming EFS CSI Driver and StorageClass exist)
+persistence:
+  storageClassName: "efs-sc" # Name of the StorageClass for EFS
+  voldb:
+    enabled: true
+    size: 10Gi # Adjust size as needed
+    accessModes: ["ReadWriteMany"]
+    # volumeHandle: <efs-id>::<access-point-id> # Needed if StorageClass doesn't handle it
+  volstar:
+    enabled: true
+    size: 50Gi # Adjust size as needed
+    accessModes: ["ReadWriteMany"]
+    # volumeHandle: <efs-id>::<access-point-id>
+  volpro:
+    enabled: true
+    size: 20Gi # Adjust size as needed
+    accessModes: ["ReadWriteMany"]
+    # volumeHandle: <efs-id>::<access-point-id>
+  volexport:
+    enabled: true
+    size: 5Gi # Adjust size as needed
+    accessModes: ["ReadWriteMany"]
+    # volumeHandle: <efs-id>::<access-point-id>
+
+# Configuration passed via ConfigMap
+starexecConfig:
+  ssh:
+    username: "starexec" # Default SSH username for Podman connection
+    hostMachine: "host.docker.internal" # Default host machine address
+    port: "22" # Default SSH port
+    socketPath: "/run/user/1000/podman/podman.sock" # Default socket path
+
+# SSH Key Secret configuration
+sshSecret:
+  create: true # Whether Helm should create the secret
+  existingSecretName: "" # Use if create is false and you have an existing secret
+  secretName: "starexec-ssh-key" # Default name if create is true
+  privateKey: "" # Base64 encoded private SSH key. If empty and create is true, generate? (Helm can't easily generate)
+
+# TLS Secret configuration
+tlsSecret:
+  create: true # Whether Helm should create the secret
+  existingSecretName: "" # Use if create is false and you have an existing secret
+  secretName: "starexec-tls-secret" # Default name if create is true
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Probes configuration - Using shell script format rather than multiline commands
+probes:
+  readiness:
+    enabled: true
+    command: 
+      - "/bin/bash"
+      - "-c"
+      - "mysqladmin ping -u root --silent --connect-timeout=5 && grep -q \"Server startup in\" \"/project/apache-tomcat-7/logs/catalina.out\" 2>/dev/null && service apache2 status | grep -q \"active (running)\" && curl -s -k --max-time 5 -I https://localhost/starexec | grep -q \"200 OK\""
+    initialDelaySeconds: 120
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 15
+    successThreshold: 1
+  
+  liveness:
+    enabled: true
+    command: 
+      - "/bin/bash"
+      - "-c"
+      - "mysqladmin ping -u root --silent --connect-timeout=3 && service apache2 status | grep -q \"active (running)\" && curl -k --fail --silent --head https://localhost/ | grep -iq \"Location: /starexec\""
+    initialDelaySeconds: 180
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 3
+    successThreshold: 1
+  
+  startup:
+    enabled: true
+    command: 
+      - "/bin/bash"
+      - "-c"
+      - "mysqladmin ping -u root --silent --connect-timeout=3 && ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap start\" && (service apache2 status | grep -q \"active (running)\" || pgrep -f \"apache2 -D FOREGROUND\")"
+    initialDelaySeconds: 60
+    periodSeconds: 15
+    timeoutSeconds: 10
+    failureThreshold: 40
+    successThreshold: 1
+
+# Domain name
+domain: starexec.local
+
+# --- Main Deployment Configuration ---
+deployment:
+  name: starexec
+  replicas: 1
+  # image: tptpstarexec/starexec:latest # REMOVED - Use top-level image fields
+  imagePullPolicy: IfNotPresent
+  imagePullSecrets: []
+  
+  # Resource requests and limits
+  resources:
+    requests:
+      cpu: 1
+      memory: 2Gi
+    limits:
+      cpu: 2
+      memory: 4Gi
+  
+  # Container lifecycle management
+  lifecycle:
+    preStop:
+      exec:
+        command: ["/bin/bash", "-c", "/project/apache-tomcat-7/bin/shutdown.sh; sleep 10; mysqladmin -u root shutdown"]
+  
+  # Pod security context
+  securityContext:
+    privileged: true
+    runAsUser: 0
