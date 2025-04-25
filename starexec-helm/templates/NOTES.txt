@@ -1,0 +1,43 @@
+{{- /* vim: set filetype=gotemplate: */ -}}
+
+StarExec has been installed!
+----------------------------
+Release: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+1. Check pod status:
+    $ kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }}
+
+2. Access StarExec:
+{{- if .Values.ingress.enabled }}
+    Using Ingress (host: {{ (index .Values.ingress.hosts 0).host }}):
+    $ kubectl get ingress -n {{ .Release.Namespace }} {{ include "starexec.fullname" . }}
+
+    Once ready, access: https://{{ (index .Values.ingress.hosts 0).host }}/starexec
+{{- else if eq .Values.service.type "LoadBalancer" }}
+    Using LoadBalancer:
+    $ kubectl get svc -n {{ .Release.Namespace }} {{ include "starexec.fullname" . }}
+
+    Once ready, access: https://<EXTERNAL-IP>/starexec
+{{- else if eq .Values.service.type "NodePort" }}
+    Using NodePort:
+    $ NODE_PORT=$(kubectl get -n {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" svc {{ include "starexec.fullname" . }})
+    $ NODE_IP=$(kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}")
+    
+    Access: https://$NODE_IP:$NODE_PORT/starexec
+{{- else }}
+    Using ClusterIP (internal access only):
+    $ kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "starexec.fullname" . }} 8443:{{ .Values.service.port }}
+    
+    Access: https://localhost:8443/starexec
+{{- end }}
+
+NOTES:
+- It may take a few minutes for all components to be ready
+- StorageClass '{{ .Values.persistence.storageClassName }}' must support ReadWriteMany
+- SSH key secret '{{ include "starexec.sshSecretName" . }}' must be configured
+{{- if .Values.ingress.enabled }}
+- Ensure your DNS points to the Ingress controller's IP/hostname
+{{- end }}
+
+For detailed setup instructions, see: https://github.com/StarExecMiami/StarExec-ARC/starexec-helm
