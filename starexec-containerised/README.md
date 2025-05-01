@@ -32,20 +32,10 @@
 
     - For other operating systems, refer to the [mkcert documentation](https://github.com/FiloSottile/mkcert).
 
-2. Run `make mkcert-setup` to generate and install localhost certificates.
-    - This will create the necessary certificates in `~/.local/share/mkcert/`:
-      - `localhost.crt`
-      - `localhost.key`
-
-## Run the Image
-
-1. Choose how to run the container:
-    - **Temporary Run (for testing/dev)**: Run `make run`. The container and its state will be removed upon exit.
-    - **Persistent Run**: Run `make start`. The container will run in the background and persist its state. See the "Persistent Runs and State Management" section below.
-
 ## Persistent Runs and State Management
 
-- **Start Persistently**: Use `make start` to launch the StarExec container in detached mode. It will automatically create necessary volumes (`volDB`, `volStar`, `volPro`, `volExport`) to persist data. If a backup exists in `./state-backup`, it will attempt to restore it automatically after starting.
+- **Temporary Run (for testing/dev)**: Run `make run`. The container and its state will be removed upon exit.
+- **Start Persistently**: Use `make start` to launch the StarExec container in detached mode. The container will run in the background and persist its state. It will automatically create necessary volumes (`volDB`, `volStar`, `volPro`, `volExport`) to persist data. If a backup exists in `./state-backup`, it will attempt to restore it automatically after starting.
 - **Stop Persistently**: Use `make stop`. This command first backs up the current state of the running container to `./state-backup` and then stops the container.
 - **Backup State**: Use `make backup-state` to manually back up the state from the running persistent container to `./state-backup`. This includes MySQL data and StarExec home directories.
 - **Restore State**: Use `make restore-state` to manually restore the state from `./state-backup` to the running persistent container. This stops relevant services, restores files, and restarts services. *Note*: The container must be running (started with `make start`) for restore to work.
@@ -75,7 +65,6 @@
    make clean
    make cleanVolumes
    ```
-
   - *Note*: This will erase all state, and you will need to rebuild the container.
   - To do a complete cleanup of your podman life do `make real-clean`
 - **Pushing to Registries**:
