@@ -22,6 +22,19 @@ all: starexec
 starexec: ## Build the starexec container image
 	@echo "Building the starexec image..."
 	@echo "Make sure to run 'make mkcert-setup' and 'ssh-setup' first."
+	@# Prompt for backend type
+	@read -p "Select backend type (sge, oar, local, k8s) [k8s]: " backend_type; \
+	backend_type=$${backend_type:-k8s}; \
+	case "$$backend_type" in \
+		sge|oar|local|k8s) \
+			echo "Using backend type: $$backend_type"; \
+			sed -i "s/^Backend.Type:.*/Backend.Type: $$backend_type/" dockerPackage/allScripts/starexecScripts/overrides.properties; \
+			;; \
+		*) \
+			echo "Error: Invalid backend type '$$backend_type'. Please choose sge, oar, local, or k8s." >&2; \
+			exit 1; \
+			;; \
+	esac
 	@echo "Building starexec image with version: ${VERSION}..."
 
 	VERSION=${VERSION} && \
@@ -89,7 +102,8 @@ run: ssh-setup mkcert-setup ## Run the starexec container interactively (for tes
 	@echo "Running the starexec container interactively (will be removed on exit)..."
 	@echo "Make sure to run 'make mkcert-setup' and 'ssh-setup' first."
 	# This target is for temporary runs. Use 'make start' for persistent runs with state.
-	@podman run --rm -it -v volDB:/var/lib/mysql \
+	@podman run --rm -it --name $(CONTAINER_NAME) \
+			-v volDB:/var/lib/mysql \
 			-v volStar:/home/starexec \
 			-v volPro:/project \
 			-v volExport:/export \
