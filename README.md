@@ -1,6 +1,17 @@
 # StarExec-ARC <BR>(Automated Reasoning Containerization)
 
-This repository contains code for the containerization of Automated Theorem Proving (ATP) systems. It also includes deployment scripts for these ATP containers within a containerized StarExec environment, utilizing Podman or Kubernetes with MicroK8s or Amazon EKS. The following guide explains how to set up the system.
+This repository contains code for the containerization of Automated Theorem Proving (ATP) systems.
+It also includes deployment scripts for these ATP containers within a containerized StarExec
+environment, utilizing Podman or Kubernetes with MicroK8s or Amazon EKS.
+The following guide explains how to set up the system.
+
+<!-- ------------------------------------------------------------------------------------------ -->
+## Papers etc. (only background information and motivation)
+- [Workshop Paper on This Project](https://www.eprover.org/EVENTS/IWIL-2024/IWIL-24-Preproceedings.pdf)
+- [ARA Proposal](https://www.amazon.science/research-awards/recipients/geoffrey-sutcliffe)
+
+<!-- ------------------------------------------------------------------------------------------ -->
+## Building and Running a Containerised StarExec
 
 ### Prerequisites for All Use Cases:
 * **Install `podman`**: Follow the [installation guide](https://podman.io/docs/installation).
@@ -10,19 +21,42 @@ This repository contains code for the containerization of Automated Theorem Prov
   - **Ubuntu**: Execute `sudo apt install podman` or `snap install podman --classic`.
   - **Fedora**: Execute `sudo dnf install podman`.
   - Verify installation with `podman --version`.
-* **Containerize StarExec**: Navigate to the [`starexec-containerised`](starexec-containerised) directory.
-  - Test the containerized StarExec using traditional StarExec `.tgz` ATP system packages.
+* **Containerize StarExec**:
+  - Go to the [`starexec-containerised`](starexec-containerised) directory to build containerised
+    StarExec.
+  - Test the containerized StarExec using traditional StarExec `.tgz`/`.zip` packages.
 
-### Building Containerized Proxy-Prover ATP Systems
+<!-- ------------------------------------------------------------------------------------------ -->
+### Building Containerized ATP Systems
 
-Containerized proxy-prover ATP systems operate within a containerized StarExec on Kubernetes. They can also run directly within containerized StarExec.
-
-* **Build Plain Containerized ATP Systems**: Necessary for proxy-prover ATP systems.
-  - Navigate to the [`provers-containerised`](provers-containerised) directory and build the ATP systems.
-* **Build Proxy-Prover ATP Systems**:
-  - Access the [`starexec-proxy-provers`](starexec-proxy-provers) directory to build proxy-prover ATP systems.
+There are three types of ATP system packages that can be used in various ways in containerized
+StarExec:
+* **Traditional StarExec `.tgz`/`.zip` packages can run in containerized StarExec, but should not
+  be used in containerized StarExec that is deployed in Kubernetes (microk8s or AWS)
+  - This works because:
+    + The `.tgz`/`.zip` contains neither `run_image.py` nor `run_image_k8s.py`
+    + StarExec uses the local backend to start `runsolver` in the traditional StarExec way.
+* **Containerized ATP Systems**: 
+  - Go to the [`provers-containerised`](provers-containerised) directory to build 
+    containerised ATP systems.
   - Test the proxy-prover ATP systems using [containerized StarExec](starexec-containerised).
+    + Containerized StarExec detects the `run_image.py` script.
+    + It uses podman to run the container.
+* **Proxy-Prover ATP Systems**:
+  - Build a plain containerised ATP system first.
+  - Go to the [`starexec-proxy-provers`](starexec-proxy-provers) directory to build _local_
+    proxy-prover ATP systems for podman.
+  - Test local proxy-prover ATP systems using [containerized StarExec](starexec-containerised).
+    + Containerized StarExec detects `run_image_k8s.py` script.
+    + It uses `kubectl` to manage the container within Kubernetes.
+  - Go to the [`starexec-proxy-provers`](starexec-proxy-provers) directory to build non-local
+    proxy-prover ATP systems for Kubernetes.
+  - Test the proxy-prover ATP systems using [containerized StarExec](starexec-containerised).
+    + Containerized StarExec detects `run_image_k8s.py` script.
+    + It uses the Kubernetes backend, which uses `kubectl` to manage the container within
+      Kubernetes.
 
+<!-- ------------------------------------------------------------------------------------------ -->
 ### Deploying StarExec on Kubernetes
 
 * **Using EKS**:
@@ -51,11 +85,7 @@ Containerized proxy-prover ATP systems operate within a containerized StarExec o
       * **EKS with Route53**: The URL follows the format `https://your_Route53_domain`.
     - Open the URL in your browser to start using StarExec.
 
-## Documentation
-
-- [Workshop Paper on This Project](https://www.eprover.org/EVENTS/IWIL-2024/IWIL-24-Preproceedings.pdf)
-- [ARA Proposal](https://www.amazon.science/research-awards/recipients/geoffrey-sutcliffe)
-
+<!-- ------------------------------------------------------------------------------------------ -->
 ## Managing Podman/Docker Containers
 
 **Building a Container Image:**
@@ -82,3 +112,4 @@ podman rmi --all --force
 ```shell
 docker system prune --all --force && docker rmi $(docker images -a -q)
 ```
+<!-- ------------------------------------------------------------------------------------------ -->

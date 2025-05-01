@@ -93,19 +93,3 @@
   - Use `make push` to push the built image (`starexec:latest`) to Docker Hub (`docker.io/tptpstarexec/starexec:latest`).
   - Use `make push REGISTRY=microk8s` to push the image to a local MicroK8s registry (`localhost:32000`). This also involves importing the image into MicroK8s. Related targets: `make list-microk8s`, `make microk8s-clean`.
 
-## How It Works
-
-The local backend in StarExec executes `run_image.py` with specific arguments to run a prover container on the host.
-
-- **Containerized StarExec** is designed to support:
-  - Local execution of a prover.
-  - Execution of a proxy prover via Podman or Kubernetes.
-- **Proxy Prover for Podman**:
-  - Containerized StarExec detects `run_image.py` script.
-  - It utilizes Podman to run the container.
-- **Proxy Prover for Kubernetes**:
-  - Containerized StarExec detects `run_image_k8s.py` script.
-  - It uses `kubectl` to manage the container within Kubernetes.
-- **Non-Proxy Prover**:
-  - If neither script is present, it's treated as a regular StarExec `.tgz` package.
-  - Containerized StarExec utilizes `runsolver` to execute the prover.
