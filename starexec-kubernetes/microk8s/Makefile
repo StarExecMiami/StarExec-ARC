@@ -33,6 +33,21 @@ NC := \033[0m # No Color
 # Helper command to get the first running pod name
 GET_POD_CMD = $(KUBECTL) get pods --selector=$(POD_SELECTOR) -n $(NAMESPACE) -o jsonpath='{.items[?(@.status.phase=="Running")].metadata.name}' | cut -d' ' -f1
 
+# Determine SSH Username dynamically
+DETECTED_SSH_USER ?= $(shell echo $$STAREXEC_SSH_USER)
+ifeq ($(DETECTED_SSH_USER),)
+  DETECTED_SSH_USER := $(USER)
+  USER_SOURCE := current user '($(USER))'
+else
+  USER_SOURCE := environment variable STAREXEC_SSH_USER
+endif
+
+# Default values for other config map entries (can be overridden by env vars if needed)
+HOST_MACHINE ?= localhost
+SSH_PORT ?= 22
+# Default socket path might vary, adjust if necessary or make dynamic too
+SSH_SOCKET_PATH ?= "/run/podman/podman.sock"
+
 # ==============================================================================
 # Phony Targets Declaration
 # ==============================================================================
@@ -51,12 +66,38 @@ default: help
 apply: ssh-setup mkcert-setup ## Deploy or update the application stack
 	@echo -e "${YELLOW}Ensuring MicroK8s ingress addon is enabled...${NC}"
 	@microk8s status | grep -q 'ingress: enabled' || microk8s enable ingress
-	@echo -e "${YELLOW}Applying Kubernetes manifests from $(YAML_DIR)...${NC}"
-	$(KUBECTL) apply -f $(YAML_DIR) -n $(NAMESPACE)
+	@echo -e "${YELLOW}Applying Kubernetes manifests (excluding ConfigMap)...${NC}"
+	$(KUBECTL) apply -f $(YAML_DIR)/deployment.yaml \
+					 -f $(YAML_DIR)/ingress.yaml \
+					 -f $(YAML_DIR)/headnode-role-binding.yaml \
+					 -f $(YAML_DIR)/headnode-service-account.yaml \
+					 -f $(YAML_DIR)/headnode-role.yaml \
+					 -f $(YAML_DIR)/service.yaml \
+					 -f $(YAML_DIR)/pvcs.yaml \
+					 -f $(YAML_DIR)/storage.yaml \
+					 -n $(NAMESPACE)
+	@echo -e "${YELLOW}Creating/Updating ConfigMap 'starexec-config' dynamically...${NC}"
+	@echo -e "  Using SSH_USERNAME: ${GREEN}$(DETECTED_SSH_USER)${NC} (Source: $(USER_SOURCE))"
+	@echo -e "  Using HOST_MACHINE: ${GREEN}$(HOST_MACHINE)${NC}"
+	@echo -e "  Using SSH_PORT: ${GREEN}$(SSH_PORT)${NC}"
+	@echo -e "  Using SSH_SOCKET_PATH: ${GREEN}$(SSH_SOCKET_PATH)${NC}"
+	@# Create/Update ConfigMap using printf and kubectl apply -f -
+	@printf '%s\n' \
+		'apiVersion: v1' \
+		'kind: ConfigMap' \
+		'metadata:' \
+		'  name: starexec-config' \
+		'data:' \
+		"  SSH_USERNAME: \"$(DETECTED_SSH_USER)\"" \
+		"  HOST_MACHINE: \"$(HOST_MACHINE)\"" \
+		"  SSH_PORT: \"$(SSH_PORT)\"" \
+		"  SSH_SOCKET_PATH: \"$(SSH_SOCKET_PATH)\"" \
+		| $(KUBECTL) apply -f - -n $(NAMESPACE)
 	@echo -e "${YELLOW}Updating SSH key secrets...${NC}"
 	-$(KUBECTL) delete secret $(SSH_KEY_NAME) $(SSH_KEY_NAME)-pub -n $(NAMESPACE) --ignore-not-found=true
 	$(KUBECTL) create secret generic $(SSH_KEY_NAME) --from-file=$(SSH_KEY_NAME)=$(SSH_KEY_FILE) -n $(NAMESPACE)
 	$(KUBECTL) create secret generic $(SSH_KEY_NAME)-pub --from-file=$(SSH_KEY_NAME).pub=$(SSH_KEY_FILE).pub -n $(NAMESPACE)
+	$(KUBECTL) label node $$($(KUBECTL) get nodes | awk 'NR>1 {print $$1}') nodegroup=computenodes
 	@echo -e "${GREEN}Application deployment initiated.${NC}"
 	@echo -e "${GREEN}=== Access Instructions ===${NC}"
 	@echo -e "Wait for pods to be ready ('make list-pods'). Then:"
@@ -68,12 +109,20 @@ apply: ssh-setup mkcert-setup ## Deploy or update the application stack
 	@echo -e "  Then visit: https://localhost:8443"
 
 clean: mkcert-clean ## Remove all deployed application resources and SSH keys
+	@echo -e "${YELLOW}Forcing deletion of all resources...${NC}"
 	@echo -e "${YELLOW}Deleting Kubernetes resources from $(YAML_DIR)...${NC}"
-	-$(KUBECTL) delete -f $(YAML_DIR) -n $(NAMESPACE) --ignore-not-found=true
-	@echo -e "${YELLOW}Deleting SSH key secrets...${NC}"
-	-$(KUBECTL) delete secret $(SSH_KEY_NAME) $(SSH_KEY_NAME)-pub -n $(NAMESPACE) --ignore-not-found=true
-	@echo -e "${YELLOW}Deleting local SSH key files...${NC}"
-	-rm -f $(SSH_KEY_FILE) $(SSH_KEY_FILE).pub
+	@kflags="--ignore-not-found=true --grace-period=0"; \
+	 for r in deployment ingress headnode-role-binding headnode-service-account \
+			  headnode-role service pvcs storage; do \
+	   echo -e "${YELLOW}  – $${r}.yaml${NC}"; \
+	   $(KUBECTL) delete -f $(YAML_DIR)/$${r}.yaml -n $(NAMESPACE) $$kflags; \
+	 done; \
+	 echo -e "${YELLOW}Force deleting any stuck pods...${NC}"; \
+	 $(KUBECTL) delete pods --selector=$(POD_SELECTOR) -n $(NAMESPACE) $$kflags; \
+	 echo -e "${YELLOW}Deleting SSH key secrets...${NC}"; \
+	 $(KUBECTL) delete secret $(SSH_KEY_NAME) $(SSH_KEY_NAME)-pub -n $(NAMESPACE) $$kflags; \
+	 echo -e "${YELLOW}Deleting local SSH key files...${NC}"; \
+	 rm -f $(SSH_KEY_FILE) $(SSH_KEY_FILE).pub || true
 	@echo -e "${GREEN}Cleanup complete.${NC}"
 
 start: ## Deploy the application and restore state if backup exists

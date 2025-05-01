@@ -7,7 +7,11 @@ This document describes how to deploy a StarExec head node using MicroK8s, confi
 * MicroK8s installed and running.
 * `kubectl` configured to interact with your MicroK8s cluster (usually aliased via `microk8s kubectl`).
 * SSH client available on the machine where you run `make apply`.
-* Podman installed and configured for SSH access on the target host machine specified in `YAMLFiles/config.yaml`.
+* Podman installed and running on the host machine.
+* **SSH Access Configuration:** The StarExec container needs to SSH into the host machine to interact with Podman. The Makefile attempts to configure this automatically:
+  * **SSH User:** By default, it uses your current logged-in user (`$USER`). You can override this by setting the `STAREXEC_SSH_USER` environment variable before running `make` (e.g., `export STAREXEC_SSH_USER=myuser`).
+  * **SSH Key:** `make apply` generates an SSH key pair (`starexec-ssh-key`, `starexec-ssh-key.pub`) in the current directory and configures it as a Kubernetes secret for the pod. You might need to ensure the public key (`starexec-ssh-key.pub`) is added to the target user's `~/.ssh/authorized_keys` file on the host machine for passwordless SSH access.
+  * **Podman Socket:** The Makefile attempts to detect the Podman socket path based on your user ID (e.g., `/run/user/1000/podman/podman.sock`). If your setup differs, you might need to adjust the `SSH_SOCKET_PATH` variable in the Makefile or override it via an environment variable.
 
 ## Makefile Targets
 
