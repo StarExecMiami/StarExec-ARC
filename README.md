@@ -31,24 +31,25 @@ The following guide explains how to set up the system.
 
 There are three types of ATP system packages that can be used in various ways in containerized
 StarExec:
-* **Traditional StarExec `.tgz`/`.zip` packages can run in containerized StarExec, but should not
-  be used in containerized StarExec that is deployed in Kubernetes (microk8s or AWS)
+* **Traditional StarExec `.tgz`/`.zip` packages**:
+  - Can run in containerized StarExec
   - This works because:
     + The `.tgz`/`.zip` contains neither `run_image.py` nor `run_image_k8s.py`
     + StarExec uses the local backend to start `runsolver` in the traditional StarExec way.
+  - Cannot (or at least hould not) be used in containerized StarExec that is deployed in
+    Kubernetes (microk8s or AWS)
 * **Containerized ATP Systems**: 
   - Go to the [`provers-containerised`](provers-containerised) directory to build 
     containerised ATP systems.
-  - Test the proxy-prover ATP systems using [containerized StarExec](starexec-containerised).
-    + Containerized StarExec detects the `run_image.py` script.
-    + It uses podman to run the container.
+  - Test containerised ATP systems using the `run_image.py` script.
 * **Proxy-Prover ATP Systems**:
   - Build a plain containerised ATP system first.
   - Go to the [`starexec-proxy-provers`](starexec-proxy-provers) directory to build _local_
     proxy-prover ATP systems for podman.
   - Test local proxy-prover ATP systems using [containerized StarExec](starexec-containerised).
-    + Containerized StarExec detects `run_image_k8s.py` script.
-    + It uses `kubectl` to manage the container within Kubernetes.
+    + Containerized StarExec detects `run_image.py` script.
+    + It uses the local backend, which uses `run_image.py`, which uses podman to run the
+      container.
   - Go to the [`starexec-proxy-provers`](starexec-proxy-provers) directory to build non-local
     proxy-prover ATP systems for Kubernetes.
   - Test the proxy-prover ATP systems using [containerized StarExec](starexec-containerised).
