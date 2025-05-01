@@ -1,0 +1,50 @@
+#!/bin/tcsh
+
+# echo "RLR_CPU_LIMIT = $RLR_CPU_LIMIT"
+# echo "RLR_WC_LIMIT = $RLR_WC_LIMIT"
+# echo "RLR_MEM_LIMIT = $RLR_MEM_LIMIT"
+# echo "RLR_INTENT = $RLR_INTENT"
+# echo "RLR_INPUT_FILE = $RLR_INPUT_FILE"
+
+setenv HERE `dirname $0`
+setenv TEMPDIR `mktemp -d`
+setenv PROBLEMFILE $TEMPDIR/E---3.1_$$.p
+setenv SOLUTIONFILE $TEMPDIR/E---3.1_$$.s
+onintr cleanup
+
+limit stack unlimited
+
+set SPCLine=`grep "^% SPC " $1`
+if ("$SPCLine" != "") then
+    set ProblemSPC = `expr "$SPCLine" : "^% SPC  *: *\([^ ]*\)"`
+else
+    set ProblemSPC = `$HERE/SPCForProblem $1`
+endif
+set Mode = $3
+
+cd $HERE
+if ("$Mode" == "THM") then
+    if (`expr "$ProblemSPC" : "TF0_.*ARI"`) then
+        echo "Running TFA theorem proving"
+        set Command = "$HERE/run_problem --no_cores 8 --schedule casc_29_tfa --heuristic_context casc_unsat $1 $2"
+    else
+        if (`expr "$ProblemSPC" : "CNF_.*UEQ"`) then
+            echo "Running UEQ theorem proving"
+            set Command = "$HERE/run_problem --schedule casc_j12_ueq --heuristic_context casc_unsat --no_cores 8 $1 $2"
+        else
+            echo "Running first-order theorem proving"
+            set Command = "$HERE/run_problem --schedule fof_schedule --heuristic_context casc_unsat --no_cores 8 $1 $2"
+        endif
+    endif
+else
+    echo "Running model finding"
+    set Command = "$HERE/run_problem --no_cores 8 --heuristic_context fnt --schedule fnt_schedule $1 $2"
+    # set Command = "$HERE/run_problem --preprocessing_flag false --no_cores 8 --heuristic_context fnt --schedule fnt_schedule $1 $2"
+endif
+
+echo "Running: $Command"
+$Command
+
+cleanup:
+    echo "% E---3.1 exiting"
+    rm -rf $TEMPDIR

@@ -8,8 +8,8 @@
 
 setenv HERE `dirname $0`
 setenv TEMPDIR `mktemp -d`
-setenv PROBLEMFILE $TEMPDIR/E---3.1_$$.p
-setenv SOLUTIONFILE $TEMPDIR/E---3.1_$$.s
+setenv PROBLEMFILE $TEMPDIR/E_$$.p
+setenv SOLUTIONFILE $TEMPDIR/E_$$.s
 onintr cleanup
 
 #----Add extra ()s for THF and TXF
@@ -60,5 +60,5 @@ else
 endif
 
 cleanup:
-    echo "% E---3.1 exiting"
+    echo "% E exiting"
     rm -rf $TEMPDIR
