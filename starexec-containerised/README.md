@@ -39,18 +39,7 @@
 
 ## Run the Image
 
-1. Configure port 80 for non-root usage:
-   - **Mac**: To Be Announced (TBA).
-   - **Ubuntu**:
-      - Add `net.ipv4.ip_unprivileged_port_start=80` to `/etc/sysctl.conf`.
-      - Execute `sudo sysctl --system` to reload the configuration.
-   - **Fedora**:
-      - Add `net.ipv4.ip_unprivileged_port_start=80` to a file in
-        `/etc/sysctl.d` directory, e.g., create a file
-        `/etc/sysctl.d/80-override.conf` with that line.
-      - Execute `sudo sysctl --system` to reload the configuration.
-      On Fedora, this must be done before every `make run` or `make start`.
-2. Choose how to run the container:
+1. Choose how to run the container:
     - **Temporary Run (for testing/dev)**: Run `make run`. The container and its state will be removed upon exit.
     - **Persistent Run**: Run `make start`. The container will run in the background and persist its state. See the "Persistent Runs and State Management" section below.
 
@@ -92,4 +81,3 @@
 - **Pushing to Registries**:
   - Use `make push` to push the built image (`starexec:latest`) to Docker Hub (`docker.io/tptpstarexec/starexec:latest`).
   - Use `make push REGISTRY=microk8s` to push the image to a local MicroK8s registry (`localhost:32000`). This also involves importing the image into MicroK8s. Related targets: `make list-microk8s`, `make microk8s-clean`.
-
