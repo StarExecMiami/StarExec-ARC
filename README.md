@@ -47,13 +47,13 @@ StarExec:
   - Go to the [`starexec-proxy-provers`](starexec-proxy-provers) directory to build _local_
     proxy-prover ATP systems for podman.
   - Test local proxy-prover ATP systems using [containerized StarExec](starexec-containerised).
-    + Containerized StarExec detects `run_image.py` script.
+    + Containerized StarExec detects the `run_image.py` script.
     + It uses the local backend, which uses `run_image.py`, which uses podman to run the
       container.
   - Go to the [`starexec-proxy-provers`](starexec-proxy-provers) directory to build non-local
     proxy-prover ATP systems for Kubernetes.
   - Test the proxy-prover ATP systems using [containerized StarExec](starexec-containerised).
-    + Containerized StarExec detects `run_image_k8s.py` script.
+    + Containerized StarExec detects the `run_image_k8s.py` script.
     + It uses the Kubernetes backend, which uses `kubectl` to manage the container within
       Kubernetes.
 
