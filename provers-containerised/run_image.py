@@ -6,7 +6,6 @@ import os
 import sys
 import shutil
 
-
 # -----------------------------------------------------------------------------
 def get_rlr_args(args):
     sandbox = "sandbox" if args.starexec == 1 else "sandbox2"
@@ -23,8 +22,6 @@ def get_rlr_args(args):
     cpu_part = f"-C {args.cpu_limit} -W {args.wall_clock_limit}"
     mem_part = f"-M {args.memory_limit}" if args.memory_limit > 0 else ""
     return f"--timestamp {paths_part} {cpu_part} {mem_part}"
-
-
 # -----------------------------------------------------------------------------
 def get_env_vars(args):
     sandbox = "sandbox" if args.starexec == 1 else "sandbox2"
@@ -46,15 +43,11 @@ def get_env_vars(args):
         env_vars.append(("TPTP", "/artifacts/TPTP"))
 
     return " ".join([f"-e {k}='{v}'" for k, v in env_vars])
-
-
 # -----------------------------------------------------------------------------
 def tptp_mount():
     if "TPTP" in os.environ:
         return f" -v {os.environ['TPTP']}:/artifacts/TPTP"
     return ""
-
-
 # -----------------------------------------------------------------------------
 def make_benchmark(problem):
     if problem:
@@ -62,8 +55,6 @@ def make_benchmark(problem):
     else:
         with open("./problemfile", "w") as problemfile:
             problemfile.write(sys.stdin.read())
-
-
 # -----------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(
@@ -77,14 +68,14 @@ def main():
     parser.add_argument(
         "-C",
         "--cpu-limit",
-        default=0,
+        default=60,
         type=int,
         help="CPU time limit in seconds, default=none",
     )
     parser.add_argument(
         "-W",
         "--wall-clock-limit",
-        default=0,
+        default=60,
         type=int,
         help="Wall clock time limit in seconds, default=none",
     )
