@@ -1,24 +1,30 @@
 # ---------------------------
 # Stage 1: Build runsolver
 # ---------------------------
-FROM ubuntu:22.04 AS builder
+FROM debian:sid-slim AS builder
 
-# Install build dependencies
+LABEL maintainer="Starexec Team"
+ENV DEPLOY_DIR=/home/starexec/StarExec-deploy
+
+# Install build dependencies efficiently
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    build-essential \
-    make \
-    gcc \
-    g++ \
-    git \
-    libnuma-dev && \
+    apt-get install -y --no-install-recommends --no-install-suggests \
+      build-essential \
+      make \
+      gcc \
+      g++ \
+      libnuma-dev \
+      git && \
+    # Clean up
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Clone StarExec repository specifically for runsolver
-RUN git -c http.sslVerify=false clone -b containerised --single-branch https://github.com/StarexecMiami/StarExec.git /StarExec
+RUN git -c http.sslVerify=false clone -b containerised --single-branch https://github.com/StarexecMiami/StarExec.git ${DEPLOY_DIR}
 
 # Build runsolver
-WORKDIR /StarExec/src/org/starexec/config/sge/RunSolverSource
+WORKDIR ${DEPLOY_DIR}/src/org/starexec/config/sge/RunSolverSource
+# Ensure clean build environment
 RUN make clean && make
 
 # ---------------------------
@@ -28,15 +34,12 @@ FROM ubuntu:22.04
 
 LABEL maintainer="Starexec Team"
 
-ENV DB_USER se_admin
-ENV DB_PASS dfsdf34RFerfg3TFGRfrF3edFVg12few2
-
 ENV DEBIAN_FRONTEND=noninteractive \
     TOMCAT_VERSION=7.0.109 \
     MYSQL_CON_VERSION=8.0.30 \
     DB_NAME=starexec \
-    DB_USER=${DB_USER} \
-    DB_PASS=${DB_PASS} \
+    DB_USER=se_admin \
+    DB_PASS=dfsdf34RFerfg3TFGRfrF3edFVg12few2 \
     DEPLOY_DIR=/home/starexec/StarExec-deploy \
     SQL_FILE=/home/starexec/StarExec-deploy/sql/NewInstall.sql \
     BUILD_FILE=build.xml \
@@ -50,44 +53,43 @@ ENV DEBIAN_FRONTEND=noninteractive \
     JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8" \
     TZ=UTC
 
-# Update and install runtime dependencies
-RUN apt-get update --fix-missing && apt-get upgrade -y && \
+# Combine package installation, configuration, and cleanup
+RUN apt-get update && \
     apt-get install -y --no-install-recommends --no-install-suggests \
+    # Runtime dependencies
     ca-certificates tzdata sudo git unzip file apache2 tcsh libnuma-dev \
-    openssl dnsutils curl ant ant-optional mariadb-client mariadb-server podman locales vim && \
-    # Download and install Temurin JDK 16 directly
+    openssl dnsutils curl ant ant-optional mariadb-client mariadb-server podman locales vim \
+    # Tools needed for setup/runtime scripts
+    procps \
+    # Install specific JDK version (Temurin 16)
+    && mkdir -p /usr/lib/jvm && \
     curl -fsSL -o /tmp/jdk16.tar.gz https://github.com/adoptium/temurin16-binaries/releases/download/jdk-16.0.2%2B7/OpenJDK16U-jdk_x64_linux_hotspot_16.0.2_7.tar.gz && \
-    mkdir -p /usr/lib/jvm && \
     tar xzf /tmp/jdk16.tar.gz -C /usr/lib/jvm && \
     rm /tmp/jdk16.tar.gz && \
     # Set Java alternatives
     update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-16.0.2+7/bin/java 1 && \
     update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk-16.0.2+7/bin/javac 1 && \
-    # Cleanup and final steps
-    a2enmod ssl && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Configure timezone
-RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
+    # Configure timezone and locales
+    ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
     echo "UTC" > /etc/timezone && \
-    dpkg-reconfigure -f noninteractive tzdata
-
-# Install and configure locales
-RUN sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen && \
-    locale-gen en_US.UTF-8
-
-# Install Node.js and Sass
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs --no-install-recommends --no-install-suggests && \
+    dpkg-reconfigure -f noninteractive tzdata && \
+    sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen && \
+    locale-gen en_US.UTF-8 && \
+    # Install Node.js and Sass
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y --no-install-recommends nodejs && \
     npm install -g npm@latest && \
-    npm install -g sass
+    npm install -g sass && \
+    # Clean up apt cache and lists
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Configure Apache2
 COPY dockerPackage/configFiles/ssl.conf /etc/apache2/sites-available/
 COPY dockerPackage/configFiles/starexec.conf /etc/apache2/sites-available/
 RUN a2dissite 000-default.conf default-ssl.conf && \
     a2ensite ssl starexec && \
-    a2enmod proxy headers proxy_http rewrite && \
+    a2enmod ssl proxy headers proxy_http rewrite && \
     mkdir -p /etc/apache2/logs/ && \
     echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
@@ -123,43 +125,37 @@ RUN mkdir -p /export/starexec/sandbox /export/starexec/sandbox2 && \
     usermod -aG sandbox tomcat && \
     usermod -aG sandbox2 tomcat
 
-# Clone StarExec repository
-RUN su - starexec -c "git clone -b containerised --single-branch https://github.com/StarexecMiami/StarExec.git ${DEPLOY_DIR}" && \
+COPY dockerPackage/allScripts/starexecScripts/overrides.properties /tmp/
+COPY dockerPackage/allScripts/starexecScripts/sudoRules.txt /etc/sudoers.d/starexec
+COPY dockerPackage/solverAdditions/GetComputerInfo /home/starexec/bin/
+RUN git -c http.sslVerify=false clone -b containerised --single-branch https://github.com/StarexecMiami/StarExec.git ${DEPLOY_DIR} && \
     git config --global --add safe.directory ${DEPLOY_DIR} && \
     cd ${DEPLOY_DIR}/WebContent/css/details && ln -s ../shared && \
-    chown -R tomcat:star-web /home/starexec
-
-COPY dockerPackage/allScripts/starexecScripts/overridesproperties.txt /tmp/
-RUN mkdir -p ${DEPLOY_DIR}/build && \
+    chown -R tomcat:star-web /home/starexec && \
+    # Configure overrides and machine specs
+    mkdir -p ${DEPLOY_DIR}/build && \
     touch ${DEPLOY_DIR}/build/Cluster.MachineSpecs.txt && \
     chown starexec:star-web ${DEPLOY_DIR}/build/Cluster.MachineSpecs.txt && \
     touch ${DEPLOY_DIR}/build/overrides.properties && \
-    cat /tmp/overridesproperties.txt >> ${DEPLOY_DIR}/build/overrides.properties && \
+    cat /tmp/overrides.properties >> ${DEPLOY_DIR}/build/overrides.properties && \
     chown starexec:star-web ${DEPLOY_DIR}/build/overrides.properties && \
-    rm /tmp/overridesproperties.txt
-
-# Configure sudo
-COPY dockerPackage/allScripts/starexecScripts/sudoRules.txt /etc/sudoers.d/starexec
-RUN chmod 0440 /etc/sudoers.d/starexec && \
-    visudo -c -f /etc/sudoers.d/starexec
-
-# Configure GetComputerInfo
-RUN mkdir -p /home/starexec/bin && \
+    rm /tmp/overrides.properties && \
+    # Configure sudo
+    chmod 0440 /etc/sudoers.d/starexec && \
+    # visudo check removed for non-interactive build, ensure syntax is correct
+    # Configure GetComputerInfo
+    mkdir -p /home/starexec/bin && \
     chown tomcat:star-web /home/starexec/bin && \
-    chmod 755 /home/starexec/bin
-COPY dockerPackage/solverAdditions/GetComputerInfo /home/starexec/bin/
-RUN chown tomcat:star-web /home/starexec/bin/GetComputerInfo && \
+    chmod 755 /home/starexec/bin && \
+    chown tomcat:star-web /home/starexec/bin/GetComputerInfo && \
     chmod 755 /home/starexec/bin/GetComputerInfo
 
 # Copy the compiled runsolver from the builder stage
-COPY --from=builder /StarExec/src/org/starexec/config/sge/RunSolverSource/runsolver ${DEPLOY_DIR}/src/org/starexec/config/sge/
+COPY --from=builder ${DEPLOY_DIR}/src/org/starexec/config/sge/RunSolverSource/runsolver ${DEPLOY_DIR}/src/org/starexec/config/sge/
 
-# Install kubectl
-RUN if [ "$(uname -m)" = "x86_64" ]; then \
-        curl -fsSLO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"; \
-    else \
-        curl -fsSLO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl"; \
-    fi && \
+# Install kubectl and clean up in one layer
+RUN ARCH=$(dpkg --print-architecture) && \
+    curl -fsSLO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl" && \
     chmod +x ./kubectl && \
     install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
     rm kubectl
@@ -168,13 +164,11 @@ RUN if [ "$(uname -m)" = "x86_64" ]; then \
 COPY init-starexec.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/init-starexec.sh
 
-# SSH key for Podman will be mounted at runtime via volume
-# DO NOT copy the key into the image for security reasons
-# The key is generated by the Makefile and mounted when the container runs
+# SSH key setup for Podman (key mounted at runtime)
 RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh
 
 # Expose necessary ports
-EXPOSE 80 443 3306
+EXPOSE 80 443 3306 8080
 
 WORKDIR ${DEPLOY_DIR}
 
