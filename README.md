@@ -41,7 +41,8 @@ StarExec:
 * **Containerized ATP Systems**: 
   - Go to the [`provers-containerised`](provers-containerised) directory to build 
     containerised ATP systems.
-  - Test containerised ATP systems using the `run_image.py` script.
+  - Test in a terminal containerised ATP systems using the `run_image.py` script.
+  - Cannot (or should not) be uses in containerised StarExec.
 * **Proxy-Prover ATP Systems**:
   - Build a plain containerised ATP system first.
   - Go to the [`starexec-proxy-provers`](starexec-proxy-provers) directory to build _local_
