@@ -36,13 +36,13 @@ StarExec:
   - This works because:
     + The `.tgz`/`.zip` contains neither `run_image.py` nor `run_image_k8s.py`
     + StarExec uses the local backend to start `runsolver` in the traditional StarExec way.
-  - Cannot (or at least hould not) be used in containerized StarExec that is deployed in
+  - Cannot (or should not) be used in containerized StarExec that is deployed in
     Kubernetes (microk8s or AWS)
 * **Containerized ATP Systems**: 
   - Go to the [`provers-containerised`](provers-containerised) directory to build 
     containerised ATP systems.
   - Test in a terminal containerised ATP systems using the `run_image.py` script.
-  - Cannot (or should not) be uses in containerised StarExec.
+  - Cannot (or should not) be used in containerised StarExec.
 * **Proxy-Prover ATP Systems**:
   - Build a plain containerised ATP system first.
   - Go to the [`starexec-proxy-provers`](starexec-proxy-provers) directory to build _local_
