@@ -7,16 +7,17 @@ LABEL maintainer="Starexec Team"
 ENV DEPLOY_DIR=/home/starexec/StarExec-deploy
 
 # Install build dependencies efficiently
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends --no-install-suggests \
+RUN apt update && \
+    apt install -y --no-install-recommends --no-install-suggests \
       build-essential \
       make \
       gcc \
       g++ \
       libnuma-dev \
+      iputils-ping \
       git && \
     # Clean up
-    apt-get clean && \
+    apt clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Clone StarExec repository specifically for runsolver
@@ -54,8 +55,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     TZ=UTC
 
 # Combine package installation, configuration, and cleanup
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends --no-install-suggests \
+RUN apt update && \
+    apt install -y --no-install-recommends --no-install-suggests \
     # Runtime dependencies
     ca-certificates tzdata sudo git unzip file apache2 tcsh libnuma-dev \
     openssl dnsutils curl ant ant-optional mariadb-client mariadb-server podman locales vim \
@@ -77,11 +78,11 @@ RUN apt-get update && \
     locale-gen en_US.UTF-8 && \
     # Install Node.js and Sass
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y --no-install-recommends nodejs && \
+    apt install -y --no-install-recommends nodejs && \
     npm install -g npm@latest && \
     npm install -g sass && \
     # Clean up apt cache and lists
-    apt-get clean && \
+    apt clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Configure Apache2
