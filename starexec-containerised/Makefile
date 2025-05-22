@@ -17,24 +17,23 @@ STATE_PATHS := /var/lib/mysql /home/starexec
 GET_CONTAINER_ID_CMD = podman ps --filter name=$(CONTAINER_NAME) --format '{{.ID}}'
 
 .PHONY: all starexec clean cleanVolumes connect start stop backup-state restore-state kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help
-all: starexec
+all: k8s
+
+local: ## Set backend type to local and prepare for building
+	@echo "Setting backend type to local..."
+	@sed -i "s/^Backend.Type:.*/Backend.Type: local/" dockerPackage/allScripts/starexecScripts/overrides.properties
+	@echo "Backend type set to local. You can now run 'make starexec' to build the container."
+	@make starexec
+
+k8s: ## Set backend type to k8s and prepare for building
+	@echo "Setting backend type to k8s..."
+	@sed -i "s/^Backend.Type:.*/Backend.Type: k8s/" dockerPackage/allScripts/starexecScripts/overrides.properties
+	@echo "Backend type set to k8s. You can now run 'make starexec' to build the container."
+	@make starexec
 
 starexec: ## Build the starexec container image
 	@echo "Building the starexec image..."
 	@echo "Make sure to run 'make mkcert-setup' and 'ssh-setup' first."
-	@# Prompt for backend type
-	@read -p "Select backend type (sge, oar, local, k8s) [k8s]: " backend_type; \
-	backend_type=$${backend_type:-k8s}; \
-	case "$$backend_type" in \
-		sge|oar|local|k8s) \
-			echo "Using backend type: $$backend_type"; \
-			sed -i "s/^Backend.Type:.*/Backend.Type: $$backend_type/" dockerPackage/allScripts/starexecScripts/overrides.properties; \
-			;; \
-		*) \
-			echo "Error: Invalid backend type '$$backend_type'. Please choose sge, oar, local, or k8s." >&2; \
-			exit 1; \
-			;; \
-	esac
 	@echo "Building starexec image with version: ${VERSION}..."
 
 	VERSION=${VERSION} && \
@@ -177,14 +176,74 @@ backup-state: ## Backup application state from the running container to local di
 		exit 1; \
 	fi; \
 	echo "Using container: $$container_id"; \
+	
+	# Create a mysqldump first (safer than stopping MySQL)
+	echo "Creating MySQL dump for backup..."; \
+	mkdir -p "$(BACKUP_DIR)/var/lib/mysql-dump"; \
+	podman exec $$container_id /bin/bash -c "mysqldump --all-databases --single-transaction --quick > /tmp/all_databases.sql" || \
+		echo "Warning: MySQL dump may not be complete. Will try direct file copy as well."; \
+	podman cp $$container_id:/tmp/all_databases.sql "$(BACKUP_DIR)/var/lib/mysql-dump/" || \
+		echo "Warning: MySQL dump copy failed. Proceeding with direct file backup."; \
+	
+	# Backup files one by one without stopping services
 	for path in $(STATE_PATHS); do \
 		target_dir="$(BACKUP_DIR)$${path}"; \
 		echo "Backing up $$path to $${target_dir}..."; \
 		mkdir -p "$${target_dir}"; \
-		rm -rf "$${target_dir}/*"; \
-		podman exec $$container_id bash -c "cd $${path} && tar cf - ." | tar xf - -C "$${target_dir}"; \
-		if [ $$? -ne 0 ]; then echo "Error during backup of $$path."; exit 1; fi; \
+		rm -rf "$${target_dir}"/*; \
+		
+		# Check if container is still running
+		if ! podman inspect $$container_id >/dev/null 2>&1 || \
+		   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" != "true" ]; then \
+			echo "Container is no longer running! Stopping backup process."; \
+			break; \
+		fi; \
+		
+		if [ "$$path" = "/var/lib/mysql" ]; then \
+			echo "Using special handling for MySQL data directory..."; \
+			# Copy MySQL files with rsync if available, otherwise use tar
+			if podman exec $$container_id which rsync >/dev/null 2>&1; then \
+				podman exec $$container_id rsync -a --exclude='*.sock' --exclude='performance_schema' \
+					--exclude='lost+found' $$path/ /tmp/mysql_backup/ || true; \
+				podman cp $$container_id:/tmp/mysql_backup/. "$${target_dir}/" || \
+					echo "Warning: MySQL files backup via rsync failed"; \
+			else \
+				# Create archive with tar but exclude socket files
+				podman exec $$container_id tar -C $$path -cf /tmp/mysql_backup.tar \
+					--exclude='*.sock' --exclude='performance_schema' --exclude='lost+found' . || true; \
+				podman cp $$container_id:/tmp/mysql_backup.tar "$${target_dir}.tar" && \
+				mkdir -p "$${target_dir}" && \
+				tar -xf "$${target_dir}.tar" -C "$${target_dir}" && \
+				rm -f "$${target_dir}.tar" || \
+					echo "Warning: MySQL files backup via tar failed"; \
+			fi; \
+		else \
+			# For other directories, use same approach but check container state
+			if podman exec $$container_id which rsync >/dev/null 2>&1; then \
+				podman exec $$container_id rsync -a $$path/ /tmp/backup_$$(basename $$path)/ || true; \
+				podman cp $$container_id:/tmp/backup_$$(basename $$path)/. "$${target_dir}/" || \
+					echo "Warning: Files backup from $$path via rsync failed"; \
+			else \
+				# Create directory archive with tar
+				podman exec $$container_id bash -c "cd $$path && tar cf /tmp/backup_$$(basename $$path).tar . || true"; \
+				podman cp $$container_id:/tmp/backup_$$(basename $$path).tar "$${target_dir}.tar" && \
+				mkdir -p "$${target_dir}" && \
+				tar -xf "$${target_dir}.tar" -C "$${target_dir}" && \
+				rm -f "$${target_dir}.tar" || \
+					echo "Warning: Files backup from $$path via tar failed"; \
+			fi; \
+		fi; \
 	done
+
+	# No need to restart MySQL as we didn't stop it
+	# Just check if container is still running at the end
+	if podman inspect $$container_id >/dev/null 2>&1 && \
+	   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" = "true" ]; then \
+		echo "Container is still running. Backup completed."; \
+	else \
+		echo "Note: Container exited during backup process."; \
+	fi
+	
 	@echo "State backup completed successfully to $(BACKUP_DIR)"
 	@echo "Backup size:"
 	@du -sh $(BACKUP_DIR)
@@ -207,40 +266,53 @@ restore-state: ## Restore application state from local backup to the running con
 		/project/apache-tomcat-7/bin/shutdown.sh || true; \
 		if [ -f /var/run/mysqld/mysqld.pid ]; then mysqladmin shutdown || pkill -9 mysqld; fi; \
 		sleep 5; pkill -9 mysqld || true; \
-		echo 3 > /proc/sys/vm/drop_caches || true; sync" || \
+		sync" || \
 		{ echo "Error stopping services in container."; exit 1; }
 	
 	# Restore files
 	@for path in $(STATE_PATHS); do \
 		source_dir="$(BACKUP_DIR)$${path}"; \
 		if [ ! -d "$$source_dir" ]; then \
-			echo "Warning: Backup source directory '$$source_dir' not found. Skipping restore for $$path."; \
+			echo "Warning: Backup source '$$source_dir' missing. Skipping $$path."; \
 			continue; \
 		fi; \
 		echo "Restoring $$path from $$source_dir..."; \
-		tar cf - -C "$(BACKUP_DIR)" .$${path} | podman exec -i $$container_id tar xf - -C / ; \
+		tar cf - -C "$$source_dir" . | \
+		  podman exec -i $$container_id tar xf - -C "$$path"; \
 		if [ $$? -ne 0 ]; then echo "Error restoring $$path."; exit 1; fi; \
 	done
 	
 	# Restart services after restoring files
-	@echo "Restarting services inside the container..."; \
-	podman exec $$container_id /bin/bash -c "echo \"Fixing permissions...\"; \
-		chown -R mysql:mysql /var/lib/mysql; \
-		rm -rf /var/run/mysqld; mkdir -p /var/run/mysqld; chown mysql:mysql /var/run/mysqld; chmod 777 /var/run/mysqld; \
-		echo \"[mysqld]\" > /tmp/minimal.cnf; \
-		echo \"innodb_buffer_pool_size=512M\" >> /tmp/minimal.cnf; \
-		echo \"Starting MySQL...\"; \
-		mysqld_safe --defaults-file=/tmp/minimal.cnf --user=mysql --skip-syslog & \
-		for i in \$$(seq 1 30); do \
-		  if mysqladmin ping --silent; then echo \"MySQL is up\"; break; fi; \
-		  if [ \$\$i -eq 30 ]; then echo \"ERROR: MySQL did not start\"; exit 1; fi; \
-		  sleep 2; \
-		done; \
-		echo \"Restarting Apache and Tomcat...\"; \
-		apache2ctl -k start || true; \
-		sleep 2; \
-		/project/apache-tomcat-7/bin/startup.sh" || \
-		{ echo "Error restarting services in container."; exit 1; }
+	@echo "Restarting services inside the container..."
+	@podman exec $$container_id /bin/bash -c '
+		echo "Fixing permissions..."
+		chown -R mysql:mysql /var/lib/mysql
+		rm -rf /var/run/mysqld; mkdir -p /var/run/mysqld; chown mysql:mysql /var/run/mysqld; chmod 777 /var/run/mysqld
+		echo "Creating minimal MySQL config..."
+		echo "[mysqld]" > /root/minimal.cnf
+		echo "innodb_buffer_pool_size=512M" >> /root/minimal.cnf
+		cat /root/minimal.cnf
+		echo "Starting MySQL..."
+		mysqld_safe --defaults-file=/root/minimal.cnf --user=mysql --skip-syslog &
+		sleep 5
+		for i in $$(seq 1 30); do
+			if mysqladmin ping --silent; then
+				echo "MySQL started successfully"
+				break
+			fi
+			if [ "$$i" -eq 30 ]; then
+				echo "MySQL failed to start within timeout"
+				exit 1
+			fi
+			echo "Waiting for MySQL to start... $$i"
+			sleep 2
+		done
+		echo "Restarting Apache and Tomcat..."
+		apache2ctl -k start || true
+		sleep 2
+		/project/apache-tomcat-7/bin/startup.sh
+		echo "Tomcat started."
+	' || { echo "Error restarting services in container."; exit 1; }
 	@echo "State restore and service restart completed successfully."
 
 clean: ## Remove the starexec container image and dangling images
