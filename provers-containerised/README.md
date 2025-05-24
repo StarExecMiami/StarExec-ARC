@@ -49,57 +49,38 @@ You can run `make eprover` to build the E prover RLR image directly, or `make al
 defined provers.
 The example below shows the manual steps.
 
-1. Clone the Repository and Build the `ubuntu-arc` Image:
+1. Clone the repository and build the `ubuntu-arc` image:  
     `git clone https://github.com/StarExecMiami/starexec-arc`  
     `cd starexec-arc/provers-containerised/ubuntu-arc`  
     `podman build --no-cache -t ubuntu-arc .`
     > *(Or run `make ubuntu-arc`)*
 
-2. Build the `tptp-world` Image:
+2. Build the `tptp-world` image:  
+    `cd ../tptp-world`  
+    `podman build --no-cache -t tptp-world .`  
     > *(Or run `make tptp-world`)*
 
-    `cd ../tptp-world`  
-    `podman build --no-cache -t tptp-world .`
-
-3. Build the `eprover` Image:
-   > *Note: The prover name is lowercase (e.g., `eprover`) to comply with docker/podman naming
-   conventions. 
-    > (Or run `make eprover-RAW`)
-
-    # Replace <EPROVER_VERSION> with the actual version from the Makefile (e.g., 3.0.03)
+3. Build the `prover` image:  
+   *Note: The prover name is lowercase (e.g., `eprover`) to comply with docker/podman naming
+   conventions.*
     `cd ../provers/Prover---Version`  
-    `podman build --no-cache -t prover:version .`
+    `podman build --no-cache -t prover:version .`  
+    > (Or run `make prover-RAW`)
 
-4. Build the `prover:version-RLR` resource limited prover container:
-    > *(Or run `make eprover-RLR` or simply `make eprover`)*
+4. Build the `prover:version-RLR` resource limited prover container:  
+    `cd ..`  
+    `podman build -t prover:version-RLR --build-arg PROVER_IMAGE=prover:version .`  
+    > (Or run `make prover-RLR` or simply `make eprover`)
 
-    ```shell
-    cd .. 
-    # Replace <EPROVER_VERSION> with the actual version from the Makefile (e.g., 3.0.03)
-    podman build -t eprover:<EPROVER_VERSION>-RLR --build-arg PROVER_IMAGE=eprover:<EPROVER_VERSION> .
-    ```
+5. Test using the `run_image.py` script on PUZ001+1 (provided):  
+    `cd ..`  
+    `./run_image.py eprover:<EPROVER_VERSION>-RLR -P PUZ001+1.p -W 60 -I THM`  
 
-5. Test Using the `run_image.py` Script on PUZ001+1 (provided):
+6. Push to DockerHub:  
+    `podman login docker.io`  
+    `podman tag prover:version-RLR docker.io/tptpstarexec/prover:version-RLR-your_architecture`  
+     (e.g., arm64, amd64)  
+    `podman push docker.io/tptpstarexec/eprover:<EPROVER_VERSION>-RLR-your_architecture`  
 
-    ```shell
-    cd ..
-    # Replace <EPROVER_VERSION> with the actual version from the Makefile (e.g., 3.0.03)
-    ./run_image.py eprover:<EPROVER_VERSION>-RLR -P PUZ001+1.p -W 60 -I THM
-    ```
-
-6. Push to Docker Hub:
-
-    ```shell
-    podman login docker.io 
-    # (Provide credentials as prompted)
-    # Replace <EPROVER_VERSION> with the actual version from the Makefile (e.g., 3.0.03)
-    podman tag eprover:<EPROVER_VERSION>-RLR docker.io/tptpstarexec/eprover:<EPROVER_VERSION>-RLR-your_architecture (e.g., arm64, amd64)
-    podman push docker.io/tptpstarexec/eprover:<EPROVER_VERSION>-RLR-your_architecture
-    ```
-
-    - Pulling from Docker Hub:
-  
-      ```shell
-      # Replace <EPROVER_VERSION> with the actual version (e.g., 3.0.03)
-      podman pull tptpstarexec/eprover:<EPROVER_VERSION>-RLR-your_architecture
-      ```
+    - Pulling from DockerHub:  
+      `podman pull tptpstarexec/prover:version-RLR-your_architecture`
