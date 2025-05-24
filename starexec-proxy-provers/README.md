@@ -1,4 +1,4 @@
-# StarExec Proxy Provers
+# StarExec Proxy-Provers
 
 This directory contains resources for building `.tgz` proxy-prover archives that can be uploaded
 and run in [containerised StarExec](../starexec-containerised).
@@ -17,7 +17,7 @@ deployment.
 The `.tgz` file includes a script named `run_image_k8s.py` that is detected by the containerised
 StarExec, which hence uses the Kubernetes backend to run the prover.
 
-## A Proxy-Prover for Containerised StarExec
+## A proxy-prover for containerised StarExec
 
 To create a proxy-prover that can run directly in containerised StarExec:  
 `python make_proxy.py docker.io/tptpstarexec/prover:version-RLR-amd64 prover:version--PodmanProxy --local`  
