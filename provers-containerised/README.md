@@ -1,6 +1,7 @@
 # Provers Containerised
 
-This folder contains all the necessary components to containerize an Automated Theorem Prover (ATP) system (a "prover") for execution using `podman`.
+This folder contains all the necessary components to containerize an Automated Theorem Prover
+(ATP) system (a "prover") for execution using `podman`.
 
 ## Directory Structure
 
@@ -8,16 +9,22 @@ This folder contains all the necessary components to containerize an Automated T
   - Contains a `Dockerfile` to build an Ubuntu image upon which all other components are built.
 
 - **`tptp-world`**
-  - Contains a `Dockerfile` to build a container with various TPTP World software required by provers and necessary for running them.
+  - Contains a `Dockerfile` to build a container with various TPTP World software required by
+    provers and necessary for running them.
 
 - **`provers`**
-  - Contains individual prover folders, each with sources and related files. The directory name follows the pattern `Prover---Version` (e.g., `E---3.0.03`).
-  - Includes the `start_RLR` script used to execute a prover under the control of a Resource Limited Run program (currently `runsolver`) with appropriate logging for the TPTP World.
-  - Contains a `Dockerfile` for building containers for each specified prover (refer to the comments in the `Dockerfile`).
-    - Each prover's folder includes a `Dockerfile` for building the prover in a container.
-    - **Tag Naming Convention:**
-      - **Prover Containers:** `prover:version`
-        - *Prover* must be lowercase (due to docker/podman requirements). The prover name and version are typically defined in the `Makefile`.
+  - Contains individual prover folders, each with sources and related files.
+    The directory name follows the pattern `Prover---Version` (e.g., `E---3.0.03`).
+  - Includes the `start_RLR` script used to execute a prover under the control of a Resource
+    Limited Run program (currently `runsolver`) with appropriate logging for the TPTP World.
+  - Contains a `Dockerfile` for building the container for a specified prover (refer to the
+    comments in the `Dockerfile`), with resource control.
+    - Each prover's folder includes a `Dockerfile` for building the prover in a container (without
+      resource control, e.g., just the prover binary).
+    - Tag Naming Convention:
+      - Prover containers: *`prover:version`*
+        - *prover* must be lowercase (due to docker/podman requirements).
+          The prover name and version are typically defined in the `Makefile`.
         - The tag name is provided as the `--build-arg PROVER_IMAGE` value when building the resource limited prover container.
       - **Resource Limited Prover Containers:** `prover:version-RLR`
 
