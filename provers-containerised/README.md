@@ -62,7 +62,7 @@ The example below shows the manual steps.
 
 3. Build the `prover` image:  
    *Note: The prover name is lowercase (e.g., `eprover`) to comply with docker/podman naming
-   conventions.*
+   conventions.*  
     `cd ../provers/Prover---Version`  
     `podman build --no-cache -t prover:version .`  
     > (Or run `make prover-RAW`)
