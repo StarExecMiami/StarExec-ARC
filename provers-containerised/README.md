@@ -50,11 +50,10 @@ defined provers.
 The example below shows the manual steps.
 
 1. Clone the Repository and Build the `ubuntu-arc` Image:
-    > *(Or run `make ubuntu-arc`)*
-
     `git clone https://github.com/StarExecMiami/starexec-arc`  
     `cd starexec-arc/provers-containerised/ubuntu-arc`  
     `podman build --no-cache -t ubuntu-arc .`
+    > *(Or run `make ubuntu-arc`)*
 
 2. Build the `tptp-world` Image:
     > *(Or run `make tptp-world`)*
