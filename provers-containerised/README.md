@@ -29,8 +29,8 @@ This folder contains all the necessary components to containerize an Automated T
       - Resource limited prover containers: *`prover:version-RLR`*
 
 - `run_image.py`
-  - Script for running a resource-limited prover container on a specified ATP problem with
-    necessary parameters.
+  - Script for running a resource-limited prover container in `podman` on a specified ATP problem
+    with necessary parameters.
   - Run `run_image.py -h` for detailed usage instructions.
 
 - `Makefile`
