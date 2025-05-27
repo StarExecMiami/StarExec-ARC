@@ -54,12 +54,18 @@ ENV DEBIAN_FRONTEND=noninteractive \
     JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8" \
     TZ=UTC
 
+# ---------------------------
+# Install system packages and dependencies
+# ---------------------------
+
 # Combine package installation, configuration, and cleanup
 RUN apt update && \
     apt install -y --no-install-recommends --no-install-suggests \
     # Runtime dependencies
     ca-certificates tzdata sudo git unzip file apache2 tcsh libnuma-dev \
-    openssl dnsutils curl ant ant-optional mariadb-client mariadb-server podman locales vim \
+    openssl dnsutils curl ant ant-optional mariadb-client mariadb-server podman locales vim acl \
+    # SSH client for Podman communication
+    openssh-client \
     # Tools needed for setup/runtime scripts
     procps \
     # Install specific JDK version (Temurin 16)
@@ -84,6 +90,10 @@ RUN apt update && \
     # Clean up apt cache and lists
     apt clean && \
     rm -rf /var/lib/apt/lists/*
+
+# ---------------------------
+# Configure application directories and users
+# ---------------------------
 
 # Configure Apache2
 COPY dockerPackage/configFiles/ssl.conf /etc/apache2/sites-available/
@@ -126,6 +136,24 @@ RUN mkdir -p /export/starexec/sandbox /export/starexec/sandbox2 && \
     usermod -aG sandbox tomcat && \
     usermod -aG sandbox2 tomcat
 
+# Apply container-friendly permissions from script logic
+RUN echo "Setting up container-friendly permissions..." && \
+    echo "Configuring ACLs for sandbox directories (errors ignored)..." && \
+    setfacl -d -m g::rwx /local/sandbox/ 2>/dev/null || true && \
+    setfacl -d -m g::rwx /local/sandbox2/ 2>/dev/null || true && \
+    setfacl -d -m u::rwx /local/sandbox/ 2>/dev/null || true && \
+    setfacl -d -m u::rwx /local/sandbox2/ 2>/dev/null || true
+
+RUN echo "Configure umask for sandbox users (errors ignored)..." && \
+    (echo "umask 002" >> /home/sandbox/.bashrc 2>/dev/null || true) && \
+    (echo "umask 002" >> /home/sandbox2/.bashrc 2>/dev/null || true)
+
+RUN echo "Create temporary directory with relaxed permissions for archive extraction..." && \
+    mkdir -p /tmp/starexec-temp && \
+    chmod 777 /tmp/starexec-temp && \
+    chown tomcat:star-web /tmp/starexec-temp && \
+    echo "Container permissions configured successfully"
+
 COPY dockerPackage/allScripts/starexecScripts/overrides.properties /tmp/
 COPY dockerPackage/allScripts/starexecScripts/sudoRules.txt /etc/sudoers.d/starexec
 COPY dockerPackage/solverAdditions/GetComputerInfo /home/starexec/bin/
@@ -161,12 +189,41 @@ RUN ARCH=$(dpkg --print-architecture) && \
     install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
     rm kubectl
 
+# ---------------------------
+# Setup runtime directories and permissions
+# ---------------------------
+
+# Setup SSL certificate directories and permissions
+RUN mkdir -p /etc/ssl/certs /etc/ssl/private && \
+    chmod 755 /etc/ssl/certs && \
+    chmod 700 /etc/ssl/private
+
+# Initialize MySQL data directory with proper permissions
+RUN mkdir -p /var/lib/mysql && \
+    chown -R mysql:mysql /var/lib/mysql && \
+    chmod 755 /var/lib/mysql
+
+# SSH key setup for Podman (key mounted at runtime)
+RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh && \
+    # Create SSH directories for sandbox users
+    mkdir -p /home/sandbox/.ssh /home/sandbox/.config /home/sandbox/.local && \
+    mkdir -p /home/sandbox2/.ssh /home/sandbox2/.config /home/sandbox2/.local && \
+    chmod 700 /home/sandbox/.ssh /home/sandbox2/.ssh && \
+    chown -R sandbox:sandbox /home/sandbox/.ssh /home/sandbox/.config /home/sandbox/.local && \
+    chown -R sandbox2:sandbox2 /home/sandbox2/.ssh /home/sandbox2/.config /home/sandbox2/.local
+
+# Set up base permissions for runtime directories
+RUN chown -R tomcat:star-web /project && \
+    chown -R tomcat:star-web /home/starexec && \
+    chmod 755 -R /home/starexec
+
+# ---------------------------
+# Final setup and entrypoint
+# ---------------------------
+
 # Copy initialization script
 COPY init-starexec.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/init-starexec.sh
-
-# SSH key setup for Podman (key mounted at runtime)
-RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh
 
 # Expose necessary ports
 EXPOSE 80 443 3306 8080
