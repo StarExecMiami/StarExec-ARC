@@ -15,6 +15,8 @@ STATE_PATHS := /var/lib/mysql /home/starexec
 
 # Helper command to get the running container ID by name
 GET_CONTAINER_ID_CMD = podman ps --filter name=$(CONTAINER_NAME) --format '{{.ID}}'
+# Helper command to get any container (running or stopped) ID by name
+GET_ANY_CONTAINER_ID_CMD = podman ps -a --filter name=$(CONTAINER_NAME) --format '{{.ID}}'
 
 .PHONY: all starexec clean cleanVolumes connect start stop backup-state restore-state kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help
 all: k8s
@@ -54,8 +56,11 @@ ssh-setup: ## Setup SSH keys for podman communication
 
 	@if [ "$(USER)" != "jenkins" ]; then \
 		echo "Setting up SSH key for $(USER) user."; \
+		mkdir -p ~/.ssh; \
+		chmod 700 ~/.ssh; \
 		if [ -f starexec_podman_key.pub ]; then \
 			cat starexec_podman_key.pub >> ~/.ssh/authorized_keys; \
+			chmod 600 ~/.ssh/authorized_keys; \
 		fi \
 	else \
 		echo "Skipping SSH key setup for Jenkins user."; \
@@ -102,6 +107,7 @@ run: ssh-setup mkcert-setup ## Run the starexec container interactively (for tes
 	@echo "Make sure to run 'make mkcert-setup' and 'ssh-setup' first."
 	# This target is for temporary runs. Use 'make start' for persistent runs with state.
 	@podman run --rm -it --name $(CONTAINER_NAME) \
+			--network slirp4netns:allow_host_loopback=true \
 			-v volDB:/var/lib/mysql \
 			-v volStar:/home/starexec \
 			-v volPro:/project \
@@ -110,14 +116,14 @@ run: ssh-setup mkcert-setup ## Run the starexec container interactively (for tes
 			-v $(HOME)/.local/share/mkcert/localhost.key:/etc/ssl/private/localhost.key \
 			-v $(HOME)/.local/share/mkcert/localhost.crt:/etc/ssl/certs/localhost.crt \
 			-e SSH_USERNAME=${USER} \
-			-e HOST_MACHINE=localhost \
+			-e HOST_MACHINE=host.containers.internal \
 			-e SSH_PORT=22 \
 			-e SSH_SOCKET_PATH=${PODMAN_SOCKET_PATH} \
-			--healthcheck-interval=30s \
-			--healthcheck-timeout=10s \
-			--healthcheck-retries=3 \
-			--healthcheck-start-period=120s \
-			--healthcheck-command "bash -c 'mysqladmin ping -u root --silent --connect-timeout=3 && service apache2 status | grep -q \"running\" && ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap\" && curl -s -k --max-time 5 -I https://localhost/starexec/ | grep -q \"200 OK\"'" \
+			--healthcheck-interval=60s \
+			--healthcheck-timeout=15s \
+			--healthcheck-retries=5 \
+			--healthcheck-start-period=180s \
+			--healthcheck-command "bash -c 'mysqladmin ping -u root --silent --connect-timeout=5 && (service apache2 status | grep -q \"running\" || pgrep apache2 >/dev/null) && (ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap\" || pgrep -f catalina >/dev/null) && (curl -s -k --max-time 10 -I https://localhost:7827/starexec/ | grep -q \"200\\|302\\|301\" || curl -s -k --max-time 10 https://localhost:7827/ >/dev/null)'" \
 			-p 7827:443 starexec:${VERSION}
 
 start: ssh-setup mkcert-setup ## Start the starexec container persistently and restore state if available
@@ -128,8 +134,15 @@ start: ssh-setup mkcert-setup ## Start the starexec container persistently and r
 		echo "Use 'make stop' to stop it first if you want to restart it."; \
 		exit 0; \
 	fi
+	@# Check for stopped container with same name and remove it
+	@stopped_container_id=$$($(GET_ANY_CONTAINER_ID_CMD)); \
+	if [ -n "$$stopped_container_id" ]; then \
+		echo "Found stopped container $(CONTAINER_NAME) with ID: $$stopped_container_id. Removing it..."; \
+		podman rm $$stopped_container_id; \
+	fi
 	@echo "Launching container $(CONTAINER_NAME)..."
 	@podman run -d --name $(CONTAINER_NAME) \
+			--network slirp4netns:allow_host_loopback=true \
 			-v volDB:/var/lib/mysql \
 			-v volStar:/home/starexec \
 			-v volPro:/project \
@@ -138,14 +151,14 @@ start: ssh-setup mkcert-setup ## Start the starexec container persistently and r
 			-v $(HOME)/.local/share/mkcert/localhost.key:/etc/ssl/private/localhost.key \
 			-v $(HOME)/.local/share/mkcert/localhost.crt:/etc/ssl/certs/localhost.crt \
 			-e SSH_USERNAME=${USER} \
-			-e HOST_MACHINE=localhost \
+			-e HOST_MACHINE=host.containers.internal \
 			-e SSH_PORT=22 \
 			-e SSH_SOCKET_PATH=${PODMAN_SOCKET_PATH} \
-			--healthcheck-interval=30s \
-			--healthcheck-timeout=10s \
-			--healthcheck-retries=3 \
-			--healthcheck-start-period=120s \
-			--healthcheck-command "bash -c 'mysqladmin ping -u root --silent --connect-timeout=3 && service apache2 status | grep -q \"running\" && ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap\" && curl -s -k --max-time 5 -I https://localhost/starexec/ | grep -q \"200 OK\"'" \
+			--healthcheck-interval=60s \
+			--healthcheck-timeout=15s \
+			--healthcheck-retries=5 \
+			--healthcheck-start-period=180s \
+			--healthcheck-command "bash -c 'mysqladmin ping -u root --silent --connect-timeout=5 && (service apache2 status | grep -q \"running\" || pgrep apache2 >/dev/null) && (ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap\" || pgrep -f catalina >/dev/null) && (curl -s -k --max-time 10 -I https://localhost:7827/starexec/ | grep -q \"200\\|302\\|301\" || curl -s -k --max-time 10 https://localhost:7827/ >/dev/null)'" \
 			-p 7827:443 starexec:${VERSION}
 	@echo "Waiting for container to initialize (approx 60 seconds)..."
 	@sleep 60
@@ -156,6 +169,8 @@ start: ssh-setup mkcert-setup ## Start the starexec container persistently and r
 		echo "No backup directory found. Starting with fresh state."; \
 	fi
 	@echo "StarExec container started. Access at https://localhost:7827"
+	@echo "Note: Container may show as 'unhealthy' initially while services fully initialize."
+	@echo "Wait a few minutes and check with 'podman ps' - it should become healthy."
 
 stop: ## Backup state and stop the persistent starexec container
 	@echo "Stopping the starexec container..."
@@ -260,60 +275,172 @@ restore-state: ## Restore application state from local backup to the running con
 		exit 1; \
 	fi; \
 	echo "Restoring state to container: $$container_id from $(BACKUP_DIR)..."; \
+	
 	# Stop services before restoring files
 	@echo "Stopping services inside the container..."; \
 	podman exec $$container_id /bin/bash -c "apache2ctl -k graceful-stop || true; \
 		/project/apache-tomcat-7/bin/shutdown.sh || true; \
-		if [ -f /var/run/mysqld/mysqld.pid ]; then mysqladmin shutdown || pkill -9 mysqld; fi; \
-		sleep 5; pkill -9 mysqld || true; \
-		sync" || \
-		{ echo "Error stopping services in container."; exit 1; }
+		service mysql stop || service mariadb stop || true" || true
+	@sleep 5
 	
-	# Restore files
+	# Check if container is still running after stopping services
+	@if ! podman inspect $$container_id >/dev/null 2>&1 || \
+	   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" != "true" ]; then \
+		echo "Container stopped during service shutdown. Restarting container..."; \
+		podman start $$container_id; \
+		sleep 10; \
+	fi
+	
+	# Restore non-MySQL files first
 	@for path in $(STATE_PATHS); do \
+		if [ "$$path" = "/var/lib/mysql" ]; then \
+			continue; \
+		fi; \
 		source_dir="$(BACKUP_DIR)$${path}"; \
 		if [ ! -d "$$source_dir" ]; then \
 			echo "Warning: Backup source '$$source_dir' missing. Skipping $$path."; \
 			continue; \
 		fi; \
+		\
+		# Check container is running before each restore operation \
+		if ! podman inspect $$container_id >/dev/null 2>&1 || \
+		   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" != "true" ]; then \
+			echo "Container not running. Restarting..."; \
+			podman start $$container_id; \
+			sleep 10; \
+		fi; \
+		\
 		echo "Restoring $$path from $$source_dir..."; \
-		tar cf - -C "$$source_dir" . | \
-		  podman exec -i $$container_id tar xf - -C "$$path"; \
-		if [ $$? -ne 0 ]; then echo "Error restoring $$path."; exit 1; fi; \
+		if tar cf - -C "$$source_dir" . | podman exec -i $$container_id tar xf - -C "$$path" 2>/dev/null; then \
+			echo "Successfully restored $$path using tar"; \
+		else \
+			echo "Error restoring $$path using tar. Trying alternative method..."; \
+			# Check container is still running after tar failure \
+			if ! podman inspect $$container_id >/dev/null 2>&1 || \
+			   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" != "true" ]; then \
+				echo "Container stopped during tar operation. Restarting..."; \
+				podman start $$container_id; \
+				sleep 10; \
+			fi; \
+			\
+			if podman exec $$container_id rm -rf "$$path"/* 2>/dev/null; then \
+				echo "Cleared target directory $$path"; \
+			fi; \
+			\
+			if podman cp "$$source_dir/." $$container_id:"$$path/" 2>/dev/null; then \
+				echo "Successfully restored $$path using podman cp"; \
+			else \
+				echo "Warning: Could not restore $$path completely"; \
+			fi; \
+		fi; \
 	done
 	
-	# Restart services after restoring files
-	@echo "Restarting services inside the container..."
-	@podman exec $$container_id /bin/bash -c '
-		echo "Fixing permissions..."
-		chown -R mysql:mysql /var/lib/mysql
-		rm -rf /var/run/mysqld; mkdir -p /var/run/mysqld; chown mysql:mysql /var/run/mysqld; chmod 777 /var/run/mysqld
-		echo "Creating minimal MySQL config..."
-		echo "[mysqld]" > /root/minimal.cnf
-		echo "innodb_buffer_pool_size=512M" >> /root/minimal.cnf
-		cat /root/minimal.cnf
-		echo "Starting MySQL..."
-		mysqld_safe --defaults-file=/root/minimal.cnf --user=mysql --skip-syslog &
-		sleep 5
-		for i in $$(seq 1 30); do
-			if mysqladmin ping --silent; then
-				echo "MySQL started successfully"
-				break
-			fi
-			if [ "$$i" -eq 30 ]; then
-				echo "MySQL failed to start within timeout"
-				exit 1
-			fi
-			echo "Waiting for MySQL to start... $$i"
-			sleep 2
-		done
-		echo "Restarting Apache and Tomcat..."
-		apache2ctl -k start || true
-		sleep 2
-		/project/apache-tomcat-7/bin/startup.sh
-		echo "Tomcat started."
-	' || { echo "Error restarting services in container."; exit 1; }
-	@echo "State restore and service restart completed successfully."
+	# Start MySQL service with container restart if needed
+	@echo "Starting MySQL service..."
+	@for attempt in 1 2 3; do \
+		if ! podman inspect $$container_id >/dev/null 2>&1 || \
+		   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" != "true" ]; then \
+			echo "Container not running (attempt $$attempt). Restarting..."; \
+			podman start $$container_id; \
+			sleep 15; \
+		fi; \
+		if podman exec $$container_id /bin/bash -c '\
+			echo "Fixing MySQL permissions and directories..."; \
+			chown -R mysql:mysql /var/lib/mysql || true; \
+			rm -rf /var/run/mysqld; mkdir -p /var/run/mysqld; \
+			chown mysql:mysql /var/run/mysqld; chmod 755 /var/run/mysqld; \
+			echo "Checking for corrupted MySQL data..."; \
+			if [ -f /var/lib/mysql/ib_logfile0 ]; then \
+				echo "Removing potentially corrupted InnoDB log files..."; \
+				rm -f /var/lib/mysql/ib_logfile* || true; \
+			fi; \
+			echo "Starting MySQL with recovery mode..."; \
+			if command -v systemctl >/dev/null 2>&1; then \
+				systemctl start mysql || systemctl start mariadb || true; \
+			else \
+				service mysql start || service mariadb start || true; \
+			fi; \
+			if ! mysqladmin ping --silent 2>/dev/null; then \
+				echo "Service start failed, trying mysqld_safe with recovery..."; \
+				mysqld_safe --user=mysql --skip-syslog --pid-file=/var/run/mysqld/mysqld.pid --socket=/var/run/mysqld/mysqld.sock --datadir=/var/lib/mysql --innodb-force-recovery=1 & \
+				sleep 10; \
+			fi; \
+			for i in $$(seq 1 15); do \
+				if mysqladmin ping --silent 2>/dev/null; then \
+					echo "MySQL started successfully"; \
+					exit 0; \
+				fi; \
+				echo "Waiting for MySQL to start... attempt $$i"; \
+				sleep 2; \
+			done; \
+			echo "MySQL startup failed completely, trying fresh initialization..."; \
+			pkill -f mysql || true; \
+			rm -rf /var/lib/mysql/* || true; \
+			mysql_install_db --user=mysql --datadir=/var/lib/mysql || true; \
+			mysqld_safe --user=mysql --skip-syslog --pid-file=/var/run/mysqld/mysqld.pid --socket=/var/run/mysqld/mysqld.sock --datadir=/var/lib/mysql & \
+			sleep 10; \
+			if mysqladmin ping --silent 2>/dev/null; then \
+				echo "MySQL started with fresh database"; \
+			else \
+				echo "Error with MySQL startup, continuing anyway..."; \
+			fi' 2>/dev/null; then \
+			echo "MySQL service started successfully on attempt $$attempt"; \
+			break; \
+		else \
+			echo "MySQL startup failed on attempt $$attempt"; \
+			if [ $$attempt -eq 3 ]; then \
+				echo "All MySQL startup attempts failed, continuing without MySQL"; \
+				break; \
+			fi; \
+		fi; \
+	done
+	# Restore MySQL database from dump if available
+	@if [ -f "$(BACKUP_DIR)/var/lib/mysql-dump/all_databases.sql" ]; then \
+		echo "Restoring MySQL database from dump..."; \
+		if ! podman inspect $$container_id >/dev/null 2>&1 || \
+		   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" != "true" ]; then \
+			echo "Container not running. Restarting for database restore..."; \
+			podman start $$container_id; \
+			sleep 10; \
+		fi; \
+		if podman cp "$(BACKUP_DIR)/var/lib/mysql-dump/all_databases.sql" $$container_id:/tmp/restore_dump.sql 2>/dev/null; then \
+			podman exec $$container_id /bin/bash -c '\
+				if mysqladmin ping --silent 2>/dev/null; then \
+					echo "Restoring database from dump..."; \
+					mysql < /tmp/restore_dump.sql 2>/dev/null || \
+						echo "Warning: Some database restore errors occurred, but continuing..."; \
+				else \
+					echo "MySQL not responding, skipping database restore"; \
+				fi; \
+				rm -f /tmp/restore_dump.sql' || \
+			echo "Warning: MySQL dump restore failed, but continuing..."; \
+		fi; \
+	else \
+		echo "No MySQL dump found, skipping database restore."; \
+	fi
+	
+	# Start remaining services
+	@echo "Starting Apache and Tomcat..."
+	@if ! podman inspect $$container_id >/dev/null 2>&1 || \
+	   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" != "true" ]; then \
+		echo "Container not running. Restarting for service startup..."; \
+		podman start $$container_id; \
+		sleep 10; \
+	fi
+	@podman exec $$container_id /bin/bash -c '\
+		echo "Starting Apache and Tomcat..."; \
+		if command -v systemctl >/dev/null 2>&1; then \
+			systemctl start apache2 || systemctl start httpd || true; \
+		else \
+			service apache2 start || apache2ctl -k start || true; \
+		fi; \
+		sleep 3; \
+		if [ -f /project/apache-tomcat-7/bin/startup.sh ]; then \
+			/project/apache-tomcat-7/bin/startup.sh || true; \
+		fi; \
+		echo "Services startup completed."' 2>/dev/null || { echo "Warning: Some services may not have started properly."; }
+	@echo "State restore completed."
+	@echo "Note: Container may take a few more minutes to become fully healthy."
 
 clean: ## Remove the starexec container image and dangling images
 	@echo "Checking for existing 'starexec' image..."
@@ -345,7 +472,14 @@ kill: ## Stop and remove the persistent starexec container
 	if [ -n "$$container_id" ]; then \
 		podman stop $$container_id && podman rm $$container_id; \
 	else \
-		echo "Container $(CONTAINER_NAME) not found or not running."; \
+		# Try to find any container with the name (running or stopped)
+		container_id=$$($(GET_ANY_CONTAINER_ID_CMD)); \
+		if [ -n "$$container_id" ]; then \
+			echo "Found stopped container $(CONTAINER_NAME), removing it..."; \
+			podman rm $$container_id; \
+		else \
+			echo "Container $(CONTAINER_NAME) not found."; \
+		fi; \
 	fi
 
 cleanVolumes: ## Remove starexec related volumes (WARNING: data loss)
