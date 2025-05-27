@@ -34,9 +34,30 @@ def makeProxyProver(prover, archiveName, local):
     with open(f"parent/bin/starexec_run_{archiveName}", "w") as f:
         f.write("proxy\n")
 
-    # ----Make the prover's .tgz file
-    shutil.make_archive(archiveName, "gztar", "parent")
-    shutil.move(f"{archiveName}.tar.gz", f"{archiveName}.tgz")
+    # ----Make the prover's .tgz file with container-safe options
+    import subprocess
+    
+    # Create archive using tar command with container-safe flags
+    tar_cmd = [
+        "tar",
+        "--create",
+        "--gzip",
+        "--file", f"{archiveName}.tgz",
+        "--no-same-permissions",
+        "--no-same-owner", 
+        "--directory", "parent",
+        "."
+    ]
+    
+    try:
+        subprocess.run(tar_cmd, check=True)
+        print(f"Successfully created {archiveName}.tgz with container-safe options")
+    except subprocess.CalledProcessError as e:
+        print(f"Error creating archive: {e}")
+        # Fallback to original method if tar command fails
+        shutil.make_archive(archiveName, "gztar", "parent")
+        shutil.move(f"{archiveName}.tar.gz", f"{archiveName}.tgz")
+    
     shutil.rmtree("parent")
 
 # -----------------------------------------------------------------------------
