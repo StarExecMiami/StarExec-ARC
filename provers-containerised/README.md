@@ -45,9 +45,10 @@ This folder contains all the necessary components to containerize an Automated T
 ## Building and running a containerised prover
 
 Note: The `Makefile` automates these steps.
-You can run `make eprover` (which is a shortcut for `make eprover-RLR`) to build the E prover RLR image directly, or `make all` to build all
-defined provers.
-The example below shows the manual steps, using `eprover` with version `EPROVER_VERSION` (as defined in the `Makefile`) as an example.
+You can run `make eprover` (which is a shortcut for `make eprover-RLR`) to build the E prover
+RLR image directly, or `make all` to build all defined provers.
+The example below shows the manual steps, using `eprover` with version `EPROVER_VERSION` (as
+defined in the `Makefile`) as an example.
 Refer to the `Makefile` for the actual `EPROVER_VERSION` and for other provers.
 
 1. Clone the repository and build the `ubuntu-arc` image:  
@@ -67,12 +68,15 @@ Refer to the `Makefile` for the actual `EPROVER_VERSION` and for other provers.
    The directory name is also derived from the `Makefile` (e.g., `E---<EPROVER_VERSION>`).*  
     `cd ../provers/E---<EPROVER_VERSION>`  with the actual version
     `podman build --no-cache -t eprover:<EPROVER_VERSION> .`
-    > (Or run `make eprover-RAW` from the `provers-containerised` directory. The `Makefile` will use the correct version and directory for `eprover`.)
+    > (Or run `make eprover-RAW` from the `provers-containerised` directory. The `Makefile` will
+      use the correct version and directory for `eprover`.)
 
-4. Build the `prover:version-RLR` resource limited prover container (equivalent to `make eprover-RLR` or `make eprover`):  
+4. Build the `prover:version-RLR` resource limited prover container (equivalent to
+   `make eprover-RLR` or `make eprover`):  
     `cd ..` (should be in the `provers-containerised/provers` directory)
     `podman build -t eprover:<EPROVER_VERSION>-RLR --build-arg PROVER_IMAGE=eprover:<EPROVER_VERSION> .`
-    > (Or run `make eprover-RLR` or simply `make eprover` from the `provers-containerised` directory.)
+    > (Or run `make eprover-RLR` or simply `make eprover` from the `provers-containerised`
+      directory.)
 
 5. Test using the `run_image.py` script on PUZ001+1 (provided):  
     `cd ..` (should be in the `provers-containerised` directory)
