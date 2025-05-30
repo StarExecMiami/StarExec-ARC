@@ -63,7 +63,7 @@ RUN apt update && \
     apt install -y --no-install-recommends --no-install-suggests \
     # Runtime dependencies
     ca-certificates tzdata sudo git unzip file apache2 tcsh libnuma-dev \
-    openssl dnsutils curl ant ant-optional mariadb-client mariadb-server podman locales vim acl \
+    iputils-ping openssl dnsutils curl ant ant-optional mariadb-client mariadb-server podman locales vim acl \
     # SSH client for Podman communication
     openssh-client \
     # Tools needed for setup/runtime scripts
@@ -74,22 +74,22 @@ RUN apt update && \
     tar xzf /tmp/jdk16.tar.gz -C /usr/lib/jvm && \
     rm /tmp/jdk16.tar.gz && \
     # Set Java alternatives
-    update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-16.0.2+7/bin/java 1 && \
-    update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk-16.0.2+7/bin/javac 1 && \
+    && update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-16.0.2+7/bin/java 1 \
+    && update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk-16.0.2+7/bin/javac 1 \
     # Configure timezone and locales
-    ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
-    echo "UTC" > /etc/timezone && \
-    dpkg-reconfigure -f noninteractive tzdata && \
-    sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen && \
-    locale-gen en_US.UTF-8 && \
+    && ln -fs /usr/share/zoneinfo/UTC /etc/localtime \
+    && echo "UTC" > /etc/timezone \
+    && dpkg-reconfigure -f noninteractive tzdata \
+    && sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen \
+    && locale-gen en_US.UTF-8 \
     # Install Node.js and Sass
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt install -y --no-install-recommends nodejs && \
-    npm install -g npm@latest && \
-    npm install -g sass && \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt install -y --no-install-recommends nodejs \
+    && npm install -g npm@latest \
+    && npm install -g sass \
     # Clean up apt cache and lists
-    apt clean && \
-    rm -rf /var/lib/apt/lists/*
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # ---------------------------
 # Configure application directories and users
