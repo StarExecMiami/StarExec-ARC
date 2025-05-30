@@ -74,12 +74,16 @@ if [ "${1:-}" = "healthcheck" ]; then
   healthcheck
 fi
 
+# Generate SSL certificates if they don't exist
 if [ ! -f "/etc/ssl/certs/localhost.crt" ] || [ ! -f "/etc/ssl/private/localhost.key" ]; then
+  echo "Generating SSL certificates..."
   printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth" > /tmp/openssl.cnf
   openssl req -x509 -out /etc/ssl/certs/localhost.crt -keyout /etc/ssl/private/localhost.key \
     -newkey rsa:2048 -nodes -sha256 \
     -subj '/CN=localhost' -extensions EXT -config /tmp/openssl.cnf
   rm /tmp/openssl.cnf
+  chmod 644 /etc/ssl/certs/localhost.crt
+  chmod 600 /etc/ssl/private/localhost.key
 fi
 
 # Generate SQL install file using Ant build target
@@ -98,12 +102,9 @@ trap cleanup SIGINT SIGTERM
 : "${BUILD_FILE:?BUILD_FILE is not set}"
 : "${SQL_FILE:?SQL_FILE is not set}"
 
-# Configure permissions
-chown -R tomcat:star-web /project
-chown -R tomcat:star-web /home/starexec
-chown -R tomcat:star-web /home/sandbox
-chown -R mysql:mysql /var/lib/mysql
-chmod 755 -R /home/starexec
+# Configure runtime permissions (only what changes at runtime)
+chown -R tomcat:star-web /home/sandbox  # This may change due to mounted volumes
+chmod 755 -R /home/starexec  # Ensure permissions after potential volume mounts
 
 # Start Apache in the background
 echo "Starting Apache..."
@@ -113,6 +114,7 @@ echo "Starting Apache..."
 if [ ! -d "/var/lib/mysql/mysql" ]; then
   echo "Initializing MySQL data directory..."
   mysql_install_db --user=mysql --ldata=/var/lib/mysql
+  # Ownership already set in Dockerfile, but ensure it's correct after initialization
   chown -R mysql:mysql /var/lib/mysql
 fi
 
@@ -168,11 +170,62 @@ else
   "
 fi
 
-# Configure Podman connection
-echo "Configuring Podman connection..."
-podman system connection add host-machine-podman-connection \
-  ssh://${SSH_USERNAME}@${HOST_MACHINE}:${SSH_PORT}${SOCKET_PATH} \
-  --identity=/root/.ssh/starexec_podman_key || echo "Podman connection configuration failed"
+# Configure SSH for non-interactive access to the Podman host
+echo "Configuring SSH for non-interactive Podman host access (${HOST_MACHINE})..."
+# SSH directory already created in Dockerfile
+cat << EOF > /root/.ssh/config
+Host ${HOST_MACHINE}
+    UserKnownHostsFile /dev/null
+    StrictHostKeyChecking no
+    LogLevel ERROR
+EOF
+chmod 600 /root/.ssh/config
+chown root:root /root/.ssh/config
+
+# Configure Podman connection to the host for root user
+echo "Configuring Podman system connection 'host-machine-podman-connection' for root user..."
+# Remove existing connection if it exists, to ensure idempotency
+podman system connection remove host-machine-podman-connection >/dev/null 2>&1 || true
+if podman system connection add host-machine-podman-connection \
+  --identity /root/.ssh/starexec_podman_key \
+  --default \
+  "ssh://${SSH_USERNAME}@${HOST_MACHINE}:${SSH_PORT}${SSH_SOCKET_PATH}"; then
+  echo "Podman connection 'host-machine-podman-connection' configured successfully and set as default for root."
+else
+  echo "WARNING: Podman connection 'host-machine-podman-connection' configuration failed for root."
+  # Optionally, list connections for debugging if the add command fails
+  podman system connection list || true
+fi
+
+# Configure SSH and Podman connection for sandbox user as well
+echo "Configuring SSH and Podman connection for sandbox user..."
+# SSH directories already created in Dockerfile
+cat << EOF > /home/sandbox/.ssh/config
+Host ${HOST_MACHINE}
+    UserKnownHostsFile /dev/null
+    StrictHostKeyChecking no
+    LogLevel ERROR
+EOF
+# Copy the SSH key to sandbox user's directory
+cp /root/.ssh/starexec_podman_key /home/sandbox/.ssh/
+# Set proper permissions (directories already created with correct ownership)
+chmod 600 /home/sandbox/.ssh/config
+chmod 600 /home/sandbox/.ssh/starexec_podman_key
+
+# Configure Podman connection for sandbox user
+echo "Configuring Podman system connection for sandbox user..."
+su - sandbox -c "
+  podman system connection remove host-machine-podman-connection >/dev/null 2>&1 || true
+  if podman system connection add host-machine-podman-connection \
+    --identity /home/sandbox/.ssh/starexec_podman_key \
+    --default \
+    'ssh://${SSH_USERNAME}@${HOST_MACHINE}:${SSH_PORT}${SSH_SOCKET_PATH}'; then
+    echo 'Podman connection configured successfully for sandbox user.'
+  else
+    echo 'WARNING: Podman connection configuration failed for sandbox user.'
+    podman system connection list || true
+  fi
+"
 
 # Start Tomcat
 echo "Starting Tomcat..."
