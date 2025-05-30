@@ -72,7 +72,7 @@ RUN apt update && \
     && mkdir -p /usr/lib/jvm && \
     curl -fsSL -o /tmp/jdk16.tar.gz https://github.com/adoptium/temurin16-binaries/releases/download/jdk-16.0.2%2B7/OpenJDK16U-jdk_x64_linux_hotspot_16.0.2_7.tar.gz && \
     tar xzf /tmp/jdk16.tar.gz -C /usr/lib/jvm && \
-    rm /tmp/jdk16.tar.gz && \
+    rm /tmp/jdk16.tar.gz \
     # Set Java alternatives
     && update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-16.0.2+7/bin/java 1 \
     && update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk-16.0.2+7/bin/javac 1 \
