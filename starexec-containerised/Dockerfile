@@ -88,8 +88,8 @@ RUN apt update && \
     && npm install -g npm@latest \
     && npm install -g sass \
     # Clean up apt cache and lists
-    apt clean && \
-    rm -rf /var/lib/apt/lists/*
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # ---------------------------
 # Configure application directories and users
