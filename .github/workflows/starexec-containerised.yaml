@@ -57,8 +57,17 @@ jobs:
         run: |
           echo "Building and pushing Docker images..."
           REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          
+          # Set version tag based on input or use date-based versioning
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION_TAG="${{ github.event.inputs.version }}"
+          else
+            VERSION_TAG=$(date +%Y.%m.%d)-${GITHUB_SHA:0:8}
+          fi
+
           docker buildx build --builder ${{ steps.buildx.outputs.name }} \
             --platform linux/amd64 \
             --tag ghcr.io/$REPO_LOWER:latest \
+            --tag ghcr.io/$REPO_LOWER:$VERSION_TAG \
             --tag ghcr.io/$REPO_LOWER:${{ github.sha }} \
             --push ${{ env.WORKDIR }}
