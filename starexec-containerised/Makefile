@@ -18,20 +18,30 @@ GET_CONTAINER_ID_CMD = podman ps --filter name=$(CONTAINER_NAME) --format '{{.ID
 # Helper command to get any container (running or stopped) ID by name
 GET_ANY_CONTAINER_ID_CMD = podman ps -a --filter name=$(CONTAINER_NAME) --format '{{.ID}}'
 
-.PHONY: all starexec clean cleanVolumes connect start stop backup-state restore-state kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help
-all: k8s
+.PHONY: all local k8s starexec clean cleanVolumes connect start stop backup-state restore-state kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help
+
+all: ## Prompt for backend type
+	@echo "Choose backend type:"
+	@echo " 1) local"
+	@echo " 2) k8s"
+	@read -p "Enter choice [1-2]: " choice; \
+	case "$$choice" in \
+	  1) $(MAKE) local ;; \
+	  2) $(MAKE) k8s ;; \
+	  *) echo "Invalid choice. Please run 'make' again and choose 1 or 2." ;; \
+	esac
 
 local: ## Set backend type to local and prepare for building
 	@echo "Setting backend type to local..."
 	@sed -i "s/^Backend.Type:.*/Backend.Type: local/" dockerPackage/allScripts/starexecScripts/overrides.properties
 	@echo "Backend type set to local. You can now run 'make starexec' to build the container."
-	@make starexec
+	@$(MAKE) starexec
 
 k8s: ## Set backend type to k8s and prepare for building
 	@echo "Setting backend type to k8s..."
 	@sed -i "s/^Backend.Type:.*/Backend.Type: k8s/" dockerPackage/allScripts/starexecScripts/overrides.properties
 	@echo "Backend type set to k8s. You can now run 'make starexec' to build the container."
-	@make starexec
+	@$(MAKE) starexec
 
 starexec: ## Build the starexec container image
 	@echo "Building the starexec image..."
