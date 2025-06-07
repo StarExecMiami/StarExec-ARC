@@ -57,7 +57,13 @@ if ($LINUX) {
     $RemoteShellCommand = "/usr/bin/ssh";
     $nslookupCommand = "/usr/bin/nslookup -sil";
     $getentCommand = "/usr/bin/getent hosts";
-    $pingCommand = "/bin/ping -c1";
+    $pingCommand = `which ping`;
+    chomp($pingCommand);
+    if (-x $pingCommand) {
+        $pingCommand = "$pingCommand -c1";
+    } else {
+        $pingCommand = "";
+    }
     $psrinfoCommand = "";
     $topCommand = "/usr/bin/top -d0 -n1 -b -p0";
     $freeCommand = "/bin/free -m";
@@ -209,11 +215,17 @@ sub GetComputerInfo {
     $OneMachine{"Computer"} = $Computer;
 
 #----Check that the machine is reachable
-    @PingReply = `$pingCommand $Computer`;
-    if (!grep(/is alive/,@PingReply) && !grep(/0% loss/,@PingReply) &&
+    if ($pingCommand ne "") {
+        @PingReply = `$pingCommand $Computer`;
+        if (!grep(/is alive/,@PingReply) && !grep(/0% loss/,@PingReply) &&
 !grep(/0% packet loss/,@PingReply)) {
-        print("ERROR: $Computer does not respond to ping\n");
-        exit(1);
+            print("ERROR: $Computer does not respond to ping\n");
+            exit(1);
+        }
+    } else {
+#Pray it is there    
+#        print("ERROR: ping is not available to check if machine is alive\n");
+#        exit(1);
     }
 
 #----Get machine information
