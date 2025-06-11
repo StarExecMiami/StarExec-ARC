@@ -13,13 +13,13 @@ This folder contains all the necessary components to containerize an Automated T
     provers and necessary for running them.
 
 - `provers`
-  - Contains individual prover folders, each with sources and related files.
-    The directory name follows the pattern `Prover---Version` (e.g., `E---3.0.03`).
   - Includes the `start_RLR` script used to execute a prover under the control of a Resource
     Limited Run program (currently `runsolver`) with appropriate logging for the TPTP World.
-  - Contains a `Dockerfile` for building the container for a specified prover (refer to the
-    comments in the `Dockerfile`), with resource control.
-    - Each prover's folder includes a `Dockerfile` for building the prover in a container (without
+  - Contains a `Dockerfile` for building the container for a prover with resource control (refer to the
+    comments in the `Dockerfile`).
+  - Contains individual prover directories, each with sources and related files.
+    The directory name follows the pattern `Prover---Version` (e.g., `E---3.0.03`).
+    - Each prover's directory includes a `Dockerfile` for building the prover in a container (without
       resource control, e.g., just the prover binary).
     - Tag Naming Convention:
       - Prover containers: *`prover:version`*
@@ -33,7 +33,7 @@ This folder contains all the necessary components to containerize an Automated T
     with necessary parameters.
   - Run `run_image.py -h` for detailed usage instructions.
 
-- `Makefile`
+- `Makefile` (Note: *This has not been updated recently and might not work completely. Rather do the steps manually one by one as described below.*)
   - Builds `ubuntu-arc`, `tptp-world`, and selected resource-limited prover containers (defined
     by the `PROVERS` variable).
   - Defines prover versions (e.g., `EPROVER_VERSION`) and directory names (e.g., `E_RAW_DIR`).
@@ -41,12 +41,12 @@ This folder contains all the necessary components to containerize an Automated T
     (e.g., `make eprover-RAW`), and resource-limited prover images (e.g., `make eprover` or
     `make eprover-RLR`). Run `make` or `make all` to build everything defined in `PROVERS`.
   - Refer to the `Makefile` to see the currently supported provers and their versions.
+  - You can run `make eprover` (which is a shortcut for `make eprover-RLR`) to build the E prover RLR
+    image directly, or `make all` to build all defined provers.
 
 ## Building and running a containerised prover
 
-Note: The `Makefile` automates these steps.
-You can run `make eprover` (which is a shortcut for `make eprover-RLR`) to build the E prover
-RLR image directly, or `make all` to build all defined provers.
+The `Makefile` automates these steps.
 The example below shows the manual steps, using `eprover` with version `EPROVER_VERSION` (as
 defined in the `Makefile`) as an example.
 Refer to the `Makefile` for the actual `EPROVER_VERSION` and for other provers.
