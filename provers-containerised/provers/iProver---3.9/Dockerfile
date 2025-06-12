@@ -17,20 +17,21 @@ FROM ubuntu-arc
 # Install opam
 RUN apt update && \
     apt install -y --no-install-recommends opam && \
-    opam init && \
+    opam init -y && \
     eval $(opam env) && \
     opam update && \
     opam switch create 4.14.2+flambda ocaml-variants.4.14.2+options ocaml-option-flambda && \
-    opam install ocamlfind ocamlgraph zarith yojson z3 && \
+    apt-get install -y libgmp-dev pkg-config zlib1g-dev && \
+    opam install -y ocamlfind ocamlgraph zarith yojson z3 && \
     eval $(opam env)
 
 # Install iprover
 RUN git clone https://gitlab.com/korovin/iprover.git
 # Set working directory to cloned sources directory
 WORKDIR iprover
-
-RUN ./configure
-RUN make
+RUN eval $(opam env) && \
+    ./configure && \
+    make
 
 # Smoke test
 RUN ./tests_run.sh
