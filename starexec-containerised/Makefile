@@ -117,6 +117,7 @@ run: ssh-setup mkcert-setup ## Run the starexec container interactively (for tes
 	@echo "Make sure to run 'make mkcert-setup' and 'ssh-setup' first."
 	# This target is for temporary runs. Use 'make start' for persistent runs with state.
 	@podman run --rm -it --name $(CONTAINER_NAME) \
+			--cap-add=NET_RAW \
 			--network slirp4netns:allow_host_loopback=true \
 			-v volDB:/var/lib/mysql \
 			-v volStar:/home/starexec \
@@ -152,6 +153,7 @@ start: ssh-setup mkcert-setup ## Start the starexec container persistently and r
 	fi
 	@echo "Launching container $(CONTAINER_NAME)..."
 	@podman run -d --name $(CONTAINER_NAME) \
+			--cap-add=NET_RAW \
 			--network slirp4netns:allow_host_loopback=true \
 			-v volDB:/var/lib/mysql \
 			-v volStar:/home/starexec \
