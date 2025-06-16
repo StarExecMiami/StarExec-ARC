@@ -502,6 +502,7 @@ connect: ## Connect to the running starexec container via bash shell
 	@container_id=$$($(GET_CONTAINER_ID_CMD)); \
 	if [ -n "$$container_id" ]; then \
 		podman exec -it $$container_id /bin/bash; \
+		exit 0; \
 	else \
 		echo "Error: No running StarExec container found."; \
 		exit 1; \
