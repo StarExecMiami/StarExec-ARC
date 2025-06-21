@@ -13,6 +13,8 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
+      DOMAIN:
+        ${{ secrets.DOMAIN }} 
 
     steps:
       - name: Checkout repository
@@ -53,6 +55,9 @@ jobs:
         run: make validate
         working-directory: starexec-kubernetes/terraform
 
+      - name: Configure AWS CLI region
+        run: aws configure set region $AWS_REGION
+        working-directory: starexec-kubernetes/terraform
       - name: Plan Terraform changes
         run: make plan
         working-directory: starexec-kubernetes/terraform
