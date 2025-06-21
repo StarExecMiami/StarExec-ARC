@@ -22,23 +22,33 @@ output "cluster_name" {
 }
 
 output "efs_file_system_id" {
-  value = aws_efs_file_system.example.id
+  description = "ID of the EFS file system"
+  value       = module.efs.efs_file_system_id
 }
 
-
 output "efs_voldb_access_point_id" {
-  value = aws_efs_access_point.voldb.id
+  description = "ID of the voldb access point"
+  value       = module.efs.voldb_access_point_id
 }
 
 output "efs_volstar_access_point_id" {
-  value = aws_efs_access_point.volstar.id
+  description = "ID of the volstar access point"
+  value       = module.efs.volstar_access_point_id
 }
 
 output "efs_volpro_access_point_id" {
-  value = aws_efs_access_point.volpro.id
+  description = "ID of the volpro access point"
+  value       = module.efs.volpro_access_point_id
 }
 
-# output "efs_volexport_access_point_id" {
-#   value = aws_efs_access_point.volexport.id
-# }
+output "domain_name" {
+  description = "The domain name configured for the StarExec cluster."
+  value       = var.domain
+}
+
+output "prover_image" {
+  description = "The prover image used in the StarExec cluster."
+  value       = var.prover_image
+
+}
 
