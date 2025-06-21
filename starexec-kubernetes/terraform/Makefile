@@ -1,469 +1,489 @@
-# make sure shell is bash, since I normally use fish:
-SHELL = bash
+# Makefile for StarExec Kubernetes Infrastructure Management
+# Author: DevOps Team
+# Description: Manages EKS cluster, EFS storage, and StarExec deployment
 
-domain := $(shell ./configuration.sh domain)
+# Shell configuration
+SHELL := /bin/bash
+.SHELLFLAGS := -euo pipefail -c
 
-default:
-	@echo "---- 1. Initializing Terraform"
-	make init
+# Make configuration
+.DEFAULT_GOAL := help
+.PHONY: help init plan create-cluster destroy-cluster kubectl-setup
+.PHONY: populate-cluster depopulate-cluster label-nodes cache-prover-image
+.PHONY: get-certificate forward-domain-route53 update-node-count
+.PHONY: backup-to-s3 restore-from-s3 download-from-s3 upload-to-s3
+.PHONY: info connect clean validate
 
-	@echo "---- 2. Using Terraform to create EKS/EFS/etc in AWS"
-	make create-cluster
+# Color codes for output
+RED    := \033[31m
+GREEN  := \033[32m
+YELLOW := \033[33m
+BLUE   := \033[34m
+RESET  := \033[0m
 
-	@echo "---- 3. Connecting kubectl to EKS cluster"
-	make kubectl-setup
+# Configuration variables
+# These are evaluated when used (due to =) to ensure terraform init may have run.
+DOMAIN = $(shell ./configuration.sh domain 2>/dev/null || echo "")
+AWS_REGION = $(shell aws configure get region 2>/dev/null || echo "")
+# Use fallback cluster name if terraform is not installed or not initialized
+CLUSTER_NAME = $(shell command -v terraform >/dev/null 2>&1 && terraform output -raw cluster_name 2>/dev/null || echo "starexec-cluster")
+BUCKET_NAME = $(shell echo "$(CLUSTER_NAME)" | tr '[:upper:]' '[:lower:]')-backup
+EFS_ID = $(shell terraform output -raw efs_file_system_id 2>/dev/null || echo "")
 
-	@echo "---- 4. Deploying StarExec in the EKS cluster"
-	make populate-cluster
-	@echo "---- 4a. Waiting a bit for the head node to be up-and-running"
-	sleep 120
-	@echo "---- 4b. Testing (Initial lines saying "FailedScheduling" can be ignored)"
-	kubectl describe pod se-depl
-
-	@echo "---- 5. Forwarding domain "
-	@if aws route53 list-hosted-zones | grep -q "$(domain)"; then \
-		echo "---- 5a. Forwarding the domain to the head node URL provided by AWS"; \
-		make forward-domain-route53; \
-		echo "---- 5b. Waiting a bit for StarExec and the domain to be available"; \
-		sleep 120; \
-		echo "---- 5c. Getting TLS/SSL certificate"; \
-		make get-certificate; \
-	else \
-		echo "Domain $(domain) not found in Route53."; \
-		echo "Please manually forward $(domain) to the address found by 'kubectl get svc'"; \
-		echo "Then run 'make get-certificate'"; \
-	fi
-
-# reconfig-starexec:
-# 	@echo "Finding running pod for se-depl..."
-# 	@POD_NAME=$$(kubectl get pods --selector=app=starexec -o jsonpath='{.items[0].metadata.name}'); \
-# 	if [ -z "$$POD_NAME" ]; then \
-# 		echo "No pod found for se-depl"; \
-# 		exit 1; \
-# 	fi; \
-# 	echo "Pod found: $$POD_NAME"; \
-# 	echo "External IP for starexec-service: $(domain)"; \
-# 	echo "Executing reconfig script in the pod with domain $(domain)..."; \
-# 	kubectl cp reconfig_starexec.sh $$POD_NAME:/tmp/reconfig_starexec.sh; \
-# 	kubectl exec $$POD_NAME -- /bin/sh -c "chmod +x /tmp/reconfig_starexec.sh && /tmp/reconfig_starexec.sh $(domain)"
-
-get-certificate:
-	@echo "Finding running pod for se-depl..."
-	@POD_NAME=$$(kubectl get pods --selector=app=starexec -o jsonpath='{.items[0].metadata.name}'); \
-	if [ -z "$$POD_NAME" ]; then \
-		echo "No pod found for se-depl"; \
+# Validation helpers
+define check_aws_config
+	@if [ -z "$(AWS_REGION)" ]; then \
+		echo -e "$(RED)Error: AWS region not configured. Run 'aws configure'$(RESET)"; \
 		exit 1; \
-	fi; \
-	echo "Pod found: $$POD_NAME"; \
-	echo "External IP for starexec-service: $(domain)"; \
-	echo "Executing get-certificate script in the pod with domain $(domain)..."; \
-	kubectl cp get_certificate.sh $$POD_NAME:/tmp/get_certificate.sh; \
-	kubectl exec $$POD_NAME -- /bin/sh -c "chmod +x /tmp/get_certificate.sh && /tmp/get_certificate.sh $(domain)"
-
-forward-domain-route53:
-	@echo "Fetching external domain name from EKS service..."
-	$(eval EXTERNAL_DOMAIN := $(shell kubectl get svc starexec-service -n default -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'))
-	@echo "External domain: $(EXTERNAL_DOMAIN)"
-
-	@echo "Extracting ELB name from external domain..."
-	$(eval ELB_NAME := $(shell echo "$(EXTERNAL_DOMAIN)" | cut -d'-' -f1))
-	@echo "ELB name: $(ELB_NAME)"
-
-	@echo "Fetching ELB Hosted Zone ID..."
-	$(eval ELB_HOSTED_ZONE_ID := $(shell aws elb describe-load-balancers --load-balancer-names $(ELB_NAME) --query 'LoadBalancerDescriptions[0].CanonicalHostedZoneNameID' --output text))
-	@echo "ELB Hosted Zone ID: $(ELB_HOSTED_ZONE_ID)"
-
-	@echo "Fetching hosted zone ID from Route 53...(domain '$(domain)')"
-	$(eval HOSTED_ZONE_ID := $(shell aws route53 list-hosted-zones-by-name --dns-name $(domain) --query "HostedZones[?Name=='$(domain).'].Id" --output text | cut -d'/' -f3))
-	@echo "Hosted zone ID: $(HOSTED_ZONE_ID)"
-
-	@echo "Updating Route 53 DNS record for apex domain..."
-	aws route53 change-resource-record-sets --hosted-zone-id $(HOSTED_ZONE_ID) \
-		--change-batch '{ "Changes": [ { "Action": "UPSERT", "ResourceRecordSet": { "Name": "$(domain).", "Type": "A", "AliasTarget": { "HostedZoneId": "$(ELB_HOSTED_ZONE_ID)", "DNSName": "$(EXTERNAL_DOMAIN).", "EvaluateTargetHealth": false } } } ] }'
-
-	@echo "DNS update initiated."
-	@echo "If this didn't work, ensure that the hosted zone and domain in Route53 have the same nameservers configured"
-
-######################
-#     Kubernetes     #
-######################
-
-cache-prover-image:
-	@if [ -z "$(prover_image)" ]; then \
-		echo "No prover_image specified. Please run as 'make cache-prover-image prover_image=\"docker.io/someProverImage\"'"; \
-	else \
-		echo "Caching prover image '$(prover_image)'..."; \
-		kubectl create deployment test --image=$(prover_image); \
-		while [ "$$(kubectl get pods -l app=test -o jsonpath='{.items[0].status.phase}')" != "Running" ]; do \
-			echo "Waiting for image to be pulled and pod to be in Running state..."; \
-			sleep 5; \
-		done; \
-		kubectl delete deployment test; \
 	fi
+endef
 
-
-enable-k8s-api-proxy:
-	@echo "Restarting k8s api proxy..."
-	@# List all kubectl proxy processes, filter out any that might affect the make process
-	@pids=$$(ps aux | grep '[k]ubectl proxy' | grep -v grep | awk '{print $$2}'); \
-	if [ -n "$$pids" ]; then \
-		echo "Stopping existing kubectl proxy processes..."; \
-		echo $$pids | xargs kill; \
-		sleep 2; \
+define check_domain
+	@if [ -z "$(DOMAIN)" ]; then \
+		echo -e "$(RED)Error: Domain not configured in configuration.sh$(RESET)"; \
+		exit 1; \
 	fi
-	@# Start kubectl proxy in the background
-	@echo "Starting kubectl proxy..."
-	@kubectl proxy > /dev/null 2>&1 &
+endef
 
+define check_terraform_init
+	@if [ ! -d ".terraform" ]; then \
+		echo -e "$(YELLOW)Terraform not initialized. Running init...$(RESET)"; \
+		$(MAKE) init; \
+	fi
+endef
 
+# Help target
+help: ## Show this help message
+	@echo -e "$(BLUE)StarExec Kubernetes Infrastructure Management$(RESET)"
+	@echo ""
+	@echo -e "$(GREEN)Usage:$(RESET) make [target]"
+	@echo ""
+	@echo -e "$(GREEN)Main Targets:$(RESET)"
+	@awk 'BEGIN {FS = ":.*## "} /^[^[:space:]].*## / {printf "  $(YELLOW)%-20s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
+# Default deployment pipeline
+default: ## Run complete deployment pipeline
+	@echo -e "$(BLUE)====== StarExec Deployment Pipeline ======$(RESET)"
+	@echo -e "$(GREEN)1. Initializing Terraform$(RESET)"
+	$(MAKE) init
+	@echo -e "$(GREEN)2. Creating EKS cluster and infrastructure$(RESET)"
+	$(MAKE) create-cluster
+	@echo -e "$(GREEN)3. Configuring kubectl$(RESET)"
+	$(MAKE) kubectl-setup
+	@echo -e "$(GREEN)4. Deploying StarExec$(RESET)"
+	$(MAKE) populate-cluster
+	@echo -e "$(GREEN)4a. Waiting for pods to stabilize$(RESET)"
+	@sleep 120
+	@echo -e "$(GREEN)4b. Checking deployment status$(RESET)"
+	@kubectl describe pod -l app=starexec | head -20
+	@echo -e "$(GREEN)5. Configuring domain and SSL$(RESET)"
+	$(MAKE) setup-domain
 
-label-nodes: enable-k8s-api-proxy
-	@echo "Labeling compute nodes (compute node labels + k8s extended resource)..."
-	# Label compute nodes
-	for node in $$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}'); do \
-		if kubectl get node $$node -o jsonpath='{.metadata.labels.eks\.amazonaws\.com/nodegroup}' | grep -q "computenodes"; then \
-			echo "Labeling compute node: $$node"; \
-			kubectl label nodes $$node nodegroup=computenodes --overwrite; \
-			curl --header "Content-Type: application/json-patch+json" \
-				--request PATCH \
-				--data '[{"op": "add", "path": "/status/capacity/example.com~1unicorn", "value": "1"}]' \
-				http://localhost:8001/api/v1/nodes/$$node/status; \
-		fi; \
+####################
+# Infrastructure   #
+####################
+
+init: ## Initialize Terraform
+	@echo -e "$(BLUE)Initializing Terraform...$(RESET)"
+	@terraform init -upgrade
+
+validate: ## Validate Terraform configuration
+	@echo -e "$(BLUE)Validating Terraform configuration...$(RESET)"
+	$(call check_terraform_init)
+	@terraform validate
+	@terraform fmt
+
+plan: ## Show Terraform execution plan
+	@echo -e "$(BLUE)Planning Terraform changes...$(RESET)"
+	$(call check_terraform_init)
+	$(call check_aws_config)
+	@terraform plan -var="region=$(AWS_REGION)"
+
+create-cluster: ## Create EKS cluster and infrastructure
+	@echo -e "$(BLUE)Creating EKS cluster...$(RESET)"
+	$(call check_terraform_init)
+	$(call check_aws_config)
+	@terraform apply -var="region=$(AWS_REGION)" -target=module.vpc -auto-approve
+	@terraform apply -var="region=$(AWS_REGION)" -auto-approve
+
+destroy-cluster: ## Destroy EKS cluster and infrastructure
+	@echo -e "$(YELLOW)Destroying EKS cluster...$(RESET)"
+	$(call check_aws_config)
+	@if kubectl cluster-info >/dev/null 2>&1; then \
+		echo -e "$(YELLOW)Cleaning up Kubernetes resources...$(RESET)"; \
+		$(MAKE) depopulate-cluster; \
+	fi
+	@terraform destroy -var="region=$(AWS_REGION)" -auto-approve
+
+kubectl-setup: ## Configure kubectl for EKS cluster
+	@echo -e "$(BLUE)Configuring kubectl...$(RESET)"
+	$(call check_aws_config)
+	@aws eks --region $(AWS_REGION) update-kubeconfig \
+		--name $(CLUSTER_NAME)
+
+update-node-count: ## Update EKS node group size
+	@echo -e "$(YELLOW)Updating node count...$(RESET)"
+	@echo -e "$(YELLOW)This will apply all Terraform changes$(RESET)"
+	@sleep 5
+	$(call check_aws_config)
+	@terraform apply -var="region=$(AWS_REGION)" -auto-approve
+
+####################
+# Kubernetes       #
+####################
+
+populate-cluster: label-nodes ## Deploy StarExec to cluster
+	@echo -e "$(BLUE)Deploying StarExec...$(RESET)"
+	@export EFS_ID=$(EFS_ID) && \
+	export VOLDB_LABEL=$$(terraform output -raw efs_voldb_access_point_id) && \
+	export VOLSTAR_LABEL=$$(terraform output -raw efs_volstar_access_point_id) && \
+	export VOLPRO_LABEL=$$(terraform output -raw efs_volpro_access_point_id) && \
+	envsubst < YAMLFiles/storage.yaml.template > YAMLFiles/storage.yaml
+	@cd YAMLFiles && kubectl apply -f .
+	@$(MAKE) setup-ssh-keys
+
+depopulate-cluster: ## Remove StarExec from cluster
+	@echo -e "$(YELLOW)Removing StarExec deployment...$(RESET)"
+	@for file in ingress service deployment headnode-role-binding headnode-role headnode-service-account pvcs storage; do \
+		echo "Deleting $$file..."; \
+		kubectl delete -f YAMLFiles/$$file.yaml --wait=true --timeout=300s || true; \
 	done
 
-	# Label head node
-	@echo "Labeling head node..."
-	for node in $$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}'); do \
-		if kubectl get node $$node -o jsonpath='{.metadata.labels.eks\.amazonaws\.com/nodegroup}' | grep -q "headnode"; then \
+label-nodes: enable-k8s-proxy ## Label cluster nodes appropriately
+	@echo -e "$(BLUE)Labeling cluster nodes...$(RESET)"
+	@for node in $$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}'); do \
+		nodegroup=$$(kubectl get node $$node -o jsonpath='{.metadata.labels.eks\.amazonaws\.com/nodegroup}'); \
+		if echo "$$nodegroup" | grep -q "computenodes"; then \
+			echo "Labeling compute node: $$node"; \
+			kubectl label nodes $$node nodegroup=computenodes --overwrite; \
+			$(MAKE) add-extended-resource NODE=$$node; \
+		elif echo "$$nodegroup" | grep -q "headnode"; then \
 			echo "Labeling head node: $$node"; \
 			kubectl label nodes $$node nodegroup=headnode --overwrite; \
 		fi; \
 	done
-
-	# Verify labeling
-	@echo "Verifying labels:"
 	@kubectl get nodes -L nodegroup
 
-populate-cluster: label-nodes
-	export EFS_ID=$$(terraform output -raw efs_file_system_id) && \
-	export VOLDB_LABEL=$$(terraform output -raw efs_voldb_access_point_id) && \
-	export VOLSTAR_LABEL=$$(terraform output -raw efs_volstar_access_point_id) && \
-	export VOLPRO_LABEL=$$(terraform output -raw efs_volpro_access_point_id) && \
-	envsubst < YAMLFiles/storage.yaml.template > YAMLFiles/storage.yaml 
-	
-	cd YAMLFiles && kubectl apply -f .
-	if [ ! -f ../../starexec-containerised/starexec_podman_key ]; then \
+add-extended-resource: ## Add extended resource to node (internal)
+	@curl -s --header "Content-Type: application/json-patch+json" \
+		--request PATCH \
+		--data '[{"op": "add", "path": "/status/capacity/example.com~1unicorn", "value": "1"}]' \
+		"http://localhost:8001/api/v1/nodes/$(NODE)/status" >/dev/null || true
+
+enable-k8s-proxy: ## Enable Kubernetes API proxy
+	@echo -e "$(BLUE)Starting Kubernetes API proxy...$(RESET)"
+	@pkill -f "kubectl proxy" || true
+	@sleep 2
+	@kubectl proxy >/dev/null 2>&1 &
+
+cache-prover-image: ## Cache prover image on cluster nodes
+	@if [ -z "$(prover_image)" ]; then \
+		echo -e "$(RED)Usage: make cache-prover-image prover_image=docker.io/image:tag$(RESET)"; \
+		exit 1; \
+	fi
+	@echo -e "$(BLUE)Caching prover image: $(prover_image)$(RESET)"
+	@kubectl create deployment cache-test --image=$(prover_image)
+	@echo "Waiting for image pull..."
+	@while [ "$$(kubectl get pods -l app=cache-test -o jsonpath='{.items[0].status.phase}' 2>/dev/null)" != "Running" ]; do \
+		echo "Waiting for pod..."; \
+		sleep 5; \
+	done
+	@kubectl delete deployment cache-test
+
+setup-ssh-keys: ## Setup SSH keys for StarExec (internal)
+	@if [ ! -f ../../starexec-containerised/starexec_podman_key ]; then \
+		echo -e "$(BLUE)Generating SSH keys...$(RESET)"; \
 		ssh-keygen -t rsa -N "" -f ../../starexec-containerised/starexec_podman_key; \
 	fi
-
-	@if ! kubectl get secret starexec-ssh-key -n default > /dev/null 2>&1; then \
-		echo "Creating Kubernetes secret for SSH key..."; \
-		kubectl create secret generic starexec-ssh-key --from-file=starexec_ssh_key=../../starexec-containerised/starexec_podman_key -n default; \
-	else \
-		echo "Kubernetes secret 'starexec-ssh-key' already exists. No need to recreate."; \
+	@if ! kubectl get secret starexec-ssh-key >/dev/null 2>&1; then \
+		echo -e "$(BLUE)Creating SSH key secret...$(RESET)"; \
+		kubectl create secret generic starexec-ssh-key \
+			--from-file=starexec_ssh_key=../../starexec-containerised/starexec_podman_key; \
 	fi
 
+####################
+# Domain & SSL     #
+####################
 
-depopulate-cluster:
-	@echo "Deleting Ingress..."
-	@kubectl delete -f YAMLFiles/ingress.yaml --wait=true --timeout=1m || echo "Failed to delete ingress."
-	
-	@echo "Deleting Service..."
-	@kubectl delete -f YAMLFiles/service.yaml --wait=true --timeout=1m || echo "Failed to delete service."
-	
-	@echo "Deleting Deployment..."
-	@kubectl delete -f YAMLFiles/deployment.yaml --wait=true --timeout=1m || echo "Failed to delete deployment."
-	
-	@echo "Deleting Headnode Role Binding..."
-	@kubectl delete -f YAMLFiles/headnode-role-binding.yaml --wait=true --timeout=1m || echo "Failed to delete headnode role binding."
-	
-	@echo "Deleting Headnode Role..."
-	@kubectl delete -f YAMLFiles/headnode-role.yaml --wait=true --timeout=1m || echo "Failed to delete headnode role."
-	
-	@echo "Deleting Headnode Service Account..."
-	@kubectl delete -f YAMLFiles/headnode-service-account.yaml --wait=true --timeout=1m || echo "Failed to delete headnode service account."
-	
-	@echo "Deleting PVCs..."
-	@kubectl delete -f YAMLFiles/pvcs.yaml --wait=true --timeout=1m || echo "Failed to delete PVCs."
-	
-	@echo "Deleting Storage..."
-	@kubectl delete -f YAMLFiles/storage.yaml --wait=true --timeout=1m || echo "Failed to delete storage."
-
-
-
-
-
-# For changing the number of nodes in the EKS cluster (applying a change made in configuration.sh)
-update-node-count:
-	@echo "##############################################################################";
-	@echo "Be aware that this Makefile target only updates the number of nodes";
-	@echo "in the cluster according to what's in the configuration.sh file";
-	@echo "";
-	@echo "It does this by doing a full \"terraform apply\" command, however."
-	@echo "##############################################################################";
-	@sleep 10;
-	@AWS_REGION=$$(aws configure list | grep region | awk '{print $$2}' | tr -d "'"); \
-	if [ -z "$$AWS_REGION" ]; then \
-		echo "Please first configure your aws region (you can verify it using 'aws configure list')"; \
-		exit 1; \
-	fi; \
-	terraform apply -var="region=$$AWS_REGION" -auto-approve;
-
-info:
-	kubectl get all --all-namespaces
-
-connect:
-	kubectl exec -it $$(kubectl get pods --selector=app=starexec -o jsonpath='{.items[0].metadata.name}') -- /bin/bash
-
-######################
-# Terraform/EKS/AWS  #
-######################
-
-# Creates EKS infrastructure
-create-cluster:
-	@AWS_REGION=$$(aws configure list | grep region | awk '{print $$2}' | tr -d "'"); \
-	if [ -z "$$AWS_REGION" ]; then \
-		echo "Please first configure your aws region (you can verify it using 'aws configure list')"; \
-		exit 1; \
-	fi; \
-	terraform apply -var="region=$$AWS_REGION" -target=module.vpc -auto-approve; \
-	terraform apply -var="region=$$AWS_REGION" -auto-approve;
-
-# Destroys EKS infrastructure
-destroy-cluster:
-	# run make depopulate-cluster if k8s stuff hasn't been shut down.
-	@AWS_REGION=$$(aws configure list | grep region | awk '{print $$2}' | tr -d "'"); \
-	# run make clean if k8s stuff hasn't been shut down.
-	@if kubectl cluster-info > /dev/null 2>&1; then \
-		echo "Cluster is up. Running make depopulate-cluster..."; \
-		make depopulate-cluster; \
+setup-domain: ## Setup domain forwarding and SSL
+	$(call check_domain)
+	@if aws route53 list-hosted-zones | grep -q "$(DOMAIN)"; then \
+		echo -e "$(GREEN)Setting up domain forwarding...$(RESET)"; \
+		$(MAKE) forward-domain-route53; \
+		echo -e "$(GREEN)Waiting for DNS propagation...$(RESET)"; \
+		sleep 120; \
+		echo -e "$(GREEN)Obtaining SSL certificate...$(RESET)"; \
+		$(MAKE) get-certificate; \
 	else \
-		echo "Cluster is not up. Skipping make depopulate-cluster."; \
+		echo -e "$(YELLOW)Domain $(DOMAIN) not found in Route53$(RESET)"; \
+		echo -e "$(YELLOW)Please manually configure DNS or run 'make get-certificate'$(RESET)"; \
 	fi
-	
-	# # Delete EKS
-	# terraform destroy -var="region=$$AWS_REGION" -target=module.eks -auto-approve
-	# # Delete EFS
-	# terraform destroy -var="region=$$AWS_REGION" -target=module.efs -auto-approve
-	# # # Delete VPC
-	# # terraform destroy -var="region=$$AWS_REGION" -target=module.vpc -auto-approve
-	# Delete Everything else
-	terraform destroy -var="region=$$AWS_REGION" -auto-approve
 
-# Show what *will* be created with "terraform apply" (or make create-cluster)
-plan:
-	terraform plan
+get-certificate: ## Obtain SSL certificate for domain
+	@echo -e "$(BLUE)Obtaining SSL certificate...$(RESET)"
+	$(call check_domain)
+	@POD_NAME=$$(kubectl get pods -l app=starexec -o jsonpath='{.items[0].metadata.name}' 2>/dev/null); \
+	if [ -z "$$POD_NAME" ]; then \
+		echo -e "$(RED)No StarExec pod found$(RESET)"; \
+		exit 1; \
+	fi; \
+	echo "Using pod: $$POD_NAME"; \
+	kubectl cp get_certificate.sh $$POD_NAME:/tmp/get_certificate.sh; \
+	kubectl exec $$POD_NAME -- chmod +x /tmp/get_certificate.sh; \
+	kubectl exec $$POD_NAME -- /tmp/get_certificate.sh $(DOMAIN)
 
-# Initialize terraform state
-init:
-	terraform init -upgrade
+forward-domain-route53: ## Configure Route53 DNS forwarding
+	@echo -e "$(BLUE)Configuring Route53 DNS...$(RESET)"
+	$(call check_domain)
+	@EXTERNAL_DOMAIN=$$(kubectl get svc starexec-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null); \
+	if [ -z "$$EXTERNAL_DOMAIN" ]; then \
+		echo -e "$(RED)Load balancer not ready$(RESET)"; \
+		exit 1; \
+	fi; \
+	ELB_NAME=$$(echo "$$EXTERNAL_DOMAIN" | cut -d'-' -f1); \
+	ELB_ZONE_ID=$$(aws elb describe-load-balancers --load-balancer-names $$ELB_NAME \
+		--query 'LoadBalancerDescriptions[0].CanonicalHostedZoneNameID' --output text); \
+	HOSTED_ZONE_ID=$$(aws route53 list-hosted-zones-by-name --dns-name $(DOMAIN) \
+		--query "HostedZones[?Name=='$(DOMAIN).'].Id" --output text | cut -d'/' -f3); \
+	aws route53 change-resource-record-sets --hosted-zone-id $$HOSTED_ZONE_ID \
+		--change-batch '{"Changes":[{"Action":"UPSERT","ResourceRecordSet":{"Name":"$(DOMAIN).","Type":"A","AliasTarget":{"HostedZoneId":"'$$ELB_ZONE_ID'","DNSName":"'$$EXTERNAL_DOMAIN'.","EvaluateTargetHealth":false}}}]}'; \
+	echo -e "$(GREEN)DNS update completed$(RESET)"
+####################
+# Backup & Restore #
+####################
 
-# Terraform uses stored aws creds to setup kubectl to connect to cluster
-kubectl-setup:
-	aws eks --region $$(terraform output -raw region) update-kubeconfig \
-		--name $$(terraform output -raw cluster_name)
+backup-to-s3: init ## Backup EFS data to S3
+	@echo -e "$(BLUE)Starting EFS to S3 backup...$(RESET)"
+	@$(MAKE) create-s3-bucket
+	@$(MAKE) create-datasync-role
+	@$(MAKE) run-backup-task
 
-######################
-# S3 Backups         #
-######################
+restore-from-s3: init ## Restore EFS data from S3
+	@echo -e "$(BLUE)Starting S3 to EFS restore...$(RESET)"
+	@$(MAKE) create-datasync-role
+	@$(MAKE) run-restore-task
 
-BUCKET_NAME := $(shell terraform output -raw cluster_name | tr '[:upper:]' '[:lower:]')-bucket
-REGION := $(shell terraform output -raw region)
-EFS_FILE_SYSTEM_ID := $(shell terraform output -raw efs_file_system_id)
-DATASYNC_S3_ACCESS_ROLE_NAME := DataSyncS3AccessRole
+download-from-s3: ## Download S3 backup to local directory
+	@echo -e "$(BLUE)Downloading from S3...$(RESET)"
+	@aws s3 sync s3://$(BUCKET_NAME)/ ./s3-backup/ --delete
 
-# Creates S3 bucket (does nothing if already exists)
-create-s3-bucket:
-	@echo "Creating S3 bucket: $(BUCKET_NAME)"
+upload-to-s3: ## Upload local directory to S3
+	@echo -e "$(BLUE)Uploading to S3...$(RESET)"
+	@aws s3 sync ./s3-backup/ s3://$(BUCKET_NAME)/ --delete
+
+create-s3-bucket: ## Create S3 backup bucket (internal)
 	@aws s3api head-bucket --bucket $(BUCKET_NAME) >/dev/null 2>&1 || \
-	aws s3api create-bucket --bucket $(BUCKET_NAME) --create-bucket-configuration LocationConstraint=$(REGION)
+	aws s3api create-bucket --bucket $(BUCKET_NAME) \
+		--create-bucket-configuration LocationConstraint=$(AWS_REGION) --region $(AWS_REGION)
 
-# Creates IAM role for DataSync to access S3
-create-datasync-iam-role:
-	@echo "Creating IAM role for DataSync to access S3"
-	@aws iam get-role --role-name $(DATASYNC_S3_ACCESS_ROLE_NAME) >/dev/null 2>&1 || \
-	aws iam create-role --role-name $(DATASYNC_S3_ACCESS_ROLE_NAME) --assume-role-policy-document file://datasync-trust-policy.json
-	@sed 's/BUCKET_NAME/$(BUCKET_NAME)/g' datasync-s3-access-policy.json.tpl > datasync-s3-access-policy.json
-	@aws iam put-role-policy --role-name $(DATASYNC_S3_ACCESS_ROLE_NAME) --policy-name DataSyncS3AccessPolicy --policy-document file://datasync-s3-access-policy.json
-	@rm datasync-s3-access-policy.json
-
-# Copies data from EFS to S3
-backup-to-s3-from-efs: create-s3-bucket create-datasync-iam-role
-	@echo "Backing-up data from EFS to S3 bucket: $(BUCKET_NAME)"
-	@AWS_ACCOUNT_ID=$$(aws sts get-caller-identity --query 'Account' --output text); \
-	REGION=$(REGION); \
-	EFS_FILE_SYSTEM_ID=$(EFS_FILE_SYSTEM_ID); \
-	EFS_SUBNET_ID=$$(aws efs describe-mount-targets --file-system-id $(EFS_FILE_SYSTEM_ID) --query 'MountTargets[0].SubnetId' --output text); \
-	MOUNT_TARGET_ID=$$(aws efs describe-mount-targets --file-system-id $(EFS_FILE_SYSTEM_ID) --query 'MountTargets[0].MountTargetId' --output text); \
-	EFS_SECURITY_GROUP_IDS=$$(aws efs describe-mount-target-security-groups --mount-target-id $$MOUNT_TARGET_ID --query 'SecurityGroups' --output text); \
-	EFS_SECURITY_GROUP_ARNS="[$$(for sg_id in $$EFS_SECURITY_GROUP_IDS; do printf '"arn:aws:ec2:%s:%s:security-group/%s",' $$REGION $$AWS_ACCOUNT_ID $$sg_id; done | sed 's/,$$//')]"; \
-	EFS_SUBNET_ARN="arn:aws:ec2:$$REGION:$$AWS_ACCOUNT_ID:subnet/$$EFS_SUBNET_ID"; \
-	EFS_FILESYSTEM_ARN="arn:aws:elasticfilesystem:$$REGION:$$AWS_ACCOUNT_ID:file-system/$$EFS_FILE_SYSTEM_ID"; \
-	echo "Creating EFS Location"; \
-	EFS_LOCATION_ARN=$$(aws datasync create-location-efs --efs-filesystem-arn $$EFS_FILESYSTEM_ARN --ec2-config "SubnetArn=$$EFS_SUBNET_ARN,SecurityGroupArns=$$EFS_SECURITY_GROUP_ARNS" --query 'LocationArn' --output text); \
-	DATASYNC_S3_ACCESS_ROLE_ARN=$$(aws iam get-role --role-name $(DATASYNC_S3_ACCESS_ROLE_NAME) --query 'Role.Arn' --output text); \
-	S3_LOCATION_ARN=$$(aws datasync create-location-s3 --s3-bucket-arn arn:aws:s3:::$(BUCKET_NAME) --s3-config '{ "BucketAccessRoleArn": "'"$$DATASYNC_S3_ACCESS_ROLE_ARN"'" }' --query 'LocationArn' --output text); \
-	TASK_ARN=$$(aws datasync create-task --source-location-arn $$EFS_LOCATION_ARN --destination-location-arn $$S3_LOCATION_ARN --name EFS-to-S3-Backup --query 'TaskArn' --output text); \
-	echo "Starting DataSync task $$TASK_ARN"; \
-	EXECUTION_ARN=$$(aws datasync start-task-execution --task-arn $$TASK_ARN --query 'TaskExecutionArn' --output text); \
-	echo "Waiting for DataSync task to complete (Execution arn $$EXECUTION_ARN)"; \
-	while true; do \
-		STATUS=$$(aws datasync describe-task-execution --task-execution-arn $$EXECUTION_ARN --query 'Status' --output text); \
-		BYTES_TRANSFERRED=$$(aws datasync describe-task-execution --task-execution-arn $$EXECUTION_ARN --query 'BytesTransferred' --output text); \
-		BYTES_WRITTEN=$$(aws datasync describe-task-execution --task-execution-arn $$EXECUTION_ARN --query 'BytesWritten' --output text); \
-		echo "Task status: $$STATUS, Bytes transferred: $$BYTES_TRANSFERRED, Bytes written: $$BYTES_WRITTEN"; \
-		if [ "$$BYTES_TRANSFERRED" != "None" ] && [ "$$BYTES_WRITTEN" != "None" ] && [ $$BYTES_TRANSFERRED -ne 0 ]; then \
-			PERCENT=$$(echo "scale=2; $$BYTES_WRITTEN * 100 / $$BYTES_TRANSFERRED" | bc); \
-			echo "Task status: $$STATUS, Progress: $$PERCENT%"; \
-		else \
-			echo "Task status: $$STATUS, Progress: Calculating..."; \
-		fi; \
-		if [ "$$STATUS" = "SUCCESS" ]; then \
-			echo "DataSync task completed successfully"; \
-			break; \
-		elif [ "$$STATUS" = "ERROR" ]; then \
-			ERROR_CODE=$$(aws datasync describe-task-execution --task-execution-arn $$EXECUTION_ARN --query 'Result.ErrorCode' --output text); \
-			ERROR_DETAIL=$$(aws datasync describe-task-execution --task-execution-arn $$EXECUTION_ARN --query 'Result.ErrorDetail' --output text); \
-			echo "DataSync task failed with error code: $$ERROR_CODE"; \
-			echo "Error details: $$ERROR_DETAIL"; \
-			exit 1; \
-		else \
-			sleep 10; \
-		fi; \
-	done
-	echo "Cleaning up DataSync task and locations"; \
-	aws datasync delete-task --task-arn $$TASK_ARN; \
-	aws datasync delete-location --location-arn $$EFS_LOCATION_ARN; \
-	aws datasync delete-location --location-arn $$S3_LOCATION_ARN
-
-# Restores data from S3 back to EFS
-restore-to-efs-from-s3: create-datasync-iam-role
-	@echo "Restoring data from S3 bucket: $(BUCKET_NAME) to EFS file system: $(EFS_FILE_SYSTEM_ID)"
-	@AWS_ACCOUNT_ID=$$(aws sts get-caller-identity --query 'Account' --output text); \
-	REGION=$(REGION); \
-	EFS_FILE_SYSTEM_ID=$(EFS_FILE_SYSTEM_ID); \
-	EFS_SUBNET_ID=$$(aws efs describe-mount-targets --file-system-id $$EFS_FILE_SYSTEM_ID --query 'MountTargets[0].SubnetId' --output text); \
-	MOUNT_TARGET_ID=$$(aws efs describe-mount-targets --file-system-id $$EFS_FILE_SYSTEM_ID --query 'MountTargets[0].MountTargetId' --output text); \
-	EFS_SECURITY_GROUP_IDS=$$(aws efs describe-mount-target-security-groups --mount-target-id $$MOUNT_TARGET_ID --query 'SecurityGroups' --output text); \
-	EFS_SECURITY_GROUP_ARNS="[$$(for sg_id in $$EFS_SECURITY_GROUP_IDS; do printf '"arn:aws:ec2:%s:%s:security-group/%s",' $$REGION $$AWS_ACCOUNT_ID $$sg_id; done | sed 's/,$$//')]"; \
-	EFS_SUBNET_ARN="arn:aws:ec2:$$REGION:$$AWS_ACCOUNT_ID:subnet/$$EFS_SUBNET_ID"; \
-	EFS_FILESYSTEM_ARN="arn:aws:elasticfilesystem:$$REGION:$$AWS_ACCOUNT_ID:file-system/$$EFS_FILE_SYSTEM_ID"; \
-	echo "Creating EFS Location"; \
-	EFS_LOCATION_ARN=$$(aws datasync create-location-efs \
-		--efs-filesystem-arn $$EFS_FILESYSTEM_ARN \
-		--ec2-config "SubnetArn=$$EFS_SUBNET_ARN,SecurityGroupArns=$$EFS_SECURITY_GROUP_ARNS" \
-		--query 'LocationArn' --output text); \
-	DATASYNC_S3_ACCESS_ROLE_ARN=$$(aws iam get-role --role-name $(DATASYNC_S3_ACCESS_ROLE_NAME) --query 'Role.Arn' --output text); \
-	S3_LOCATION_ARN=$$(aws datasync create-location-s3 \
-		--s3-bucket-arn arn:aws:s3:::$(BUCKET_NAME) \
-		--s3-config '{ "BucketAccessRoleArn": "'"$$DATASYNC_S3_ACCESS_ROLE_ARN"'" }' \
-		--query 'LocationArn' --output text); \
-	echo "Creating DataSync task to restore data from S3 to EFS"; \
-	TASK_ARN=$$(aws datasync create-task \
-		--source-location-arn $$S3_LOCATION_ARN \
-		--destination-location-arn $$EFS_LOCATION_ARN \
-		--name S3-to-EFS-Restore \
-		--query 'TaskArn' --output text); \
-	# echo "Creating CloudWatch log group for DataSync task"; \
-	# aws logs create-log-group --log-group-name /aws/datasync/S3-to-EFS-Restore; \
-	# echo "Update DataSync task with CloudWatch logging"; \
-	# aws datasync update-task \
-	# 	--task-arn $$TASK_ARN \
-	# 	--cloud-watch-log-group-arn arn:aws:logs:$$REGION:$$AWS_ACCOUNT_ID:log-group:/aws/datasync/S3-to-EFS-Restore; \
-	echo "Starting DataSync task $$TASK_ARN"; \
-	EXECUTION_ARN=$$(aws datasync start-task-execution \
-		--task-arn $$TASK_ARN \
-		--query 'TaskExecutionArn' --output text); \
-	echo "Waiting for DataSync task to complete (Execution ARN: $$EXECUTION_ARN)"; \
-	while true; do \
-		STATUS=$$(aws datasync describe-task-execution \
-			--task-execution-arn $$EXECUTION_ARN \
-			--query 'Status' --output text); \
-		BYTES_TRANSFERRED=$$(aws datasync describe-task-execution \
-			--task-execution-arn $$EXECUTION_ARN \
-			--query 'BytesTransferred' --output text); \
-		BYTES_WRITTEN=$$(aws datasync describe-task-execution \
-			--task-execution-arn $$EXECUTION_ARN \
-			--query 'BytesWritten' --output text); \
-		echo "Task status: $$STATUS, Bytes transferred: $$BYTES_TRANSFERRED, Bytes written: $$BYTES_WRITTEN"; \
-		if [ "$$BYTES_TRANSFERRED" != "None" ] && [ "$$BYTES_WRITTEN" != "None" ] && [ $$BYTES_TRANSFERRED -ne 0 ]; then \
-			PERCENT=$$(echo "scale=2; $$BYTES_WRITTEN * 100 / $$BYTES_TRANSFERRED" | bc); \
-			echo "Task status: $$STATUS, Progress: $$PERCENT%"; \
-		else \
-			echo "Task status: $$STATUS, Progress: Calculating..."; \
-		fi; \
-		if [ "$$STATUS" = "SUCCESS" ]; then \
-			echo "DataSync task completed successfully"; \
-			break; \
-		elif [ "$$STATUS" = "ERROR" ]; then \
-			ERROR_CODE=$$(aws datasync describe-task-execution \
-				--task-execution-arn $$EXECUTION_ARN \
-				--query 'Result.ErrorCode' --output text); \
-			ERROR_DETAIL=$$(aws datasync describe-task-execution \
-				--task-execution-arn $$EXECUTION_ARN \
-				--query 'Result.ErrorDetail' --output text); \
-			echo "DataSync task failed with error code: $$ERROR_CODE"; \
-			echo "Error details: $$ERROR_DETAIL"; \
-			exit 1; \
-		else \
-			sleep 10; \
-		fi; \
-	done; \
-	echo "Cleaning up DataSync task and locations"; \
-	aws datasync delete-task --task-arn $$TASK_ARN; \
-	aws datasync delete-location --location-arn $$EFS_LOCATION_ARN; \
-	aws datasync delete-location --location-arn $$S3_LOCATION_ARN
-
-# Downloads data from S3
-download-from-s3: create-s3-bucket
-	@echo "Initiating download of S3 bucket ($(BUCKET_NAME)) to ./s3-backup"
-	@aws s3 sync s3://$(BUCKET_NAME)/ ./s3-backup/
-
-# Uploads data to S3
-upload-to-s3:
-	@echo "Initiating upload of ./s3-backup to S3 bucket ($(BUCKET_NAME))"
-	@aws s3 sync ./s3-backup/ s3://$(BUCKET_NAME)/
-
-# Deletes S3 bucket
-delete-s3-bucket:
-	@echo "Deleting S3 bucket: $(BUCKET_NAME)"
+delete-s3-bucket: ## Delete S3 backup bucket
+	@echo -e "$(YELLOW)Deleting S3 bucket: $(BUCKET_NAME)$(RESET)"
 	@aws s3 rb s3://$(BUCKET_NAME) --force
 
-######################
-# S3 Backups         #
-######################
+####################
+# Utilities        #
+####################
 
-# BUCKET_NAME := $(shell terraform output -raw cluster_name)-bucket
+info: ## Show cluster information
+	@echo -e "$(BLUE)Cluster Information:$(RESET)"
+	@kubectl get all --all-namespaces
 
-# # Creates S3 bucket (does nothing if already exists)
-# create-s3-bucket:
-# 	@echo "Creating S3 bucket: $(BUCKET_NAME)"
+connect: ## Connect to StarExec pod
+	@POD_NAME=$$(kubectl get pods -l app=starexec -o jsonpath='{.items[0].metadata.name}' 2>/dev/null); \
+	if [ -z "$$POD_NAME" ]; then \
+		echo -e "$(RED)No StarExec pod found$(RESET)"; \
+		exit 1; \
+	fi; \
+	kubectl exec -it $$POD_NAME -- /bin/bash
 
+clean: ## Clean up local files and stop processes
+	@echo -e "$(YELLOW)Cleaning up...$(RESET)"
+	@pkill -f "kubectl proxy" || true
+	@rm -f YAMLFiles/storage.yaml
+	@rm -f datasync-s3-access-policy.json
 
-# # Copies data from EFS to S3
-# backup-to-s3-from-s3: create-s3-bucket
-# 	@echo "Backing-up data from EFS to S3 bucket: $(BUCKET_NAME)"
+# Internal targets for backup operations
+create-datasync-role: ## Create DataSync IAM role and policies (internal)
+	@echo -e "$(BLUE)Creating DataSync IAM role...$(RESET)"
+	@ROLE_EXISTS=$$(aws iam get-role --role-name DataSyncServiceRole 2>/dev/null || echo "NOT_FOUND"); \
+	if echo "$$ROLE_EXISTS" | grep -q "NOT_FOUND"; then \
+		echo "Creating DataSync service role..."; \
+		aws iam create-role --role-name DataSyncServiceRole \
+			--assume-role-policy-document '{ \
+				"Version": "2012-10-17", \
+				"Statement": [{ \
+					"Effect": "Allow", \
+					"Principal": {"Service": "datasync.amazonaws.com"}, \
+					"Action": "sts:AssumeRole" \
+				}] \
+			}'; \
+		aws iam attach-role-policy --role-name DataSyncServiceRole \
+			--policy-arn arn:aws:iam::aws:policy/service-role/AWSDataSyncServiceRolePolicy; \
+	else \
+		echo "DataSync service role already exists"; \
+	fi
+	@cat > datasync-s3-access-policy.json << 'EOF'
+	{
+		"Version": "2012-10-17",
+		"Statement": [
+			{
+				"Effect": "Allow",
+				"Action": [
+					"s3:GetBucketLocation",
+					"s3:ListBucket",
+					"s3:ListBucketMultipartUploads"
+				],
+				"Resource": "arn:aws:s3:::$(BUCKET_NAME)"
+			},
+			{
+				"Effect": "Allow",
+				"Action": [
+					"s3:AbortMultipartUpload",
+					"s3:DeleteObject",
+					"s3:GetObject",
+					"s3:GetObjectTagging",
+					"s3:ListMultipartUploadParts",
+					"s3:PutObject",
+					"s3:PutObjectTagging"
+				],
+				"Resource": "arn:aws:s3:::$(BUCKET_NAME)/*"
+			}
+		]
+	}
+	EOF
+	@POLICY_EXISTS=$$(aws iam get-role-policy --role-name DataSyncServiceRole --policy-name DataSyncS3AccessPolicy 2>/dev/null || echo "NOT_FOUND"); \
+	if echo "$$POLICY_EXISTS" | grep -q "NOT_FOUND"; then \
+		echo "Creating S3 access policy..."; \
+		aws iam put-role-policy --role-name DataSyncServiceRole \
+			--policy-name DataSyncS3AccessPolicy \
+			--policy-document file://datasync-s3-access-policy.json; \
+	else \
+		echo "S3 access policy already exists"; \
+	fi
 
-# # Restores data from S3 back to EFS
-# restore-to-efs-from-s3:
-# 	@echo "Restoring data from S3 bucket ($(BUCKET_NAME)) to EFS"
+run-backup-task: ## Execute EFS to S3 backup using DataSync (internal)
+	@echo -e "$(BLUE)Setting up and running backup task...$(RESET)"
+	$(call check_aws_config)
+	@if [ -z "$(EFS_ID)" ]; then \
+		exit 1; \
+	fi
+	@ACCOUNT_ID=$$(aws sts get-caller-identity --query Account --output text); \
+	 VPC_ID=$$(terraform output -raw vpc_id); \
+	 SUBNET_ID=$$(terraform output -raw private_subnets | jq -r '.[0]'); \
+	 SECURITY_GROUP_ID=$$(terraform output -raw worker_security_group_id); \
+	 echo -e "$(BLUE)Creating DataSync locations...$(RESET)"
+	@EFS_LOCATION_ARN=$$(aws datasync create-location-efs \
+		--efs-filesystem-arn "arn:aws:elasticfilesystem:$(AWS_REGION):$$ACCOUNT_ID:file-system/$(EFS_ID)" \
+		--ec2-config SubnetArn="arn:aws:ec2:$(AWS_REGION):$$ACCOUNT_ID:subnet/$$SUBNET_ID",SecurityGroupArns="arn:aws:ec2:$(AWS_REGION):$$ACCOUNT_ID:security-group/$$SECURITY_GROUP_ID" \
+		--query LocationArn --output text 2>/dev/null || \
+		aws datasync list-locations --query 'Locations[?contains(LocationUri, `$(EFS_ID)`)].LocationArn' --output text | head -1)
+	@S3_LOCATION_ARN=$$(aws datasync create-location-s3 \
+		--s3-bucket-arn "arn:aws:s3:::$(BUCKET_NAME)" \
+		--s3-config BucketAccessRoleArn="arn:aws:iam::$$ACCOUNT_ID:role/DataSyncServiceRole" \
+		--query LocationArn --output text 2>/dev/null || \
+		aws datasync list-locations --query 'Locations[?contains(LocationUri, `$(BUCKET_NAME)`)].LocationArn' --output text | head -1)
+	@echo -e "$(BLUE)Creating backup task...$(RESET)"
+	@TASK_ARN=$$(aws datasync create-task \
+		--source-location-arn "$$EFS_LOCATION_ARN" \
+		--destination-location-arn "$$S3_LOCATION_ARN" \
+		--name "starexec-efs-backup-$$(date +%Y%m%d-%H%M%S)" \
+		--options VerifyMode=POINT_IN_TIME_CONSISTENT,OverwriteMode=ALWAYS,Atime=BEST_EFFORT,Mtime=PRESERVE,Uid=INT_VALUE,Gid=INT_VALUE,PreserveDeletedFiles=PRESERVE,PreserveDevices=NONE,PosixPermissions=PRESERVE,BytesPerSecond=-1,TaskQueueing=ENABLED,LogLevel=TRANSFER \
+		--query TaskArn --output text)
+	@echo -e "$(GREEN)Starting backup task: $$TASK_ARN$(RESET)"
+	@EXECUTION_ARN=$$(aws datasync start-task-execution --task-arn "$$TASK_ARN" --query TaskExecutionArn --output text)
+	@echo -e "$(BLUE)Monitoring backup progress (Execution: $$EXECUTION_ARN)$(RESET)"
+	@while true; do \
+		STATUS=$$(aws datasync describe-task-execution --task-execution-arn "$$EXECUTION_ARN" --query Status --output text); \
+		case "$$STATUS" in \
+			"QUEUED"|"LAUNCHING"|"PREPARING"|"TRANSFERRING"|"VERIFYING") \
+				echo -e "$(YELLOW)Backup status: $$STATUS$(RESET)"; \
+				sleep 30; \
+				;; \
+			"SUCCESS") \
+				echo -e "$(GREEN)Backup completed successfully$(RESET)"; \
+				aws datasync describe-task-execution --task-execution-arn "$$EXECUTION_ARN" \
+					--query '{FilesTransferred:FilesTransferred,BytesTransferred:BytesTransferred,Status:Status}' \
+					--output table; \
+				break; \
+				;; \
+			"ERROR") \
+				echo -e "$(RED)Backup failed$(RESET)"; \
+				aws datasync describe-task-execution --task-execution-arn "$$EXECUTION_ARN" \
+					--query '{Status:Status,ErrorCode:ErrorCode,ErrorDetail:ErrorDetail}' \
+					--output table; \
+				exit 1; \
+				;; \
+			*) \
+				echo -e "$(RED)Unknown status: $$STATUS$(RESET)"; \
+				exit 1; \
+				;; \
+		esac; \
+	done
 
-# # Downloads data from S3
-# download-from-s3: create-s3-bucket
-# 	@echo "Initiating download of S3 bucket ($(BUCKET_NAME)) to ./s3-backup"
-
-# # Uploads data to S3
-# upload-to-s3:
-# 	@echo "Initiating upload of ./s3-backup to S3 bucket ($(BUCKET_NAME))"
-
-# # Deletes S3 bucket
-# delete-s3-bucket:
-# 	@echo "Deleting S3 bucket: $(BUCKET_NAME)"
-
-
-
-
-
-
+run-restore-task: ## Execute S3 to EFS restore using DataSync (internal)
+	@echo -e "$(BLUE)Setting up and running restore task...$(RESET)"
+	$(call check_aws_config)
+	@if [ -z "$(EFS_ID)" ]; then \
+		echo -e "$(RED)Error: EFS ID not found$(RESET)"; \
+		exit 1; \
+	fi
+	@if ! aws s3api head-bucket --bucket $(BUCKET_NAME) >/dev/null 2>&1; then \
+		echo -e "$(RED)Error: S3 bucket $(BUCKET_NAME) does not exist$(RESET)"; \
+		exit 1; \
+	fi
+	@echo -e "$(YELLOW)WARNING: This will overwrite existing data in EFS$(RESET)"
+	@sleep 10
+	@ACCOUNT_ID=$$(aws sts get-caller-identity --query Account --output text); \
+	 VPC_ID=$$(terraform output -raw vpc_id); \
+	 SUBNET_ID=$$(terraform output -raw private_subnets | jq -r '.[0]'); \
+	 SECURITY_GROUP_ID=$$(terraform output -raw worker_security_group_id); \
+	 echo -e "$(BLUE)Creating DataSync locations...$(RESET)"
+	@S3_LOCATION_ARN=$$(aws datasync create-location-s3 \
+		--s3-bucket-arn "arn:aws:s3:::$(BUCKET_NAME)" \
+		--s3-config BucketAccessRoleArn="arn:aws:iam::$$ACCOUNT_ID:role/DataSyncServiceRole" \
+		--query LocationArn --output text 2>/dev/null || \
+		aws datasync list-locations --query 'Locations[?contains(LocationUri, `$(BUCKET_NAME)`)].LocationArn' --output text | head -1)
+	@EFS_LOCATION_ARN=$$(aws datasync create-location-efs \
+		--efs-filesystem-arn "arn:aws:elasticfilesystem:$(AWS_REGION):$$ACCOUNT_ID:file-system/$(EFS_ID)" \
+		--ec2-config SubnetArn="arn:aws:ec2:$(AWS_REGION):$$ACCOUNT_ID:subnet/$$SUBNET_ID",SecurityGroupArns="arn:aws:ec2:$(AWS_REGION):$$ACCOUNT_ID:security-group/$$SECURITY_GROUP_ID" \
+		--query LocationArn --output text 2>/dev/null || \
+		aws datasync list-locations --query 'Locations[?contains(LocationUri, `$(EFS_ID)`)].LocationArn' --output text | head -1)
+	@echo -e "$(BLUE)Creating restore task...$(RESET)"
+	@TASK_ARN=$$(aws datasync create-task \
+		--source-location-arn "$$S3_LOCATION_ARN" \
+		--destination-location-arn "$$EFS_LOCATION_ARN" \
+		--name "starexec-efs-restore-$$(date +%Y%m%d-%H%M%S)" \
+		--options VerifyMode=POINT_IN_TIME_CONSISTENT,OverwriteMode=ALWAYS,Atime=BEST_EFFORT,Mtime=PRESERVE,Uid=INT_VALUE,Gid=INT_VALUE,PreserveDeletedFiles=REMOVE,PreserveDevices=NONE,PosixPermissions=PRESERVE,BytesPerSecond=-1,TaskQueueing=ENABLED,LogLevel=TRANSFER \
+		--query TaskArn --output text)
+	@echo -e "$(GREEN)Starting restore task: $$TASK_ARN$(RESET)"
+	@EXECUTION_ARN=$$(aws datasync start-task-execution --task-arn "$$TASK_ARN" --query TaskExecutionArn --output text)
+	@echo -e "$(BLUE)Monitoring restore progress (Execution: $$EXECUTION_ARN)$(RESET)"
+	@while true; do \
+		STATUS=$$(aws datasync describe-task-execution --task-execution-arn "$$EXECUTION_ARN" --query Status --output text); \
+		case "$$STATUS" in \
+			"QUEUED"|"LAUNCHING"|"PREPARING"|"TRANSFERRING"|"VERIFYING") \
+				echo -e "$(YELLOW)Restore status: $$STATUS$(RESET)"; \
+				sleep 30; \
+				;; \
+			"SUCCESS") \
+				echo -e "$(GREEN)Restore completed successfully$(RESET)"; \
+				aws datasync describe-task-execution --task-execution-arn "$$EXECUTION_ARN" \
+					--query '{FilesTransferred:FilesTransferred,BytesTransferred:BytesTransferred,Status:Status}' \
+					--output table; \
+				break; \
+				;; \
+			"ERROR") \
+				echo -e "$(RED)Restore failed$(RESET)"; \
+				aws datasync describe-task-execution --task-execution-arn "$$EXECUTION_ARN" \
+					--query '{Status:Status,ErrorCode:ErrorCode,ErrorDetail:ErrorDetail}' \
+					--output table; \
+				exit 1; \
+				;; \
+			*) \
+				echo -e "$(RED)Unknown status: $$STATUS$(RESET)"; \
+				exit 1; \
+				;; \
+		esac; \
+	done
+	@echo -e "$(GREEN)Restore operation completed. You may need to restart pods to pick up restored data.$(RESET)"
 
