@@ -23,7 +23,7 @@ RESET  := \033[0m
 
 # Configuration variables
 # These are evaluated when used (due to =) to ensure terraform init may have run.
-DOMAIN = $(shell ./configuration.sh domain 2>/dev/null || echo "")
+DOMAIN = $(if $(origin DOMAIN),$(DOMAIN),$(shell ./configuration.sh domain 2>/dev/null || echo "")
 # Use AWS_REGION from environment, or fallback to aws configure get region
 AWS_REGION := $(if $(origin AWS_REGION),$(AWS_REGION),$(shell aws configure get region 2>/dev/null || echo ""))
 # Use fallback cluster name if terraform is not installed or not initialized
