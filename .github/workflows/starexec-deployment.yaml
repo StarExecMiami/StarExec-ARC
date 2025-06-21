@@ -10,6 +10,7 @@ jobs:
   deploy:
     name: Deploy StarExec to AWS
     runs-on: ubuntu-latest
+    environment: development
 
     env:
       AWS_REGION: us-east-1
