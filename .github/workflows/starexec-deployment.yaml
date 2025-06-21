@@ -25,6 +25,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Cache Terraform plugins and modules
+        uses: actions/cache@v3
+        with:
+          path: |
+              ~/.terraform.d/plugin-cache
+              starexec-kubernetes/terraform/.terraform
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
+          restore-keys: |
+              ${{ runner.os }}-terraform-
+
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -56,3 +66,11 @@ jobs:
       - name: Show cluster information
         run: make info
         working-directory: starexec-kubernetes/terraform
+
+      - name: Notify deployment success
+        if: success()
+        run: echo "Deployment completed successfully!"
+
+      - name: Notify deployment failure
+        if: failure()
+        run: echo "Deployment failed. Please check the logs."
