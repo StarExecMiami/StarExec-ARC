@@ -3,11 +3,13 @@
 
 terraform {
 
-  # cloud {
-  #   workspaces {
-  #     name = "learn-terraform-eks"
-  #   }
-  # }
+  backend "s3" {
+    bucket         = "starexec-kubernetes-terraform-state-cw7u822f"
+    key            = "terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "starexec-kubernetes-terraform-locks"
+    encrypt        = true
+  }
 
   required_providers {
     aws = {
