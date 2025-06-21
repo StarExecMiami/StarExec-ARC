@@ -30,6 +30,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y make jq
 
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.7
+
       - name: Initialize Terraform
         run: make init
         working-directory: starexec-kubernetes/terraform
