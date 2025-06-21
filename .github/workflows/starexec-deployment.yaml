@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      AWS_REGION: us-east-1 # Update this to your desired AWS region
+      AWS_REGION: us-east-1
 
     steps:
       - name: Checkout repository
@@ -46,6 +46,8 @@ jobs:
       - name: Plan Terraform changes
         run: make plan
         working-directory: starexec-kubernetes/terraform
+        env:
+          AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
 
       - name: Deploy infrastructure
         run: make default
