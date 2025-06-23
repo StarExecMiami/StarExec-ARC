@@ -122,7 +122,7 @@ destroy-cluster: ## Destroy EKS cluster and infrastructure
 kubectl-setup: ## Configure kubectl
 	@echo -e "$(BLUE)Configuring kubectl...$(RESET)"
 	@echo "Reading cluster name from .cluster_name file..."
-	CLUSTER_NAME_FOR_KUBECTL=$$(cat .cluster_name | tr -d '\r\n'); \
+	CLUSTER_NAME_FOR_KUBECTL=$$(grep -o 'starexec-eks-[-a-zA-Z0-9]*' .cluster_name | tail -n 1 | tr -d '\r\n'); \
 	echo "Cluster name is: '$$CLUSTER_NAME_FOR_KUBECTL'"; \
 	aws eks update-kubeconfig --name "$$CLUSTER_NAME_FOR_KUBECTL" --region $(AWS_REGION)
 
