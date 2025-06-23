@@ -122,7 +122,8 @@ destroy-cluster: ## Destroy EKS cluster and infrastructure
 kubectl-setup: ## Configure kubectl
 	@echo -e "$(BLUE)Configuring kubectl...$(RESET)"
 	@echo "Reading cluster name from .cluster_name file..."
-	CLUSTER_NAME_FOR_KUBECTL=$$(grep -o 'starexec-eks-[-a-zA-Z0-9]*' .cluster_name | tail -n 1 | tr -d '\r\n'); \
+	@# In CI, the .cluster_name file can contain extra debug output. Grep extracts the real name.
+	CLUSTER_NAME_FOR_KUBECTL=$$(grep -o 'starexec-eks-[a-zA-Z0-9-]*' .cluster_name | head -n 1); \
 	echo "Cluster name is: '$$CLUSTER_NAME_FOR_KUBECTL'"; \
 	aws eks update-kubeconfig --name "$$CLUSTER_NAME_FOR_KUBECTL" --region $(AWS_REGION)
 
@@ -145,10 +146,17 @@ depopulate-cluster: ## Remove StarExec from cluster
 		kubectl delete -f YAMLFiles/$$file.yaml --wait=true --timeout=300s || true; \
 	done
 
-label-nodes: enable-k8s-proxy ## Label cluster nodes appropriately
+label-nodes: ## Label cluster nodes appropriately
+	@echo -e "$(BLUE)Starting Kubernetes API proxy for node labeling...$(RESET)"
+	@pkill -f "kubectl proxy" || true
+	@kubectl proxy >/tmp/kubectl-proxy.log 2>&1 &
+	@PROXY_PID=$$!
+	@trap "echo 'Stopping Kubernetes API proxy...'; kill $$PROXY_PID || true" EXIT
+	@sleep 5 # Wait for proxy to be ready
+	@echo "Proxy started with PID $$PROXY_PID"
 	@echo -e "$(BLUE)Labeling cluster nodes...$(RESET)"
 	@for node in $$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}'); do \
-		nodegroup=$$(kubectl get node $$node -o jsonpath='{.metadata.labels.eks\.amazonaws\.com/nodegroup}'); \
+		nodegroup=$$(kubectl get node $$node -o jsonpath='{.metadata.labels.eks\\.amazonaws\\.com/nodegroup}'); \
 		if echo "$$nodegroup" | grep -q "computenodes"; then \
 			echo "Labeling compute node: $$node"; \
 			kubectl label nodes $$node nodegroup=computenodes --overwrite; \
@@ -165,12 +173,6 @@ add-extended-resource: ## Add extended resource to node (internal)
 		--request PATCH \
 		--data '[{"op": "add", "path": "/status/capacity/example.com~1unicorn", "value": "1"}]' \
 		"http://localhost:8001/api/v1/nodes/$(NODE)/status" >/dev/null || true
-
-enable-k8s-proxy: ## Enable Kubernetes API proxy
-	@echo -e "$(BLUE)Starting Kubernetes API proxy...$(RESET)"
-	@pkill -f "kubectl proxy" || true
-	@sleep 2
-	@kubectl proxy >/dev/null 2>&1 &
 
 cache-prover-image: ## Cache prover image on cluster nodes
 	@if [ -z "$(prover_image)" ]; then \
