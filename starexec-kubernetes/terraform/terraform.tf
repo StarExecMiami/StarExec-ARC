@@ -4,7 +4,7 @@
 terraform {
 
   backend "s3" {
-    bucket         = "starexec-kubernetes-terraform-state-cw7u822f"
+    bucket         = "starexec-kubernetes-terraform-state-kxiu6ah2"
     key            = "terraform.tfstate"
     region         = "us-east-1"
     dynamodb_table = "starexec-kubernetes-terraform-locks"
