@@ -23,9 +23,10 @@ RESET  := \033[0m
 
 # Configuration variables
 # These are evaluated when used (due to =) to ensure terraform init may have run.
-DOMAIN ?= $(shell ./configuration.sh domain 2>/dev/null || echo "starexec-arc.net")
-# Use AWS_REGION from environment, or fallback to aws configure get region
-AWS_REGION ?= $(shell aws configure get region 2>/dev/null || echo "us-east-1")
+# Try to get DOMAIN from configuration.sh, fallback to terraform output, then default
+DOMAIN ?= $(shell terraform output -raw domain_name 2>/dev/null || echo "starexec-arc.net")
+# Use AWS_REGION from environment, or fallback to terraform output, then aws configure get region
+AWS_REGION ?= $(shell terraform output -raw region 2>/dev/null || aws configure get region 2>/dev/null || echo "us-east-1")
 # Use fallback cluster name if terraform is not installed or not initialized
 # CLUSTER_NAME = $(shell command -v terraform >/dev/null 2>&1 && terraform output -raw cluster_name 2>/dev/null || echo "starexec-cluster")
 BUCKET_NAME = $(shell echo "$(CLUSTER_NAME)" | tr '[:upper:]' '[:lower:]')-backup
