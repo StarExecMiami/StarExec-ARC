@@ -18,8 +18,7 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
-      DOMAIN:
-        ${{ secrets.DOMAIN }} 
+      DOMAIN: ${{ secrets.DOMAIN || '' }}
 
     steps:
       - name: Checkout repository
