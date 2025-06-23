@@ -121,10 +121,10 @@ jobs:
             -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
           echo "url=https://$HOST" >> $GITHUB_OUTPUT
 
-      - name: Display Service URL
+      - name: Add Service URL to GitHub Actions summary
         run: |
-          echo "⭐ StarExec is available at ${{ steps.lb_url.outputs.url }}"
-          echo "::notice::🌐 Service URL: ${{ steps.lb_url.outputs.url }}"
+          echo "### ✅ StarExec Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [Access the app here](${{ steps.lb_url.outputs.url }})" >> $GITHUB_STEP_SUMMARY
 
       - name: Notify deployment success
         if: success()
