@@ -69,7 +69,7 @@ jobs:
           make plan > plan.log 2>&1 || (
             echo "Plan failed or timed out, attempting to force unlock..."
             cat plan.log
-            LOCK_ID=$(grep 'ID:' plan.log | awk '{print $NF}')
+            LOCK_ID=$(grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' plan.log | head -n 1)
             if [ -n "$LOCK_ID" ]; then
               echo "Attempting to unlock with ID: $LOCK_ID"
               terraform force-unlock -force "$LOCK_ID" || true
@@ -86,7 +86,7 @@ jobs:
           make default > deploy.log 2>&1 || (
             echo "Deploy failed or timed out, attempting to force unlock..."
             cat deploy.log
-            LOCK_ID=$(grep 'ID:' deploy.log | awk '{print $NF}')
+            LOCK_ID=$(grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' deploy.log | head -n 1)
             if [ -n "$LOCK_ID" ]; then
               echo "Attempting to unlock with ID: $LOCK_ID"
               terraform force-unlock -force "$LOCK_ID" || true
