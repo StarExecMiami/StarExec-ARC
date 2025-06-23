@@ -27,7 +27,7 @@ DOMAIN ?= $(if $(origin DOMAIN),$(DOMAIN),$(shell ./configuration.sh domain 2>/d
 # Use AWS_REGION from environment, or fallback to aws configure get region
 AWS_REGION ?= $(if $(origin AWS_REGION),$(AWS_REGION),$(shell aws configure get region 2>/dev/null || echo "us-east-1"))
 # Use fallback cluster name if terraform is not installed or not initialized
-CLUSTER_NAME = $(shell command -v terraform >/dev/null 2>&1 && terraform output -raw cluster_name 2>/dev/null || echo "starexec-cluster")
+# CLUSTER_NAME = $(shell command -v terraform >/dev/null 2>&1 && terraform output -raw cluster_name 2>/dev/null || echo "starexec-cluster")
 BUCKET_NAME = $(shell echo "$(CLUSTER_NAME)" | tr '[:upper:]' '[:lower:]')-backup
 EFS_ID = $(shell terraform output -raw efs_file_system_id 2>/dev/null || echo "")
 
@@ -60,7 +60,7 @@ help: ## Show this help message
 	@echo -e "$(GREEN)Usage:$(RESET) make [target]"
 	@echo ""
 	@echo -e "$(GREEN)Main Targets:$(RESET)"
-	@awk 'BEGIN {FS = ":.*## "} /^[^[:space:]].*## / {printf "  $(YELLOW)%-20s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*## "} /^[^[:space:]].*## / {printf "  $(YELLOW)%-20s$(RESET) %s\\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 # Default deployment pipeline
 default: ## Run complete deployment pipeline
@@ -98,14 +98,15 @@ plan: ## Show Terraform execution plan
 	@echo -e "$(BLUE)Planning Terraform changes...$(RESET)"
 	$(call check_terraform_init)
 	$(call check_aws_config)
-	@terraform plan -var="region=$(AWS_REGION)"
+	@terraform plan -var="region=$(AWS_REGION)" -var="domain=$(DOMAIN)"
 
 create-cluster: ## Create EKS cluster and infrastructure
-	@echo -e "$(BLUE)Creating EKS cluster...$(RESET)"
+	@echo -e "$(BLUE)Creating EKS cluster and infrastructure...$(RESET)"
 	$(call check_terraform_init)
-	$(call check_aws_config)
-	@terraform apply -var="region=$(AWS_REGION)" -target=module.vpc -auto-approve
-	@terraform apply -var="region=$(AWS_REGION)" -auto-approve
+	@terraform apply -var-file="terraform.tfvars" -auto-approve
+	@echo "Saving cluster name to .cluster_name file..."
+	@terraform output -raw cluster_name > .cluster_name
+	@echo "Cluster name saved."
 
 destroy-cluster: ## Destroy EKS cluster and infrastructure
 	@echo -e "$(YELLOW)Destroying EKS cluster...$(RESET)"
@@ -116,24 +117,17 @@ destroy-cluster: ## Destroy EKS cluster and infrastructure
 	fi
 	@terraform destroy -var="region=$(AWS_REGION)" -auto-approve
 
-kubectl-setup: ## Configure kubectl for EKS cluster
+# Configure kubectl
+#=======================================================================================================================
+kubectl-setup: ## Configure kubectl
 	@echo -e "$(BLUE)Configuring kubectl...$(RESET)"
-	$(call check_aws_config)
-	@CLUSTER_NAME_FOR_KUBECTL=$$(terraform output -raw cluster_name); \
-	aws eks --region $(AWS_REGION) update-kubeconfig \
-		--name $$CLUSTER_NAME_FOR_KUBECTL
+	@echo "Reading cluster name from .cluster_name file..."
+	CLUSTER_NAME_FOR_KUBECTL=$$(cat .cluster_name | tr -d '\r\n'); \
+	echo "Cluster name is: '$$CLUSTER_NAME_FOR_KUBECTL'"; \
+	aws eks update-kubeconfig --name "$$CLUSTER_NAME_FOR_KUBECTL" --region $(AWS_REGION)
 
-update-node-count: ## Update EKS node group size
-	@echo -e "$(YELLOW)Updating node count...$(RESET)"
-	@echo -e "$(YELLOW)This will apply all Terraform changes$(RESET)"
-	@sleep 5
-	$(call check_aws_config)
-	@terraform apply -var="region=$(AWS_REGION)" -auto-approve
-
-####################
-# Kubernetes       #
-####################
-
+# Deploy StarExec to the cluster
+#=======================================================================================================================
 populate-cluster: label-nodes ## Deploy StarExec to cluster
 	@echo -e "$(BLUE)Deploying StarExec...$(RESET)"
 	@export EFS_ID=$(EFS_ID) && \
