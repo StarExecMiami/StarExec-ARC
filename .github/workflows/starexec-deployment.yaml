@@ -69,7 +69,7 @@ jobs:
           if ! make plan; then
             echo "Plan failed or timed out, attempting to force unlock..."
             # Extract lock ID from the error output
-            LOCK_ID=$(make plan 2>&1 | grep -o 'ID:.*[0-9a-f-]\{36\}' | cut -d' ' -f2 | head -1)
+            LOCK_ID=$(make plan 2>&1 | grep -A1 "ID:" | tail -1 | tr -d ' ' | head -1)
             if [ -n "$LOCK_ID" ]; then
               echo "Attempting to unlock with ID: $LOCK_ID"
               terraform force-unlock -force "$LOCK_ID" || true
@@ -86,7 +86,7 @@ jobs:
           if ! make default; then
             echo "Deploy failed or timed out, attempting to force unlock..."
             # Extract lock ID from the error output
-            LOCK_ID=$(make default 2>&1 | grep -o 'ID:.*[0-9a-f-]\{36\}' | cut -d' ' -f2 | head -1)
+            LOCK_ID=$(make default 2>&1 | grep -A1 "ID:" | tail -1 | tr -d ' ' | head -1)
             if [ -n "$LOCK_ID" ]; then
               echo "Attempting to unlock with ID: $LOCK_ID"
               terraform force-unlock -force "$LOCK_ID" || true
