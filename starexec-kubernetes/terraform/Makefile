@@ -29,7 +29,7 @@ AWS_REGION ?= $(shell aws configure get region 2>/dev/null || echo "us-east-1")
 # Use fallback cluster name if terraform is not installed or not initialized
 # CLUSTER_NAME = $(shell command -v terraform >/dev/null 2>&1 && terraform output -raw cluster_name 2>/dev/null || echo "starexec-cluster")
 BUCKET_NAME = $(shell echo "$(CLUSTER_NAME)" | tr '[:upper:]' '[:lower:]')-backup
-EFS_ID = $(shell terraform output -raw efs_file_system_id 2>/dev/null || echo "")
+EFS_ID = $(shell terraform output -raw efs_file_system_id 2>/dev/null | grep -o 'fs-[0-9a-f]*' | head -n 1 || echo "")
 
 # Validation helpers
 define check_aws_config
@@ -132,9 +132,9 @@ kubectl-setup: ## Configure kubectl
 populate-cluster: label-nodes ## Deploy StarExec to cluster
 	@echo -e "$(BLUE)Deploying StarExec...$(RESET)"
 	@export EFS_ID=$(EFS_ID) && \
-	export VOLDB_LABEL=$$(terraform output -raw efs_voldb_access_point_id) && \
-	export VOLSTAR_LABEL=$$(terraform output -raw efs_volstar_access_point_id) && \
-	export VOLPRO_LABEL=$$(terraform output -raw efs_volpro_access_point_id) && \
+	export VOLDB_LABEL=$$(terraform output -raw efs_voldb_access_point_id | grep -o 'fsap-[0-9a-f]*' | head -n 1) && \
+	export VOLSTAR_LABEL=$$(terraform output -raw efs_volstar_access_point_id | grep -o 'fsap-[0-9a-f]*' | head -n 1) && \
+	export VOLPRO_LABEL=$$(terraform output -raw efs_volpro_access_point_id | grep -o 'fsap-[0-9a-f]*' | head -n 1) && \
 	envsubst < YAMLFiles/storage.yaml.template > YAMLFiles/storage.yaml
 	@cd YAMLFiles && kubectl apply -f .
 	@$(MAKE) setup-ssh-keys
