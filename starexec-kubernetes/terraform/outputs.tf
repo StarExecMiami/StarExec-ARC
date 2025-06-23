@@ -62,7 +62,7 @@ output "prover_image" {
 # Output the external IP of the starexec-service LoadBalancer
 output "starexec_service_loadbalancer_ip" {
   description = "The external IP of the starexec-service LoadBalancer"
-  value       = try(
+  value = try(
     data.kubernetes_service.starexec_service.status[0].load_balancer[0].ingress[0].ip,
     "not-available"
   )
