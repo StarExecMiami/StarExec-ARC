@@ -98,14 +98,14 @@ plan: ## Show Terraform execution plan
 	@echo -e "$(BLUE)Planning Terraform changes...$(RESET)"
 	$(call check_terraform_init)
 	$(call check_aws_config)
-	@terraform plan -var="region=$(AWS_REGION)"
+	@terraform plan -var="region=$(AWS_REGION)" -var="domain=$(DOMAIN)"
 
 create-cluster: ## Create EKS cluster and infrastructure
 	@echo -e "$(BLUE)Creating EKS cluster...$(RESET)"
 	$(call check_terraform_init)
 	$(call check_aws_config)
-	@terraform apply -var="region=$(AWS_REGION)" -target=module.vpc -auto-approve
-	@terraform apply -var="region=$(AWS_REGION)" -auto-approve
+	@terraform apply -var="region=$(AWS_REGION)" -var="domain=$(DOMAIN)" -target=module.vpc -auto-approve
+	@terraform apply -var="region=$(AWS_REGION)" -var="domain=$(DOMAIN)" -auto-approve
 
 destroy-cluster: ## Destroy EKS cluster and infrastructure
 	@echo -e "$(YELLOW)Destroying EKS cluster...$(RESET)"
@@ -114,20 +114,21 @@ destroy-cluster: ## Destroy EKS cluster and infrastructure
 		echo -e "$(YELLOW)Cleaning up Kubernetes resources...$(RESET)"; \
 		$(MAKE) depopulate-cluster; \
 	fi
-	@terraform destroy -var="region=$(AWS_REGION)" -auto-approve
+	@terraform destroy -var="region=$(AWS_REGION)" -var="domain=$(DOMAIN)" -auto-approve
 
 kubectl-setup: ## Configure kubectl for EKS cluster
 	@echo -e "$(BLUE)Configuring kubectl...$(RESET)"
 	$(call check_aws_config)
-	@aws eks --region $(AWS_REGION) update-kubeconfig \
-		--name $(CLUSTER_NAME)
+	@CLUSTER_NAME_FOR_KUBECTL=$$(terraform output -raw cluster_name); \
+	aws eks --region $(AWS_REGION) update-kubeconfig \
+		--name $$CLUSTER_NAME_FOR_KUBECTL
 
 update-node-count: ## Update EKS node group size
 	@echo -e "$(YELLOW)Updating node count...$(RESET)"
 	@echo -e "$(YELLOW)This will apply all Terraform changes$(RESET)"
 	@sleep 5
 	$(call check_aws_config)
-	@terraform apply -var="region=$(AWS_REGION)" -auto-approve
+	@terraform apply -var="region=$(AWS_REGION)" -var="domain=$(DOMAIN)" -auto-approve
 
 ####################
 # Kubernetes       #
