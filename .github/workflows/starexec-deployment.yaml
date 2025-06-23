@@ -77,6 +77,10 @@ jobs:
               echo "Could not extract lock ID, skipping unlock"
             fi
             echo "Retrying plan after unlock attempt..."
+            make plan
+          fi
+        working-directory: starexec-kubernetes/terraform
+
       - name: Deploy infrastructure
         run: |
           if ! make default; then
