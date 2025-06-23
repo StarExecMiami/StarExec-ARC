@@ -156,11 +156,15 @@ label-nodes: ## Label cluster nodes appropriately
 	@echo "Proxy started with PID $$PROXY_PID"
 	@echo -e "$(BLUE)Labeling cluster nodes...$(RESET)"
 	@for node in $$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}'); do \
-		nodegroup=$$(kubectl get node $$node -o jsonpath='{.metadata.labels.eks\\.amazonaws\\.com/nodegroup}'); \
+		nodegroup=$$(kubectl get node $$node -o jsonpath='{.metadata.labels.eks\.amazonaws\.com/nodegroup}'); \
 		if echo "$$nodegroup" | grep -q "computenodes"; then \
 			echo "Labeling compute node: $$node"; \
 			kubectl label nodes $$node nodegroup=computenodes --overwrite; \
-			$(MAKE) add-extended-resource NODE=$$node; \
+			echo "Adding extended resource to node: $$node"; \
+			curl -s --header "Content-Type: application/json-patch+json" \
+				--request PATCH \
+				--data '[{"op": "add", "path": "/status/capacity/example.com~1unicorn", "value": "1"}]' \
+				"http://localhost:8001/api/v1/nodes/$$node/status" >/dev/null || true; \
 		elif echo "$$nodegroup" | grep -q "headnode"; then \
 			echo "Labeling head node: $$node"; \
 			kubectl label nodes $$node nodegroup=headnode --overwrite; \
@@ -169,10 +173,10 @@ label-nodes: ## Label cluster nodes appropriately
 	@kubectl get nodes -L nodegroup
 
 add-extended-resource: ## Add extended resource to node (internal)
-	@curl -s --header "Content-Type: application/json-patch+json" \
-		--request PATCH \
-		--data '[{"op": "add", "path": "/status/capacity/example.com~1unicorn", "value": "1"}]' \
-		"http://localhost:8001/api/v1/nodes/$(NODE)/status" >/dev/null || true
+	@# This target's logic has been inlined into the 'label-nodes' target
+	@# to prevent issues with sub-make processes inheriting and prematurely
+	@# triggering the EXIT trap that cleans up the 'kubectl proxy' process.
+	@: # No-op
 
 cache-prover-image: ## Cache prover image on cluster nodes
 	@if [ -z "$(prover_image)" ]; then \
