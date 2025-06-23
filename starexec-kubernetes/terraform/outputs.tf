@@ -1,6 +1,13 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: MPL-2.0
 
+data "kubernetes_service" "starexec_service" {
+  metadata {
+    name      = "starexec-service"
+    namespace = "default"
+  }
+}
+
 output "cluster_endpoint" {
   description = "Endpoint for EKS control plane"
   value       = module.eks.cluster_endpoint
