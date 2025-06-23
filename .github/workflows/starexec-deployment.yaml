@@ -66,7 +66,7 @@ jobs:
         working-directory: starexec-kubernetes/terraform
       - name: Plan Terraform changes
         run: |
-          if ! timeout 300 make plan; then
+          if ! make plan; then
             echo "Plan failed or timed out, attempting to force unlock..."
             terraform force-unlock -force $(terraform state list 2>/dev/null | head -1 | cut -d. -f1 2>/dev/null || echo "auto-unlock") || true
             echo "Retrying plan after unlock attempt..."
@@ -79,7 +79,7 @@ jobs:
 
       - name: Deploy infrastructure
         run: |
-          if ! timeout 600 make default; then
+          if ! make default; then
             echo "Deploy failed or timed out, attempting to force unlock..."
             terraform force-unlock -force $(terraform state list 2>/dev/null | head -1 | cut -d. -f1 2>/dev/null || echo "auto-unlock") || true
             echo "Retrying deploy after unlock attempt..."
