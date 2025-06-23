@@ -69,6 +69,8 @@ jobs:
             echo "Plan failed or timed out, attempting to force unlock..."
             terraform force-unlock -force $(terraform state list 2>/dev/null | head -1 | cut -d. -f1 2>/dev/null || echo "auto-unlock") || true
             echo "Retrying plan after unlock attempt..."
+            make plan
+          fi
         env:
           AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
           DOMAIN: ${{ env.DOMAIN }}
@@ -85,10 +87,7 @@ jobs:
         working-directory: starexec-kubernetes/terraform
         env:
           AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
-
-      - name: Deploy infrastructure
-        run: make default
-        working-directory: starexec-kubernetes/terraform
+          DOMAIN: ${{ env.DOMAIN }}
 
       - name: Show cluster information
         run: make info
