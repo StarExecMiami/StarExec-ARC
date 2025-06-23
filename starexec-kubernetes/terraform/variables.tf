@@ -37,13 +37,13 @@ variable "instance_type" {
 variable "desired_nodes" {
   description = "Desired number of compute nodes"
   type        = number
-  default     = 5
+  default     = 2
 }
 
 variable "max_nodes" {
   description = "Maximum number of compute nodes"
   type        = number
-  default     = 5
+  default     = 3
 }
 
 # variable "region" {
