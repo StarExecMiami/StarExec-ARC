@@ -68,20 +68,27 @@ jobs:
         run: |
           if ! make plan; then
             echo "Plan failed or timed out, attempting to force unlock..."
-            terraform force-unlock -force $(terraform state list 2>/dev/null | head -1 | cut -d. -f1 2>/dev/null || echo "auto-unlock") || true
+            # Extract lock ID from the error output
+            LOCK_ID=$(make plan 2>&1 | grep -o 'ID:.*[0-9a-f-]\{36\}' | cut -d' ' -f2 | head -1)
+            if [ -n "$LOCK_ID" ]; then
+              echo "Attempting to unlock with ID: $LOCK_ID"
+              terraform force-unlock -force "$LOCK_ID" || true
+            else
+              echo "Could not extract lock ID, skipping unlock"
+            fi
             echo "Retrying plan after unlock attempt..."
-            make plan
-          fi
-        env:
-          AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
-          DOMAIN: ${{ env.DOMAIN }}
-        working-directory: starexec-kubernetes/terraform
-
       - name: Deploy infrastructure
         run: |
           if ! make default; then
             echo "Deploy failed or timed out, attempting to force unlock..."
-            terraform force-unlock -force $(terraform state list 2>/dev/null | head -1 | cut -d. -f1 2>/dev/null || echo "auto-unlock") || true
+            # Extract lock ID from the error output
+            LOCK_ID=$(make default 2>&1 | grep -o 'ID:.*[0-9a-f-]\{36\}' | cut -d' ' -f2 | head -1)
+            if [ -n "$LOCK_ID" ]; then
+              echo "Attempting to unlock with ID: $LOCK_ID"
+              terraform force-unlock -force "$LOCK_ID" || true
+            else
+              echo "Could not extract lock ID, skipping unlock"
+            fi
             echo "Retrying deploy after unlock attempt..."
             make default
           fi
