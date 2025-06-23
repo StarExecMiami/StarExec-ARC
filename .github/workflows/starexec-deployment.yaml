@@ -66,10 +66,10 @@ jobs:
         working-directory: starexec-kubernetes/terraform
       - name: Plan Terraform changes
         run: |
-          if ! make plan; then
+          make plan > plan.log 2>&1 || (
             echo "Plan failed or timed out, attempting to force unlock..."
-            # Extract lock ID from the error output
-            LOCK_ID=$(make plan 2>&1 | grep -A1 "ID:" | tail -1 | tr -d ' ' | head -1)
+            cat plan.log
+            LOCK_ID=$(grep 'ID:' plan.log | awk '{print $NF}')
             if [ -n "$LOCK_ID" ]; then
               echo "Attempting to unlock with ID: $LOCK_ID"
               terraform force-unlock -force "$LOCK_ID" || true
@@ -78,15 +78,15 @@ jobs:
             fi
             echo "Retrying plan after unlock attempt..."
             make plan
-          fi
+          )
         working-directory: starexec-kubernetes/terraform
 
       - name: Deploy infrastructure
         run: |
-          if ! make default; then
+          make default > deploy.log 2>&1 || (
             echo "Deploy failed or timed out, attempting to force unlock..."
-            # Extract lock ID from the error output
-            LOCK_ID=$(make default 2>&1 | grep -A1 "ID:" | tail -1 | tr -d ' ' | head -1)
+            cat deploy.log
+            LOCK_ID=$(grep 'ID:' deploy.log | awk '{print $NF}')
             if [ -n "$LOCK_ID" ]; then
               echo "Attempting to unlock with ID: $LOCK_ID"
               terraform force-unlock -force "$LOCK_ID" || true
@@ -95,7 +95,7 @@ jobs:
             fi
             echo "Retrying deploy after unlock attempt..."
             make default
-          fi
+          )
         working-directory: starexec-kubernetes/terraform
         env:
           AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
