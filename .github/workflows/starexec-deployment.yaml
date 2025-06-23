@@ -71,6 +71,7 @@ jobs:
       - name: Configure AWS CLI region
         run: aws configure set region $AWS_REGION
         working-directory: starexec-kubernetes/terraform
+
       - name: Plan Terraform changes
         run: |
           make plan DOMAIN=${{ env.DOMAIN }} > plan.log 2>&1 || (
@@ -111,6 +112,19 @@ jobs:
       - name: Show cluster information
         run: make info
         working-directory: starexec-kubernetes/terraform
+
+      - name: Extract LoadBalancer URL
+        id: lb_url
+        run: |
+          HOST=$(kubectl get svc starexec-service \
+            -n default \
+            -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          echo "url=https://$HOST" >> $GITHUB_OUTPUT
+
+      - name: Display Service URL
+        run: |
+          echo "⭐ StarExec is available at ${{ steps.lb_url.outputs.url }}"
+          echo "::notice::🌐 Service URL: ${{ steps.lb_url.outputs.url }}"
 
       - name: Notify deployment success
         if: success()
