@@ -19,7 +19,6 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
-      DOMAIN: ${{ secrets.DOMAIN != '' && secrets.DOMAIN || 'starexec-arc.net' }}
 
     steps:
       - name: Checkout repository
