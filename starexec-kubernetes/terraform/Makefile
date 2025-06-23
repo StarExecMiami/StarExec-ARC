@@ -147,13 +147,6 @@ depopulate-cluster: ## Remove StarExec from cluster
 	done
 
 label-nodes: ## Label cluster nodes appropriately
-	@echo -e "$(BLUE)Starting Kubernetes API proxy for node labeling...$(RESET)"
-	@pkill -f "kubectl proxy" || true
-	@kubectl proxy >/tmp/kubectl-proxy.log 2>&1 &
-	@PROXY_PID=$$!
-	@trap "echo 'Stopping Kubernetes API proxy...'; kill $$PROXY_PID || true" EXIT
-	@sleep 5 # Wait for proxy to be ready
-	@echo "Proxy started with PID $$PROXY_PID"
 	@echo -e "$(BLUE)Labeling cluster nodes...$(RESET)"
 	@for node in $$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}'); do \
 		nodegroup=$$(kubectl get node $$node -o jsonpath='{.metadata.labels.eks\.amazonaws\.com/nodegroup}'); \
@@ -161,22 +154,14 @@ label-nodes: ## Label cluster nodes appropriately
 			echo "Labeling compute node: $$node"; \
 			kubectl label nodes $$node nodegroup=computenodes --overwrite; \
 			echo "Adding extended resource to node: $$node"; \
-			curl -s --header "Content-Type: application/json-patch+json" \
-				--request PATCH \
-				--data '[{"op": "add", "path": "/status/capacity/example.com~1unicorn", "value": "1"}]' \
-				"http://localhost:8001/api/v1/nodes/$$node/status" >/dev/null || true; \
+			kubectl patch node $$node --subresource status --type json -p '[{"op": "add", "path": "/status/capacity/example.com~1unicorn", "value": "1"}]' || \
+				echo "Could not add extended resource to node $$node. This might be okay if it already exists."; \
 		elif echo "$$nodegroup" | grep -q "headnode"; then \
 			echo "Labeling head node: $$node"; \
 			kubectl label nodes $$node nodegroup=headnode --overwrite; \
 		fi; \
 	done
 	@kubectl get nodes -L nodegroup
-
-add-extended-resource: ## Add extended resource to node (internal)
-	@# This target's logic has been inlined into the 'label-nodes' target
-	@# to prevent issues with sub-make processes inheriting and prematurely
-	@# triggering the EXIT trap that cleans up the 'kubectl proxy' process.
-	@: # No-op
 
 cache-prover-image: ## Cache prover image on cluster nodes
 	@if [ -z "$(prover_image)" ]; then \
