@@ -18,7 +18,8 @@ spec:
       serviceAccountName: starexec-headnode
       initContainers:
       - name: init-volume
-        image: tptpstarexec/starexec:latest
+        image: ghcr.io/starexecmiami/starexec-arc:latest
+        imagePullPolicy: Always
         command:
           - sh
           - -c

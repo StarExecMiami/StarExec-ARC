@@ -17,7 +17,8 @@ spec:
       serviceAccountName: starexec-headnode
       initContainers:
       - name: init-volume
-        image: tptpstarexec/starexec:latest
+        image: ghcr.io/starexecmiami/starexec-arc:latest
+        imagePullPolicy: IfNotPresent
         command:
           - sh
           - -c
@@ -38,7 +39,8 @@ spec:
           mountPath: /mnt/vol-export
       containers:
       - name: starexec
-        image: tptpstarexec/starexec:latest
+        image: ghcr.io/starexecmiami/starexec-arc:latest
+        imagePullPolicy: IfNotPresent
         resources:
           limits:
             cpu: "2"
