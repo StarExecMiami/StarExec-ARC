@@ -15,13 +15,11 @@ on:
         type: choice
         options:
           - all
-          - E---3.2.5
-          - Vampire---4.9
-          - Drodi---3.6.0
-          - iProver---3.9
-          - Leo-III---1.7.18
-          - tptp-world
+          - eprover
+          - vampire
+          - leo3
           - ubuntu-arc
+          - tptp-world
       version:
         description: 'Image version tag'
         default: 'latest'
@@ -32,9 +30,82 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
+  build-base-images:
+    name: Build Base Images
+    runs-on: ubuntu-latest
+    outputs:
+      ubuntu-arc-image: ${{ steps.meta.outputs.ubuntu-arc-image }}
+      tptp-world-image: ${{ steps.meta.outputs.tptp-world-image }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate metadata
+        id: meta
+        run: |
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          
+          # Set version tag based on input or use date-based versioning
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION_TAG="${{ github.event.inputs.version }}"
+          else
+            VERSION_TAG=$(date +%Y.%m.%d)-${GITHUB_SHA:0:8}
+          fi
+          
+          echo "ubuntu-arc-image=${{ env.REGISTRY }}/$REPO_LOWER/ubuntu-arc:$VERSION_TAG" >> $GITHUB_OUTPUT
+          echo "tptp-world-image=${{ env.REGISTRY }}/$REPO_LOWER/tptp-world:$VERSION_TAG" >> $GITHUB_OUTPUT
+          echo "version-tag=$VERSION_TAG" >> $GITHUB_OUTPUT
+          echo "repo-lower=$REPO_LOWER" >> $GITHUB_OUTPUT
+
+      - name: Build and Push ubuntu-arc base image
+        run: |
+          echo "Building ubuntu-arc base image..."
+          cd ${{ env.WORKDIR }}/ubuntu-arc
+          
+          docker buildx build --builder ${{ steps.buildx.outputs.name }} \
+            --platform linux/amd64,linux/arm64 \
+            --tag ${{ env.REGISTRY }}/${{ steps.meta.outputs.repo-lower }}/ubuntu-arc:latest \
+            --tag ${{ env.REGISTRY }}/${{ steps.meta.outputs.repo-lower }}/ubuntu-arc:${{ steps.meta.outputs.version-tag }} \
+            --push \
+            .
+
+      - name: Build and Push tptp-world image
+        run: |
+          echo "Building tptp-world image..."
+          cd ${{ env.WORKDIR }}/tptp-world
+          
+          # Patch Dockerfile to use the correct ubuntu-arc image
+          cp Dockerfile Dockerfile.original
+          sed -i "s|FROM ubuntu-arc|FROM ${{ steps.meta.outputs.ubuntu-arc-image }}|g" Dockerfile
+          
+          echo "Modified tptp-world Dockerfile to use registry images:"
+          echo "=== Original FROM lines ==="
+          grep "^FROM" Dockerfile.original || true
+          echo "=== Modified FROM lines ==="
+          grep "^FROM" Dockerfile || true
+          
+          docker buildx build --builder ${{ steps.buildx.outputs.name }} \
+            --platform linux/amd64,linux/arm64 \
+            --tag ${{ env.REGISTRY }}/${{ steps.meta.outputs.repo-lower }}/tptp-world:latest \
+            --tag ${{ env.REGISTRY }}/${{ steps.meta.outputs.repo-lower }}/tptp-world:${{ steps.meta.outputs.version-tag }} \
+            --push \
+            .
+
   discover-provers:
     name: Discover Available Provers
     runs-on: ubuntu-latest
+    needs: build-base-images
     outputs:
       provers: ${{ steps.set-matrix.outputs.provers }}
       build-all: ${{ steps.set-matrix.outputs.build-all }}
@@ -47,43 +118,62 @@ jobs:
         run: |
           cd ${{ env.WORKDIR }}
           
-          # Define all buildable targets
-          ALL_TARGETS=(
-            "provers/E---3.2.5"
-            "provers/Vampire---4.9" 
-            "provers/Drodi---3.6.0"
-            "provers/iProver---3.9"
-            "provers/Leo-III---1.7.18"
-            "tptp-world"
-            "ubuntu-arc"
-          )
+          # Define all buildable prover targets (actual prover directories)
+          ALL_PROVER_TARGETS=()
+          
+          # Scan for actual prover directories with Dockerfiles
+          if [ -d "provers" ]; then
+            for prover_dir in provers/*/; do
+              if [ -f "${prover_dir}Dockerfile" ]; then
+                prover_name=$(basename "$prover_dir")
+                ALL_PROVER_TARGETS+=("provers/$prover_name")
+              fi
+            done
+          fi
           
           # Determine what to build based on input
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.prover }}" != "all" ]; then
             # Build specific prover
             PROVER_INPUT="${{ github.event.inputs.prover }}"
-            if [ "$PROVER_INPUT" = "tptp-world" ] || [ "$PROVER_INPUT" = "ubuntu-arc" ]; then
-              TARGETS=("$PROVER_INPUT")
+            if [ "$PROVER_INPUT" = "ubuntu-arc" ] || [ "$PROVER_INPUT" = "tptp-world" ]; then
+              # Base images already built, return empty matrix
+              TARGETS=()
             else
-              TARGETS=("provers/$PROVER_INPUT")
+              # Check if it's a makefile-style name (eprover, vampire, leo3)
+              case "$PROVER_INPUT" in
+                "eprover")
+                  TARGETS=("provers/E---3.2.5")
+                  ;;
+                "vampire") 
+                  TARGETS=("provers/Vampire---4.9")
+                  ;;
+                "leo3")
+                  TARGETS=("provers/Leo-III---1.7.18")
+                  ;;
+                *)
+                  # Direct prover directory name
+                  TARGETS=("provers/$PROVER_INPUT")
+                  ;;
+              esac
             fi
             BUILD_ALL="false"
           else
             # Build all provers
-            TARGETS=("${ALL_TARGETS[@]}")
+            TARGETS=("${ALL_PROVER_TARGETS[@]}")
             BUILD_ALL="true"
           fi
           
           # Generate JSON matrix
           MATRIX_JSON="["
-          for i in "${!TARGETS[@]}"; do
-            TARGET="${TARGETS[$i]}"
+          FIRST=true
+          for TARGET in "${TARGETS[@]}"; do
             if [ -d "$TARGET" ] && [ -f "$TARGET/Dockerfile" ]; then
               NAME=$(basename "$TARGET")
-              if [ $i -gt 0 ]; then
+              if [ "$FIRST" = "false" ]; then
                 MATRIX_JSON+=","
               fi
               MATRIX_JSON+="{\"name\":\"$NAME\",\"path\":\"$TARGET\",\"context\":\"${{ env.WORKDIR }}\"}"
+              FIRST=false
             fi
           done
           MATRIX_JSON+="]"
@@ -92,12 +182,12 @@ jobs:
           echo "build-all=$BUILD_ALL" >> $GITHUB_OUTPUT
           
           echo "Discovered provers to build:"
-          echo "$MATRIX_JSON" | jq '.'
+          echo "$MATRIX_JSON" | jq '.' || echo "$MATRIX_JSON"
 
   build-provers:
     name: Build ${{ matrix.prover.name }}
     runs-on: ubuntu-latest
-    needs: discover-provers
+    needs: [build-base-images, discover-provers]
     if: needs.discover-provers.outputs.provers != '[]'
     strategy:
       matrix:
@@ -151,6 +241,25 @@ jobs:
           fi
           echo "Found Dockerfile at $DOCKERFILE_PATH"
 
+      - name: Prepare Dockerfile with registry images
+        run: |
+          cd "${{ matrix.prover.context }}/${{ matrix.prover.path }}"
+          
+          # Get base image references
+          UBUNTU_ARC_IMAGE="${{ needs.build-base-images.outputs.ubuntu-arc-image }}"
+          TPTP_WORLD_IMAGE="${{ needs.build-base-images.outputs.tptp-world-image }}"
+          
+          # Create a modified Dockerfile that uses registry images
+          cp Dockerfile Dockerfile.original
+          sed -i "s|FROM ubuntu-arc|FROM $UBUNTU_ARC_IMAGE|g" Dockerfile
+          sed -i "s|FROM tptp-world|FROM $TPTP_WORLD_IMAGE|g" Dockerfile
+          
+          echo "Modified Dockerfile to use registry images:"
+          echo "=== Original FROM lines ==="
+          grep "^FROM" Dockerfile.original || true
+          echo "=== Modified FROM lines ==="
+          grep "^FROM" Dockerfile || true
+
       - name: Build and Push Docker Image
         run: |
           echo "Building prover: ${{ matrix.prover.name }}"
@@ -160,8 +269,15 @@ jobs:
           # Change to the prover-specific directory for build context
           cd "${{ matrix.prover.context }}/${{ matrix.prover.path }}"
           
+          # Get base image references
+          UBUNTU_ARC_IMAGE="${{ needs.build-base-images.outputs.ubuntu-arc-image }}"
+          TPTP_WORLD_IMAGE="${{ needs.build-base-images.outputs.tptp-world-image }}"
+          
+          # Build the prover image with proper base image references
           docker buildx build --builder ${{ steps.buildx.outputs.name }} \
             --platform linux/amd64,linux/arm64 \
+            --build-arg UBUNTU_ARC_IMAGE="$UBUNTU_ARC_IMAGE" \
+            --build-arg TPTP_WORLD_IMAGE="$TPTP_WORLD_IMAGE" \
             --tag ${{ env.REGISTRY }}/${{ steps.meta.outputs.repo-lower }}/prover-${{ steps.meta.outputs.image-name }}:latest \
             --tag ${{ env.REGISTRY }}/${{ steps.meta.outputs.repo-lower }}/prover-${{ steps.meta.outputs.image-name }}:${{ steps.meta.outputs.version-tag }} \
             --tag ${{ env.REGISTRY }}/${{ steps.meta.outputs.repo-lower }}/prover-${{ steps.meta.outputs.image-name }}:${{ github.sha }} \
@@ -176,7 +292,7 @@ jobs:
   build-summary:
     name: Build Summary
     runs-on: ubuntu-latest
-    needs: [discover-provers, build-provers]
+    needs: [build-base-images, discover-provers, build-provers]
     if: always()
     steps:
       - name: Report build results
@@ -195,17 +311,32 @@ jobs:
           echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          if [ "${{ needs.build-provers.result }}" = "success" ]; then
-            echo "✅ **Status:** All prover builds completed successfully" >> $GITHUB_STEP_SUMMARY
-          elif [ "${{ needs.build-provers.result }}" = "failure" ]; then
-            echo "❌ **Status:** Some prover builds failed" >> $GITHUB_STEP_SUMMARY
+          # Base images status
+          if [ "${{ needs.build-base-images.result }}" = "success" ]; then
+            echo "✅ **Base Images:** Built successfully" >> $GITHUB_STEP_SUMMARY
           else
-            echo "⚠️ **Status:** Prover builds were skipped or cancelled" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Base Images:** Build failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Prover builds status
+          if [ "${{ needs.build-provers.result }}" = "success" ]; then
+            echo "✅ **Prover Builds:** All completed successfully" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.build-provers.result }}" = "failure" ]; then
+            echo "❌ **Prover Builds:** Some builds failed" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.build-provers.result }}" = "skipped" ]; then
+            echo "⚠️ **Prover Builds:** Skipped (no provers to build)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Prover Builds:** Cancelled or unknown status" >> $GITHUB_STEP_SUMMARY
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Available Images" >> $GITHUB_STEP_SUMMARY
           echo "Built images are available at:" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "# Base images:" >> $GITHUB_STEP_SUMMARY
+          echo "ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')/ubuntu-arc:latest" >> $GITHUB_STEP_SUMMARY
+          echo "ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')/tptp-world:latest" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Prover images:" >> $GITHUB_STEP_SUMMARY
           echo "ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')/prover-*:latest" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
