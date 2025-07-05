@@ -1,0 +1,211 @@
+name: Build Prover Containers
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'provers-containerised/**'
+  workflow_dispatch:
+    inputs:
+      prover:
+        description: 'Specific prover to build (e.g., E---3.2.5, Vampire---4.9, all)'
+        default: 'all'
+        required: false
+        type: choice
+        options:
+          - all
+          - E---3.2.5
+          - Vampire---4.9
+          - Drodi---3.6.0
+          - iProver---3.9
+          - Leo-III---1.7.18
+          - tptp-world
+          - ubuntu-arc
+      version:
+        description: 'Image version tag'
+        default: 'latest'
+        required: false
+
+env:
+  WORKDIR: provers-containerised
+  REGISTRY: ghcr.io
+
+jobs:
+  discover-provers:
+    name: Discover Available Provers
+    runs-on: ubuntu-latest
+    outputs:
+      provers: ${{ steps.set-matrix.outputs.provers }}
+      build-all: ${{ steps.set-matrix.outputs.build-all }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Discover provers and set matrix
+        id: set-matrix
+        run: |
+          cd ${{ env.WORKDIR }}
+          
+          # Define all buildable targets
+          ALL_TARGETS=(
+            "provers/E---3.2.5"
+            "provers/Vampire---4.9" 
+            "provers/Drodi---3.6.0"
+            "provers/iProver---3.9"
+            "provers/Leo-III---1.7.18"
+            "tptp-world"
+            "ubuntu-arc"
+          )
+          
+          # Determine what to build based on input
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.prover }}" != "all" ]; then
+            # Build specific prover
+            PROVER_INPUT="${{ github.event.inputs.prover }}"
+            if [ "$PROVER_INPUT" = "tptp-world" ] || [ "$PROVER_INPUT" = "ubuntu-arc" ]; then
+              TARGETS=("$PROVER_INPUT")
+            else
+              TARGETS=("provers/$PROVER_INPUT")
+            fi
+            BUILD_ALL="false"
+          else
+            # Build all provers
+            TARGETS=("${ALL_TARGETS[@]}")
+            BUILD_ALL="true"
+          fi
+          
+          # Generate JSON matrix
+          MATRIX_JSON="["
+          for i in "${!TARGETS[@]}"; do
+            TARGET="${TARGETS[$i]}"
+            if [ -d "$TARGET" ] && [ -f "$TARGET/Dockerfile" ]; then
+              NAME=$(basename "$TARGET")
+              if [ $i -gt 0 ]; then
+                MATRIX_JSON+=","
+              fi
+              MATRIX_JSON+="{\"name\":\"$NAME\",\"path\":\"$TARGET\",\"context\":\"${{ env.WORKDIR }}\"}"
+            fi
+          done
+          MATRIX_JSON+="]"
+          
+          echo "provers=$MATRIX_JSON" >> $GITHUB_OUTPUT
+          echo "build-all=$BUILD_ALL" >> $GITHUB_OUTPUT
+          
+          echo "Discovered provers to build:"
+          echo "$MATRIX_JSON" | jq '.'
+
+  build-provers:
+    name: Build ${{ matrix.prover.name }}
+    runs-on: ubuntu-latest
+    needs: discover-provers
+    if: needs.discover-provers.outputs.provers != '[]'
+    strategy:
+      matrix:
+        prover: ${{ fromJson(needs.discover-provers.outputs.provers) }}
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate metadata
+        id: meta
+        run: |
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          PROVER_NAME="${{ matrix.prover.name }}"
+          
+          # Set version tag based on input or use date-based versioning
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION_TAG="${{ github.event.inputs.version }}"
+          else
+            VERSION_TAG=$(date +%Y.%m.%d)-${GITHUB_SHA:0:8}
+          fi
+          
+          # Generate image name (convert to lowercase and replace special chars)
+          IMAGE_NAME=$(echo "$PROVER_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9.-]/-/g')
+          
+          echo "image-name=$IMAGE_NAME" >> $GITHUB_OUTPUT
+          echo "version-tag=$VERSION_TAG" >> $GITHUB_OUTPUT
+          echo "repo-lower=$REPO_LOWER" >> $GITHUB_OUTPUT
+
+      - name: Check Dockerfile exists
+        run: |
+          DOCKERFILE_PATH="${{ matrix.prover.context }}/${{ matrix.prover.path }}/Dockerfile"
+          if [ ! -f "$DOCKERFILE_PATH" ]; then
+            echo "Error: Dockerfile not found at $DOCKERFILE_PATH"
+            exit 1
+          fi
+          echo "Found Dockerfile at $DOCKERFILE_PATH"
+
+      - name: Build and Push Docker Image
+        run: |
+          echo "Building prover: ${{ matrix.prover.name }}"
+          echo "Docker context: ${{ matrix.prover.context }}"
+          echo "Dockerfile path: ${{ matrix.prover.path }}/Dockerfile"
+          
+          # Change to the prover-specific directory for build context
+          cd "${{ matrix.prover.context }}/${{ matrix.prover.path }}"
+          
+          docker buildx build --builder ${{ steps.buildx.outputs.name }} \
+            --platform linux/amd64,linux/arm64 \
+            --tag ${{ env.REGISTRY }}/${{ steps.meta.outputs.repo-lower }}/prover-${{ steps.meta.outputs.image-name }}:latest \
+            --tag ${{ env.REGISTRY }}/${{ steps.meta.outputs.repo-lower }}/prover-${{ steps.meta.outputs.image-name }}:${{ steps.meta.outputs.version-tag }} \
+            --tag ${{ env.REGISTRY }}/${{ steps.meta.outputs.repo-lower }}/prover-${{ steps.meta.outputs.image-name }}:${{ github.sha }} \
+            --push \
+            .
+
+      - name: Verify image
+        run: |
+          echo "Verifying built image..."
+          docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ steps.meta.outputs.repo-lower }}/prover-${{ steps.meta.outputs.image-name }}:latest
+
+  build-summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: [discover-provers, build-provers]
+    if: always()
+    steps:
+      - name: Report build results
+        run: |
+          echo "## Prover Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.discover-provers.outputs.build-all }}" = "true" ]; then
+            echo "**Build Mode:** All provers" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Build Mode:** Specific prover (${{ github.event.inputs.prover }})" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.build-provers.result }}" = "success" ]; then
+            echo "✅ **Status:** All prover builds completed successfully" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.build-provers.result }}" = "failure" ]; then
+            echo "❌ **Status:** Some prover builds failed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Status:** Prover builds were skipped or cancelled" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Available Images" >> $GITHUB_STEP_SUMMARY
+          echo "Built images are available at:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')/prover-*:latest" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
