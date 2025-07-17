@@ -152,15 +152,6 @@ if ! mysql -u root -e "USE $DB_NAME" 2>/dev/null; then
   mysql -u root "$DB_NAME" < "$SQL_FILE"
   cd "$DEPLOY_DIR" || error "Cannot change directory back to $DEPLOY_DIR"
 
-  # Then run reload-sql to load procedures for fresh install
-  if ! ant build -buildfile "$BUILD_FILE" reload-sql; then
-    error "ERROR: reload-sql failed after initializing database. Please check the build file and try again."
-  fi
-
-  # Finally run update-sql to apply schema changes for fresh install
-  if ! ant -buildfile "$BUILD_FILE" update-sql; then
-    error "ERROR: update-sql failed. Please check the build file and try again."
-  fi
 else
   echo "Database $DB_NAME already exists, skipping initialization..."
   # Just ensure privileges are set correctly
