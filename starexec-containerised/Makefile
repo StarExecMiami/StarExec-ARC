@@ -137,7 +137,7 @@ run: ssh-setup mkcert-setup ## Run the starexec container interactively (for tes
 			--healthcheck-command "bash -c 'mysqladmin ping -u root --silent --connect-timeout=5 && (service apache2 status | grep -q \"running\" || pgrep apache2 >/dev/null) && (ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap\" || pgrep -f catalina >/dev/null) && (curl -s -k --max-time 10 -I https://localhost:7827/starexec/ | grep -q \"200\\|302\\|301\" || curl -s -k --max-time 10 https://localhost:7827/ >/dev/null)'" \
 			-p 7827:443 starexec:${VERSION}
 
-start: ssh-setup mkcert-setup ## Start the starexec container persistently and restore state if available
+start-container: ## Start the starexec container (internal use)
 	@echo "Starting the starexec container persistently..."
 	@container_id=$$($(GET_CONTAINER_ID_CMD)); \
 	if [ -n "$$container_id" ]; then \
@@ -174,13 +174,34 @@ start: ssh-setup mkcert-setup ## Start the starexec container persistently and r
 			-p 7827:443 starexec:${VERSION}
 	@echo "Waiting for container to initialize (approx 60 seconds)..."
 	@sleep 60
-	@if [ -d "$(BACKUP_DIR)" ]; then \
-		echo "Backup directory found. Restoring state..."; \
-		$(MAKE) restore-state; \
+
+start: ssh-setup mkcert-setup ## Start the starexec container with state restoration logic
+	@echo "Starting StarExec with state restoration logic..."
+	@# Step 1: Stop current container
+	@$(MAKE) -s stop >/dev/null 2>&1 || true
+	
+	@# Step 2: Check for state-backup existence
+	@if [ -d "$(BACKUP_DIR)" ] || [ -f "$(BACKUP_DIR)" ]; then \
+		echo "State backup found. Restoring from $(BACKUP_DIR)..."; \
+		$(MAKE) -s cleanVolumes >/dev/null 2>&1; \
+		$(MAKE) -s start-container; \
+		sleep 30; \
+		$(MAKE) -s restore-state; \
 	else \
-		echo "No backup directory found. Starting with fresh state."; \
+		echo "No state backup found. Checking for existing container state..."; \
+		if podman volume exists volDB >/dev/null 2>&1 && \
+		   [ -n "$$(podman volume inspect volDB --format '{{.Mountpoint}}' 2>/dev/null | xargs ls -A 2>/dev/null)" ] || \
+		   podman volume exists volStar >/dev/null 2>&1 && \
+		   [ -n "$$(podman volume inspect volStar --format '{{.Mountpoint}}' 2>/dev/null | xargs ls -A 2>/dev/null)" ]; then \
+			echo "Existing state found. Using current data..."; \
+			$(MAKE) -s start-container; \
+		else \
+			echo "No existing state found. Starting clean..."; \
+			$(MAKE) -s cleanVolumes >/dev/null 2>&1; \
+			$(MAKE) -s start-container; \
+		fi; \
 	fi
-	@echo "StarExec container started. Access at https://localhost:7827"
+	@echo "Startup process completed. Access at https://localhost:7827"
 	@echo "Note: Container may show as 'unhealthy' initially while services fully initialize."
 	@echo "Wait a few minutes and check with 'podman ps' - it should become healthy."
 
@@ -347,88 +368,59 @@ restore-state: ## Restore application state from local backup to the running con
 		fi; \
 	done
 	
-	# Start MySQL service with container restart if needed
-	@echo "Starting MySQL service..."
-	@for attempt in 1 2 3; do \
-		if ! podman inspect $$container_id >/dev/null 2>&1 || \
-		   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" != "true" ]; then \
-			echo "Container not running (attempt $$attempt). Restarting..."; \
-			podman start $$container_id; \
-			sleep 15; \
-		fi; \
-		if podman exec $$container_id /bin/bash -c '\
-			echo "Fixing MySQL permissions and directories..."; \
-			chown -R mysql:mysql /var/lib/mysql || true; \
-			rm -rf /var/run/mysqld; mkdir -p /var/run/mysqld; \
-			chown mysql:mysql /var/run/mysqld; chmod 755 /var/run/mysqld; \
-			echo "Checking for corrupted MySQL data..."; \
-			if [ -f /var/lib/mysql/ib_logfile0 ]; then \
-				echo "Removing potentially corrupted InnoDB log files..."; \
-				rm -f /var/lib/mysql/ib_logfile* || true; \
-			fi; \
-			echo "Starting MySQL with recovery mode..."; \
-			if command -v systemctl >/dev/null 2>&1; then \
-				systemctl start mysql || systemctl start mariadb || true; \
-			else \
-				service mysql start || service mariadb start || true; \
-			fi; \
-			if ! mysqladmin ping --silent 2>/dev/null; then \
-				echo "Service start failed, trying mysqld_safe with recovery..."; \
-				mysqld_safe --user=mysql --skip-syslog --pid-file=/var/run/mysqld/mysqld.pid --socket=/var/run/mysqld/mysqld.sock --datadir=/var/lib/mysql --innodb-force-recovery=1 & \
-				sleep 10; \
-			fi; \
+	# Start MySQL service and restore data
+	@echo "Starting MySQL service and restoring data..."
+	@if ! podman inspect $$container_id >/dev/null 2>&1 || \
+	   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" != "true" ]; then \
+		echo "Container not running. Restarting..."; \
+		podman start $$container_id; \
+		sleep 15; \
+	fi
+	@podman exec $$container_id /bin/bash -c '\
+		echo "Ensuring MySQL/MariaDB service is running..."; \
+		if ! mysqladmin ping --silent --connect-timeout=5 2>/dev/null; then \
+			echo "MySQL not running. Attempting to start..."; \
+			service mariadb start || service mysql start || true; \
 			for i in $$(seq 1 15); do \
-				if mysqladmin ping --silent 2>/dev/null; then \
-					echo "MySQL started successfully"; \
-					exit 0; \
+				if mysqladmin ping --silent --connect-timeout=2 2>/dev/null; then \
+					echo "MySQL started successfully."; \
+					break; \
 				fi; \
-				echo "Waiting for MySQL to start... attempt $$i"; \
 				sleep 2; \
 			done; \
-			echo "MySQL startup failed completely, trying fresh initialization..."; \
-			pkill -f mysql || true; \
-			rm -rf /var/lib/mysql/* || true; \
-			mysql_install_db --user=mysql --datadir=/var/lib/mysql || true; \
-			mysqld_safe --user=mysql --skip-syslog --pid-file=/var/run/mysqld/mysqld.pid --socket=/var/run/mysqld/mysqld.sock --datadir=/var/lib/mysql & \
-			sleep 10; \
-			if mysqladmin ping --silent 2>/dev/null; then \
-				echo "MySQL started with fresh database"; \
-			else \
-				echo "Error with MySQL startup, continuing anyway..."; \
-			fi' 2>/dev/null; then \
-			echo "MySQL service started successfully on attempt $$attempt"; \
-			break; \
-		else \
-			echo "MySQL startup failed on attempt $$attempt"; \
-			if [ $$attempt -eq 3 ]; then \
-				echo "All MySQL startup attempts failed, continuing without MySQL"; \
-				break; \
-			fi; \
 		fi; \
-	done
-	# Restore MySQL database from dump if available
+		if ! mysqladmin ping --silent --connect-timeout=5 2>/dev/null; then \
+			echo "Error: MySQL failed to start. Cannot restore database."; \
+			exit 1; \
+		fi'
+	# Restore MySQL database from dump first, as it's the most reliable method
 	@if [ -f "$(BACKUP_DIR)/var/lib/mysql-dump/all_databases.sql" ]; then \
 		echo "Restoring MySQL database from dump..."; \
-		if ! podman inspect $$container_id >/dev/null 2>&1 || \
-		   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" != "true" ]; then \
-			echo "Container not running. Restarting for database restore..."; \
-			podman start $$container_id; \
-			sleep 10; \
-		fi; \
-		if podman cp "$(BACKUP_DIR)/var/lib/mysql-dump/all_databases.sql" $$container_id:/tmp/restore_dump.sql 2>/dev/null; then \
+		if podman cp "$(BACKUP_DIR)/var/lib/mysql-dump/all_databases.sql" $$container_id:/tmp/restore_dump.sql; then \
 			podman exec $$container_id /bin/bash -c '\
-				if mysqladmin ping --silent 2>/dev/null; then \
-					echo "Restoring database from dump..."; \
-					mysql < /tmp/restore_dump.sql 2>/dev/null || \
-						echo "Warning: Some database restore errors occurred, but continuing..."; \
-				else \
-					echo "MySQL not responding, skipping database restore"; \
-				fi; \
-				rm -f /tmp/restore_dump.sql' || \
-			echo "Warning: MySQL dump restore failed, but continuing..."; \
+				echo "Importing SQL dump..."; \
+				mysql < /tmp/restore_dump.sql || echo "Warning: SQL dump import may have had errors."; \
+				rm -f /tmp/restore_dump.sql'; \
+		else \
+			echo "Warning: Failed to copy SQL dump to container. Will try file-based restore."; \
 		fi; \
 	else \
-		echo "No MySQL dump found, skipping database restore."; \
+		echo "No MySQL dump found. Proceeding with file-based restore of /var/lib/mysql."; \
+		source_dir="$(BACKUP_DIR)/var/lib/mysql"; \
+		if [ -d "$$source_dir" ]; then \
+			echo "Restoring /var/lib/mysql from $$source_dir..."; \
+			podman exec $$container_id /bin/bash -c "service mariadb stop || service mysql stop || true"; \
+			sleep 5; \
+			if tar cf - -C "$$source_dir" . | podman exec -i $$container_id tar xf - -C "/var/lib/mysql"; then \
+				echo "Successfully restored /var/lib/mysql files."; \
+			else \
+				echo "Warning: Failed to restore /var/lib/mysql files via tar."; \
+			fi; \
+			podman exec $$container_id /bin/bash -c "chown -R mysql:mysql /var/lib/mysql; service mariadb start || service mysql start || true"; \
+			sleep 10; \
+		else \
+			echo "Warning: No backup files found for /var/lib/mysql."; \
+		fi; \
 	fi
 	
 	# Start remaining services
