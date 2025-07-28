@@ -41,6 +41,9 @@ spec:
       - name: starexec
         image: ghcr.io/starexecmiami/starexec-arc:latest
         imagePullPolicy: Always
+        env:
+        - name: SSH_SOCKET_PATH
+          value: ""
         resources:
           requests:
             memory: "1Gi"
@@ -62,7 +65,7 @@ spec:
         #   mountPath: /export
         - name: ssh-key
           mountPath: /root/.ssh/starexec_podman_key
-          # subPath: starexec_podman_key
+          subPath: starexec_podman_key
       volumes:
         - name: vol-db
           persistentVolumeClaim:
@@ -79,3 +82,4 @@ spec:
         - name: ssh-key
           secret:
             secretName: starexec-ssh-key
+            defaultMode: 0755
