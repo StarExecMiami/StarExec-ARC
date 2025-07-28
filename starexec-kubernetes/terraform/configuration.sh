@@ -2,8 +2,8 @@
 
 # For configuration of the cluster (domain name, etc)
 domain=starexec-arc.net
-desiredNodes=5
-maxNodes=5
+desiredNodes=1
+maxNodes=3
 
 # Look at this site to see the instance types available:
 # https://aws.amazon.com/ec2/instance-types/
