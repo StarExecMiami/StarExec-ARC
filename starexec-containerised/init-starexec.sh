@@ -113,10 +113,16 @@ echo "Starting Apache..."
 # Initialize MySQL data directory if not already initialized
 if [ ! -d "/var/lib/mysql/mysql" ]; then
   echo "Initializing MySQL data directory..."
-  mysql_install_db --user=mysql --ldata=/var/lib/mysql
-  # Ownership already set in Dockerfile, but ensure it's correct after initialization
   chown -R mysql:mysql /var/lib/mysql
+  mysql_install_db --user=mysql --ldata=/var/lib/mysql
 fi
+
+# Ensure MySQL runtime directory exists
+echo "Setting up MySQL runtime directory..."
+rm -rf /var/run/mysqld
+mkdir -p /var/run/mysqld
+chown mysql:mysql /var/run/mysqld
+chmod 755 /var/run/mysqld
 
 # Start MySQL in the background
 echo "Starting MySQL..."
