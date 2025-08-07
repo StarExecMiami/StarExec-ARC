@@ -1,8 +1,8 @@
 replicaCount: 1
 
 image:
-  repository: tptpstarexec/starexec
-  pullPolicy: IfNotPresent
+  repository: ghcr.io/starexecmiami/starexec-arc
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
@@ -123,7 +123,7 @@ probes:
     command: 
       - "/bin/bash"
       - "-c"
-      - "mysqladmin ping -u root --silent --connect-timeout=5 && grep -q \"Server startup in\" \"/project/apache-tomcat-7/logs/catalina.out\" 2>/dev/null && service apache2 status | grep -q \"active (running)\" && curl -s -k --max-time 5 -I https://localhost/starexec | grep -q \"200 OK\""
+      - "mysqladmin ping -u root --silent --connect-timeout=5 && grep -q \"Server startup in\" /project/apache-tomcat-7/logs/catalina.*.log 2>/dev/null && service apache2 status | grep -q \"is running\" && curl -s -k --max-time 5 -I http://localhost:8080 | grep -q \"200 OK\""
     initialDelaySeconds: 120
     periodSeconds: 10
     timeoutSeconds: 5
@@ -135,7 +135,7 @@ probes:
     command: 
       - "/bin/bash"
       - "-c"
-      - "mysqladmin ping -u root --silent --connect-timeout=3 && service apache2 status | grep -q \"active (running)\" && curl -k --fail --silent --head https://localhost/ | grep -iq \"Location: /starexec\""
+      - "mysqladmin ping -u root --silent --connect-timeout=3 && service apache2 status | grep -q \"is running\" && curl -k --fail --silent --head https://localhost/ | grep -iq \"Location: /starexec\""
     initialDelaySeconds: 180
     periodSeconds: 30
     timeoutSeconds: 10
@@ -147,7 +147,7 @@ probes:
     command: 
       - "/bin/bash"
       - "-c"
-      - "mysqladmin ping -u root --silent --connect-timeout=3 && ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap start\" && (service apache2 status | grep -q \"active (running)\" || pgrep -f \"apache2 -D FOREGROUND\")"
+      - "mysqladmin ping -u root --silent --connect-timeout=3 && ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap start\" && (service apache2 status | grep -q \"is running\" || pgrep -f \"apache2 -D FOREGROUND\")"
     initialDelaySeconds: 60
     periodSeconds: 15
     timeoutSeconds: 10
@@ -161,8 +161,6 @@ domain: starexec.local
 deployment:
   name: starexec
   replicas: 1
-  # image: tptpstarexec/starexec:latest # REMOVED - Use top-level image fields
-  imagePullPolicy: IfNotPresent
   imagePullSecrets: []
   
   # Resource requests and limits
