@@ -110,42 +110,78 @@ chmod 755 -R /home/starexec  # Ensure permissions after potential volume mounts
 echo "Starting Apache..."
 /usr/sbin/apache2ctl -D FOREGROUND &
 
+# Initialize and prepare MySQL environment
+echo "Preparing MySQL environment..."
+
+# Ensure MySQL directories exist with proper ownership
+MYSQL_DIRS=("/var/lib/mysql" "/var/run/mysqld" "/var/log/mysql")
+for dir in "${MYSQL_DIRS[@]}"; do
+  if [ ! -d "$dir" ]; then
+    echo "Creating MySQL directory: $dir"
+    mkdir -p "$dir"
+  fi
+  chown mysql:mysql "$dir"
+  chmod 755 "$dir"
+done
+
+# Clean up any stale MySQL runtime files
+echo "Cleaning up stale MySQL runtime files..."
+rm -f /var/run/mysqld/mysqld.sock /var/run/mysqld/mysqld.pid /var/lib/mysql/mysql.sock
+
 # Initialize MySQL data directory if not already initialized
 if [ ! -d "/var/lib/mysql/mysql" ]; then
-  echo "Initializing MySQL data directory..."
+  echo "MySQL data directory not found, initializing..."
   
-  # Ensure proper ownership before initialization
-  chown -R mysql:mysql /var/lib/mysql
+  # Ensure clean state before initialization
+  rm -rf /var/lib/mysql/*
   
-  # Initialize the database with error handling
-  if ! mysql_install_db --user=mysql --ldata=/var/lib/mysql --force; then
+  # Initialize the database with comprehensive error handling
+  if ! mysql_install_db --user=mysql --datadir=/var/lib/mysql --force --skip-name-resolve; then
     error "Failed to initialize MySQL data directory"
+  fi
+  
+  # Verify initialization was successful
+  if [ ! -d "/var/lib/mysql/mysql" ] || [ ! -f "/var/lib/mysql/mysql/user.frm" ]; then
+    error "MySQL initialization appears incomplete - required system tables not found"
   fi
   
   echo "MySQL data directory initialized successfully"
 else
   echo "MySQL data directory already exists, skipping initialization"
+  
+  # Verify existing installation integrity
+  if [ ! -f "/var/lib/mysql/mysql/user.frm" ]; then
+    echo "WARNING: Existing MySQL installation may be corrupted - missing system tables"
+  fi
 fi
 
-# Ensure MySQL runtime directory exists and has correct permissions
-echo "Setting up MySQL runtime directory..."
-if [ -d "/var/run/mysqld" ]; then
-  # Clean up any stale socket files or PID files
-  rm -f /var/run/mysqld/mysqld.sock /var/run/mysqld/mysqld.pid
+# Verify and validate MySQL configuration
+echo "Validating MySQL configuration..."
+MYSQL_CONFIG=""
+if [ -f "/etc/mysql/my.cnf" ]; then
+  MYSQL_CONFIG="/etc/mysql/my.cnf"
+elif [ -f "/etc/my.cnf" ]; then
+  MYSQL_CONFIG="/etc/my.cnf"
 else
-  mkdir -p /var/run/mysqld
+  echo "WARNING: No MySQL configuration file found, using defaults"
 fi
 
-# Set proper ownership and permissions
-chown mysql:mysql /var/run/mysqld
-chmod 755 /var/run/mysqld
-
-# Verify MySQL configuration files exist
-if [ ! -f "/etc/mysql/my.cnf" ] && [ ! -f "/etc/my.cnf" ]; then
-  echo "WARNING: MySQL configuration file not found"
+# Test configuration syntax if config file exists
+if [ -n "$MYSQL_CONFIG" ]; then
+  if ! mysqld --help --verbose >/dev/null 2>&1; then
+    echo "WARNING: MySQL configuration validation failed, proceeding with caution"
+  else
+    echo "MySQL configuration validated successfully"
+  fi
 fi
 
-echo "MySQL runtime environment prepared"
+# Final ownership and permission verification
+echo "Finalizing MySQL environment setup..."
+chown -R mysql:mysql /var/lib/mysql /var/run/mysqld
+find /var/lib/mysql -type d -exec chmod 755 {} \;
+find /var/lib/mysql -type f -exec chmod 644 {} \;
+
+echo "MySQL environment preparation completed"
 
 # Start MySQL in the background
 echo "Starting MySQL..."
