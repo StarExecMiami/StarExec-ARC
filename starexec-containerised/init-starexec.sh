@@ -113,16 +113,39 @@ echo "Starting Apache..."
 # Initialize MySQL data directory if not already initialized
 if [ ! -d "/var/lib/mysql/mysql" ]; then
   echo "Initializing MySQL data directory..."
+  
+  # Ensure proper ownership before initialization
   chown -R mysql:mysql /var/lib/mysql
-  mysql_install_db --user=mysql --ldata=/var/lib/mysql
+  
+  # Initialize the database with error handling
+  if ! mysql_install_db --user=mysql --ldata=/var/lib/mysql --force; then
+    error "Failed to initialize MySQL data directory"
+  fi
+  
+  echo "MySQL data directory initialized successfully"
+else
+  echo "MySQL data directory already exists, skipping initialization"
 fi
 
-# Ensure MySQL runtime directory exists
+# Ensure MySQL runtime directory exists and has correct permissions
 echo "Setting up MySQL runtime directory..."
-rm -rf /var/run/mysqld
-mkdir -p /var/run/mysqld
+if [ -d "/var/run/mysqld" ]; then
+  # Clean up any stale socket files or PID files
+  rm -f /var/run/mysqld/mysqld.sock /var/run/mysqld/mysqld.pid
+else
+  mkdir -p /var/run/mysqld
+fi
+
+# Set proper ownership and permissions
 chown mysql:mysql /var/run/mysqld
 chmod 755 /var/run/mysqld
+
+# Verify MySQL configuration files exist
+if [ ! -f "/etc/mysql/my.cnf" ] && [ ! -f "/etc/my.cnf" ]; then
+  echo "WARNING: MySQL configuration file not found"
+fi
+
+echo "MySQL runtime environment prepared"
 
 # Start MySQL in the background
 echo "Starting MySQL..."
