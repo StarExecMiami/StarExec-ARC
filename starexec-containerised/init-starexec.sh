@@ -113,8 +113,8 @@ echo "Starting Apache..."
 # Initialize and prepare MySQL environment
 echo "Preparing MySQL environment..."
 
-# Ensure MySQL directories exist with proper ownership
-MYSQL_DIRS=("/var/lib/mysql" "/var/run/mysqld" "/var/log/mysql")
+# Ensure MySQL directories exist with proper ownership. /var/lib/mysql is on a persistent volume, so we skip chown on it.
+MYSQL_DIRS=("/var/run/mysqld" "/var/log/mysql")
 for dir in "${MYSQL_DIRS[@]}"; do
   if [ ! -d "$dir" ]; then
     echo "Creating MySQL directory: $dir"
@@ -123,6 +123,13 @@ for dir in "${MYSQL_DIRS[@]}"; do
   chown -R mysql:mysql "$dir"
   chmod 755 "$dir"
 done
+
+# Create the mysql data directory if it doesn't exist, but don't chown it.
+if [ ! -d "/var/lib/mysql" ]; then
+    echo "Creating MySQL directory: /var/lib/mysql"
+    mkdir -p "/var/lib/mysql"
+    chmod 755 "/var/lib/mysql"
+fi
 
 # Clean up any stale MySQL runtime files
 echo "Cleaning up stale MySQL runtime files..."
@@ -177,7 +184,7 @@ fi
 
 # Final ownership and permission verification
 echo "Finalizing MySQL environment setup..."
-chown -R mysql:mysql /var/lib/mysql /var/run/mysqld
+chown -R mysql:mysql /var/run/mysqld
 find /var/lib/mysql -type d -exec chmod 755 {} \;
 find /var/lib/mysql -type f -exec chmod 644 {} \;
 
@@ -185,7 +192,7 @@ echo "MySQL environment preparation completed"
 
 # Start MySQL in the background
 echo "Starting MySQL..."
-/usr/bin/mysqld_safe --basedir=/usr --user=mysql &
+/usr/sbin/mysqld --user=mysql &
 
 # Wait for MySQL to start
 MYSQL_START_TIMEOUT=60
@@ -256,6 +263,10 @@ fi
 # Configure SSH and Podman connection for sandbox user as well
 echo "Configuring SSH and Podman connection for sandbox user..."
 # SSH directories already created in Dockerfile
+# Ensure the .config directory and its subdirectories are owned by sandbox
+mkdir -p /home/sandbox/.config/containers
+chown -R sandbox:sandbox /home/sandbox/.config
+
 cat << EOF > /home/sandbox/.ssh/config
 Host ${HOST_MACHINE}
     UserKnownHostsFile /dev/null
@@ -285,8 +296,17 @@ su - sandbox -c "
 
 # Start Tomcat
 echo "Starting Tomcat..."
-# Setting both properties to handle different Tomcat versions
-export CATALINA_OPTS="-Dorg.apache.catalina.loader.WebappClassLoader.ENABLE_CLEAR_REFERENCES=false -Dorg.apache.catalina.loader.WebappClassLoaderBase.ENABLE_CLEAR_REFERENCES=false ${CATALINA_OPTS:-}"
+
+export CATALINA_OPTS="-Dorg.apache.catalina.loader.WebappClassLoader.ENABLE_CLEAR_REFERENCES=false \
+-Dorg.apache.catalina.loader.WebappClassLoaderBase.ENABLE_CLEAR_REFERENCES=false \
+--add-opens=java.base/java.lang=ALL-UNNAMED \
+--add-opens=java.base/java.io=ALL-UNNAMED \
+--add-opens=java.base/java.util=ALL-UNNAMED \
+--add-opens=java.base/java.util.concurrent=ALL-UNNAMED \
+--add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED \
+--add-opens=java.base/java.lang.reflect=ALL-UNNAMED \
+--add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED \
+--illegal-access=permit ${CATALINA_OPTS:-}"
 /project/apache-tomcat-7/bin/catalina.sh run &
 
 # Wait for Tomcat to start
