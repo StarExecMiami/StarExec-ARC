@@ -120,7 +120,7 @@ for dir in "${MYSQL_DIRS[@]}"; do
     echo "Creating MySQL directory: $dir"
     mkdir -p "$dir"
   fi
-  chown mysql:mysql "$dir"
+  chown -R mysql:mysql "$dir"
   chmod 755 "$dir"
 done
 
