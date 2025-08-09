@@ -61,11 +61,11 @@ ingress:
 
 resources:
   limits:
-    cpu: "2"
-    memory: "4Gi"
-  requests:
     cpu: "1"
     memory: "2Gi"
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
 
 # Persistence configuration (assuming EFS CSI Driver and StorageClass exist)
 persistence:
@@ -269,11 +269,11 @@ deployment:
   # Resource requests and limits
   resources:
     requests:
-      cpu: 1
-      memory: 2Gi
+      cpu: "500m"
+      memory: "1Gi"
     limits:
-      cpu: 2
-      memory: 4Gi
+      cpu: "1"
+      memory: "2Gi"
   
   # Container lifecycle management
   lifecycle:
