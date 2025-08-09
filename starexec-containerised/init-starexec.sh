@@ -124,12 +124,16 @@ for dir in "${MYSQL_DIRS[@]}"; do
   chmod 755 "$dir"
 done
 
-# Create the mysql data directory if it doesn't exist, but don't chown it.
+# Create the mysql data directory if it doesn't exist and ensure proper permissions
 if [ ! -d "/var/lib/mysql" ]; then
     echo "Creating MySQL directory: /var/lib/mysql"
     mkdir -p "/var/lib/mysql"
-    chmod 755 "/var/lib/mysql"
 fi
+
+# In Kubernetes environments, we need to ensure the mysql user owns the data directory
+echo "Ensuring MySQL data directory has proper ownership and permissions..."
+chown -R mysql:mysql "/var/lib/mysql" || echo "Warning: Could not change ownership of /var/lib/mysql"
+chmod 755 "/var/lib/mysql"
 
 # Clean up any stale MySQL runtime files
 echo "Cleaning up stale MySQL runtime files..."
@@ -141,6 +145,9 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
   
   # Ensure clean state before initialization
   rm -rf /var/lib/mysql/*
+  
+  # Ensure proper ownership before initialization
+  chown -R mysql:mysql /var/lib/mysql
   
   # Initialize the database with comprehensive error handling
   if ! mysql_install_db --user=mysql --datadir=/var/lib/mysql --force --skip-name-resolve; then
@@ -155,6 +162,9 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
   echo "MySQL data directory initialized successfully"
 else
   echo "MySQL data directory already exists, skipping initialization"
+  
+  # Ensure proper ownership of existing data
+  chown -R mysql:mysql /var/lib/mysql
   
   # Verify existing installation integrity
   if [ ! -f "/var/lib/mysql/mysql/user.frm" ]; then
