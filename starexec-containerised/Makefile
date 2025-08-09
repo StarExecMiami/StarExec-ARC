@@ -170,7 +170,7 @@ start-container: ## Start the starexec container (internal use)
 			--healthcheck-timeout=15s \
 			--healthcheck-retries=5 \
 			--healthcheck-start-period=180s \
-			--healthcheck-command "bash -c 'mysqladmin ping -u root --silent --connect-timeout=5 && (service apache2 status | grep -q \"running\" || pgrep apache2 >/dev/null) && (ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap\" || pgrep -f catalina >/dev/null) && (curl -s -k --max-time 10 -I https://localhost:7827/starexec/ | grep -q \"200\\|302\\|301\" || curl -s -k --max-time 10 https://localhost:7827/ >/dev/null)'" \
+			--healthcheck-command "bash -c 'mysqladmin ping -u root --silent --connect-timeout=5 && (service apache2 status | grep -q \"running\" || pgrep apache2 >/dev/null) && (ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap\" || pgrep -f catalina >/dev/null) && (curl -s -k --max-time 10 -I http://localhost/ | grep -q \"200\\|302\\|301\" || curl -s -k --max-time 10 http://localhost/ >/dev/null)'" \
 			-p 7827:443 starexec:${VERSION}
 	@echo "Waiting for container to initialize (approx 60 seconds)..."
 	@sleep 60
