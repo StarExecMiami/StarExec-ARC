@@ -116,18 +116,55 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 
-# Probes configuration - Using shell script format rather than multiline commands
+# Probes configuration 
 probes:
   readiness:
     enabled: true
     command: 
       - "/bin/bash"
       - "-c"
-      - "mysqladmin ping -u root --silent --connect-timeout=5 && grep -q \"Server startup in\" /project/apache-tomcat-7/logs/catalina.*.log 2>/dev/null && service apache2 status | grep -q \"is running\" && curl -s -k --max-time 5 -I http://localhost:8080 | grep -q \"200 OK\""
+      - |
+        set -e
+        echo "Readiness probe: Starting checks..."
+        
+        # Check MySQL is responding
+        echo "Checking MySQL connectivity..."
+        if ! mysqladmin ping -u root --silent --connect-timeout=5; then
+          echo "ERROR: MySQL is not responding"
+          exit 1
+        fi
+        echo "MySQL check passed"
+        
+        # Check Tomcat has fully started
+        echo "Checking Tomcat startup status..."
+        if ! grep -q "Server startup in" /project/apache-tomcat-7/logs/catalina.*.log 2>/dev/null; then
+          echo "ERROR: Tomcat has not fully started"
+          exit 1
+        fi
+        echo "Tomcat startup check passed"
+        
+        # Check Apache is running
+        echo "Checking Apache service status..."
+        if ! (service apache2 status | grep -q "is running" || pgrep -f "apache2" > /dev/null); then
+          echo "ERROR: Apache is not running"
+          exit 1
+        fi
+        echo "Apache service check passed"
+        
+        # Check Tomcat is responding
+        echo "Checking Tomcat HTTP response..."
+        if ! curl -s -k --max-time 5 -I http://localhost:8080 | grep -q "200\|302"; then
+          echo "ERROR: Tomcat is not responding on port 8080"
+          exit 1
+        fi
+        echo "Tomcat HTTP check passed"
+        
+        echo "Readiness probe: All checks passed"
+        exit 0
     initialDelaySeconds: 120
     periodSeconds: 10
-    timeoutSeconds: 5
-    failureThreshold: 15
+    timeoutSeconds: 10
+    failureThreshold: 10
     successThreshold: 1
   
   liveness:
@@ -135,10 +172,39 @@ probes:
     command: 
       - "/bin/bash"
       - "-c"
-      - "mysqladmin ping -u root --silent --connect-timeout=3 && service apache2 status | grep -q \"is running\" && curl -k --fail --silent --head https://localhost/ | grep -iq \"Location: /starexec\""
+      - |
+        set -e
+        echo "Liveness probe: Starting checks..."
+        
+        # Check MySQL is alive
+        echo "Checking MySQL connectivity..."
+        if ! mysqladmin ping -u root --silent --connect-timeout=5; then
+          echo "ERROR: MySQL is not responding"
+          exit 1
+        fi
+        echo "MySQL check passed"
+        
+        # Check Apache is running
+        echo "Checking Apache service status..."
+        if ! (service apache2 status | grep -q "is running" || pgrep -f "apache2" > /dev/null); then
+          echo "ERROR: Apache is not running"
+          exit 1
+        fi
+        echo "Apache service check passed"
+        
+        # Check HTTPS endpoint is accessible
+        echo "Checking HTTPS endpoint accessibility..."
+        if ! curl -k --fail --silent --max-time 8 -I https://localhost/ | grep -iq "200\|302\|Location"; then
+          echo "ERROR: HTTPS endpoint is not accessible"
+          exit 1
+        fi
+        echo "HTTPS endpoint check passed"
+        
+        echo "Liveness probe: All checks passed"
+        exit 0
     initialDelaySeconds: 180
     periodSeconds: 30
-    timeoutSeconds: 10
+    timeoutSeconds: 15
     failureThreshold: 3
     successThreshold: 1
   
@@ -147,11 +213,48 @@ probes:
     command: 
       - "/bin/bash"
       - "-c"
-      - "mysqladmin ping -u root --silent --connect-timeout=3 && ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap start\" && (service apache2 status | grep -q \"is running\" || pgrep -f \"apache2 -D FOREGROUND\")"
+      - |
+        set -e
+        echo "Startup probe: Starting checks..."
+        
+        # Check MySQL is accessible
+        echo "Checking MySQL connectivity..."
+        if ! mysqladmin ping -u root --silent --connect-timeout=5; then
+          echo "ERROR: MySQL is not responding"
+          exit 1
+        fi
+        echo "MySQL check passed"
+        
+        # Check Tomcat process is running
+        echo "Checking Tomcat process..."
+        if ! ps -ef | grep -v grep | grep -q "org.apache.catalina.startup.Bootstrap start"; then
+          echo "ERROR: Tomcat process is not running"
+          exit 1
+        fi
+        echo "Tomcat process check passed"
+        
+        # Check Apache is running
+        echo "Checking Apache service status..."
+        if ! (service apache2 status | grep -q "is running" || pgrep -f "apache2" > /dev/null); then
+          echo "ERROR: Apache is not running"
+          exit 1
+        fi
+        echo "Apache service check passed"
+        
+        # Basic connectivity check
+        echo "Checking basic connectivity..."
+        if ! (curl -s --max-time 5 http://localhost:8080 > /dev/null 2>&1 || curl -s -k --max-time 5 https://localhost/ > /dev/null 2>&1); then
+          echo "ERROR: Basic connectivity check failed"
+          exit 1
+        fi
+        echo "Basic connectivity check passed"
+        
+        echo "Startup probe: All checks passed"
+        exit 0
     initialDelaySeconds: 60
     periodSeconds: 15
-    timeoutSeconds: 10
-    failureThreshold: 40
+    timeoutSeconds: 12
+    failureThreshold: 30
     successThreshold: 1
 
 # Domain name
