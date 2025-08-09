@@ -52,7 +52,10 @@ ENV DEBIAN_FRONTEND=noninteractive \
     LANGUAGE=en_US:en \
     LC_ALL=en_US.UTF-8 \
     JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8" \
-    TZ=UTC
+    TZ=UTC \
+    # Set Java 8 as default
+    JAVA_HOME=/usr/lib/jvm/jdk8u392-b08 \
+    PATH=$JAVA_HOME/bin:$PATH
 
 # ---------------------------
 # Install system packages and dependencies
@@ -68,14 +71,14 @@ RUN apt update && \
     openssh-client \
     # Tools needed for setup/runtime scripts
     procps \
-    # Install specific JDK version (Temurin 16)
+    # Install specific JDK version (Temurin 8)
     && mkdir -p /usr/lib/jvm && \
-    curl -fsSL -o /tmp/jdk16.tar.gz https://github.com/adoptium/temurin16-binaries/releases/download/jdk-16.0.2%2B7/OpenJDK16U-jdk_x64_linux_hotspot_16.0.2_7.tar.gz && \
-    tar xzf /tmp/jdk16.tar.gz -C /usr/lib/jvm && \
-    rm /tmp/jdk16.tar.gz \
+    curl -fsSL -o /tmp/jdk8.tar.gz https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u392-b08/OpenJDK8U-jdk_x64_linux_hotspot_8u392b08.tar.gz && \
+    tar xzf /tmp/jdk8.tar.gz -C /usr/lib/jvm && \
+    rm /tmp/jdk8.tar.gz \
     # Set Java alternatives
-    && update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-16.0.2+7/bin/java 1 \
-    && update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk-16.0.2+7/bin/javac 1 \
+    && update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk8u392-b08/bin/java 1 \
+    && update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk8u392-b08/bin/javac 1 \
     # Configure timezone and locales
     && ln -fs /usr/share/zoneinfo/UTC /etc/localtime \
     && echo "UTC" > /etc/timezone \
@@ -89,7 +92,20 @@ RUN apt update && \
     && npm install -g sass \
     # Clean up apt cache and lists
     && apt clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /home/sandbox /home/sandbox2 \
+    && echo "umask 002" >> /home/sandbox/.bashrc 2>/dev/null || true \
+    && echo "umask 002" >> /home/sandbox2/.bashrc 2>/dev/null || true
+
+RUN echo "Create temporary directory with relaxed permissions for archive extraction..." && \
+    mkdir -p /tmp/starexec-temp && \
+    chmod 777 /tmp/starexec-temp && \
+    chown root:root /tmp/starexec-temp && \
+    echo "Container permissions configured successfully"
+
+COPY dockerPackage/allScripts/starexecScripts/overrides.properties /tmp/
+COPY dockerPackage/allScripts/starexecScripts/sudoRules.txt /etc/sudoers.d/starexec
+COPY dockerPackage/solverAdditions/GetComputerInfo /home/starexec/bin/
 
 # ---------------------------
 # Configure application directories and users
