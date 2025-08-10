@@ -307,16 +307,12 @@ su - sandbox -c "
 # Start Tomcat
 echo "Starting Tomcat..."
 
+# Use JDK 8 compatible options (no module system options)
 export CATALINA_OPTS="-Dorg.apache.catalina.loader.WebappClassLoader.ENABLE_CLEAR_REFERENCES=false \
 -Dorg.apache.catalina.loader.WebappClassLoaderBase.ENABLE_CLEAR_REFERENCES=false \
---add-opens=java.base/java.lang=ALL-UNNAMED \
---add-opens=java.base/java.io=ALL-UNNAMED \
---add-opens=java.base/java.util=ALL-UNNAMED \
---add-opens=java.base/java.util.concurrent=ALL-UNNAMED \
---add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED \
---add-opens=java.base/java.lang.reflect=ALL-UNNAMED \
---add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED \
---illegal-access=permit ${CATALINA_OPTS:-}"
+-Djava.security.egd=file:/dev/./urandom \
+-Xms512m -Xmx1024m \
+${CATALINA_OPTS:-}"
 /project/apache-tomcat-7/bin/catalina.sh run &
 
 # Wait for Tomcat to start
