@@ -36,12 +36,17 @@ service:
   port: 443
   targetPort: 443 # Target port on the pod (Apache's HTTPS port)
   # nodePort: # Required if type is NodePort
+  sessionAffinity: ClientIP # Ensure requests from same IP go to same pod
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800 # 3 hours in seconds
 
 ingress:
   enabled: true
-  className: "" # Specify if using a non-default IngressClass
+  className: "nginx"
   annotations:
-    # Adjust based on your Ingress controller (e.g., nginx, traefik)
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    # SSL passthrough for HTTPS backend
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
@@ -49,11 +54,23 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      proxy_set_header X-Forwarded-Host $host;
+    # Session affinity with IP-based hashing for SSL passthrough
+    nginx.ingress.kubernetes.io/upstream-hash-by: "$remote_addr"
+    # Enhanced header forwarding for proper URL construction
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location / {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port $server_port;
+        proxy_set_header X-Original-URI $request_uri;
+        proxy_pass https://upstream_balancer;
+      }
     # cert-manager.io/cluster-issuer: letsencrypt-prod # Example if using cert-manager
   hosts:
-    - host: starexec.local # Replace with your domain
+    - host: starexec.local # Replace
       paths:
         - path: /
           pathType: Prefix
