@@ -1,0 +1,18 @@
+# MicroK8s specific values
+# Overrides for starexec-helm/values.yaml
+
+ingress:
+  hosts:
+    - host: localhost
+      paths:
+        - path: /
+          pathType: Prefix
+
+starexecConfig:
+  ssh:
+    hostMachine: "10.0.2.2" # Default for multipass/qemu
+
+persistence:
+  storageClassName: "microk8s-hostpath"
+  accessModes:
+    - ReadWriteOnce

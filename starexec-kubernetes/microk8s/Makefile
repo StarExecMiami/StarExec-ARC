@@ -1,5 +1,5 @@
 # ==============================================================================
-# Makefile for StarExec on MicroK8s
+# Makefile for StarExec on MicroK8s (Helm-based deployment)
 # ==============================================================================
 
 # Shell to use
@@ -7,10 +7,15 @@ SHELL := /usr/bin/env bash
 
 # Kubernetes Configuration
 KUBECTL := microk8s kubectl
+HELM := microk8s helm3
+
 NAMESPACE := default
 APP_NAME := starexec
-POD_SELECTOR := app=$(APP_NAME)
-YAML_DIR := YAMLFiles
+CHART_PATH := ../../starexec-helm
+VALUES_FILE := $(CHART_PATH)/values-microk8s.yaml
+
+# Pod selector for Helm-deployed resources
+POD_SELECTOR := app.kubernetes.io/name=$(APP_NAME)
 
 # Secrets and Keys Configuration
 SSH_KEY_NAME := starexec-ssh-key
@@ -63,66 +68,46 @@ default: help
 # Core Application Lifecycle Targets
 # ==============================================================================
 
-apply: ssh-setup mkcert-setup ## Deploy or update the application stack
-	@echo -e "${YELLOW}Ensuring MicroK8s ingress addon is enabled...${NC}"
+apply: ssh-setup mkcert-setup ## Deploy or update the application stack using Helm
+	@echo -e "${YELLOW}Ensuring MicroK8s addons are enabled...${NC}"
 	@microk8s status | grep -q 'ingress: enabled' || microk8s enable ingress
-	@echo -e "${YELLOW}Applying Kubernetes manifests (excluding ConfigMap)...${NC}"
-	$(KUBECTL) apply -f $(YAML_DIR)/deployment.yaml \
-					 -f $(YAML_DIR)/ingress.yaml \
-					 -f $(YAML_DIR)/headnode-role-binding.yaml \
-					 -f $(YAML_DIR)/headnode-service-account.yaml \
-					 -f $(YAML_DIR)/headnode-role.yaml \
-					 -f $(YAML_DIR)/service.yaml \
-					 -f $(YAML_DIR)/pvcs.yaml \
-					 -f $(YAML_DIR)/storage.yaml \
-					 -n $(NAMESPACE)
-	@echo -e "${YELLOW}Creating/Updating ConfigMap 'starexec-config' dynamically...${NC}"
+	@microk8s status | grep -q 'dns: enabled' || microk8s enable dns
+	@microk8s status | grep -q 'storage: enabled' || microk8s enable storage
+	@echo -e "${YELLOW}Updating SSH key secrets...${NC}"
+# 	-$(KUBECTL) delete secret $(SSH_KEY_NAME) -n $(NAMESPACE) --ignore-not-found=true
+# 	$(KUBECTL) create secret generic $(SSH_KEY_NAME) --from-file=starexec_podman_key=$(SSH_KEY_FILE) -n $(NAMESPACE)
+	@echo -e "${YELLOW}Deploying StarExec using Helm...${NC}"
 	@echo -e "  Using SSH_USERNAME: ${GREEN}$(DETECTED_SSH_USER)${NC} (Source: $(USER_SOURCE))"
 	@echo -e "  Using HOST_MACHINE: ${GREEN}$(HOST_MACHINE)${NC}"
 	@echo -e "  Using SSH_PORT: ${GREEN}$(SSH_PORT)${NC}"
 	@echo -e "  Using SSH_SOCKET_PATH: ${GREEN}$(SSH_SOCKET_PATH)${NC}"
-	@# Create/Update ConfigMap using printf and kubectl apply -f -
-	@printf '%s\n' \
-		'apiVersion: v1' \
-		'kind: ConfigMap' \
-		'metadata:' \
-		'  name: starexec-config' \
-		'data:' \
-		"  SSH_USERNAME: \"$(DETECTED_SSH_USER)\"" \
-		"  HOST_MACHINE: \"$(HOST_MACHINE)\"" \
-		"  SSH_PORT: \"$(SSH_PORT)\"" \
-		"  SSH_SOCKET_PATH: \"$(SSH_SOCKET_PATH)\"" \
-		| $(KUBECTL) apply -f - -n $(NAMESPACE)
-	@echo -e "${YELLOW}Updating SSH key secrets...${NC}"
-	-$(KUBECTL) delete secret $(SSH_KEY_NAME) $(SSH_KEY_NAME)-pub -n $(NAMESPACE) --ignore-not-found=true
-	$(KUBECTL) create secret generic $(SSH_KEY_NAME) --from-file=$(SSH_KEY_NAME)=$(SSH_KEY_FILE) -n $(NAMESPACE)
-	$(KUBECTL) create secret generic $(SSH_KEY_NAME)-pub --from-file=$(SSH_KEY_NAME).pub=$(SSH_KEY_FILE).pub -n $(NAMESPACE)
-	$(KUBECTL) label node $$($(KUBECTL) get nodes | awk 'NR>1 {print $$1}') nodegroup=computenodes
-	@echo -e "${GREEN}Application deployment initiated.${NC}"
+	$(HELM) upgrade --install $(APP_NAME) $(CHART_PATH) \
+		-f $(VALUES_FILE) \
+		--set starexecConfig.ssh.username="$(DETECTED_SSH_USER)" \
+		--set starexecConfig.ssh.hostMachine="$(HOST_MACHINE)" \
+		--set starexecConfig.ssh.port="$(SSH_PORT)" \
+		--set starexecConfig.ssh.socketPath="$(SSH_SOCKET_PATH)" \
+		-n $(NAMESPACE)
+	$(KUBECTL) label node $$($(KUBECTL) get nodes | awk 'NR>1 {print $$1}') nodegroup=computenodes --overwrite
+	@echo -e "${GREEN}Application deployment initiated using Helm.${NC}"
 	@echo -e "${GREEN}=== Access Instructions ===${NC}"
 	@echo -e "Wait for pods to be ready ('make list-pods'). Then:"
 	@echo -e "${YELLOW}Option 1: Using ClusterIP (within cluster):${NC}"
-	@cluster_ip=$$( $(KUBECTL) get svc $(APP_NAME)-service -n $(NAMESPACE) -o jsonpath='{.spec.clusterIP}' ); \
+	@cluster_ip=$$( $(KUBECTL) get svc $(APP_NAME) -n $(NAMESPACE) -o jsonpath='{.spec.clusterIP}' ); \
 	 echo -e "  Access via https://$${cluster_ip}"
 	@echo -e "${YELLOW}Option 2: Using Port Forward (from localhost):${NC}"
-	@echo -e "  Run: $(KUBECTL) port-forward svc/$(APP_NAME)-service -n $(NAMESPACE) 8443:443"
+	@echo -e "  Run: $(KUBECTL) port-forward svc/$(APP_NAME) -n $(NAMESPACE) 8443:443"
 	@echo -e "  Then visit: https://localhost:8443"
 
-clean: mkcert-clean ## Remove all deployed application resources and SSH keys
-	@echo -e "${YELLOW}Forcing deletion of all resources...${NC}"
-	@echo -e "${YELLOW}Deleting Kubernetes resources from $(YAML_DIR)...${NC}"
-	@kflags="--ignore-not-found=true --grace-period=0"; \
-	 for r in deployment ingress headnode-role-binding headnode-service-account \
-			  headnode-role service pvcs storage; do \
-	   echo -e "${YELLOW}  – $${r}.yaml${NC}"; \
-	   $(KUBECTL) delete -f $(YAML_DIR)/$${r}.yaml -n $(NAMESPACE) $$kflags; \
-	 done; \
-	 echo -e "${YELLOW}Force deleting any stuck pods...${NC}"; \
-	 $(KUBECTL) delete pods --selector=$(POD_SELECTOR) -n $(NAMESPACE) $$kflags; \
-	 echo -e "${YELLOW}Deleting SSH key secrets...${NC}"; \
-	 $(KUBECTL) delete secret $(SSH_KEY_NAME) $(SSH_KEY_NAME)-pub -n $(NAMESPACE) $$kflags; \
-	 echo -e "${YELLOW}Deleting local SSH key files...${NC}"; \
-	 rm -f $(SSH_KEY_FILE) $(SSH_KEY_FILE).pub || true
+clean: mkcert-clean ## Remove all deployed application resources using Helm
+	@echo -e "${YELLOW}Removing StarExec application using Helm...${NC}"
+	$(HELM) uninstall $(APP_NAME) -n $(NAMESPACE) || true
+	@echo -e "${YELLOW}Deleting SSH key secrets...${NC}"
+	-$(KUBECTL) delete secret $(SSH_KEY_NAME) -n $(NAMESPACE) --ignore-not-found=true
+	@echo -e "${YELLOW}Deleting local SSH key files...${NC}"
+	-rm -f $(SSH_KEY_FILE) $(SSH_KEY_FILE).pub || true
+	@echo "Forcing deletion of any remaining PVCs..."
+	@microk8s kubectl delete pvc -l app.kubernetes.io/instance=starexec --ignore-not-found=true --wait
 	@echo -e "${GREEN}Cleanup complete.${NC}"
 
 start: ## Deploy the application and restore state if backup exists
