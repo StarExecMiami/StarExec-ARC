@@ -1,21 +1,6 @@
 # EFS Module
 # Responsible for creating EFS file system, mount targets, access points, and security groups
 
-variable "vpc_id" {
-  description = "ID of the VPC where EFS will be created"
-  type        = string
-}
-
-variable "vpc_cidr_block" {
-  description = "CIDR block of the VPC"
-  type        = string
-}
-
-variable "private_subnets" {
-  description = "List of private subnet IDs"
-  type        = list(string)
-}
-
 resource "aws_efs_file_system" "starexec" {
   creation_token = "efs-starexec"
 
@@ -51,6 +36,11 @@ resource "aws_efs_mount_target" "starexec" {
   file_system_id  = aws_efs_file_system.starexec.id
   subnet_id       = each.value
   security_groups = [aws_security_group.efs_sg.id]
+
+  depends_on = [
+    aws_efs_file_system.starexec,
+    aws_security_group.efs_sg
+  ]
 }
 
 # EFS Access Points
@@ -70,6 +60,8 @@ resource "aws_efs_access_point" "voldb" {
       permissions = 0777
     }
   }
+
+  depends_on = [aws_efs_mount_target.starexec]
 }
 
 resource "aws_efs_access_point" "volstar" {
@@ -88,6 +80,8 @@ resource "aws_efs_access_point" "volstar" {
       permissions = 0777
     }
   }
+
+  depends_on = [aws_efs_mount_target.starexec]
 }
 
 resource "aws_efs_access_point" "volpro" {
@@ -106,24 +100,6 @@ resource "aws_efs_access_point" "volpro" {
       permissions = 0777
     }
   }
-}
 
-output "efs_file_system_id" {
-  description = "ID of the EFS file system"
-  value       = aws_efs_file_system.starexec.id
-}
-
-output "voldb_access_point_id" {
-  description = "ID of the voldb access point"
-  value       = aws_efs_access_point.voldb.id
-}
-
-output "volstar_access_point_id" {
-  description = "ID of the volstar access point"
-  value       = aws_efs_access_point.volstar.id
-}
-
-output "volpro_access_point_id" {
-  description = "ID of the volpro access point"
-  value       = aws_efs_access_point.volpro.id
+  depends_on = [aws_efs_mount_target.starexec]
 }
