@@ -1,4 +1,3 @@
-
 #################### SETUP ####################################################
 provider "aws" {
   region = var.region
@@ -44,10 +43,11 @@ module "eks" {
   source = "./modules/eks"
 
   cluster_name     = local.cluster_name
-  cluster_version  = "1.31"
+  cluster_version  = "1.32"
   vpc_id           = module.vpc.vpc_id
   subnet_ids       = module.vpc.private_subnets
-  instance_type    = var.instance_type
+  headnode_instance_type = var.headnode_instance_type
+  computenodes_instance_type = var.computenodes_instance_type
   desired_nodes    = var.desired_nodes
   max_nodes        = var.max_nodes
   efs_csi_role_arn = module.iam_efs_csi.iam_role_arn
@@ -81,13 +81,127 @@ module "efs" {
 }
 
 
+#################### KUBERNETES PROVIDER & STORAGE CLASS #####################
 
+provider "tls" {}
 
+resource "kubernetes_namespace" "starexec" {
+  metadata {
+    name = "starexec"
+  }
+}
 
+resource "tls_private_key" "starexec_key" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
+}
 
+resource "tls_self_signed_cert" "starexec_cert" {
+  private_key_pem = tls_private_key.starexec_key.private_key_pem
 
+  subject {
+    common_name  = "starexec.local"
+    organization = "StarExec"
+  }
 
+  validity_period_hours = 8760 # 1 year
 
+  allowed_uses = [
+    "key_encipherment",
+    "digital_signature",
+    "server_auth",
+  ]
+}
+
+resource "kubernetes_secret" "starexec_tls" {
+  metadata {
+    name      = "starexec-tls-secret"
+    namespace = kubernetes_namespace.starexec.metadata[0].name
+  }
+
+  data = {
+    "tls.crt" = tls_self_signed_cert.starexec_cert.cert_pem
+    "tls.key" = tls_private_key.starexec_key.private_key_pem
+  }
+
+  type = "kubernetes.io/tls"
+
+  depends_on = [
+    kubernetes_namespace.starexec,
+  ]
+}
+
+provider "kubernetes" {
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+  
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args = [
+      "eks", "get-token",
+      "--region", var.region,
+      "--cluster-name", local.cluster_name
+    ]
+  }
+}
+
+resource "kubernetes_storage_class" "efs_sc" {
+  metadata {
+    name = "efs-sc"
+  }
+  
+  storage_provisioner = "efs.csi.aws.com"
+  reclaim_policy      = "Delete"
+  
+  parameters = {
+    provisioningMode = "efs-ap"
+    fileSystemId     = module.efs.efs_file_system_id
+    directoryPerms   = "755"
+  }
+  
+  depends_on = [module.eks]
+}
+
+#################### HELM ####################################################
+
+provider "helm" {
+  kubernetes = {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+
+    exec = {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args = [
+        "eks", "get-token",
+        "--region", var.region,
+        "--cluster-name", local.cluster_name
+      ]
+    }
+  }
+}
+
+resource "helm_release" "starexec" {
+  name             = "starexec"
+  chart            = "../../starexec-helm"
+  namespace        = "starexec"
+  create_namespace = true
+  wait             = true
+  timeout          = 300
+
+  values = [
+    file("../../starexec-helm/values.yaml"),
+    file("../../starexec-helm/values-production.yaml")
+  ]
+
+  depends_on = [
+    module.eks,
+    module.efs,
+    kubernetes_storage_class.efs_sc,
+    kubernetes_secret.starexec_tls,
+  ]
+}
 
 #################### CLEANUP ##############################################
 resource "null_resource" "pre_destroy_cleanup" {
