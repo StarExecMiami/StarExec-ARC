@@ -12,6 +12,10 @@ concurrency:
   group: starexec-terraform
   cancel-in-progress: false
 
+permissions:
+  contents: read
+  id-token: write  # For OIDC authentication
+
 jobs:
   deploy:
     name: Deploy StarExec to AWS
@@ -25,17 +29,17 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up AWS CLI
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Set up AWS CLI with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Cache Terraform plugins and modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
               ~/.terraform.d/plugin-cache
@@ -51,12 +55,15 @@ jobs:
 
       - name: Install kubectl
         run: |
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
+          curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+          curl -LO "https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256"
+          echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
 
       - name: Install Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.5.7
 
@@ -74,6 +81,7 @@ jobs:
 
       - name: Plan Terraform changes
         run: |
+          set -euo pipefail  # Enable strict error handling
           make plan DOMAIN=${{ env.DOMAIN }} > plan.log 2>&1 || (
             echo "Plan failed or timed out, attempting to force unlock..."
             cat plan.log
@@ -91,7 +99,8 @@ jobs:
 
       - name: Deploy infrastructure
         run: |
-          make default DOMAIN=${{ env.DOMAIN }} > deploy.log 2>&1 || (
+          set -euo pipefail  # Enable strict error handling
+          make apply DOMAIN=${{ env.DOMAIN }} > deploy.log 2>&1 || (
             echo "Deploy failed or timed out, attempting to force unlock..."
             cat deploy.log
             LOCK_ID=$(grep -oE 'ID:[[:space:]]+[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' deploy.log | head -n 1 | awk '{print $2}')
@@ -102,7 +111,7 @@ jobs:
               echo "Could not extract lock ID, skipping unlock"
             fi
             echo "Retrying deploy after unlock attempt..."
-            make default DOMAIN=${{ env.DOMAIN }} -lock=false || make default DOMAIN=${{ env.DOMAIN }}
+            make apply DOMAIN=${{ env.DOMAIN }} -lock=false || make apply DOMAIN=${{ env.DOMAIN }}
           )
         working-directory: starexec-kubernetes/terraform
         env:
