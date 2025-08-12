@@ -97,19 +97,21 @@ RUN apt update && \
     && echo "umask 002" >> /home/sandbox/.bashrc 2>/dev/null || true \
     && echo "umask 002" >> /home/sandbox2/.bashrc 2>/dev/null || true
 
-RUN echo "Create temporary directory with relaxed permissions for archive extraction..." && \
-    mkdir -p /tmp/starexec-temp && \
-    chmod 777 /tmp/starexec-temp && \
-    chown root:root /tmp/starexec-temp && \
-    echo "Container permissions configured successfully"
-
-COPY dockerPackage/allScripts/starexecScripts/overrides.properties /tmp/
-COPY dockerPackage/allScripts/starexecScripts/sudoRules.txt /etc/sudoers.d/starexec
-COPY dockerPackage/solverAdditions/GetComputerInfo /home/starexec/bin/
-
-# ---------------------------
-# Configure application directories and users
-# ---------------------------
+# Configure application directories and users (consolidated)
+RUN groupadd -g 160 star-web && \
+    groupadd -g 153 tomcat && \
+    groupadd -g 111 sandbox && \
+    groupadd -g 112 sandbox2 && \
+    useradd -r -m -d /home/tomcat -s /bin/bash -c "Tomcat User" -u 153 -g 160 tomcat && \
+    useradd -r -m -d /home/starexec -s /bin/bash -c "Starexec User" -u 152 -g 160 starexec && \
+    useradd -r -m -d /home/sandbox -s /bin/bash -c "Cluster UserOne" -u 111 -g 111 sandbox && \
+    useradd -r -m -d /home/sandbox2 -s /bin/bash -c "Cluster UserTwo" -u 112 -g 112 sandbox2 && \
+    usermod -aG star-web sandbox && \
+    usermod -aG star-web sandbox2 && \
+    usermod -aG star-web tomcat && \
+    usermod -aG star-web starexec && \
+    usermod -aG sandbox tomcat && \
+    usermod -aG sandbox2 tomcat
 
 # Configure Apache2
 COPY dockerPackage/configFiles/ssl.conf /etc/apache2/sites-available/
@@ -127,21 +129,7 @@ RUN mkdir -p /project && cd /project && \
     curl -fsSL -o /project/apache-tomcat-7/lib/mysql-connector-java-${MYSQL_CON_VERSION}.jar \
     https://search.maven.org/remotecontent?filepath=mysql/mysql-connector-java/${MYSQL_CON_VERSION}/mysql-connector-java-${MYSQL_CON_VERSION}.jar
 
-# Create groups and users
-RUN groupadd -g 160 star-web && \
-    groupadd -g 153 tomcat && \
-    groupadd -g 111 sandbox && \
-    groupadd -g 112 sandbox2 && \
-    useradd -r -m -d /home/tomcat -s /bin/bash -c "Tomcat User" -u 153 -g 160 tomcat && \
-    useradd -r -m -d /home/starexec -s /bin/bash -c "Starexec User" -u 152 -g 160 starexec && \
-    useradd -r -m -d /home/sandbox -s /bin/bash -c "Cluster UserOne" -u 111 -g 111 sandbox && \
-    useradd -r -m -d /home/sandbox2 -s /bin/bash -c "Cluster UserTwo" -u 112 -g 112 sandbox2 && \
-    usermod -aG star-web sandbox && \
-    usermod -aG star-web sandbox2 && \
-    usermod -aG star-web tomcat && \
-    usermod -aG star-web starexec
-
-# Configure directories and permissions
+# Configure directories and permissions (consolidated)
 RUN mkdir -p /export/starexec/sandbox /export/starexec/sandbox2 && \
     chown -R tomcat:star-web /export/starexec && \
     mkdir -p /local/sandbox /local/sandbox2 && \
@@ -149,34 +137,24 @@ RUN mkdir -p /export/starexec/sandbox /export/starexec/sandbox2 && \
     chown sandbox2:sandbox2 /local/sandbox2 && \
     chmod 770 /local/sandbox /local/sandbox2 && \
     chmod g+s /local/sandbox /local/sandbox2 && \
-    usermod -aG sandbox tomcat && \
-    usermod -aG sandbox2 tomcat
-
-# Apply container-friendly permissions from script logic
-RUN echo "Setting up container-friendly permissions..." && \
-    echo "Configuring ACLs for sandbox directories (errors ignored)..." && \
+    # Set up ACLs and umask (with error handling)
     setfacl -d -m g::rwx /local/sandbox/ 2>/dev/null || true && \
     setfacl -d -m g::rwx /local/sandbox2/ 2>/dev/null || true && \
     setfacl -d -m u::rwx /local/sandbox/ 2>/dev/null || true && \
-    setfacl -d -m u::rwx /local/sandbox2/ 2>/dev/null || true
-
-RUN echo "Configure umask for sandbox users (errors ignored)..." && \
-    (echo "umask 002" >> /home/sandbox/.bashrc 2>/dev/null || true) && \
-    (echo "umask 002" >> /home/sandbox2/.bashrc 2>/dev/null || true)
-
-RUN echo "Create temporary directory with relaxed permissions for archive extraction..." && \
+    setfacl -d -m u::rwx /local/sandbox2/ 2>/dev/null || true && \
+    # Create temporary directory with relaxed permissions
     mkdir -p /tmp/starexec-temp && \
     chmod 777 /tmp/starexec-temp && \
-    chown tomcat:star-web /tmp/starexec-temp && \
-    echo "Container permissions configured successfully"
+    chown tomcat:star-web /tmp/starexec-temp
 
 COPY dockerPackage/allScripts/starexecScripts/overrides.properties /tmp/
 COPY dockerPackage/allScripts/starexecScripts/sudoRules.txt /etc/sudoers.d/starexec
 COPY dockerPackage/solverAdditions/GetComputerInfo /home/starexec/bin/
+
+# Configure StarExec deployment and permissions (consolidated)
 RUN git -c http.sslVerify=false clone -b containerised --single-branch https://github.com/StarexecMiami/StarExec.git ${DEPLOY_DIR} && \
     git config --global --add safe.directory ${DEPLOY_DIR} && \
     cd ${DEPLOY_DIR}/WebContent/css/details && ln -s ../shared && \
-    chown -R tomcat:star-web /home/starexec && \
     # Configure overrides and machine specs
     mkdir -p ${DEPLOY_DIR}/build && \
     touch ${DEPLOY_DIR}/build/Cluster.MachineSpecs.txt && \
@@ -187,60 +165,45 @@ RUN git -c http.sslVerify=false clone -b containerised --single-branch https://g
     rm /tmp/overrides.properties && \
     # Configure sudo
     chmod 0440 /etc/sudoers.d/starexec && \
-    # visudo check removed for non-interactive build, ensure syntax is correct
     # Configure GetComputerInfo
     mkdir -p /home/starexec/bin && \
     chown tomcat:star-web /home/starexec/bin && \
     chmod 755 /home/starexec/bin && \
     chown tomcat:star-web /home/starexec/bin/GetComputerInfo && \
-    chmod 755 /home/starexec/bin/GetComputerInfo
+    chmod 755 /home/starexec/bin/GetComputerInfo && \
+    # Set ownership
+    chown -R tomcat:star-web /home/starexec && \
+    chmod 755 -R /home/starexec
 
 # Copy the compiled runsolver from the builder stage
 COPY --from=builder ${DEPLOY_DIR}/src/org/starexec/config/sge/RunSolverSource/runsolver ${DEPLOY_DIR}/src/org/starexec/config/sge/
 
-# Install kubectl and clean up in one layer
-RUN ARCH=$(dpkg --print-architecture) && \
+# Setup runtime directories and install kubectl (consolidated)
+RUN mkdir -p /etc/ssl/certs /etc/ssl/private && \
+    chmod 755 /etc/ssl/certs && \
+    chmod 700 /etc/ssl/private && \
+    # Initialize MySQL data directory
+    mkdir -p /var/lib/mysql && \
+    chown -R mysql:mysql /var/lib/mysql && \
+    chmod 755 /var/lib/mysql && \
+    # SSH key setup for Podman
+    mkdir -p /root/.ssh && chmod 700 /root/.ssh && \
+    mkdir -p /home/sandbox/.ssh /home/sandbox/.config /home/sandbox/.local && \
+    mkdir -p /home/sandbox2/.ssh /home/sandbox2/.config /home/sandbox2/.local && \
+    chmod 700 /home/sandbox/.ssh /home/sandbox2/.ssh && \
+    chown -R sandbox:sandbox /home/sandbox/.ssh /home/sandbox/.config /home/sandbox/.local && \
+    chown -R sandbox2:sandbox2 /home/sandbox2/.ssh /home/sandbox2/.config /home/sandbox2/.local && \
+    # Set up base permissions for runtime directories
+    chown -R tomcat:star-web /project && \
+    # Install kubectl
+    ARCH=$(dpkg --print-architecture) && \
     curl -fsSLO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl" && \
     chmod +x ./kubectl && \
     install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
     rm kubectl
 
-# ---------------------------
-# Setup runtime directories and permissions
-# ---------------------------
-
-# Setup SSL certificate directories and permissions
-RUN mkdir -p /etc/ssl/certs /etc/ssl/private && \
-    chmod 755 /etc/ssl/certs && \
-    chmod 700 /etc/ssl/private
-
-# Initialize MySQL data directory with proper permissions
-RUN mkdir -p /var/lib/mysql && \
-    chown -R mysql:mysql /var/lib/mysql && \
-    chmod 755 /var/lib/mysql
-
-# SSH key setup for Podman (key mounted at runtime)
-RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh && \
-    # Create SSH directories for sandbox users
-    mkdir -p /home/sandbox/.ssh /home/sandbox/.config /home/sandbox/.local && \
-    mkdir -p /home/sandbox2/.ssh /home/sandbox2/.config /home/sandbox2/.local && \
-    chmod 700 /home/sandbox/.ssh /home/sandbox2/.ssh && \
-    chown -R sandbox:sandbox /home/sandbox/.ssh /home/sandbox/.config /home/sandbox/.local && \
-    chown -R sandbox2:sandbox2 /home/sandbox2/.ssh /home/sandbox2/.config /home/sandbox2/.local
-
-# Set up base permissions for runtime directories
-RUN chown -R tomcat:star-web /project && \
-    chown -R tomcat:star-web /home/starexec && \
-    chmod 755 -R /home/starexec
-
-# ---------------------------
-# Final setup and entrypoint
-# ---------------------------
-
-# Copy MySQL configuration for managed storage if applicable
+# Copy MySQL configuration and initialization script
 COPY dockerPackage/configFiles/managed-storage.cnf /etc/mysql/conf.d/
-
-# Copy initialization script
 COPY init-starexec.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/init-starexec.sh
 
