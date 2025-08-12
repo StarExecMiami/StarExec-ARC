@@ -1,0 +1,22 @@
+# Production environment specific values
+# Overrides for starexec-helm/values.yaml
+
+image:
+  tag: "latest"
+
+replicaCount: 3
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "1"
+    memory: "2Gi"
+
+ingress:
+  hosts:
+    - host: www.starexec.io
+      paths:
+        - path: /
+          pathType: Prefix
