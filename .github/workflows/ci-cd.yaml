@@ -1,0 +1,188 @@
+name: Unified CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Image version tag for manual builds'
+        default: 'latest'
+        required: false
+      prover:
+        description: 'Specific prover to build (e.g., eprover, vampire, all)'
+        default: 'all'
+        required: false
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  AWS_REGION: us-east-1
+  DOMAIN: starexec-arc.net
+  TERRAFORM_VERSION: 1.5.7
+  HELM_VERSION: 'v3.14.4'
+
+jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      starexec: ${{ steps.filter.outputs.starexec }}
+      provers: ${{ steps.filter.outputs.provers }}
+      infra: ${{ steps.filter.outputs.infra }}
+      helm: ${{ steps.filter.outputs.helm }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use path filter
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            starexec:
+              - 'starexec-containerised/**'
+            provers:
+              - 'provers-containerised/**'
+            infra:
+              - 'starexec-kubernetes/**'
+            helm:
+              - 'starexec-helm/**'
+
+  validate:
+    name: Validate Changes
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.starexec == 'true' || needs.changes.outputs.infra == 'true' || needs.changes.outputs.helm == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate StarExec Makefile Build
+        if: needs.changes.outputs.starexec == 'true'
+        run: |
+          make -C starexec-containerised starexec
+
+      - name: Setup Terraform
+        if: needs.changes.outputs.infra == 'true'
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Validate Terraform
+        if: needs.changes.outputs.infra == 'true'
+        run: |
+          cd starexec-kubernetes/terraform
+          terraform init -backend=false
+          terraform fmt -check -diff
+          terraform validate -no-color
+      
+      - name: Set up Helm
+        if: needs.changes.outputs.helm == 'true'
+        uses: azure/setup-helm@v4
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Lint Helm Chart
+        if: needs.changes.outputs.helm == 'true'
+        run: helm lint ./starexec-helm
+
+  build-and-publish:
+    name: Build and Publish
+    runs-on: ubuntu-latest
+    needs: [changes, validate]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && (needs.changes.outputs.starexec == 'true' || needs.changes.outputs.provers == 'true' || needs.changes.outputs.helm == 'true')
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set Version Tag
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION_TAG="${{ github.event.inputs.version }}"
+          else
+            VERSION_TAG=$(date +%Y.%m.%d)-${GITHUB_SHA:0:8}
+          fi
+          echo "tag=$VERSION_TAG" >> $GITHUB_OUTPUT
+
+      - name: Build and Push starexec-containerised
+        if: needs.changes.outputs.starexec == 'true'
+        run: |
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          docker buildx build \
+            --platform linux/amd64 \
+            --tag ${{ env.REGISTRY }}/$REPO_LOWER:latest \
+            --tag ${{ env.REGISTRY }}/$REPO_LOWER:${{ steps.version.outputs.tag }} \
+            --push ./starexec-containerised
+
+    #   - name: Build and Push Provers
+    #     if: needs.changes.outputs.provers == 'true'
+    #     run: |
+    #       # This is a simplified version. For the full dynamic prover discovery,
+    #       # the logic from provers-containerised.yaml would be inserted here.
+    #       # For now, we just build all of them.
+    #       echo "Building provers..."
+    #       # Add prover build logic here
+
+      - name: Publish Helm Chart
+        if: needs.changes.outputs.helm == 'true'
+        run: |
+          helm package ./starexec-helm --destination ./starexec-helm
+          CHART_FILE=$(ls ./starexec-helm/*.tgz)
+          helm push $CHART_FILE oci://${{ env.REGISTRY }}/${{ github.repository_owner }}
+
+  deploy:
+    name: Deploy to AWS
+    runs-on: ubuntu-latest
+    needs: [changes, build-and-publish]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && needs.changes.outputs.infra == 'true'
+    environment: development
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up AWS CLI with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Initialize Terraform
+        run: make init DOMAIN=${{ env.DOMAIN }}
+        working-directory: starexec-kubernetes/terraform
+
+      - name: Apply Terraform
+        run: make apply DOMAIN=${{ env.DOMAIN }}
+        working-directory: starexec-kubernetes/terraform
