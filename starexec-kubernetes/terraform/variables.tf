@@ -28,22 +28,27 @@ variable "prover_image" {
   default     = "tptpstarexec/eprover:latest"
 }
 
-variable "instance_type" {
-  description = "EC2 instance type for the EKS node groups"
+variable "headnode_instance_type" {
+  description = "EC2 instance type for the head node group"
   type        = string
-  default     = "t3.small"
+  default     = "t3.medium"
+}
+
+variable "computenodes_instance_type" {
+  description = "EC2 instance type for the compute nodes"
+  type        = string
+  default     = "t3.medium"
 }
 
 variable "desired_nodes" {
   description = "Desired number of compute nodes"
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "max_nodes" {
   description = "Maximum number of compute nodes"
   type        = number
-  default     = 3
 }
 
 # variable "region" {
