@@ -113,6 +113,17 @@ echo "Starting Apache..."
 # Initialize and prepare MySQL environment
 echo "Preparing MySQL environment..."
 
+# Set MySQL user ID (can be overridden by environment)
+MYSQL_UID="${MYSQL_UID:-999}"
+MYSQL_GID="${MYSQL_GID:-999}"
+
+# Check if we're running in a Kubernetes/managed storage environment
+MANAGED_STORAGE=false
+if [ -n "${KUBERNETES_SERVICE_HOST:-}" ] || [ -n "${STAREXEC_MANAGED_STORAGE:-}" ]; then
+    MANAGED_STORAGE=true
+    echo "Detected managed storage environment - adapting permission handling"
+fi
+
 # Ensure MySQL directories exist with proper ownership. /var/lib/mysql is on a persistent volume, so we skip chown on it.
 MYSQL_DIRS=("/var/run/mysqld" "/var/log/mysql")
 for dir in "${MYSQL_DIRS[@]}"; do
@@ -132,8 +143,21 @@ fi
 
 # In Kubernetes environments, we need to ensure the mysql user owns the data directory
 echo "Ensuring MySQL data directory has proper ownership and permissions..."
-chown -R mysql:mysql "/var/lib/mysql" || echo "Warning: Could not change ownership of /var/lib/mysql"
-chmod 755 "/var/lib/mysql"
+# In EKS/Kubernetes, chown operations may fail on persistent volumes
+# Use || true to continue if chown fails (common in managed storage)
+if chown -R mysql:mysql "/var/lib/mysql" 2>/dev/null; then
+    echo "Successfully changed ownership of MySQL data directory"
+else
+    echo "Warning: Could not change ownership of /var/lib/mysql (expected in managed Kubernetes storage)"
+    # Check if MySQL can still access the directory
+    if [ -r "/var/lib/mysql" ] && [ -w "/var/lib/mysql" ]; then
+        echo "MySQL data directory is accessible, continuing..."
+    else
+        echo "ERROR: MySQL data directory is not accessible"
+        exit 1
+    fi
+fi
+chmod 755 "/var/lib/mysql" 2>/dev/null || echo "Warning: Could not change permissions of /var/lib/mysql"
 
 # Clean up any stale MySQL runtime files
 echo "Cleaning up stale MySQL runtime files..."
@@ -147,7 +171,12 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
   rm -rf /var/lib/mysql/*
   
   # Ensure proper ownership before initialization
-  chown -R mysql:mysql /var/lib/mysql
+  # In Kubernetes environments, this may fail due to volume constraints
+  if chown -R mysql:mysql /var/lib/mysql 2>/dev/null; then
+    echo "Successfully set ownership for MySQL initialization"
+  else
+    echo "Warning: Could not change ownership for initialization (expected in managed storage)"
+  fi
   
   # Initialize the database with comprehensive error handling
   if ! mysql_install_db --user=mysql --datadir=/var/lib/mysql --force --skip-name-resolve; then
@@ -163,8 +192,12 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 else
   echo "MySQL data directory already exists, skipping initialization"
   
-  # Ensure proper ownership of existing data
-  chown -R mysql:mysql /var/lib/mysql
+  # Ensure proper ownership of existing data (may fail in Kubernetes)
+  if chown -R mysql:mysql /var/lib/mysql 2>/dev/null; then
+    echo "Successfully ensured ownership of existing MySQL data"
+  else
+    echo "Warning: Could not change ownership of existing data (expected in managed storage)"
+  fi
   
   # Verify existing installation integrity
   if [ ! -f "/var/lib/mysql/mysql/user.frm" ]; then
@@ -174,6 +207,17 @@ fi
 
 # Verify and validate MySQL configuration
 echo "Validating MySQL configuration..."
+
+# Create MySQL configuration for managed storage if needed
+if [ "$MANAGED_STORAGE" = true ]; then
+    echo "Creating MySQL configuration for managed storage environment..."
+    mkdir -p /etc/mysql/conf.d
+    cat > /etc/mysql/conf.d/managed-storage.cnf << 'EOF'
+
+EOF
+    echo "Created managed storage MySQL configuration"
+fi
+
 MYSQL_CONFIG=""
 if [ -f "/etc/mysql/my.cnf" ]; then
   MYSQL_CONFIG="/etc/mysql/my.cnf"
@@ -194,15 +238,27 @@ fi
 
 # Final ownership and permission verification
 echo "Finalizing MySQL environment setup..."
-chown -R mysql:mysql /var/run/mysqld
-find /var/lib/mysql -type d -exec chmod 755 {} \;
-find /var/lib/mysql -type f -exec chmod 644 {} \;
+# These operations may fail in managed Kubernetes storage - that's expected
+chown -R mysql:mysql /var/run/mysqld 2>/dev/null || echo "Note: Could not change ownership of /var/run/mysqld"
+find /var/lib/mysql -type d -exec chmod 755 {} \; 2>/dev/null || echo "Note: Could not change directory permissions"
+find /var/lib/mysql -type f -exec chmod 644 {} \; 2>/dev/null || echo "Note: Could not change file permissions"
 
 echo "MySQL environment preparation completed"
 
 # Start MySQL in the background
 echo "Starting MySQL..."
-/usr/sbin/mysqld --user=mysql &
+
+# In managed storage environments, MySQL may need to run as root or with different user
+if [ "$MANAGED_STORAGE" = true ] && [ ! -w "/var/lib/mysql" ]; then
+    echo "Starting MySQL as root due to managed storage constraints..."
+    /usr/sbin/mysqld --user=root &
+elif id mysql >/dev/null 2>&1; then
+    echo "Starting MySQL as mysql user..."
+    /usr/sbin/mysqld --user=mysql &
+else
+    echo "MySQL user not found, starting as root..."
+    /usr/sbin/mysqld --user=root &
+fi
 
 # Wait for MySQL to start
 MYSQL_START_TIMEOUT=60
