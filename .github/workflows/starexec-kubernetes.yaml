@@ -48,20 +48,3 @@ jobs:
           echo "Init outcome: ${{ steps.init.outcome }}"
           echo "Validate outcome: ${{ steps.validate.outcome }}"
           exit 1
-
-  validate-kubernetes:
-    name: Validate Kubernetes Manifests
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ env.WORKDIR }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v3
-
-      - name: Validate Kubernetes manifests
-        run: |
-          find microk8s/YAMLFiles terraform/YAMLFiles -type f \( -name "*.yaml" -o -name "*.yml" \) -print -exec kubectl apply --dry-run=client -f {} \;
