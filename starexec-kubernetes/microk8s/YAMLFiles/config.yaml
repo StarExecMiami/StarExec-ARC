@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: starexec-config
-data:
-  SSH_USERNAME: "jack"  # Replace with your actual username
-  HOST_MACHINE: "localhost"
-  SSH_PORT: "22"
-  SSH_SOCKET_PATH: "/run/user/1000/podman/podman.sock"
