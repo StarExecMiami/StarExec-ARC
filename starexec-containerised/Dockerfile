@@ -237,6 +237,9 @@ RUN chown -R tomcat:star-web /project && \
 # Final setup and entrypoint
 # ---------------------------
 
+# Copy MySQL configuration for managed storage if applicable
+COPY dockerPackage/configFiles/managed-storage.cnf /etc/mysql/conf.d/
+
 # Copy initialization script
 COPY init-starexec.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/init-starexec.sh
