@@ -1,0 +1,30 @@
+[mysqld]
+# Configuration for managed storage environments (EKS/EFS)
+# Allow running as any user when file ownership cannot be changed
+user = root
+skip-grant-tables = false
+bind-address = 0.0.0.0
+port = 3306
+
+# Performance and compatibility settings
+innodb_use_native_aio = 0
+innodb_flush_method = fsync
+sync_binlog = 0
+
+# Logging
+log-error = /var/log/mysql/error.log
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 2
+
+# Connection settings
+max_connections = 200
+connect_timeout = 60
+wait_timeout = 600
+max_allowed_packet = 64M
+
+[mysql]
+default-character-set = utf8mb4
+
+[mysqldump]
+default-character-set = utf8mb4
