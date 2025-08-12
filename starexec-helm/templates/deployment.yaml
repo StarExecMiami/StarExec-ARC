@@ -27,21 +27,40 @@ spec:
       {{- end }}
       serviceAccountName: {{ include "starexec.serviceAccountName" . }}
       securityContext:
-        privileged: {{ .Values.deployment.securityContext.privileged }}
+        # EKS/EFS compatibility: Set fsGroup to match MySQL user ID
+        fsGroup: 999  # MySQL user ID
         runAsUser: {{ .Values.deployment.securityContext.runAsUser }}
+        # Allow privilege escalation for chown operations where possible
+        fsGroupChangePolicy: "OnRootMismatch"
       terminationGracePeriodSeconds: {{ .Values.deployment.terminationGracePeriodSeconds | default 60 }}
       initContainers:
       - name: init-volume
         image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+        securityContext:
+          runAsUser: 0  # Run as root for initial setup
+          capabilities:
+            add:
+              - CHOWN
+              - DAC_OVERRIDE
         command:
           - sh
           - -c
           - >
-            if [ "$(ls -A /mnt/vol-db)" ]; then echo "vol-db is not empty"; else cp -r /var/lib/mysql/* /mnt/vol-db/; fi &&
+            echo "Initializing volumes with proper permissions..." &&
+            if [ "$(ls -A /mnt/vol-db)" ]; then 
+              echo "vol-db is not empty, ensuring permissions...";
+              # Try to set ownership, ignore failures in managed storage
+              chown -R 999:999 /mnt/vol-db 2>/dev/null || echo "Note: Could not change ownership (expected in managed storage)";
+              chmod -R 755 /mnt/vol-db 2>/dev/null || echo "Note: Could not change permissions";
+            else 
+              echo "vol-db is empty, copying initial data...";
+              cp -r /var/lib/mysql/* /mnt/vol-db/;
+              chown -R 999:999 /mnt/vol-db 2>/dev/null || echo "Note: Could not change ownership";
+              chmod -R 755 /mnt/vol-db 2>/dev/null || echo "Note: Could not change permissions";
+            fi &&
             if [ "$(ls -A /mnt/vol-star)" ]; then echo "vol-star is not empty"; else cp -r /home/starexec/* /mnt/vol-star/; fi &&
             if [ "$(ls -A /mnt/vol-pro)" ]; then echo "vol-pro is not empty"; else cp -r /project/* /mnt/vol-pro/; fi &&
-            if [ "$(ls -A /mnt/vol-export)" ]; then echo "vol-export is not empty"; else cp -r /export/* /mnt/vol-export/; fi &&
-            chown -R root:root /mnt/vol-db /mnt/vol-star /mnt/vol-pro /mnt/vol-export
+            if [ "$(ls -A /mnt/vol-export)" ]; then echo "vol-export is not empty"; else cp -r /export/* /mnt/vol-export/; fi
         volumeMounts:
         - name: vol-db
           mountPath: /mnt/vol-db
@@ -78,6 +97,14 @@ spec:
                 configMapKeyRef:
                   name: {{ include "starexec.fullname" . }}-config
                   key: SSH_SOCKET_PATH
+            # Kubernetes/EKS environment indicator
+            - name: STAREXEC_MANAGED_STORAGE
+              value: "true"
+            # MySQL user/group IDs for permission handling
+            - name: MYSQL_UID
+              value: "999"
+            - name: MYSQL_GID
+              value: "999"
           ports:
             - name: http
               containerPort: 80

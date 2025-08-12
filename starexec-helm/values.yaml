@@ -20,10 +20,24 @@ serviceAccount:
   name: ""
 
 podAnnotations: {}
-podSecurityContext: {}
-  # fsGroup: 2000
+podSecurityContext:
+  # EKS/EFS compatibility
+  fsGroup: 999  # MySQL user ID
+  runAsUser: 0  # Run as root initially, processes can drop privileges
+  fsGroupChangePolicy: "OnRootMismatch"
+  # Allow supplemental groups for MySQL
+  supplementalGroups: [999]
 
-securityContext: {}
+securityContext:
+  # Main container security context
+  capabilities:
+    add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETUID
+      - SETGID
+  # Allow privilege dropping for specific processes
+  allowPrivilegeEscalation: true
   # capabilities:
   #   drop:
   #   - ALL
