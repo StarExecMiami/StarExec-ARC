@@ -1,12 +1,120 @@
+# Version control
 .git/
 .gitignore
-node_modules/
+.gitattributes
+
+# Documentation
 *.md
+README*
+LICENSE*
+CHANGELOG*
+
+# Logs and temporary files
 *.log
+logs/
+tmp/
+temp/
+*.tmp
 .DS_Store
+Thumbs.db
+
+# Environment and configuration
 .env
 .env.*
-tmp/
-logs/
+*.local
+.vscode/
+.idea/
+
+# Build artifacts and dependencies
+node_modules/
 build/
 dist/
+target/
+bin/
+*.class
+*.jar
+*.war
+*.ear
+
+# Archives and compressed files
+*.zip
+*.tar
+*.tar.gz
+*.tar.xz
+*.tar.bz2
+*.tgz
+*.rar
+*.7z
+
+# Virtual environments and language-specific
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# SSH keys and certificates
+**/starexec_podman_key
+**/starexec_podman_key.pub
+**/*key
+**/*.pub
+**/*.crt
+**/*.pem
+ssh-keys/
+
+# Testing and development
+**/test*
+**/Test*
+**/junit*
+selenium_*.log
+selenium_*.py
+*_test.py
+test_*.py
+
+# Backup and state files
+state-backup*/
+**/state-backup*
+**/*backup*
+*.backup
+*.bak
+
+# Container and infrastructure files (outside the main project)
+../container-experiments/
+../starexec-helm/
+../starexec-kubernetes/
+../starexec-proxy-provers/
+../starexec-tptp/
+
+# Problem files and test data
+**/Problems/
+**/BOO/
+*.p
+problemfile
+
+# Build logs and output
+build-*.log
+output.log
+catalina.*.log
+catalina.out
+*_access_log.txt
+
+# Terraform and infrastructure
+.terraform/
+.terraform*
+terraform.tfstate*
+*.tfvars
+
+# Makefile artifacts
+Makefile
+makefile
+
+# Miscellaneous development files
+*.swp
+*.swo
+*~
+.cache/
+.local/
