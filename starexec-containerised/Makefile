@@ -15,7 +15,7 @@ GET_CONTAINER_ID_CMD = podman ps --filter name=$(CONTAINER_NAME) --format '{{.ID
 # Helper command to get any container (running or stopped) ID by name
 GET_ANY_CONTAINER_ID_CMD = podman ps -a --filter name=$(CONTAINER_NAME) --format '{{.ID}}'
 
-.PHONY: all local k8s starexec pull clean cleanVolumes connect start stop kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help
+.PHONY: all local k8s starexec pull clean cleanVolumes connect start stop kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help state-init state-pack state-unpack
 
 all: ## Prompt for backend type
 	@echo "Choose backend type:"
@@ -126,7 +126,8 @@ run: ssh-setup mkcert-setup ## Run the starexec container interactively (for tes
 			--workdir /home/starexec/StarExec-deploy \
 			--cap-add=NET_RAW \
 			--network slirp4netns:allow_host_loopback=true \
-			-v $(BACKUP_DIR)/volDB:/var/lib/mysql \
+			--tmpfs /var/run/mysqld:rw,size=128m,mode=775 \
+			-v $(BACKUP_DIR)/volDB:/var/lib/mysql:U \
 			-v $(BACKUP_DIR)/volExport:/export \
 			-v ./starexec_podman_key:/root/.ssh/starexec_podman_key \
 			-v $(HOME)/.local/share/mkcert/localhost.key:/etc/ssl/private/localhost.key \
@@ -135,6 +136,7 @@ run: ssh-setup mkcert-setup ## Run the starexec container interactively (for tes
 			-e HOST_MACHINE=host.containers.internal \
 			-e SSH_PORT=22 \
 			-e SSH_SOCKET_PATH=${PODMAN_SOCKET_PATH} \
+			-e MYSQL_START_TIMEOUT=180 \
 			--healthcheck-interval=60s \
 			--healthcheck-timeout=15s \
 			--healthcheck-retries=5 \
@@ -165,7 +167,8 @@ start-container: ## Start the starexec container (internal use)
 	@podman run -d --name $(CONTAINER_NAME) \
 			--cap-add=NET_RAW \
 			--network slirp4netns:allow_host_loopback=true \
-			-v $(BACKUP_DIR)/volDB:/var/lib/mysql \
+			--tmpfs /var/run/mysqld:rw,size=128m,mode=775 \
+			-v $(BACKUP_DIR)/volDB:/var/lib/mysql:U \
 			-v $(BACKUP_DIR)/volExport:/export \
 			-v ./starexec_podman_key:/root/.ssh/starexec_podman_key \
 			-v $(HOME)/.local/share/mkcert/localhost.key:/etc/ssl/private/localhost.key \
@@ -174,6 +177,7 @@ start-container: ## Start the starexec container (internal use)
 			-e HOST_MACHINE=host.containers.internal \
 			-e SSH_PORT=22 \
 			-e SSH_SOCKET_PATH=${PODMAN_SOCKET_PATH} \
+			-e MYSQL_START_TIMEOUT=180 \
 			--healthcheck-interval=60s \
 			--healthcheck-timeout=15s \
 			--healthcheck-retries=5 \
@@ -184,13 +188,10 @@ start-container: ## Start the starexec container (internal use)
 	@echo "Waiting for container to initialize (approx 60 seconds)..."
 	@sleep 60
 
-start: ssh-setup mkcert-setup ## Start the starexec container with state restoration logic
-	@echo "Starting StarExec with state restoration logic..."
-	@# Step 1: Stop current container
-	@$(MAKE) -s stop >/dev/null 2>&1 || true
-	@$(MAKE) -s cleanVolumes >/dev/null 2>&1
-	@# Step 2: Launch container
-	@$(MAKE) -s start-container
+start: ssh-setup mkcert-setup state-init ## Start the starexec container, preserving state
+	@echo "Starting StarExec..."
+	@# This will start a stopped container or create a new one if it does not exist.
+	@$(MAKE) start-container
 	
 stop: ## Stop the persistent starexec container
 	@echo "Stopping the starexec container..."
@@ -243,6 +244,15 @@ kill: ## Stop and remove the persistent starexec container
 
 cleanVolumes: ## Remove starexec related volumes (WARNING: data loss)
 	@echo "Removing volumes: volDB, volExport"
+	@if [ -d "$(BACKUP_DIR)/volDB" ]; then \
+		echo "Fixing ownership before deletion..."; \
+		sudo chown -R $(shell id -u):$(shell id -g) $(BACKUP_DIR)/volDB 2>/dev/null || \
+		podman run --rm -v $(BACKUP_DIR)/volDB:/tmp/volDB:U alpine:latest chown -R 1000:1000 /tmp/volDB 2>/dev/null || true; \
+	fi
+	@if [ -d "$(BACKUP_DIR)/volExport" ]; then \
+		sudo chown -R $(shell id -u):$(shell id -g) $(BACKUP_DIR)/volExport 2>/dev/null || \
+		podman run --rm -v $(BACKUP_DIR)/volExport:/tmp/volExport:U alpine:latest chown -R 1000:1000 /tmp/volExport 2>/dev/null || true; \
+	fi
 	@rm -rf $(BACKUP_DIR)/volDB $(BACKUP_DIR)/volExport
 
 connect: ## Connect to the running starexec container via bash shell
@@ -296,6 +306,55 @@ microk8s-clean: ## Clean up starexec images from the MicroK8s registry
 		fi; \
 	done
 	@echo "MicroK8s images cleaned up."
+
+state-init: ## Initialize local state folders and prepare DB/export for sharing
+	@echo "Initializing persistent state in $(BACKUP_DIR)..."
+	@mkdir -p $(BACKUP_DIR)/volDB $(BACKUP_DIR)/volExport
+	@echo "Fixing ownership for rootless Podman..."
+	@podman unshare chown -R 999:999 $(BACKUP_DIR)/volDB 2>/dev/null || true
+	@chmod 775 $(BACKUP_DIR)/volDB 2>/dev/null || true
+	@podman unshare chown -R 153:160 $(BACKUP_DIR)/volExport 2>/dev/null || true
+	@chmod -R 775 $(BACKUP_DIR)/volExport 2>/dev/null || true
+	@if [ ! -f "$(BACKUP_DIR)/volDB/mysql/db.frm" ]; then \
+		echo "Initializing MariaDB system tables in volDB..."; \
+		if ! podman image exists starexec:${VERSION}; then \
+			echo "Image starexec:${VERSION} not found locally. Pulling..."; \
+			$(MAKE) pull; \
+		fi; \
+		echo "Removing any incomplete database initialization..."; \
+		rm -rf $(BACKUP_DIR)/volDB/* 2>/dev/null || true; \
+		podman run --rm \
+			--user 0 \
+			--tmpfs /var/run/mysqld:rw,size=128m,mode=775 \
+			-v $(BACKUP_DIR)/volDB:/var/lib/mysql:U \
+			starexec:${VERSION} bash -c '\
+				chown -R mysql:mysql /var/lib/mysql && \
+				mysql_install_db --user=mysql --datadir=/var/lib/mysql --basedir=/usr --force && \
+				chown -R mysql:mysql /var/lib/mysql \
+			'; \
+		if [ ! -f "$(BACKUP_DIR)/volDB/mysql/db.frm" ] && [ ! -f "$(BACKUP_DIR)/volDB/mysql/global_priv.MAD" ] && ! sudo test -f "$(BACKUP_DIR)/volDB/mysql/db.frm" 2>/dev/null; then \
+			echo "ERROR: Database initialization failed!"; \
+			exit 1; \
+		fi; \
+		echo "Database initialization completed successfully."; \
+	fi
+	@echo "State initialization complete."
+
+state-pack: ## Create a tar.gz with backup_starexec to share
+	@echo "Packing backup_starexec into a tar.gz..."
+	@ts=$$(date +%Y%m%d_%H%M%S); \
+	out="starexec-state-$$ts.tar.gz"; \
+	tar -C $(CURDIR) -czf "$$out" backup_starexec; \
+	echo "Created: $$out"
+
+state-unpack: ## Unpack a state tar.gz into current project (use: make state-unpack FILE=path.tar.gz)
+	@if [ -z "$$FILE" ]; then \
+		echo "Usage: make state-unpack FILE=/path/to/starexec-state-*.tar.gz"; \
+		exit 1; \
+	fi
+	@echo "Unpacking $$FILE into $(CURDIR)..."
+	@tar -C $(CURDIR) -xzf "$$FILE"
+	@echo "Unpacked. You may run 'make state-init' then 'make start'"
 
 help: ## Display help for Makefile targets
 	@echo "Makefile Commands:"
