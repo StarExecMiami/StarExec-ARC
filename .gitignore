@@ -33,7 +33,8 @@ build-*.log
 .vscode
 
 # Backup files
-**/state-backup*
+**/state*
+**/backup*
 
 *.zip
 *.tar
