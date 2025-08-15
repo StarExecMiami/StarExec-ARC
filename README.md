@@ -4,7 +4,7 @@
 [![GitHub Issues](https://img.shields.io/github/issues/StarExecMiami/starexec-arc)](https://github.com/StarExecMiami/starexec-arc/issues)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/StarExecMiami/starexec-arc)](https://github.com/StarExecMiami/starexec-arc/commits/main)
 
-[![Build Status: CI/CD](https://github.com/StarExecMiami/starexec-arc/actions/workflows/ci-di.yaml/badge.svg?branch=master)](https://github.com/StarExecMiami/starexec-arc/actions/workflows/ci-di.yaml)
+[![Build Status: CI/CD](https://github.com/StarExecMiami/starexec-arc/actions/workflows/ci-di.yaml/badge.svg?branch=master)](https://github.com/StarExecMiami/starexec-arc/actions/workflows/ci-cd.yaml)
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/tptpstarexec/starexec)](https://hub.docker.com/r/starexecmiami/starexec)
 [![GitHub Container Registry](https://img.shields.io/badge/GHCR-latest-blue)](https://github.com/StarExecMiami/starexec-arc/pkgs/container/starexec-arc)
