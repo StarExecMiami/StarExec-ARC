@@ -2,12 +2,11 @@
 
 [![GitHub Stars](https://img.shields.io/github/stars/StarExecMiami/starexec-arc?style=social)](https://github.com/StarExecMiami/starexec-arc/stargazers)
 [![GitHub Issues](https://img.shields.io/github/issues/StarExecMiami/starexec-arc)](https://github.com/StarExecMiami/starexec-arc/issues)
-[![GitHub Last Commit](https://img.shields.io/github/last-commit/StarExecMiami/starexec-arc)](https://github.com/StarExecMiami/starexec-arc/commits/main)
+[![Last Commit](https://img.shields.io/github/last-commit/StarExecMiami/starexec-arc)](https://github.com/StarExecMiami/starexec-arc/commits/master)
 
-[![Build Status: CI/CD](https://github.com/StarExecMiami/starexec-arc/actions/workflows/ci-cd.yaml/badge.svg?branch=master)](https://github.com/StarExecMiami/starexec-arc/actions/workflows/ci-cd.yaml)
-
-[![Docker Pulls](https://img.shields.io/docker/pulls/tptpstarexec/starexec)](https://hub.docker.com/r/starexecmiami/starexec)
-[![GitHub Container Registry](https://img.shields.io/badge/GHCR-latest-blue)](https://github.com/StarExecMiami/starexec-arc/pkgs/container/starexec-arc)
+[![CI/CD](https://github.com/StarExecMiami/starexec-arc/actions/workflows/ci-cd.yaml/badge.svg?branch=master)](https://github.com/StarExecMiami/starexec-arc/actions/workflows/ci-cd.yaml)
+[![Docker Pulls](https://img.shields.io/docker/pulls/tptpstarexec/starexec)](https://hub.docker.com/r/tptpstarexec/starexec)
+[![GHCR](https://img.shields.io/badge/GHCR-latest-blue)](https://github.com/StarExecMiami/starexec-arc/pkgs/container/starexec-arc)
 
 This repository contains code for the containerization of Automated Theorem Proving (ATP) systems.
 It also includes deployment scripts for these ATP containers within a containerized StarExec
@@ -96,7 +95,7 @@ StarExec:
     - **URL Access**:
       - **MicroK8s**: Run `microk8s kubectl get svc` to obtain the URL.
       - **EKS without Route53**: Execute `kubectl get svc` to get the URL.
-      - **EKS with Route53**: The URL follows the format `https://your_Route53_domain`.
+      - **EKS with Route53**: The URL follows the format `https://your_Route53_domaster`.
     - Open the URL in your browser to start using StarExec.
 
 <!-- ------------------------------------------------------------------------------------------ -->
