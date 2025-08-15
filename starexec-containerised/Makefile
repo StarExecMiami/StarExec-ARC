@@ -4,21 +4,18 @@ SHELL := /bin/bash
 
 USER=$(shell whoami)
 PODMAN_SOCKET_PATH="/run/user/$(shell id -u)/podman/podman.sock" # Use id -u for portability
-REGISTRY ?= docker.io
+REGISTRY ?= ghcr.io
 VERSION ?= latest
 CONTAINER_NAME := starexec-app
-
-# State Backup Configuration
-BACKUP_DIR := $(CURDIR)/state-backup
-# Paths inside the container to backup/restore
-STATE_PATHS := /var/lib/mysql /home/starexec
+STAREXEC_IMAGE := ghcr.io/starexecmiami/starexec-arc:${VERSION}
+BACKUP_DIR := $(CURDIR)/backup_starexec
 
 # Helper command to get the running container ID by name
 GET_CONTAINER_ID_CMD = podman ps --filter name=$(CONTAINER_NAME) --format '{{.ID}}'
 # Helper command to get any container (running or stopped) ID by name
 GET_ANY_CONTAINER_ID_CMD = podman ps -a --filter name=$(CONTAINER_NAME) --format '{{.ID}}'
 
-.PHONY: all local k8s starexec clean cleanVolumes connect start stop backup-state restore-state kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help
+.PHONY: all local k8s starexec pull clean cleanVolumes connect start stop kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help
 
 all: ## Prompt for backend type
 	@echo "Choose backend type:"
@@ -43,11 +40,9 @@ k8s: ## Set backend type to k8s and prepare for building
 	@echo "Backend type set to k8s. You can now run 'make starexec' to build the container."
 	@$(MAKE) starexec
 
-starexec: ## Build the starexec container image
-	@echo "Building the starexec image..."
-	@echo "Make sure to run 'make mkcert-setup' and 'ssh-setup' first."
-	@echo "Building starexec image with version: ${VERSION}..."
-
+starexec: ## Build the starexec container image (deprecated - use pull instead)
+	@echo "Warning: Building locally is deprecated. Use 'make pull' to get the pre-built image."
+	@echo "If you still want to build locally, the build process remains the same but is not recommended."
 	VERSION=${VERSION} && \
 	START_TIME=$$(date +%Y-%m-%d\ %H:%M:%S) && echo "Build started at: $$START_TIME" | tee build-$$VERSION.log && \
 	time podman build \
@@ -55,6 +50,12 @@ starexec: ## Build the starexec container image
 			2> >(tee -a build-$$VERSION.log >&2) && \
 	END_TIME=$$(date +%Y-%m-%d\ %H:%M:%S) && echo "Build finished at: $$END_TIME" | tee -a build-$$VERSION.log && \
 	echo "Build duration: $$(date -u -d @$$(( $$(date -d "$$END_TIME" +%s) - $$(date -d "$$START_TIME" +%s) )) +%H:%M:%S)" | tee -a build-$$VERSION.log
+
+pull: ## Pull the pre-built starexec image from GitHub Container Registry
+	@echo "Pulling starexec image from ${STAREXEC_IMAGE}..."
+	@podman pull ${STAREXEC_IMAGE}
+	@podman tag ${STAREXEC_IMAGE} starexec:${VERSION}
+	@echo "Image pulled and tagged as starexec:${VERSION}"
 
 ssh-setup: ## Setup SSH keys for podman communication
 	@echo "Setting up SSH keys..."
@@ -115,14 +116,18 @@ mkcert-setup: ## Setup mkcert and generate localhost TLS certificates
 run: ssh-setup mkcert-setup ## Run the starexec container interactively (for testing/dev)
 	@echo "Running the starexec container interactively (will be removed on exit)..."
 	@echo "Make sure to run 'make mkcert-setup' and 'ssh-setup' first."
-	# This target is for temporary runs. Use 'make start' for persistent runs with state.
+	@if ! podman image exists starexec:${VERSION}; then \
+		echo "Image starexec:${VERSION} not found locally. Pulling from registry..."; \
+		$(MAKE) pull; \
+	fi
+	@mkdir -p $(BACKUP_DIR)/volDB
+	@mkdir -p $(BACKUP_DIR)/volExport
 	@podman run --rm -it --name $(CONTAINER_NAME) \
+			--workdir /home/starexec/StarExec-deploy \
 			--cap-add=NET_RAW \
 			--network slirp4netns:allow_host_loopback=true \
-			-v volDB:/var/lib/mysql \
-			-v volStar:/home/starexec \
-			-v volPro:/project \
-			-v volExport:/export \
+			-v $(BACKUP_DIR)/volDB:/var/lib/mysql \
+			-v $(BACKUP_DIR)/volExport:/export \
 			-v ./starexec_podman_key:/root/.ssh/starexec_podman_key \
 			-v $(HOME)/.local/share/mkcert/localhost.key:/etc/ssl/private/localhost.key \
 			-v $(HOME)/.local/share/mkcert/localhost.crt:/etc/ssl/certs/localhost.crt \
@@ -134,7 +139,7 @@ run: ssh-setup mkcert-setup ## Run the starexec container interactively (for tes
 			--healthcheck-timeout=15s \
 			--healthcheck-retries=5 \
 			--healthcheck-start-period=180s \
-			--healthcheck-command "bash -c 'mysqladmin ping -u root --silent --connect-timeout=5 && (service apache2 status | grep -q \"running\" || pgrep apache2 >/dev/null) && (ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap\" || pgrep -f catalina >/dev/null) && (curl -s -k --max-time 10 -I https://localhost:7827/starexec/ | grep -q \"200\\|302\\|301\" || curl -s -k --max-time 10 https://localhost:7827/ >/dev/null)'" \
+			--healthcheck-command "bash -c 'mysqladmin ping -u root --silent --connect-timeout=5 && (service apache2 status | grep -q \"running\" || pgrep apache2 >/dev/null) && (ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap\" || pgrep -f catalina >/dev/null) && (curl -s -k --max-time 10 -I https://localhost/starexec/ | grep -q \"200\\|302\\|301\" || curl -s -k --max-time 10 https://localhost/starexec/ >/dev/null)'" \
 			-p 7827:443 -p 7826:80 starexec:${VERSION}
 
 start-container: ## Start the starexec container (internal use)
@@ -145,20 +150,23 @@ start-container: ## Start the starexec container (internal use)
 		echo "Use 'make stop' to stop it first if you want to restart it."; \
 		exit 0; \
 	fi
-	@# Check for stopped container with same name and remove it
 	@stopped_container_id=$$($(GET_ANY_CONTAINER_ID_CMD)); \
 	if [ -n "$$stopped_container_id" ]; then \
 		echo "Found stopped container $(CONTAINER_NAME) with ID: $$stopped_container_id. Removing it..."; \
 		podman rm $$stopped_container_id; \
 	fi
+	@if ! podman image exists starexec:${VERSION}; then \
+		echo "Image starexec:${VERSION} not found locally. Pulling from registry..."; \
+		$(MAKE) pull; \
+	fi
+	@mkdir -p $(BACKUP_DIR)/volDB
+	@mkdir -p $(BACKUP_DIR)/volExport
 	@echo "Launching container $(CONTAINER_NAME)..."
 	@podman run -d --name $(CONTAINER_NAME) \
 			--cap-add=NET_RAW \
 			--network slirp4netns:allow_host_loopback=true \
-			-v volDB:/var/lib/mysql \
-			-v volStar:/home/starexec \
-			-v volPro:/project \
-			-v volExport:/export \
+			-v $(BACKUP_DIR)/volDB:/var/lib/mysql \
+			-v $(BACKUP_DIR)/volExport:/export \
 			-v ./starexec_podman_key:/root/.ssh/starexec_podman_key \
 			-v $(HOME)/.local/share/mkcert/localhost.key:/etc/ssl/private/localhost.key \
 			-v $(HOME)/.local/share/mkcert/localhost.crt:/etc/ssl/certs/localhost.crt \
@@ -169,8 +177,9 @@ start-container: ## Start the starexec container (internal use)
 			--healthcheck-interval=60s \
 			--healthcheck-timeout=15s \
 			--healthcheck-retries=5 \
+			--healthcheck-retries=5 \
 			--healthcheck-start-period=180s \
-			--healthcheck-command "bash -c 'mysqladmin ping -u root --silent --connect-timeout=5 && (service apache2 status | grep -q \"running\" || pgrep apache2 >/dev/null) && (ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap\" || pgrep -f catalina >/dev/null) && (curl -s -k --max-time 10 -I http://localhost/ | grep -q \"200\\|302\\|301\" || curl -s -k --max-time 10 http://localhost/ >/dev/null)'" \
+			--healthcheck-command "bash -c 'mysqladmin ping -u root --silent --connect-timeout=5 && (service apache2 status | grep -q \"running\" || pgrep apache2 >/dev/null) && (ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap\" || pgrep -f catalina >/dev/null) && (curl -s -k --max-time 10 -I https://localhost/starexec/ | grep -q \"200\\|302\\|301\" || curl -s -k --max-time 10 https://localhost/starexec/ >/dev/null)'" \
 			-p 7827:443 -p 7826:80 starexec:${VERSION}
 	@echo "Waiting for container to initialize (approx 60 seconds)..."
 	@sleep 60
@@ -179,272 +188,18 @@ start: ssh-setup mkcert-setup ## Start the starexec container with state restora
 	@echo "Starting StarExec with state restoration logic..."
 	@# Step 1: Stop current container
 	@$(MAKE) -s stop >/dev/null 2>&1 || true
+	@$(MAKE) -s cleanVolumes >/dev/null 2>&1
+	@# Step 2: Launch container
+	@$(MAKE) -s start-container
 	
-	@# Step 2: Check for state-backup existence
-	@if [ -d "$(BACKUP_DIR)" ] || [ -f "$(BACKUP_DIR)" ]; then \
-		echo "State backup found. Restoring from $(BACKUP_DIR)..."; \
-		$(MAKE) -s cleanVolumes >/dev/null 2>&1; \
-		$(MAKE) -s start-container; \
-		sleep 30; \
-		$(MAKE) -s restore-state; \
-	else \
-		echo "No state backup found. Checking for existing container state..."; \
-		if podman volume exists volDB >/dev/null 2>&1 && \
-		   [ -n "$$(podman volume inspect volDB --format '{{.Mountpoint}}' 2>/dev/null | xargs ls -A 2>/dev/null)" ] || \
-		   podman volume exists volStar >/dev/null 2>&1 && \
-		   [ -n "$$(podman volume inspect volStar --format '{{.Mountpoint}}' 2>/dev/null | xargs ls -A 2>/dev/null)" ]; then \
-			echo "Existing state found. Using current data..."; \
-			$(MAKE) -s start-container; \
-		else \
-			echo "No existing state found. Starting clean..."; \
-			$(MAKE) -s cleanVolumes >/dev/null 2>&1; \
-			$(MAKE) -s start-container; \
-		fi; \
-	fi
-	@echo "Startup process completed. Access at https://localhost:7827"
-	@echo "Note: Container may show as 'unhealthy' initially while services fully initialize."
-	@echo "Wait a few minutes and check with 'podman ps' - it should become healthy."
-
-stop: ## Backup state and stop the persistent starexec container
+stop: ## Stop the persistent starexec container
 	@echo "Stopping the starexec container..."
 	@if [ -z "$$($(GET_CONTAINER_ID_CMD))" ]; then \
 		echo "Container $(CONTAINER_NAME) is not running."; \
 		exit 0; \
 	fi
-	$(MAKE) backup-state
 	$(MAKE) kill
-	@echo "StarExec container stopped. State backed up to $(BACKUP_DIR)."
-
-backup-state: ## Backup application state from the running container to local directory
-	@echo "Backing up StarExec state..."
-	@mkdir -p $(BACKUP_DIR)
-	@container_id=$$($(GET_CONTAINER_ID_CMD)); \
-	if [ -z "$$container_id" ]; then \
-		echo "Error: Container $(CONTAINER_NAME) not found or not running."; \
-		exit 1; \
-	fi; \
-	echo "Using container: $$container_id"; \
-	
-	# Create a mysqldump first (safer than stopping MySQL)
-	echo "Creating MySQL dump for backup..."; \
-	mkdir -p "$(BACKUP_DIR)/var/lib/mysql-dump"; \
-	podman exec $$container_id /bin/bash -c "mysqldump --all-databases --single-transaction --quick > /tmp/all_databases.sql" || \
-		echo "Warning: MySQL dump may not be complete. Will try direct file copy as well."; \
-	podman cp $$container_id:/tmp/all_databases.sql "$(BACKUP_DIR)/var/lib/mysql-dump/" || \
-		echo "Warning: MySQL dump copy failed. Proceeding with direct file backup."; \
-	
-	# Backup files one by one without stopping services
-	for path in $(STATE_PATHS); do \
-		target_dir="$(BACKUP_DIR)$${path}"; \
-		echo "Backing up $$path to $${target_dir}..."; \
-		mkdir -p "$${target_dir}"; \
-		rm -rf "$${target_dir}"/*; \
-		
-		# Check if container is still running
-		if ! podman inspect $$container_id >/dev/null 2>&1 || \
-		   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" != "true" ]; then \
-			echo "Container is no longer running! Stopping backup process."; \
-			break; \
-		fi; \
-		
-		if [ "$$path" = "/var/lib/mysql" ]; then \
-			echo "Using special handling for MySQL data directory..."; \
-			# Copy MySQL files with rsync if available, otherwise use tar
-			if podman exec $$container_id which rsync >/dev/null 2>&1; then \
-				podman exec $$container_id rsync -a --exclude='*.sock' --exclude='performance_schema' \
-					--exclude='lost+found' $$path/ /tmp/mysql_backup/ || true; \
-				podman cp $$container_id:/tmp/mysql_backup/. "$${target_dir}/" || \
-					echo "Warning: MySQL files backup via rsync failed"; \
-			else \
-				# Create archive with tar but exclude socket files
-				podman exec $$container_id tar -C $$path -cf /tmp/mysql_backup.tar \
-					--exclude='*.sock' --exclude='performance_schema' --exclude='lost+found' . || true; \
-				podman cp $$container_id:/tmp/mysql_backup.tar "$${target_dir}.tar" && \
-				mkdir -p "$${target_dir}" && \
-				tar -xf "$${target_dir}.tar" -C "$${target_dir}" && \
-				rm -f "$${target_dir}.tar" || \
-					echo "Warning: MySQL files backup via tar failed"; \
-			fi; \
-		else \
-			# For other directories, use same approach but check container state
-			if podman exec $$container_id which rsync >/dev/null 2>&1; then \
-				podman exec $$container_id rsync -a $$path/ /tmp/backup_$$(basename $$path)/ || true; \
-				podman cp $$container_id:/tmp/backup_$$(basename $$path)/. "$${target_dir}/" || \
-					echo "Warning: Files backup from $$path via rsync failed"; \
-			else \
-				# Create directory archive with tar
-				podman exec $$container_id bash -c "cd $$path && tar cf /tmp/backup_$$(basename $$path).tar . || true"; \
-				podman cp $$container_id:/tmp/backup_$$(basename $$path).tar "$${target_dir}.tar" && \
-				mkdir -p "$${target_dir}" && \
-				tar -xf "$${target_dir}.tar" -C "$${target_dir}" && \
-				rm -f "$${target_dir}.tar" || \
-					echo "Warning: Files backup from $$path via tar failed"; \
-			fi; \
-		fi; \
-	done
-
-	# No need to restart MySQL as we didn't stop it
-	# Just check if container is still running at the end
-	if podman inspect $$container_id >/dev/null 2>&1 && \
-	   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" = "true" ]; then \
-		echo "Container is still running. Backup completed."; \
-	else \
-		echo "Note: Container exited during backup process."; \
-	fi
-	
-	@echo "State backup completed successfully to $(BACKUP_DIR)"
-	@echo "Backup size:"
-	@du -sh $(BACKUP_DIR)
-
-restore-state: ## Restore application state from local backup to the running container
-	@echo "Restoring StarExec state..."
-	@if [ ! -d "$(BACKUP_DIR)" ]; then \
-		echo "Error: Backup directory $(BACKUP_DIR) not found."; \
-		exit 1; \
-	fi
-	@container_id=$$($(GET_CONTAINER_ID_CMD)); \
-	if [ -z "$$container_id" ]; then \
-		echo "Error: Container $(CONTAINER_NAME) not found or not running."; \
-		exit 1; \
-	fi; \
-	echo "Restoring state to container: $$container_id from $(BACKUP_DIR)..."; \
-	
-	# Stop services before restoring files
-	@echo "Stopping services inside the container..."; \
-	podman exec $$container_id /bin/bash -c "apache2ctl -k graceful-stop || true; \
-		/project/apache-tomcat-7/bin/shutdown.sh || true; \
-		service mysql stop || service mariadb stop || true" || true
-	@sleep 5
-	
-	# Check if container is still running after stopping services
-	@if ! podman inspect $$container_id >/dev/null 2>&1 || \
-	   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" != "true" ]; then \
-		echo "Container stopped during service shutdown. Restarting container..."; \
-		podman start $$container_id; \
-		sleep 10; \
-	fi
-	
-	# Restore non-MySQL files first
-	@for path in $(STATE_PATHS); do \
-		if [ "$$path" = "/var/lib/mysql" ]; then \
-			continue; \
-		fi; \
-		source_dir="$(BACKUP_DIR)$${path}"; \
-		if [ ! -d "$$source_dir" ]; then \
-			echo "Warning: Backup source '$$source_dir' missing. Skipping $$path."; \
-			continue; \
-		fi; \
-		\
-		# Check container is running before each restore operation \
-		if ! podman inspect $$container_id >/dev/null 2>&1 || \
-		   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" != "true" ]; then \
-			echo "Container not running. Restarting..."; \
-			podman start $$container_id; \
-			sleep 10; \
-		fi; \
-		\
-		echo "Restoring $$path from $$source_dir..."; \
-		if tar cf - -C "$$source_dir" . | podman exec -i $$container_id tar xf - -C "$$path" 2>/dev/null; then \
-			echo "Successfully restored $$path using tar"; \
-		else \
-			echo "Error restoring $$path using tar. Trying alternative method..."; \
-			# Check container is still running after tar failure \
-			if ! podman inspect $$container_id >/dev/null 2>&1 || \
-			   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" != "true" ]; then \
-				echo "Container stopped during tar operation. Restarting..."; \
-				podman start $$container_id; \
-				sleep 10; \
-			fi; \
-			\
-			if podman exec $$container_id rm -rf "$$path"/* 2>/dev/null; then \
-				echo "Cleared target directory $$path"; \
-			fi; \
-			\
-			if podman cp "$$source_dir/." $$container_id:"$$path/" 2>/dev/null; then \
-				echo "Successfully restored $$path using podman cp"; \
-			else \
-				echo "Warning: Could not restore $$path completely"; \
-			fi; \
-		fi; \
-	done
-	
-	# Start MySQL service and restore data
-	@echo "Starting MySQL service and restoring data..."
-	@if ! podman inspect $$container_id >/dev/null 2>&1 || \
-	   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" != "true" ]; then \
-		echo "Container not running. Restarting..."; \
-		podman start $$container_id; \
-		sleep 15; \
-	fi
-	@podman exec $$container_id /bin/bash -c '\
-		echo "Ensuring MySQL/MariaDB service is running..."; \
-		if ! mysqladmin ping --silent --connect-timeout=5 2>/dev/null; then \
-			echo "MySQL not running. Attempting to start..."; \
-			service mariadb start || service mysql start || true; \
-			for i in $$(seq 1 15); do \
-				if mysqladmin ping --silent --connect-timeout=2 2>/dev/null; then \
-					echo "MySQL started successfully."; \
-					break; \
-				fi; \
-				sleep 2; \
-			done; \
-		fi; \
-		if ! mysqladmin ping --silent --connect-timeout=5 2>/dev/null; then \
-			echo "Error: MySQL failed to start. Cannot restore database."; \
-			exit 1; \
-		fi'
-	# Restore MySQL database from dump first, as it's the most reliable method
-	@if [ -f "$(BACKUP_DIR)/var/lib/mysql-dump/all_databases.sql" ]; then \
-		echo "Restoring MySQL database from dump..."; \
-		if podman cp "$(BACKUP_DIR)/var/lib/mysql-dump/all_databases.sql" $$container_id:/tmp/restore_dump.sql; then \
-			podman exec $$container_id /bin/bash -c '\
-				echo "Importing SQL dump..."; \
-				mysql < /tmp/restore_dump.sql || echo "Warning: SQL dump import may have had errors."; \
-				rm -f /tmp/restore_dump.sql'; \
-		else \
-			echo "Warning: Failed to copy SQL dump to container. Will try file-based restore."; \
-		fi; \
-	else \
-		echo "No MySQL dump found. Proceeding with file-based restore of /var/lib/mysql."; \
-		source_dir="$(BACKUP_DIR)/var/lib/mysql"; \
-		if [ -d "$$source_dir" ]; then \
-			echo "Restoring /var/lib/mysql from $$source_dir..."; \
-			podman exec $$container_id /bin/bash -c "service mariadb stop || service mysql stop || true"; \
-			sleep 5; \
-			if tar cf - -C "$$source_dir" . | podman exec -i $$container_id tar xf - -C "/var/lib/mysql"; then \
-				echo "Successfully restored /var/lib/mysql files."; \
-			else \
-				echo "Warning: Failed to restore /var/lib/mysql files via tar."; \
-			fi; \
-			podman exec $$container_id /bin/bash -c "chown -R mysql:mysql /var/lib/mysql; service mariadb start || service mysql start || true"; \
-			sleep 10; \
-		else \
-			echo "Warning: No backup files found for /var/lib/mysql."; \
-		fi; \
-	fi
-	
-	# Start remaining services
-	@echo "Starting Apache and Tomcat..."
-	@if ! podman inspect $$container_id >/dev/null 2>&1 || \
-	   [ "$$(podman inspect --format '{{.State.Running}}' $$container_id 2>/dev/null)" != "true" ]; then \
-		echo "Container not running. Restarting for service startup..."; \
-		podman start $$container_id; \
-		sleep 10; \
-	fi
-	@podman exec $$container_id /bin/bash -c '\
-		echo "Starting Apache and Tomcat..."; \
-		if command -v systemctl >/dev/null 2>&1; then \
-			systemctl start apache2 || systemctl start httpd || true; \
-		else \
-			service apache2 start || apache2ctl -k start || true; \
-		fi; \
-		sleep 3; \
-		if [ -f /project/apache-tomcat-7/bin/startup.sh ]; then \
-			/project/apache-tomcat-7/bin/startup.sh || true; \
-		fi; \
-		echo "Services startup completed."' 2>/dev/null || { echo "Warning: Some services may not have started properly."; }
-	@echo "State restore completed."
-	@echo "Note: Container may take a few more minutes to become fully healthy."
+	@echo "StarExec container stopped."
 
 clean: ## Remove the starexec container image and dangling images
 	@echo "Checking for existing 'starexec' image..."
@@ -487,8 +242,8 @@ kill: ## Stop and remove the persistent starexec container
 	fi
 
 cleanVolumes: ## Remove starexec related volumes (WARNING: data loss)
-	@echo "Removing volumes: volDB, volStar, volPro, volExport"
-	@podman volume rm -f volDB volStar volPro volExport
+	@echo "Removing volumes: volDB, volExport"
+	@rm -rf $(BACKUP_DIR)/volDB $(BACKUP_DIR)/volExport
 
 connect: ## Connect to the running starexec container via bash shell
 	@container_id=$$($(GET_CONTAINER_ID_CMD)); \
