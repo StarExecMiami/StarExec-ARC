@@ -1,0 +1,23 @@
+{
+    "Version": "2012-10-17",
+    "Id": "efs-policy-starexec",
+    "Statement": [
+        {
+            "Sid": "AllowAnonymousVPC",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "*"
+            },
+            "Action": [
+                "elasticfilesystem:ClientMount",
+                "elasticfilesystem:ClientWrite"
+            ],
+            "Resource": "${efs_arn}",
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceVpc": "${vpc_id}"
+                }
+            }
+        }
+    ]
+}

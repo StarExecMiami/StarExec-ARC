@@ -49,19 +49,9 @@ output "efs_file_system_id" {
   value       = module.efs.efs_file_system_id
 }
 
-output "efs_voldb_access_point_id" {
-  description = "ID of the voldb access point"
-  value       = module.efs.voldb_access_point_id
-}
-
-output "efs_volstar_access_point_id" {
-  description = "ID of the volstar access point"
-  value       = module.efs.volstar_access_point_id
-}
-
-output "efs_volpro_access_point_id" {
-  description = "ID of the volpro access point"
-  value       = module.efs.volpro_access_point_id
+output "efs_shared_access_point_id" {
+  description = "ID of the shared access point"
+  value       = module.efs.shared_access_point_id
 }
 
 output "domain_name" {

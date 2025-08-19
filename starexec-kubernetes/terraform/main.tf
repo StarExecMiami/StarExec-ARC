@@ -28,9 +28,9 @@ module "vpc" {
 
   vpc_name             = "starexec-vpc"
   vpc_cidr             = "10.0.0.0/16"
-  azs                  = slice(data.aws_availability_zones.available.names, 0, 3)
-  private_subnets      = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets       = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+  azs                  = slice(data.aws_availability_zones.available.names, 0, 2)
+  private_subnets      = ["10.0.1.0/24", "10.0.2.0/24"]
+  public_subnets       = ["10.0.4.0/24", "10.0.5.0/24"]
   enable_nat_gateway   = true
   single_nat_gateway   = true
   enable_dns_hostnames = true
@@ -77,6 +77,8 @@ module "efs" {
 
   vpc_id          = module.vpc.vpc_id
   vpc_cidr_block  = module.vpc.vpc_cidr_block
+  eks_cluster_security_group_id = module.eks.cluster_security_group_id
+  eks_node_security_group_id = module.eks.node_security_group_id
   private_subnets = module.vpc.private_subnets
 }
 
@@ -157,10 +159,47 @@ resource "kubernetes_storage_class" "efs_sc" {
   parameters = {
     provisioningMode = "efs-ap"
     fileSystemId     = module.efs.efs_file_system_id
+    accessPointId    = module.efs.shared_access_point_id
     directoryPerms   = "755"
   }
   
   depends_on = [module.eks]
+}
+
+resource "kubernetes_persistent_volume" "efs_pv" {
+  metadata {
+    name = "starexec-efs-pv"
+  }
+  
+  spec {
+    capacity = {
+      storage = "100Gi"
+    }
+    
+    volume_mode        = "Filesystem"
+    access_modes       = ["ReadWriteMany"]
+    persistent_volume_reclaim_policy = "Delete"
+    storage_class_name = "efs-sc"
+    
+    persistent_volume_source {
+      csi {
+        driver        = "efs.csi.aws.com"
+        volume_handle = "${module.efs.efs_file_system_id}::${module.efs.shared_access_point_id}"
+      }
+    }
+  }
+  
+  depends_on = [kubernetes_storage_class.efs_sc]
+
+  # Pre-destroy hook to clean up PV claim reference
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<-EOT
+      kubectl patch pv starexec-efs-pv --type=merge -p '{"spec":{"claimRef":null}}' 2>/dev/null || true
+      kubectl patch pv starexec-efs-pv --type=merge -p '{"metadata":{"finalizers":null}}' 2>/dev/null || true
+    EOT
+    on_failure = continue
+  }
 }
 
 #################### HELM ####################################################
@@ -192,13 +231,13 @@ resource "helm_release" "starexec" {
 
   values = [
     file("../../starexec-helm/values.yaml"),
-    file("../../starexec-helm/values-production.yaml")
   ]
 
   depends_on = [
     module.eks,
     module.efs,
     kubernetes_storage_class.efs_sc,
+    kubernetes_persistent_volume.efs_pv,
     kubernetes_secret.starexec_tls,
   ]
 }

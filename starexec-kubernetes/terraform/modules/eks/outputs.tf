@@ -13,6 +13,11 @@ output "cluster_security_group_id" {
   value       = module.eks.cluster_security_group_id
 }
 
+output "node_security_group_id" {
+  description = "Security group ID attached to the EKS worker nodes"
+  value       = module.eks.node_security_group_id
+}
+
 output "oidc_provider" {
   description = "The OpenID Connect identity provider (issuer URL without leading https://)"
   value       = module.eks.oidc_provider

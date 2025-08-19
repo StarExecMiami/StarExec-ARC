@@ -16,7 +16,8 @@ resource "aws_security_group" "efs_sg" {
     from_port   = 2049
     to_port     = 2049
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]
+    security_groups = [var.eks_cluster_security_group_id, var.eks_node_security_group_id]
+    description = "Allow NFS traffic from EKS cluster and worker nodes"
   }
 
   egress {
@@ -43,63 +44,51 @@ resource "aws_efs_mount_target" "starexec" {
   ]
 }
 
-# EFS Access Points
-resource "aws_efs_access_point" "voldb" {
+# EFS Access Point - Single shared access point for all StarExec data
+resource "aws_efs_access_point" "starexec_shared" {
   file_system_id = aws_efs_file_system.starexec.id
   
   posix_user {
-    gid = 0
     uid = 0
+    gid = 0
   }
   
   root_directory {
-    path = "/voldb"
+    path = "/starexec"
     creation_info {
       owner_gid = 0
       owner_uid = 0
-      permissions = 0777
+      permissions = 0755
     }
+  }
+
+  tags = {
+    Name = "StarExec-Shared-AP"
+    Purpose = "Shared Application Data"
   }
 
   depends_on = [aws_efs_mount_target.starexec]
 }
 
-resource "aws_efs_access_point" "volstar" {
-  file_system_id = aws_efs_file_system.starexec.id
-  
-  posix_user {
-    gid = 0
-    uid = 0
-  }
-  
-  root_directory {
-    path = "/volstar"
-    creation_info {
-      owner_gid = 0
-      owner_uid = 0
-      permissions = 0777
+data "aws_iam_policy_document" "efs_policy" {
+  statement {
+    sid    = "AllowAllMounts"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
     }
+    actions = [
+      "elasticfilesystem:ClientMount",
+      "elasticfilesystem:ClientWrite",
+      "elasticfilesystem:ClientRootAccess"
+    ]
+    resources = [aws_efs_file_system.starexec.arn]
   }
-
-  depends_on = [aws_efs_mount_target.starexec]
 }
 
-resource "aws_efs_access_point" "volpro" {
+resource "aws_efs_file_system_policy" "starexec" {
   file_system_id = aws_efs_file_system.starexec.id
-  
-  posix_user {
-    gid = 0
-    uid = 0
-  }
-  
-  root_directory {
-    path = "/volpro"
-    creation_info {
-      owner_gid = 0
-      owner_uid = 0
-      permissions = 0777
-    }
-  }
-
-  depends_on = [aws_efs_mount_target.starexec]
+  policy         = data.aws_iam_policy_document.efs_policy.json
+  depends_on     = [aws_efs_access_point.starexec_shared]
 }
