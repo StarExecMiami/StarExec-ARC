@@ -1,0 +1,32 @@
+{{- if .Values.persistence.shared.volumeName }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "starexec.fullname" . }}-pv-cleanup
+  labels:
+    {{- include "starexec.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    spec:
+      serviceAccountName: {{ include "starexec.serviceAccountName" . }}
+      restartPolicy: Never
+      containers:
+      - name: pv-cleanup
+        image: bitnami/kubectl:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          echo "Checking PV {{ .Values.persistence.shared.volumeName }} status..."
+          if kubectl get pv {{ .Values.persistence.shared.volumeName }} -o jsonpath='{.status.phase}' | grep -q "Released"; then
+            echo "PV is in Released state, clearing claimRef..."
+            kubectl patch pv {{ .Values.persistence.shared.volumeName }} --type=merge -p '{"spec":{"claimRef":null}}'
+            echo "PV claimRef cleared successfully"
+          else
+            echo "PV is not in Released state, no action needed"
+          fi
+{{- end }}

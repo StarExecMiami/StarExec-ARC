@@ -1,76 +1,56 @@
+# StarExec Helm Chart - Consolidated Configuration
 replicaCount: 1
 
 image:
   repository: ghcr.io/starexecmiami/starexec-arc
   pullPolicy: Always
-  # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
-
+# Service Account Configuration
 serviceAccount:
-  # Specifies whether a service account should be created
   create: true
-  # Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations: {}
+# Security Contexts - Simplified for EFS compatibility
 podSecurityContext:
-  # EKS/EFS compatibility
   fsGroup: 999  # MySQL user ID
-  runAsUser: 0  # Run as root initially, processes can drop privileges
+  runAsUser: 0  # Run as root initially
   fsGroupChangePolicy: "OnRootMismatch"
-  # Allow supplemental groups for MySQL
   supplementalGroups: [999]
 
 securityContext:
-  # Main container security context
+  privileged: true
+  runAsUser: 0
   capabilities:
     add:
       - CHOWN
       - DAC_OVERRIDE
-      - SETUID
-      - SETGID
-  # Allow privilege dropping for specific processes
-  allowPrivilegeEscalation: true
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+      - FOWNER
 
+# Service Configuration - LoadBalancer with session affinity
 service:
-  type: LoadBalancer # Or ClusterIP if using Ingress controller primarily
+  type: LoadBalancer
   port: 443
-  targetPort: 443 # Target port on the pod (Apache's HTTPS port)
-  # nodePort: # Required if type is NodePort
-  sessionAffinity: ClientIP # Ensure requests from same IP go to same pod
-  sessionAffinityConfig:
-    clientIP:
-      timeoutSeconds: 10800 # 3 hours in seconds
+  targetPort: 443
+  sessionAffinity: ClientIP
 
+# Ingress Configuration - TLS terminated by the ingress controller
 ingress:
   enabled: true
   className: "nginx"
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
-    # SSL passthrough for HTTPS backend
-    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    # Disable SSL passthrough so the ingress can terminate TLS and apply header rewrites
+    nginx.ingress.kubernetes.io/ssl-passthrough: "false"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
     nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
-    # Session affinity with IP-based hashing for SSL passthrough
-    nginx.ingress.kubernetes.io/upstream-hash-by: "$remote_addr"
-    # Enhanced header forwarding for proper URL construction
+
+    # Enhanced header forwarding for proper URL construction (let the controller handle proxy_pass)
     nginx.ingress.kubernetes.io/server-snippet: |
       location / {
         proxy_set_header Host $host;
@@ -80,78 +60,55 @@ ingress:
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-Port $server_port;
         proxy_set_header X-Original-URI $request_uri;
-        proxy_pass https://upstream_balancer;
       }
     # cert-manager.io/cluster-issuer: letsencrypt-prod # Example if using cert-manager
   hosts:
-    - host: starexec.local # Replace
+    - host: starexec.local
       paths:
         - path: /
           pathType: Prefix
-  tls: true # Set to false to disable TLS configuration
-
-resources:
-  limits:
-    cpu: "1"
-    memory: "2Gi"
+  tls: true
   requests:
+    cpu: "250m"
+    memory: "512Mi"
+  limits:
     cpu: "500m"
     memory: "1Gi"
 
-# Persistence configuration (assuming EFS CSI Driver and StorageClass exist)
+# Storage Configuration - Single shared volume
 persistence:
-  storageClassName: "efs-sc" # Name of the StorageClass for EFS
-  voldb:
+  storageClassName: "efs-sc"
+  shared:
     enabled: true
-    size: 10Gi # Adjust size as needed
+    size: "100Gi"
     accessModes: ["ReadWriteMany"]
-    # volumeHandle: <efs-id>::<access-point-id> # Needed if StorageClass doesn't handle it
-  volstar:
-    enabled: true
-    size: 50Gi # Adjust size as needed
-    accessModes: ["ReadWriteMany"]
-    # volumeHandle: <efs-id>::<access-point-id>
-  volpro:
-    enabled: true
-    size: 20Gi # Adjust size as needed
-    accessModes: ["ReadWriteMany"]
-    # volumeHandle: <efs-id>::<access-point-id>
-  volexport:
-    enabled: true
-    size: 5Gi # Adjust size as needed
-    accessModes: ["ReadWriteMany"]
-    # volumeHandle: <efs-id>::<access-point-id>
+    mountPath: "/starexec"
 
-# Configuration passed via ConfigMap
+# Application Configuration
 starexecConfig:
   ssh:
-    username: "starexec" # Default SSH username for Podman connection
-    hostMachine: "host.docker.internal" # Default host machine address
-    port: "22" # Default SSH port
-    socketPath: "/run/user/1000/podman/podman.sock" # Default socket path
+    username: "starexec"
+    hostMachine: "host.docker.internal"
+    port: "22"
+    socketPath: "/run/user/1000/podman/podman.sock"
 
-# SSH Key Secret configuration
+# Secret Configurations
 sshSecret:
-  create: true # Whether Helm should create the secret
-  existingSecretName: "" # Use if create is false and you have an existing secret
-  secretName: "starexec-ssh-key" # Default name if create is true
-  privateKey: "" # Base64 encoded private SSH key. If empty and create is true, generate? (Helm can't easily generate)
+  create: true
+  existingSecretName: ""
+  secretName: "starexec-ssh-key"
+  privateKey: ""
 
-# TLS Secret configuration
 tlsSecret:
   create: true # Whether Helm should create the secret
   existingSecretName: "" # Use if create is false and you have an existing secret
   secretName: "starexec-tls-secret" # Default name if create is true
 
-nodeSelector: {}
-tolerations: []
-affinity: {}
-
 # Probes configuration 
 probes:
   readiness:
     enabled: true
-    command: 
+    command:
       - "/bin/bash"
       - "-c"
       - |
@@ -200,8 +157,8 @@ probes:
   
   liveness:
     enabled: true
-    command: 
-      - "/bin/bash"
+    command:
+      - "/bin/bash" 
       - "-c"
       - |
         set -e
@@ -241,7 +198,7 @@ probes:
   
   startup:
     enabled: true
-    command: 
+    command:
       - "/bin/bash"
       - "-c"
       - |
@@ -287,32 +244,3 @@ probes:
     timeoutSeconds: 12
     failureThreshold: 30
     successThreshold: 1
-
-# Domain name
-domain: starexec.local
-
-# --- Main Deployment Configuration ---
-deployment:
-  name: starexec
-  replicas: 1
-  imagePullSecrets: []
-  
-  # Resource requests and limits
-  resources:
-    requests:
-      cpu: "500m"
-      memory: "1Gi"
-    limits:
-      cpu: "1"
-      memory: "2Gi"
-  
-  # Container lifecycle management
-  lifecycle:
-    preStop:
-      exec:
-        command: ["/bin/bash", "-c", "/project/apache-tomcat-7/bin/shutdown.sh; sleep 10; mysqladmin -u root shutdown"]
-  
-  # Pod security context
-  securityContext:
-    privileged: true
-    runAsUser: 0

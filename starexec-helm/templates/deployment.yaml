@@ -6,9 +6,7 @@ metadata:
   labels:
     {{- include "starexec.labels" . | nindent 4 }}
 spec:
-  {{- with .Values.deployment.replicas }}
-  replicas: {{ . }}
-  {{- end }}
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       {{- include "starexec.selectorLabels" . | nindent 6 }}
@@ -27,12 +25,8 @@ spec:
       {{- end }}
       serviceAccountName: {{ include "starexec.serviceAccountName" . }}
       securityContext:
-        # EKS/EFS compatibility: Set fsGroup to match MySQL user ID
-        fsGroup: 999  # MySQL user ID
-        runAsUser: {{ .Values.deployment.securityContext.runAsUser }}
-        # Allow privilege escalation for chown operations where possible
-        fsGroupChangePolicy: "OnRootMismatch"
-      terminationGracePeriodSeconds: {{ .Values.deployment.terminationGracePeriodSeconds | default 60 }}
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      terminationGracePeriodSeconds: 60
       initContainers:
       - name: init-volume
         image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
@@ -47,35 +41,73 @@ spec:
           - -c
           - >
             echo "Initializing volumes with proper permissions..." &&
-            if [ "$(ls -A /mnt/vol-db)" ]; then 
+            mkdir -p /starexec/voldb &&
+            mkdir -p /starexec/StarExec-deploy &&
+            mkdir -p /starexec/volpro &&
+            mkdir -p /starexec/volexport &&
+            if [ "$(ls -A /starexec/voldb)" ]; then 
               echo "vol-db is not empty, ensuring permissions...";
-              # Try to set ownership, ignore failures in managed storage
-              chown -R 999:999 /mnt/vol-db 2>/dev/null || echo "Note: Could not change ownership (expected in managed storage)";
-              chmod -R 755 /mnt/vol-db 2>/dev/null || echo "Note: Could not change permissions";
+              chown -R 999:999 /starexec/voldb 2>/dev/null || echo "Note: Could not change ownership (expected in managed storage)";
+              chmod -R 755 /starexec/voldb 2>/dev/null || echo "Note: Could not change permissions";
             else 
               echo "vol-db is empty, copying initial data...";
-              cp -r /var/lib/mysql/* /mnt/vol-db/;
-              chown -R 999:999 /mnt/vol-db 2>/dev/null || echo "Note: Could not change ownership";
-              chmod -R 755 /mnt/vol-db 2>/dev/null || echo "Note: Could not change permissions";
+              cp -r /var/lib/mysql/* /starexec/voldb/;
+              chown -R 999:999 /starexec/voldb 2>/dev/null || echo "Note: Could not change ownership";
+              chmod -R 755 /starexec/voldb 2>/dev/null || echo "Note: Could not change permissions";
             fi &&
-            if [ "$(ls -A /mnt/vol-star)" ]; then echo "vol-star is not empty"; else cp -r /home/starexec/* /mnt/vol-star/; fi &&
-            if [ "$(ls -A /mnt/vol-pro)" ]; then echo "vol-pro is not empty"; else cp -r /project/* /mnt/vol-pro/; fi &&
-            if [ "$(ls -A /mnt/vol-export)" ]; then echo "vol-export is not empty"; else cp -r /export/* /mnt/vol-export/; fi
+            if [ "$(ls -A /starexec/StarExec-deploy)" ]; then echo "StarExec-deploy is not empty"; else cp -r /home/starexec/StarExec-deploy/* /starexec/StarExec-deploy/; fi &&
+            if [ "$(ls -A /starexec/volpro)" ]; then echo "vol-pro is not empty"; else cp -r /project/* /starexec/volpro/; fi &&
+            if [ "$(ls -A /starexec/volexport)" ]; then echo "vol-export is not empty"; else cp -r /export/* /starexec/volexport/; fi
         volumeMounts:
-        - name: vol-db
-          mountPath: /mnt/vol-db
-        - name: vol-star
-          mountPath: /mnt/vol-star
-        - name: vol-pro
-          mountPath: /mnt/vol-pro
-        - name: vol-export
-          mountPath: /mnt/vol-export
+        - name: shared-storage
+          mountPath: /starexec
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          workingDir: /home/starexec/StarExec-deploy
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+            - name: https
+              containerPort: 443
+              protocol: TCP
+          {{- if .Values.probes.startup.enabled }}
+          startupProbe:
+            exec:
+              command:
+              {{- toYaml .Values.probes.startup.command | nindent 14 }}
+            initialDelaySeconds: {{ .Values.probes.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.startup.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.startup.failureThreshold }}
+            successThreshold: {{ .Values.probes.startup.successThreshold }}
+          {{- end }}
+          {{- if .Values.probes.readiness.enabled }}
+          readinessProbe:
+            exec:
+              command:
+              {{- toYaml .Values.probes.readiness.command | nindent 14 }}
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+            successThreshold: {{ .Values.probes.readiness.successThreshold }}
+          {{- end }}
+          {{- if .Values.probes.liveness.enabled }}
+          livenessProbe:
+            exec:
+              command:
+              {{- toYaml .Values.probes.liveness.command | nindent 14 }}
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+            successThreshold: {{ .Values.probes.liveness.successThreshold }}
+          {{- end }}
           env:
             - name: SSH_USERNAME
               valueFrom:
@@ -97,115 +129,64 @@ spec:
                 configMapKeyRef:
                   name: {{ include "starexec.fullname" . }}-config
                   key: SSH_SOCKET_PATH
-            # Kubernetes/EKS environment indicator
             - name: STAREXEC_MANAGED_STORAGE
               value: "true"
-            # MySQL user/group IDs for permission handling
             - name: MYSQL_UID
               value: "999"
             - name: MYSQL_GID
               value: "999"
-          ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
-            - name: https
-              containerPort: 443
-              protocol: TCP
-          {{- if .Values.probes.readiness.enabled }}
-          readinessProbe:
-            exec:
-              command:
-                {{- range .Values.probes.readiness.command }}
-                - {{ . | quote }}
-                {{- end }}
-            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
-            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
-            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
-            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
-            successThreshold: {{ .Values.probes.readiness.successThreshold }}
-          {{- end }}
-          {{- if .Values.probes.liveness.enabled }}
-          livenessProbe:
-            exec:
-              command:
-                {{- range .Values.probes.liveness.command }}
-                - {{ . | quote }}
-                {{- end }}
-            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
-            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
-            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
-            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
-            successThreshold: {{ .Values.probes.liveness.successThreshold }}
-          {{- end }}
-          {{- if .Values.probes.startup.enabled }}
-          startupProbe:
-            exec:
-              command:
-                {{- range .Values.probes.startup.command }}
-                - {{ . | quote }}
-                {{- end }}
-            initialDelaySeconds: {{ .Values.probes.startup.initialDelaySeconds }}
-            periodSeconds: {{ .Values.probes.startup.periodSeconds }}
-            timeoutSeconds: {{ .Values.probes.startup.timeoutSeconds }}
-            failureThreshold: {{ .Values.probes.startup.failureThreshold }}
-            successThreshold: {{ .Values.probes.startup.successThreshold }}
-          {{- end }}
-          lifecycle:
-            preStop:
-              exec:
-                command:
-                  {{ .Values.deployment.lifecycle.preStop.exec.command | toYaml | nindent 18 }}
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            - name: GIT_DISCOVERY_ACROSS_FILESYSTEM
+              value: "1"
+            - name: STAREXEC_SUPPRESS_CHOWN_WARNINGS
+              value: "true"
+            - name: STAREXEC_CONTAINERIZED
+              value: "true"
           volumeMounts:
-            - mountPath: /var/lib/mysql
-              name: vol-db
-            - mountPath: /home/starexec
-              name: vol-star
-            - mountPath: /project
-              name: vol-pro
-            - mountPath: /export
-              name: vol-export
-            - mountPath: /root/.ssh/starexec_podman_key
-              name: ssh-key
-              subPath: starexec_podman_key
+            - name: shared-storage
+              mountPath: /var/lib/mysql
+              subPath: voldb
+            - name: shared-storage
+              mountPath: /home/starexec/StarExec-deploy
+              subPath: StarExec-deploy
+            - name: shared-storage
+              mountPath: /project
+              subPath: volpro
+            - name: shared-storage
+              mountPath: /export
+              subPath: volexport
+            - name: ssh-key
+              mountPath: "/root/.ssh/starexec_podman_key"
+              subPath: "starexec_podman_key"
               readOnly: true
             - name: tls-certs
-              mountPath: /etc/ssl/certs/localhost.crt
-              subPath: tls.crt
+              mountPath: "/etc/ssl/certs/localhost.crt"
+              subPath: "tls.crt"
             - name: tls-certs
-              mountPath: /etc/ssl/private/localhost.key
-              subPath: tls.key
+              mountPath: "/etc/ssl/private/localhost.key"
+              subPath: "tls.key"
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
       volumes:
-        - name: vol-db
+        - name: shared-storage
           persistentVolumeClaim:
-            claimName: {{ include "starexec.fullname" . }}-voldb
-        - name: vol-star
-          persistentVolumeClaim:
-            claimName: {{ include "starexec.fullname" . }}-volstar
-        - name: vol-pro
-          persistentVolumeClaim:
-            claimName: {{ include "starexec.fullname" . }}-volpro
-        - name: vol-export
-          persistentVolumeClaim:
-            claimName: {{ include "starexec.fullname" . }}-volexport
+            claimName: {{ include "starexec.fullname" . }}-shared
         - name: ssh-key
           secret:
-            secretName: {{ .Values.sshSecret.existingSecretName | default (print (include "starexec.fullname" .) "-ssh-key") }}
-            defaultMode: 0600
+            secretName: {{ .Values.sshSecret.secretName | default (printf "%s-ssh-key" (include "starexec.fullname" .)) }}
+            optional: false
         - name: tls-certs
           secret:
-            secretName: {{ .Values.tlsSecret.secretName | default "starexec-tls-secret" }}
-      {{- with .Values.nodeSelector }}
+            secretName: {{ .Values.tlsSecret.secretName | default (printf "%s-tls-secret" (include "starexec.fullname" .)) }}
+            optional: false
+{{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
+{{- end }}
+{{- with .Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
+{{- end }}
+{{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+{{- end }}

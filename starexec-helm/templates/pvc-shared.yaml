@@ -1,0 +1,17 @@
+{{- if .Values.persistence.shared.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "starexec.fullname" . }}-shared
+  labels:
+    {{- include "starexec.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .Values.persistence.shared.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.shared.size | quote }}
+  {{- if .Values.persistence.storageClassName }}
+  storageClassName: {{ .Values.persistence.storageClassName }}
+  {{- end }}
+{{- end }}
