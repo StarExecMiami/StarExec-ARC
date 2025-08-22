@@ -42,15 +42,15 @@ module "vpc" {
 module "eks" {
   source = "./modules/eks"
 
-  cluster_name     = local.cluster_name
-  cluster_version  = "1.32"
-  vpc_id           = module.vpc.vpc_id
-  subnet_ids       = module.vpc.private_subnets
-  headnode_instance_type = var.headnode_instance_type
+  cluster_name               = local.cluster_name
+  cluster_version            = "1.32"
+  vpc_id                     = module.vpc.vpc_id
+  subnet_ids                 = module.vpc.private_subnets
+  headnode_instance_type     = var.headnode_instance_type
   computenodes_instance_type = var.computenodes_instance_type
-  desired_nodes    = var.desired_nodes
-  max_nodes        = var.max_nodes
-  efs_csi_role_arn = module.iam_efs_csi.iam_role_arn
+  desired_nodes              = var.desired_nodes
+  max_nodes                  = var.max_nodes
+  efs_csi_role_arn           = module.iam_efs_csi.iam_role_arn
 }
 
 #################### IAM for EFS CSI ####################################################
@@ -75,11 +75,11 @@ module "iam_efs_csi" {
 module "efs" {
   source = "./modules/efs"
 
-  vpc_id          = module.vpc.vpc_id
-  vpc_cidr_block  = module.vpc.vpc_cidr_block
+  vpc_id                        = module.vpc.vpc_id
+  vpc_cidr_block                = module.vpc.vpc_cidr_block
   eks_cluster_security_group_id = module.eks.cluster_security_group_id
-  eks_node_security_group_id = module.eks.node_security_group_id
-  private_subnets = module.vpc.private_subnets
+  eks_node_security_group_id    = module.eks.node_security_group_id
+  private_subnets               = module.vpc.private_subnets
 }
 
 
@@ -136,7 +136,7 @@ resource "kubernetes_secret" "starexec_tls" {
 provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-  
+
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
@@ -152,17 +152,17 @@ resource "kubernetes_storage_class" "efs_sc" {
   metadata {
     name = "efs-sc"
   }
-  
+
   storage_provisioner = "efs.csi.aws.com"
   reclaim_policy      = "Delete"
-  
+
   parameters = {
     provisioningMode = "efs-ap"
     fileSystemId     = module.efs.efs_file_system_id
     accessPointId    = module.efs.shared_access_point_id
     directoryPerms   = "755"
   }
-  
+
   depends_on = [module.eks]
 }
 
@@ -170,17 +170,17 @@ resource "kubernetes_persistent_volume" "efs_pv" {
   metadata {
     name = "starexec-efs-pv"
   }
-  
+
   spec {
     capacity = {
       storage = "100Gi"
     }
-    
-    volume_mode        = "Filesystem"
-    access_modes       = ["ReadWriteMany"]
+
+    volume_mode                      = "Filesystem"
+    access_modes                     = ["ReadWriteMany"]
     persistent_volume_reclaim_policy = "Delete"
-    storage_class_name = "efs-sc"
-    
+    storage_class_name               = "efs-sc"
+
     persistent_volume_source {
       csi {
         driver        = "efs.csi.aws.com"
@@ -188,13 +188,13 @@ resource "kubernetes_persistent_volume" "efs_pv" {
       }
     }
   }
-  
+
   depends_on = [kubernetes_storage_class.efs_sc]
 
   # Pre-destroy hook to clean up PV claim reference
   provisioner "local-exec" {
-    when    = destroy
-    command = <<-EOT
+    when       = destroy
+    command    = <<-EOT
       kubectl patch pv starexec-efs-pv --type=merge -p '{"spec":{"claimRef":null}}' 2>/dev/null || true
       kubectl patch pv starexec-efs-pv --type=merge -p '{"metadata":{"finalizers":null}}' 2>/dev/null || true
     EOT
@@ -205,11 +205,11 @@ resource "kubernetes_persistent_volume" "efs_pv" {
 #################### HELM ####################################################
 
 provider "helm" {
-  kubernetes = {
+  kubernetes {
     host                   = module.eks.cluster_endpoint
     cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
 
-    exec = {
+    exec {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "aws"
       args = [
