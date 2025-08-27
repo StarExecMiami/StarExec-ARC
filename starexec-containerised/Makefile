@@ -8,14 +8,17 @@ REGISTRY ?= ghcr.io
 VERSION ?= latest
 CONTAINER_NAME := starexec-app
 STAREXEC_IMAGE := ghcr.io/starexecmiami/starexec-arc:${VERSION}
-BACKUP_DIR := $(CURDIR)/starexec_backup
+BACKUP_DIR ?= $(CURDIR)/starexec_backup
+
+# Ensure BACKUP_DIR is always an absolute path
+override BACKUP_DIR := $(abspath $(BACKUP_DIR))
 
 # Helper command to get the running container ID by name
 GET_CONTAINER_ID_CMD = podman ps --filter name=$(CONTAINER_NAME) --format '{{.ID}}'
 # Helper command to get any container (running or stopped) ID by name
 GET_ANY_CONTAINER_ID_CMD = podman ps -a --filter name=$(CONTAINER_NAME) --format '{{.ID}}'
 
-.PHONY: all local k8s starexec pull clean cleanVolumes connect start stop kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help state-init state-pack state-unpack
+.PHONY: all local k8s starexec pull clean cleanVolumes connect start stop kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help state-init state-pack state-unpack state-restore state-create
 
 all: ## Prompt for backend type
 	@echo "Choose backend type:"
@@ -242,19 +245,30 @@ kill: ## Stop and remove the persistent starexec container
 		fi; \
 	fi
 
-cleanVolumes: ## Remove starexec related volumes (WARNING: data loss)
-	@echo "Removing volumes: volDB, volExport"
+cleanVolumes: ## Remove starexec related volumes from BACKUP_DIR (WARNING: data loss)
+	@echo "Removing volumes from: $(BACKUP_DIR)"
+	@if [ ! -d "$(BACKUP_DIR)" ]; then \
+		echo "Directory $(BACKUP_DIR) does not exist. Nothing to clean."; \
+		exit 0; \
+	fi
+	@echo "WARNING: This will permanently delete all data in $(BACKUP_DIR)"
+	@echo "Directory: $(BACKUP_DIR)"
+	@read -r -p "Are you sure you want to continue? [y/N] " answer && \
+	case "$$answer" in \
+		[yY]) echo "Proceeding with deletion...";; \
+		*) echo "Operation cancelled."; exit 0;; \
+	esac
 	@if [ -d "$(BACKUP_DIR)/volDB" ]; then \
-		echo "Fixing ownership and removing volDB before deletion..."; \
+		echo "Removing volDB..."; \
 		podman unshare rm -rf $(BACKUP_DIR)/volDB 2>/dev/null || \
 		sudo rm -rf $(BACKUP_DIR)/volDB 2>/dev/null || \
-		{ echo "Cannot remove volDB with current permissions. Use: sudo rm -rf $(BACKUP_DIR)/volDB"; exit 1; }; \
+		{ echo "Cannot remove volDB. Use: sudo rm -rf $(BACKUP_DIR)/volDB"; exit 1; }; \
 	fi
 	@if [ -d "$(BACKUP_DIR)/volExport" ]; then \
-		echo "Fixing ownership and removing volExport before deletion..."; \
+		echo "Removing volExport..."; \
 		podman unshare rm -rf $(BACKUP_DIR)/volExport 2>/dev/null || \
 		sudo rm -rf $(BACKUP_DIR)/volExport 2>/dev/null || \
-		{ echo "Cannot remove volExport with current permissions. Use: sudo rm -rf $(BACKUP_DIR)/volExport"; exit 1; }; \
+		{ echo "Cannot remove volExport. Use: sudo rm -rf $(BACKUP_DIR)/volExport"; exit 1; }; \
 	fi
 	@podman unshare rm -rf $(BACKUP_DIR) 2>/dev/null || sudo rm -rf $(BACKUP_DIR) 2>/dev/null || true
 	@echo "Volumes removed successfully."
@@ -321,53 +335,106 @@ state-init: ## Initialize local state folders and prepare DB/export for sharing
 	@chmod -R 775 $(BACKUP_DIR)/volExport 2>/dev/null || true
 	@# Check if database is already initialized by looking for key MariaDB files
 	@if [ ! -d "$(BACKUP_DIR)/volDB/mysql" ] || [ ! -f "$(BACKUP_DIR)/volDB/ibdata1" ] || [ -z "$$(ls -A $(BACKUP_DIR)/volDB/mysql 2>/dev/null)" ]; then \
-		echo "Initializing MariaDB system tables in volDB..."; \
-		if ! podman image exists starexec:${VERSION}; then \
-			echo "Image starexec:${VERSION} not found locally. Pulling..."; \
-			$(MAKE) pull; \
-		fi; \
-		echo "Removing any incomplete database initialization..."; \
-		podman unshare rm -rf $(BACKUP_DIR)/volDB/* 2>/dev/null || true; \
-		echo "Running database initialization..."; \
-		podman run --rm \
-			--user 0 \
-			--tmpfs /var/run/mysqld:rw,size=128m,mode=775 \
-			-v $(BACKUP_DIR)/volDB:/var/lib/mysql:U \
-			starexec:${VERSION} bash -c '\
-				chown -R mysql:mysql /var/lib/mysql && \
-				mysql_install_db --user=mysql --datadir=/var/lib/mysql --basedir=/usr --force && \
-				chown -R mysql:mysql /var/lib/mysql && \
-				chmod -R 755 /var/lib/mysql && \
-				find /var/lib/mysql -type d -exec chmod 755 {} \; && \
-				find /var/lib/mysql -type f -exec chmod 644 {} \; \
-			'; \
-		echo "Fixing final ownership after initialization..."; \
-		podman unshare chown -R 999:999 $(BACKUP_DIR)/volDB 2>/dev/null || true; \
-		if [ ! -d "$(BACKUP_DIR)/volDB/mysql" ] || [ ! -f "$(BACKUP_DIR)/volDB/ibdata1" ]; then \
-			echo "ERROR: Database initialization failed!"; \
-			exit 1; \
-		fi; \
-		echo "Database initialization completed successfully."; \
+		echo "No existing database found. Creating new state..."; \
+		$(MAKE) state-create; \
 	else \
-		echo "Database already initialized, skipping..."; \
+		echo "Database already exists in $(BACKUP_DIR). Using existing state."; \
+		echo "To create a fresh state, use: make state-create"; \
+		echo "To restore from a tar.gz, use: make state-restore FILE=path.tar.gz"; \
 	fi
 	@echo "State initialization complete."
 
-state-pack: ## Create a tar.gz with backup_starexec to share
-	@echo "Packing backup_starexec into a tar.gz..."
-	@ts=$$(date +%Y%m%d_%H%M%S); \
-	out="starexec-state-$$ts.tar.gz"; \
-	tar -C $(CURDIR) -czf "$$out" backup_starexec; \
-	echo "Created: $$out"
-
-state-unpack: ## Unpack a state tar.gz into current project (use: make state-unpack FILE=path.tar.gz)
-	@if [ -z "$$FILE" ]; then \
-		echo "Usage: make state-unpack FILE=/path/to/starexec-state-*.tar.gz"; \
+state-create: ## Force creation of a new database state (WARNING: destroys existing data)
+	@echo "Creating new database state in $(BACKUP_DIR)..."
+	@mkdir -p $(BACKUP_DIR)/volDB $(BACKUP_DIR)/volExport
+	@if ! podman image exists starexec:${VERSION}; then \
+		echo "Image starexec:${VERSION} not found locally. Pulling..."; \
+		$(MAKE) pull; \
+	fi
+	@echo "Removing existing database data...";
+	@podman unshare rm -rf $(BACKUP_DIR)/volDB/* 2>/dev/null || true
+	@echo "Running database initialization...";
+	@podman run --rm \
+		--user 0 \
+		--tmpfs /var/run/mysqld:rw,size=128m,mode=775 \
+		-v $(BACKUP_DIR)/volDB:/var/lib/mysql:U \
+		starexec:${VERSION} bash -c '\
+			chown -R mysql:mysql /var/lib/mysql && \
+			mysql_install_db --user=mysql --datadir=/var/lib/mysql --basedir=/usr --force && \
+			chown -R mysql:mysql /var/lib/mysql && \
+			chmod -R 755 /var/lib/mysql && \
+			find /var/lib/mysql -type d -exec chmod 755 {} \; && \
+			find /var/lib/mysql -type f -exec chmod 644 {} \; \
+		'
+	@echo "Fixing final ownership after initialization..."
+	@podman unshare chown -R 999:999 $(BACKUP_DIR)/volDB 2>/dev/null || true
+	@podman unshare chown -R 153:160 $(BACKUP_DIR)/volExport 2>/dev/null || true
+	@if [ ! -d "$(BACKUP_DIR)/volDB/mysql" ] || [ ! -f "$(BACKUP_DIR)/volDB/ibdata1" ]; then \
+		echo "ERROR: Database initialization failed!"; \
 		exit 1; \
 	fi
-	@echo "Unpacking $$FILE into $(CURDIR)..."
-	@tar -C $(CURDIR) -xzf "$$FILE"
-	@echo "Unpacked. You may run 'make state-init' then 'make start'"
+	@echo "New database state created successfully."
+
+state-restore: ## Restore state from a tar.gz file (use: make state-restore FILE=path.tar.gz BACKUP_DIR=target)
+	@if [ -z "$$FILE" ]; then \
+		echo "Usage: make state-restore FILE=/path/to/starexec-state-*.tar.gz [BACKUP_DIR=target_directory]"; \
+		echo "Example: make state-restore FILE=shared-state.tar.gz BACKUP_DIR=restored_backup"; \
+		exit 1; \
+	fi
+	@if [ ! -f "$$FILE" ]; then \
+		echo "Error: File $$FILE not found."; \
+		exit 1; \
+	fi
+	@echo "Restoring state from $$FILE to $(BACKUP_DIR)..."
+	@if [ -d "$(BACKUP_DIR)" ]; then \
+		echo "WARNING: Target directory $(BACKUP_DIR) already exists."; \
+		read -r -p "Do you want to overwrite it? [y/N] " answer && \
+		case "$$answer" in \
+			[yY]) echo "Removing existing directory..."; \
+				  podman unshare rm -rf $(BACKUP_DIR) 2>/dev/null || \
+				  sudo rm -rf $(BACKUP_DIR) 2>/dev/null || \
+				  { echo "Cannot remove existing directory. Use: sudo rm -rf $(BACKUP_DIR)"; exit 1; };; \
+			*) echo "Operation cancelled."; exit 1;; \
+		esac; \
+	fi
+	@echo "Extracting state archive..."
+	@mkdir -p $$(dirname $(BACKUP_DIR))
+	@tar -C $$(dirname $(BACKUP_DIR)) -xzf "$$FILE"
+	@extracted_dir=$$(tar -tzf "$$FILE" | head -1 | cut -f1 -d"/"); \
+	if [ "$$extracted_dir" != "$$(basename $(BACKUP_DIR))" ]; then \
+		echo "Renaming extracted directory $$extracted_dir to $$(basename $(BACKUP_DIR))..."; \
+		mv "$$(dirname $(BACKUP_DIR))/$$extracted_dir" "$(BACKUP_DIR)"; \
+	fi
+	@echo "Fixing ownership for restored state..."
+	@podman unshare chown -R 999:999 $(BACKUP_DIR)/volDB 2>/dev/null || true
+	@podman unshare chown -R 153:160 $(BACKUP_DIR)/volExport 2>/dev/null || true
+	@chmod 775 $(BACKUP_DIR)/volDB 2>/dev/null || true
+	@chmod -R 775 $(BACKUP_DIR)/volExport 2>/dev/null || true
+	@echo "State restored successfully to $(BACKUP_DIR)"
+	@echo "You can now start with: make start BACKUP_DIR=$(BACKUP_DIR)"
+
+state-pack: ## Create a tar.gz with the current backup state to share
+	@echo "Packing $(BACKUP_DIR) into a tar.gz..."
+	@if [ ! -d "$(BACKUP_DIR)" ]; then \
+		echo "Error: Directory $(BACKUP_DIR) does not exist."; \
+		echo "Create a state first with: make start"; \
+		exit 1; \
+	fi
+	@ts=$$(date +%Y%m%d_%H%M%S); \
+	backup_name=$$(basename $(BACKUP_DIR)); \
+	out="starexec-state-$$backup_name-$$ts.tar.gz"; \
+	echo "Creating archive: $$out"; \
+	tar -C $$(dirname $(BACKUP_DIR)) -czf "$$out" "$$backup_name"; \
+	echo "Created: $$out"; \
+	echo "Share this file with: make state-restore FILE=$$out BACKUP_DIR=target_directory"
+
+state-unpack: ## Unpack a state tar.gz into current project (DEPRECATED - use state-restore)
+	@echo "WARNING: state-unpack is deprecated. Use 'make state-restore' instead."
+	@echo "Usage: make state-restore FILE=/path/to/starexec-state-*.tar.gz BACKUP_DIR=target_directory"
+	@if [ -n "$$FILE" ]; then \
+		echo "Calling state-restore with your parameters..."; \
+		$(MAKE) state-restore FILE="$$FILE"; \
+	fi
 
 help: ## Display help for Makefile targets
 	@echo "Makefile Commands:"
@@ -378,6 +445,13 @@ help: ## Display help for Makefile targets
 	@echo "------------------"
 	@echo "Usage: make [target]"
 	@echo "Example: make start"
+	@echo ""
+	@echo "State Management Workflow:"
+	@echo "  1. Create new state:     make start"
+	@echo "  2. Pack for sharing:     make state-pack"
+	@echo "  3. Restore shared state: make state-restore FILE=archive.tar.gz BACKUP_DIR=my_backup"
+	@echo "  4. Use restored state:   make start BACKUP_DIR=my_backup"
+
 
 # Prevent echoing of commands unless VERBOSE=true
 # ifndef VERBOSE
@@ -385,6 +459,12 @@ help: ## Display help for Makefile targets
 # endif
 
 # Ensure CURDIR is set correctly
+ifeq ($(origin CURDIR), undefined)
+	CURDIR := $(shell pwd)
+endif
+
+# Always ensure BACKUP_DIR is absolute
+override BACKUP_DIR := $(abspath $(BACKUP_DIR))
 ifeq ($(origin CURDIR), undefined)
 	CURDIR := $(shell pwd)
 endif
