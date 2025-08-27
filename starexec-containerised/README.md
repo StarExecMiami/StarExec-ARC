@@ -36,47 +36,14 @@
 
 ## Persistent Runs and State Management
 
+StarExec supports persistent state management through backup directories, allowing you to save, share, and restore complete system states.
+
+### Basic Operations
+
 - **Temporary Run (for testing/dev)**: Run `make run`. The container and its state will be removed upon exit.
-- **Start Persistently**: Use `make start` to launch the StarExec container in detached mode. The container will run in the background and persist its state. It will automatically create necessary volumes (`volDB`, `volExport`) to persist data. If a backup exists in `./backup_starexec`, it will attempt to restore it automatically after starting.
+- **Start Persistently**: Use `make start` to launch the StarExec container in detached mode. The container will run in the background and persist its state in `./starexec_backup/` by default.
 - **Stop Persistently**: Use `make stop`. This command stops the container without removing its state.
-- **Backup State**: Use `make state-pack` to create a tarball of the current state in `./backup_starexec`.
-- **Restore State**: Use `make state-unpack FILE=/path/to/state.tar.gz` to unpack a previously backed-up state into the project directory. Then run `make state-init` and `make start` to restore the container.
 
-## Accessing StarExec
+### State Directory Management
 
-- The interface may take about a minute to become available as the StarExec `tomcat` app redeploys on each restart.
-- Navigate to [http://localhost:7827](http://localhost:7827).
-- For remote server access, use:
-  `ssh -f -N -L 7827:starexec_server.domain:7827 your_account@starexec_server.domain`
-  - If necessary, add jump host options, ala `-J your_account@jumphost.domain`
-- Default Username: `admin`  
-  Default Password: `admin`
-
-## Debugging
-
-- Run `make connect` to open a bash shell within the container.
-
-## Managing the Image
-
-- **Kill the Running Image**:
-  - Execute `make kill` if you need to stop and remove the *persistent* running image (`starexec-app`). Use this if `make stop` fails or if you want to stop without preserving state.
-- **Destroy the Image**:
-  - If you encounter issues and wish to remove all configurations, execute:
-
-   ```bash
-   make clean
-   make cleanVolumes
-   ```
-
-  - *Note*: This will erase all state, and you will need to rebuild the container.
-  - To do a complete cleanup of your Podman environment, execute `make real-clean`.
-- **Pushing to Registries**:
-  - Use `make push` to push the built image (`starexec:latest`) to Docker Hub (`docker.io/tptpstarexec/starexec:latest`).
-  - Use `make push REGISTRY=microk8s` to push the image to a local MicroK8s registry (`localhost:32000`). This also involves importing the image into MicroK8s. Related targets: `make list-microk8s`, `make microk8s-clean`.
-
-## Additional Commands
-
-- **Initialize State**: Run `make state-init` to prepare local state folders and initialize MariaDB system tables.
-- **Pack State**: Use `make state-pack` to create a tarball of the current state for sharing.
-- **Unpack State**: Use `make state-unpack FILE=/path/to/state.tar.gz` to restore a shared state into the project directory.
-- **Help**: Run `make help` to display a list of available Makefile targets.
+You can work with multiple state directories using the `BACKUP_DIR` parameter:
