@@ -8,7 +8,7 @@ REGISTRY ?= ghcr.io
 VERSION ?= latest
 CONTAINER_NAME := starexec-app
 STAREXEC_IMAGE := ghcr.io/starexecmiami/starexec-arc:${VERSION}
-BACKUP_DIR := $(CURDIR)/backup_starexec
+BACKUP_DIR := $(CURDIR)/starexec_backup
 
 # Helper command to get the running container ID by name
 GET_CONTAINER_ID_CMD = podman ps --filter name=$(CONTAINER_NAME) --format '{{.ID}}'
@@ -245,15 +245,19 @@ kill: ## Stop and remove the persistent starexec container
 cleanVolumes: ## Remove starexec related volumes (WARNING: data loss)
 	@echo "Removing volumes: volDB, volExport"
 	@if [ -d "$(BACKUP_DIR)/volDB" ]; then \
-		echo "Fixing ownership before deletion..."; \
-		sudo chown -R $(shell id -u):$(shell id -g) $(BACKUP_DIR)/volDB 2>/dev/null || \
-		podman run --rm -v $(BACKUP_DIR)/volDB:/tmp/volDB:U alpine:latest chown -R 1000:1000 /tmp/volDB 2>/dev/null || true; \
+		echo "Fixing ownership and removing volDB before deletion..."; \
+		podman unshare rm -rf $(BACKUP_DIR)/volDB 2>/dev/null || \
+		sudo rm -rf $(BACKUP_DIR)/volDB 2>/dev/null || \
+		{ echo "Cannot remove volDB with current permissions. Use: sudo rm -rf $(BACKUP_DIR)/volDB"; exit 1; }; \
 	fi
 	@if [ -d "$(BACKUP_DIR)/volExport" ]; then \
-		sudo chown -R $(shell id -u):$(shell id -g) $(BACKUP_DIR)/volExport 2>/dev/null || \
-		podman run --rm -v $(BACKUP_DIR)/volExport:/tmp/volExport:U alpine:latest chown -R 1000:1000 /tmp/volExport 2>/dev/null || true; \
+		echo "Fixing ownership and removing volExport before deletion..."; \
+		podman unshare rm -rf $(BACKUP_DIR)/volExport 2>/dev/null || \
+		sudo rm -rf $(BACKUP_DIR)/volExport 2>/dev/null || \
+		{ echo "Cannot remove volExport with current permissions. Use: sudo rm -rf $(BACKUP_DIR)/volExport"; exit 1; }; \
 	fi
-	@rm -rf $(BACKUP_DIR)/volDB $(BACKUP_DIR)/volExport
+	@podman unshare rm -rf $(BACKUP_DIR) 2>/dev/null || sudo rm -rf $(BACKUP_DIR) 2>/dev/null || true
+	@echo "Volumes removed successfully."
 
 connect: ## Connect to the running starexec container via bash shell
 	@container_id=$$($(GET_CONTAINER_ID_CMD)); \
@@ -305,7 +309,7 @@ microk8s-clean: ## Clean up starexec images from the MicroK8s registry
 			microk8s ctr images rm "$$img"; \
 		fi; \
 	done
-	@echo "MicroK8s images cleaned up."
+	@echo "MicroK8s image cleanup complete."
 
 state-init: ## Initialize local state folders and prepare DB/export for sharing
 	@echo "Initializing persistent state in $(BACKUP_DIR)..."
@@ -315,14 +319,16 @@ state-init: ## Initialize local state folders and prepare DB/export for sharing
 	@chmod 775 $(BACKUP_DIR)/volDB 2>/dev/null || true
 	@podman unshare chown -R 153:160 $(BACKUP_DIR)/volExport 2>/dev/null || true
 	@chmod -R 775 $(BACKUP_DIR)/volExport 2>/dev/null || true
-	@if [ ! -f "$(BACKUP_DIR)/volDB/mysql/db.frm" ]; then \
+	@# Check if database is already initialized by looking for key MariaDB files
+	@if [ ! -d "$(BACKUP_DIR)/volDB/mysql" ] || [ ! -f "$(BACKUP_DIR)/volDB/ibdata1" ] || [ -z "$$(ls -A $(BACKUP_DIR)/volDB/mysql 2>/dev/null)" ]; then \
 		echo "Initializing MariaDB system tables in volDB..."; \
 		if ! podman image exists starexec:${VERSION}; then \
 			echo "Image starexec:${VERSION} not found locally. Pulling..."; \
 			$(MAKE) pull; \
 		fi; \
 		echo "Removing any incomplete database initialization..."; \
-		rm -rf $(BACKUP_DIR)/volDB/* 2>/dev/null || true; \
+		podman unshare rm -rf $(BACKUP_DIR)/volDB/* 2>/dev/null || true; \
+		echo "Running database initialization..."; \
 		podman run --rm \
 			--user 0 \
 			--tmpfs /var/run/mysqld:rw,size=128m,mode=775 \
@@ -330,13 +336,20 @@ state-init: ## Initialize local state folders and prepare DB/export for sharing
 			starexec:${VERSION} bash -c '\
 				chown -R mysql:mysql /var/lib/mysql && \
 				mysql_install_db --user=mysql --datadir=/var/lib/mysql --basedir=/usr --force && \
-				chown -R mysql:mysql /var/lib/mysql \
+				chown -R mysql:mysql /var/lib/mysql && \
+				chmod -R 755 /var/lib/mysql && \
+				find /var/lib/mysql -type d -exec chmod 755 {} \; && \
+				find /var/lib/mysql -type f -exec chmod 644 {} \; \
 			'; \
-		if [ ! -f "$(BACKUP_DIR)/volDB/mysql/db.frm" ] && [ ! -f "$(BACKUP_DIR)/volDB/mysql/global_priv.MAD" ] && ! sudo test -f "$(BACKUP_DIR)/volDB/mysql/db.frm" 2>/dev/null; then \
+		echo "Fixing final ownership after initialization..."; \
+		podman unshare chown -R 999:999 $(BACKUP_DIR)/volDB 2>/dev/null || true; \
+		if [ ! -d "$(BACKUP_DIR)/volDB/mysql" ] || [ ! -f "$(BACKUP_DIR)/volDB/ibdata1" ]; then \
 			echo "ERROR: Database initialization failed!"; \
 			exit 1; \
 		fi; \
 		echo "Database initialization completed successfully."; \
+	else \
+		echo "Database already initialized, skipping..."; \
 	fi
 	@echo "State initialization complete."
 
