@@ -109,6 +109,28 @@ spec:
             successThreshold: {{ .Values.probes.liveness.successThreshold }}
           {{- end }}
           env:
+            # Database credentials from secret
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "starexec.databaseSecretName" . }}
+                  key: DB_PASSWORD
+            - name: DB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "starexec.databaseSecretName" . }}
+                  key: DB_ROOT_PASSWORD
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "starexec.databaseSecretName" . }}
+                  key: DB_USER
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "starexec.databaseSecretName" . }}
+                  key: DB_NAME
+            # SSH configuration from ConfigMap
             - name: SSH_USERNAME
               valueFrom:
                 configMapKeyRef:
@@ -118,6 +140,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: {{ include "starexec.fullname" . }}-config
+                  key: HOST_MACHINE
                   key: HOST_MACHINE
             - name: SSH_PORT
               valueFrom:

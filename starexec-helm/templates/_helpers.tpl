@@ -90,3 +90,14 @@ Return the TLS secret name
 {{- printf "%s-tls" (include "starexec.fullname" .) -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Return the Database secret name
+*/}}
+{{- define "starexec.databaseSecretName" -}}
+{{- if .Values.databaseSecret.create }}
+{{- default (printf "%s-database-secret" (include "starexec.fullname" .)) .Values.databaseSecret.secretName }}
+{{- else }}
+{{- required "existingSecretName must be provided if databaseSecret.create is false" .Values.databaseSecret.existingSecretName }}
+{{- end }}
+{{- end }}

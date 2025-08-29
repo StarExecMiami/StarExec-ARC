@@ -93,6 +93,15 @@ starexecConfig:
     socketPath: "/run/user/1000/podman/podman.sock"
 
 # Secret Configurations
+databaseSecret:
+  create: true # Whether Helm should create the database secret
+  existingSecretName: "" # Use if create is false and you have an existing secret
+  secretName: "starexec-database-secret" # Default name if create is true
+  password: "" # Database password (base64 encoded if provided)
+  rootPassword: "" # Database root password (base64 encoded if provided)
+  user: "se_admin" # Database user
+  name: "starexec" # Database name
+
 sshSecret:
   create: true
   existingSecretName: ""
