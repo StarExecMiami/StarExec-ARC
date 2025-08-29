@@ -8,10 +8,19 @@ REGISTRY ?= ghcr.io
 VERSION ?= latest
 CONTAINER_NAME := starexec-app
 STAREXEC_IMAGE := ghcr.io/starexecmiami/starexec-arc:${VERSION}
-BACKUP_DIR ?= $(CURDIR)/starexec_backup
+# Allow BACKUP_DIR to be provided via environment (or fallback to STAREXEC_BACKUP_DIR),
+# otherwise default to $(CURDIR)/starexec_backup
+ifndef BACKUP_DIR
+	ifdef STAREXEC_BACKUP_DIR
+		BACKUP_DIR := $(STAREXEC_BACKUP_DIR)
+	else
+		BACKUP_DIR := $(CURDIR)/starexec_backup
+	endif
+endif
 
-# Ensure BACKUP_DIR is always an absolute path
+# Ensure BACKUP_DIR is always an absolute path and export it for subprocesses
 override BACKUP_DIR := $(abspath $(BACKUP_DIR))
+export BACKUP_DIR
 
 # Helper command to get the running container ID by name
 GET_CONTAINER_ID_CMD = podman ps --filter name=$(CONTAINER_NAME) --format '{{.ID}}'
