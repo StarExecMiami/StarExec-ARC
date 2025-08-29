@@ -184,12 +184,12 @@ start-container: ## Start the starexec container (internal use)
 			--healthcheck-interval=60s \
 			--healthcheck-timeout=15s \
 			--healthcheck-retries=5 \
-			--healthcheck-retries=5 \
 			--healthcheck-start-period=180s \
 			--healthcheck-command "bash -c 'mysqladmin ping -u root --silent --connect-timeout=5 && (service apache2 status | grep -q \"running\" || pgrep apache2 >/dev/null) && (ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap\" || pgrep -f catalina >/dev/null) && (curl -s -k --max-time 10 -I https://localhost/starexec/ | grep -q \"200\\|302\\|301\" || curl -s -k --max-time 10 https://localhost/starexec/ >/dev/null)'" \
 			-p 7827:443 -p 7826:80 starexec:${VERSION}
 	@echo "Waiting for container to initialize (approx 60 seconds)..."
 	@sleep 60
+	@printf "SUCCESS! VISIT IN YOUR BROWSER: https://localhost:7827\n\nuser: admin\npassword: admin\n\n"
 
 start: ssh-setup mkcert-setup state-init ## Start the starexec container, preserving state
 	@echo "Starting StarExec..."
