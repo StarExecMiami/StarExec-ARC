@@ -27,13 +27,13 @@ GET_CONTAINER_ID_CMD = podman ps --filter name=$(CONTAINER_NAME) --format '{{.ID
 # Helper command to get any container (running or stopped) ID by name
 GET_ANY_CONTAINER_ID_CMD = podman ps -a --filter name=$(CONTAINER_NAME) --format '{{.ID}}'
 
-.PHONY: all local k8s starexec pull clean cleanVolumes connect start stop kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help state-init state-pack state-unpack state-restore state-create
+.PHONY: all local k8s starexec pull clean cleanVolumes connect start stop kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help state-init state-pack state-unpack state-restore state-create image state-fix-perms
 
 all: ## Prompt for backend type
 	@echo "Choose backend type:"
 	@echo " 1) local"
 	@echo " 2) k8s"
-	@read -p "Enter choice [1-2]: " choice; \
+	@read -r -p "Enter choice [1-2]: " choice; \
 	case "$$choice" in \
 	  1) $(MAKE) local ;; \
 	  2) $(MAKE) k8s ;; \
@@ -69,6 +69,13 @@ pull: ## Pull the pre-built starexec image from GitHub Container Registry
 	@podman tag ${STAREXEC_IMAGE} starexec:${VERSION}
 	@echo "Image pulled and tagged as starexec:${VERSION}"
 
+# Add image target to ensure image availability
+image: ## Ensure the starexec image is available locally
+	@if ! podman image exists starexec:${VERSION}; then \
+		echo "Image starexec:${VERSION} not found locally. Pulling from registry..."; \
+		$(MAKE) pull; \
+	fi
+
 ssh-setup: ## Setup SSH keys for podman communication
 	@echo "Setting up SSH keys..."
 	echo "using ssh-keygen to make pub/priv keys in the current directory"; \
@@ -84,7 +91,7 @@ ssh-setup: ## Setup SSH keys for podman communication
 		if [ -f starexec_podman_key.pub ]; then \
 			cat starexec_podman_key.pub >> ~/.ssh/authorized_keys; \
 			chmod 600 ~/.ssh/authorized_keys; \
-		fi \
+		fi; \
 	else \
 		echo "Skipping SSH key setup for Jenkins user."; \
 	fi
@@ -156,7 +163,7 @@ run: ssh-setup mkcert-setup ## Run the starexec container interactively (for tes
 			--healthcheck-command "bash -c 'mysqladmin ping -u root --silent --connect-timeout=5 && (service apache2 status | grep -q \"running\" || pgrep apache2 >/dev/null) && (ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap\" || pgrep -f catalina >/dev/null) && (curl -s -k --max-time 10 -I https://localhost/starexec/ | grep -q \"200\\|302\\|301\" || curl -s -k --max-time 10 https://localhost/starexec/ >/dev/null)'" \
 			-p 7827:443 -p 7826:80 starexec:${VERSION}
 
-start-container: ## Start the starexec container (internal use)
+start-container: image ## Start the starexec container (internal use)
 	@echo "Starting the starexec container persistently..."
 	@container_id=$$($(GET_CONTAINER_ID_CMD)); \
 	if [ -n "$$container_id" ]; then \
@@ -168,10 +175,6 @@ start-container: ## Start the starexec container (internal use)
 	if [ -n "$$stopped_container_id" ]; then \
 		echo "Found stopped container $(CONTAINER_NAME) with ID: $$stopped_container_id. Removing it..."; \
 		podman rm $$stopped_container_id; \
-	fi
-	@if ! podman image exists starexec:${VERSION}; then \
-		echo "Image starexec:${VERSION} not found locally. Pulling from registry..."; \
-		$(MAKE) pull; \
 	fi
 	@mkdir -p $(SAVED_STATE_DIR)/volDB
 	@mkdir -p $(SAVED_STATE_DIR)/volExport
@@ -445,6 +448,17 @@ state-unpack: ## Unpack a state tar.gz into current project (DEPRECATED - use st
 		$(MAKE) state-restore FILE="$$FILE"; \
 	fi
 
+state-fix-perms: ## Fix ownership of SAVED_STATE_DIR to current user
+	@echo "Fixing ownership of $(SAVED_STATE_DIR) to current user..."
+	@if [ -d "$(SAVED_STATE_DIR)" ]; then \
+		podman unshare chown -R $(shell id -u):$(shell id -g) $(SAVED_STATE_DIR) 2>/dev/null || \
+		sudo chown -R $(USER):$(USER) $(SAVED_STATE_DIR) 2>/dev/null || \
+		{ echo "Cannot fix ownership. Please run: sudo chown -R $(USER):$(USER) $(SAVED_STATE_DIR)"; exit 1; }; \
+		echo "Ownership fixed."; \
+	else \
+		echo "Directory $(SAVED_STATE_DIR) does not exist."; \
+	fi
+
 help: ## Display help for Makefile targets
 	@echo "Makefile Commands:"
 	@echo "------------------"
@@ -460,6 +474,7 @@ help: ## Display help for Makefile targets
 	@echo "  2. Pack for sharing:     make state-pack"
 	@echo "  3. Restore shared state: make state-restore FILE=archive.tar.gz SAVED_STATE_DIR=my_backup"
 	@echo "  4. Use restored state:   make start SAVED_STATE_DIR=my_backup"
+	@echo ""
 
 
 # Prevent echoing of commands unless VERBOSE=true
@@ -468,12 +483,6 @@ help: ## Display help for Makefile targets
 # endif
 
 # Ensure CURDIR is set correctly
-ifeq ($(origin CURDIR), undefined)
-	CURDIR := $(shell pwd)
-endif
-
-# Always ensure SAVED_STATE_DIR is absolute
-override SAVED_STATE_DIR := $(abspath $(SAVED_STATE_DIR))
 ifeq ($(origin CURDIR), undefined)
 	CURDIR := $(shell pwd)
 endif
