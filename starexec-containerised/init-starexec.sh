@@ -3,6 +3,23 @@
 # Immediately exit on errors, treat unset vars as errors, and fail on pipe errors
 set -euo pipefail
 
+# Populate /home/starexec from the source directory if it's empty (first run with volume)
+if [ ! -d "/home/starexec/StarExec-deploy" ] || [ ! -f "/home/starexec/StarExec-deploy/build.xml" ]; then
+  echo "StarExec directory not found or incomplete in volume, initializing from source..."
+  
+  # Remove any existing incomplete directory
+  rm -rf /home/starexec/StarExec-deploy
+  
+  # Copy the application source to the volume
+  cp -a /app_source /home/starexec/StarExec-deploy
+  echo "Initialization complete."
+else 
+  echo "StarExec directory found in volume, skipping initialization."
+fi
+
+# Change to the deployment directory now that we've ensured it exists
+cd /home/starexec/StarExec-deploy
+
 function error() {
   echo "[ERROR] $1"
   exit 1
@@ -101,6 +118,13 @@ trap cleanup SIGINT SIGTERM
 : "${DEPLOY_DIR:?DEPLOY_DIR is not set}"
 : "${BUILD_FILE:?BUILD_FILE is not set}"
 : "${SQL_FILE:?SQL_FILE is not set}"
+
+# Ensure /export/starexec exists and has correct permissions
+mkdir -p /export/starexec && chown -R tomcat:star-web /export/starexec
+chmod 755 /export/starexec
+
+# Add sandbox user to star-web group for proper access to /export/starexec
+usermod -a -G star-web sandbox
 
 # Configure runtime permissions (only what changes at runtime)
 chown -R tomcat:star-web /home/sandbox  # This may change due to mounted volumes

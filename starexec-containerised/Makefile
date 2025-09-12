@@ -31,8 +31,8 @@ GET_ANY_CONTAINER_ID_CMD = podman ps -a --filter name=$(CONTAINER_NAME) --format
 
 all: ## Prompt for backend type
 	@echo "Choose backend type:"
-	@echo " 1) local"
-	@echo " 2) k8s"
+	@echo "  1) local"
+	@echo "  2) k8s"
 	@read -r -p "Enter choice [1-2]: " choice; \
 	case "$$choice" in \
 	  1) $(MAKE) local ;; \
@@ -141,13 +141,14 @@ run: ssh-setup mkcert-setup ## Run the starexec container interactively (for tes
 	fi
 	@mkdir -p $(SAVED_STATE_DIR)/volDB
 	@mkdir -p $(SAVED_STATE_DIR)/volExport
+	@mkdir -p $(SAVED_STATE_DIR)/volStarexec
 	@podman run --rm -it --name $(CONTAINER_NAME) \
-			--workdir /home/starexec/StarExec-deploy \
 			--cap-add=NET_RAW \
 			--network slirp4netns:allow_host_loopback=true \
 			--tmpfs /var/run/mysqld:rw,size=128m,mode=775 \
 			-v $(SAVED_STATE_DIR)/volDB:/var/lib/mysql:U \
 			-v $(SAVED_STATE_DIR)/volExport:/export \
+			-v $(SAVED_STATE_DIR)/volStarexec:/home/starexec \
 			-v ./starexec_podman_key:/root/.ssh/starexec_podman_key \
 			-v $(HOME)/.local/share/mkcert/localhost.key:/etc/ssl/private/localhost.key \
 			-v $(HOME)/.local/share/mkcert/localhost.crt:/etc/ssl/certs/localhost.crt \
@@ -178,6 +179,7 @@ start-container: image ## Start the starexec container (internal use)
 	fi
 	@mkdir -p $(SAVED_STATE_DIR)/volDB
 	@mkdir -p $(SAVED_STATE_DIR)/volExport
+	@mkdir -p $(SAVED_STATE_DIR)/volStarexec
 	@echo "Launching container $(CONTAINER_NAME)..."
 	@podman run -d --name $(CONTAINER_NAME) \
 			--cap-add=NET_RAW \
@@ -185,6 +187,7 @@ start-container: image ## Start the starexec container (internal use)
 			--tmpfs /var/run/mysqld:rw,size=128m,mode=775 \
 			-v $(SAVED_STATE_DIR)/volDB:/var/lib/mysql:U \
 			-v $(SAVED_STATE_DIR)/volExport:/export \
+			-v $(SAVED_STATE_DIR)/volStarexec:/home/starexec \
 			-v ./starexec_podman_key:/root/.ssh/starexec_podman_key \
 			-v $(HOME)/.local/share/mkcert/localhost.key:/etc/ssl/private/localhost.key \
 			-v $(HOME)/.local/share/mkcert/localhost.crt:/etc/ssl/certs/localhost.crt \
@@ -282,6 +285,12 @@ cleanVolumes: ## Remove starexec related volumes from SAVED_STATE_DIR (WARNING: 
 		sudo rm -rf $(SAVED_STATE_DIR)/volExport 2>/dev/null || \
 		{ echo "Cannot remove volExport. Use: sudo rm -rf $(SAVED_STATE_DIR)/volExport"; exit 1; }; \
 	fi
+	@if [ -d "$(SAVED_STATE_DIR)/volStarexec" ]; then \
+		echo "Removing volStarexec..."; \
+		podman unshare rm -rf $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || \
+		sudo rm -rf $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || \
+		{ echo "Cannot remove volStarexec. Use: sudo rm -rf $(SAVED_STATE_DIR)/volStarexec"; exit 1; }; \
+	fi
 	@podman unshare rm -rf $(SAVED_STATE_DIR) 2>/dev/null || sudo rm -rf $(SAVED_STATE_DIR) 2>/dev/null || true
 	@echo "Volumes removed successfully."
 
@@ -339,12 +348,14 @@ microk8s-clean: ## Clean up starexec images from the MicroK8s registry
 
 state-init: ## Initialize local state folders and prepare DB/export for sharing
 	@echo "Initializing persistent state in $(SAVED_STATE_DIR)..."
-	@mkdir -p $(SAVED_STATE_DIR)/volDB $(SAVED_STATE_DIR)/volExport
+	@mkdir -p $(SAVED_STATE_DIR)/volDB $(SAVED_STATE_DIR)/volExport $(SAVED_STATE_DIR)/volStarexec
 	@echo "Fixing ownership for rootless Podman..."
 	@podman unshare chown -R 999:999 $(SAVED_STATE_DIR)/volDB 2>/dev/null || true
 	@chmod 775 $(SAVED_STATE_DIR)/volDB 2>/dev/null || true
 	@podman unshare chown -R 153:160 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
 	@chmod -R 775 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
+	@podman unshare chown -R 152:160 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
+	@chmod -R 775 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
 	@# Check if database is already initialized by looking for key MariaDB files
 	@if [ ! -d "$(SAVED_STATE_DIR)/volDB/mysql" ] || [ ! -f "$(SAVED_STATE_DIR)/volDB/ibdata1" ] || [ -z "$$(ls -A $(SAVED_STATE_DIR)/volDB/mysql 2>/dev/null)" ]; then \
 		echo "No existing database found. Creating new state..."; \
@@ -358,7 +369,7 @@ state-init: ## Initialize local state folders and prepare DB/export for sharing
 
 state-create: ## Force creation of a new database state (WARNING: destroys existing data)
 	@echo "Creating new database state in $(SAVED_STATE_DIR)..."
-	@mkdir -p $(SAVED_STATE_DIR)/volDB $(SAVED_STATE_DIR)/volExport
+	@mkdir -p $(SAVED_STATE_DIR)/volDB $(SAVED_STATE_DIR)/volExport $(SAVED_STATE_DIR)/volStarexec
 	@if ! podman image exists starexec:${VERSION}; then \
 		echo "Image starexec:${VERSION} not found locally. Pulling..."; \
 		$(MAKE) pull; \
@@ -381,6 +392,7 @@ state-create: ## Force creation of a new database state (WARNING: destroys exist
 	@echo "Fixing final ownership after initialization..."
 	@podman unshare chown -R 999:999 $(SAVED_STATE_DIR)/volDB 2>/dev/null || true
 	@podman unshare chown -R 153:160 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
+	@podman unshare chown -R 152:160 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
 	@if [ ! -d "$(SAVED_STATE_DIR)/volDB/mysql" ] || [ ! -f "$(SAVED_STATE_DIR)/volDB/ibdata1" ]; then \
 		echo "ERROR: Database initialization failed!"; \
 		exit 1; \
@@ -420,8 +432,10 @@ state-restore: ## Restore state from a tar.gz file (use: make state-restore FILE
 	@echo "Fixing ownership for restored state..."
 	@podman unshare chown -R 999:999 $(SAVED_STATE_DIR)/volDB 2>/dev/null || true
 	@podman unshare chown -R 153:160 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
+	@podman unshare chown -R 152:160 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
 	@chmod 775 $(SAVED_STATE_DIR)/volDB 2>/dev/null || true
 	@chmod -R 775 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
+	@chmod -R 775 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
 	@echo "State restored successfully to $(SAVED_STATE_DIR)"
 	@echo "You can now start with: make start SAVED_STATE_DIR=$(SAVED_STATE_DIR)"
 

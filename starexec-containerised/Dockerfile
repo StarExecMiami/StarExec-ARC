@@ -4,7 +4,7 @@
 FROM debian:sid-slim AS builder
 
 LABEL maintainer="Starexec Team"
-ENV DEPLOY_DIR=/home/starexec/StarExec-deploy
+ENV APP_SOURCE_DIR=/app_source
 
 # Install build dependencies efficiently
 RUN apt update && \
@@ -21,10 +21,10 @@ RUN apt update && \
     rm -rf /var/lib/apt/lists/*
 
 # Clone StarExec repository specifically for runsolver
-RUN git -c http.sslVerify=false clone -b containerised --single-branch https://github.com/StarexecMiami/StarExec.git ${DEPLOY_DIR}
+RUN git -c http.sslVerify=false clone -b containerised --single-branch https://github.com/StarexecMiami/StarExec.git ${APP_SOURCE_DIR}
 
 # Build runsolver
-WORKDIR ${DEPLOY_DIR}/src/org/starexec/config/sge/RunSolverSource
+WORKDIR ${APP_SOURCE_DIR}/src/org/starexec/config/sge/RunSolverSource
 # Ensure clean build environment
 RUN make clean && make
 
@@ -41,6 +41,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     DB_NAME=starexec \
     DB_USER=se_admin \
     DB_PASS=dfsdf34RFerfg3TFGRfrF3edFVg12few2 \
+    APP_SOURCE_DIR=/app_source \
     DEPLOY_DIR=/home/starexec/StarExec-deploy \
     SQL_FILE=/home/starexec/StarExec-deploy/sql/NewInstall.sql \
     BUILD_FILE=build.xml \
@@ -156,16 +157,16 @@ COPY dockerPackage/allScripts/starexecScripts/sudoRules.txt /etc/sudoers.d/stare
 COPY dockerPackage/solverAdditions/GetComputerInfo /home/starexec/bin/
 
 # Configure StarExec deployment and permissions (consolidated)
-RUN git -c http.sslVerify=false clone -b containerised --single-branch https://github.com/StarexecMiami/StarExec.git ${DEPLOY_DIR} && \
-    git config --global --add safe.directory ${DEPLOY_DIR} && \
-    cd ${DEPLOY_DIR}/WebContent/css/details && ln -s ../shared && \
+RUN git -c http.sslVerify=false clone -b containerised --single-branch https://github.com/StarexecMiami/StarExec.git ${APP_SOURCE_DIR} && \
+    git config --global --add safe.directory ${APP_SOURCE_DIR} && \
+    cd ${APP_SOURCE_DIR}/WebContent/css/details && ln -s ../shared && \
     # Configure overrides and machine specs
-    mkdir -p ${DEPLOY_DIR}/build && \
-    touch ${DEPLOY_DIR}/build/Cluster.MachineSpecs.txt && \
-    chown starexec:star-web ${DEPLOY_DIR}/build/Cluster.MachineSpecs.txt && \
-    touch ${DEPLOY_DIR}/build/overrides.properties && \
-    cat /tmp/overrides.properties >> ${DEPLOY_DIR}/build/overrides.properties && \
-    chown starexec:star-web ${DEPLOY_DIR}/build/overrides.properties && \
+    mkdir -p ${APP_SOURCE_DIR}/build && \
+    touch ${APP_SOURCE_DIR}/build/Cluster.MachineSpecs.txt && \
+    chown starexec:star-web ${APP_SOURCE_DIR}/build/Cluster.MachineSpecs.txt && \
+    touch ${APP_SOURCE_DIR}/build/overrides.properties && \
+    cat /tmp/overrides.properties >> ${APP_SOURCE_DIR}/build/overrides.properties && \
+    chown starexec:star-web ${APP_SOURCE_DIR}/build/overrides.properties && \
     rm /tmp/overrides.properties && \
     # Configure sudo
     chmod 0440 /etc/sudoers.d/starexec && \
@@ -183,6 +184,8 @@ RUN git -c http.sslVerify=false clone -b containerised --single-branch https://g
     chmod g+s /home/starexec && \
     setfacl -d -m g::rwx /home/starexec 2>/dev/null || true && \
     setfacl -d -m g::rwx /home/starexec/jobin /home/starexec/Solvers /home/starexec/Benchmarks /home/starexec/PostProcessors /home/starexec/Logs 2>/dev/null || true && \
+    # Set execute permissions on post processor scripts
+    find /home/starexec/PostProcessors -type f -exec chmod +x {} \; && \
     # Consistent umask for collaborative writes
     echo "umask 002" >> /home/starexec/.bashrc && \
     echo "umask 002" >> /home/tomcat/.bashrc && \
@@ -196,7 +199,7 @@ RUN git -c http.sslVerify=false clone -b containerised --single-branch https://g
     chmod 755 -R /home/starexec
 
 # Copy the compiled runsolver from the builder stage
-COPY --from=builder ${DEPLOY_DIR}/src/org/starexec/config/sge/RunSolverSource/runsolver ${DEPLOY_DIR}/src/org/starexec/config/sge/
+COPY --from=builder ${APP_SOURCE_DIR}/src/org/starexec/config/sge/RunSolverSource/runsolver ${APP_SOURCE_DIR}/src/org/starexec/config/sge/
 
 # Setup runtime directories and install kubectl (consolidated)
 RUN mkdir -p /etc/ssl/certs /etc/ssl/private && \
@@ -230,6 +233,6 @@ RUN chmod +x /usr/local/bin/init-starexec.sh
 # Expose necessary ports
 EXPOSE 80 443 3306 8080
 
-WORKDIR ${DEPLOY_DIR}
+WORKDIR ${APP_SOURCE_DIR}
 
 CMD ["/usr/local/bin/init-starexec.sh"]
