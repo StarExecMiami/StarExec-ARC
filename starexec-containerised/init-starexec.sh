@@ -106,6 +106,36 @@ trap cleanup SIGINT SIGTERM
 chown -R tomcat:star-web /home/sandbox  # This may change due to mounted volumes
 chmod 755 -R /home/starexec  # Ensure permissions after potential volume mounts
 
+# Ensure runsolver is executable if it exists from a previous build
+if [ -f "/home/starexec/StarExec-deploy/src/org/starexec/config/sge/runsolver" ]; then
+    echo "Setting execute permission on runsolver for sandbox user..."
+    chmod +x "/home/starexec/StarExec-deploy/src/org/starexec/config/sge/runsolver"
+    chown sandbox:sandbox "/home/starexec/StarExec-deploy/src/org/starexec/config/sge/runsolver" 2>/dev/null || true
+fi
+
+# Ensure critical runtime directories exist within their respective volumes
+echo "Ensuring runtime directories exist in volumes..."
+RUNTIME_DIRS=(
+    "/export/starexec"
+    "/home/starexec/jobin"
+    "/home/starexec/joboutput"
+    "/home/starexec/Benchmarks"
+    "/home/starexec/trash"
+    "/home/starexec/Solvers"
+    "/home/starexec/StarOffice"
+    "/home/starexec/processor_scripts"
+    "/home/starexec/PostProcessors"
+)
+
+for dir in "${RUNTIME_DIRS[@]}"; do
+    mkdir -p "$dir"
+    # Ownership should be tomcat:star-web for Tomcat to write, but
+    # the root user in the container also needs access to manage files.
+    # Group permissions are key.
+    chown tomcat:star-web "$dir"
+    chmod 775 "$dir"
+done
+
 # Start Apache in the background
 echo "Starting Apache..."
 /usr/sbin/apache2ctl -D FOREGROUND &
