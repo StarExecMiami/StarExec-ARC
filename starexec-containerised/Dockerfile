@@ -132,6 +132,10 @@ RUN mkdir -p /project && cd /project && \
 # Configure directories and permissions (consolidated)
 RUN mkdir -p /export/starexec/sandbox /export/starexec/sandbox2 && \
     chown -R tomcat:star-web /export/starexec && \
+    chmod 2770 /export/starexec/sandbox /export/starexec/sandbox2 && \
+    chmod g+s /export/starexec/sandbox /export/starexec/sandbox2 && \
+    setfacl -d -m g::rwx /export/starexec/sandbox 2>/dev/null || true && \
+    setfacl -d -m g::rwx /export/starexec/sandbox2 2>/dev/null || true && \
     mkdir -p /local/sandbox /local/sandbox2 && \
     chown sandbox:sandbox /local/sandbox && \
     chown sandbox2:sandbox2 /local/sandbox2 && \
@@ -170,6 +174,22 @@ RUN git -c http.sslVerify=false clone -b containerised --single-branch https://g
     chown tomcat:star-web /home/starexec/bin && \
     chmod 755 /home/starexec/bin && \
     chown tomcat:star-web /home/starexec/bin/GetComputerInfo && \
+    chmod 755 /home/starexec/bin/GetComputerInfo && \
+    # Pre-create runtime directories to avoid missing path / permission issues
+    mkdir -p /home/starexec/jobin /home/starexec/Solvers /home/starexec/Benchmarks /home/starexec/PostProcessors /home/starexec/Logs && \
+    chown -R tomcat:star-web /home/starexec/jobin /home/starexec/Solvers /home/starexec/Benchmarks /home/starexec/PostProcessors /home/starexec/Logs && \
+    find /home/starexec/jobin /home/starexec/Solvers /home/starexec/Benchmarks /home/starexec/PostProcessors /home/starexec/Logs -type d -exec chmod 2775 {} \; && \
+    # Ensure base directory enforces group inheritance
+    chmod g+s /home/starexec && \
+    setfacl -d -m g::rwx /home/starexec 2>/dev/null || true && \
+    setfacl -d -m g::rwx /home/starexec/jobin /home/starexec/Solvers /home/starexec/Benchmarks /home/starexec/PostProcessors /home/starexec/Logs 2>/dev/null || true && \
+    # Consistent umask for collaborative writes
+    echo "umask 002" >> /home/starexec/.bashrc && \
+    echo "umask 002" >> /home/tomcat/.bashrc && \
+    chown tomcat:star-web /home/starexec/.bashrc /home/tomcat/.bashrc && \
+    # Final ownership
+    chown -R tomcat:star-web /home/starexec && \
+    chmod 755 -R /home/starexec && \
     chmod 755 /home/starexec/bin/GetComputerInfo && \
     # Set ownership
     chown -R tomcat:star-web /home/starexec && \
