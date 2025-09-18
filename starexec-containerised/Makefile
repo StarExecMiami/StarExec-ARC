@@ -29,7 +29,7 @@ GET_ANY_CONTAINER_ID_CMD = podman ps -a --filter name=$(CONTAINER_NAME) --format
 
 .PHONY: all local k8s starexec pull clean cleanVolumes connect start stop kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help state-init state-pack state-unpack state-restore state-create image state-fix-perms
 
-all: ## Prompt for backend type
+all: ## Prompt for backend type and build
 	@echo "Choose backend type:"
 	@echo "  1) local"
 	@echo "  2) k8s"
@@ -40,19 +40,19 @@ all: ## Prompt for backend type
 	  *) echo "Invalid choice. Please run 'make' again and choose 1 or 2." ;; \
 	esac
 
-local: ## Set backend type to local and prepare for building
+local: ## Set backend type to local and build
 	@echo "Setting backend type to local..."
 	@sed -i "s/^Backend.Type:.*/Backend.Type: local/" dockerPackage/allScripts/starexecScripts/overrides.properties
 	@echo "Backend type set to local. You can now run 'make starexec' to build the container."
 	@$(MAKE) starexec
 
-k8s: ## Set backend type to k8s and prepare for building
+k8s: ## Set backend type to k8s and build
 	@echo "Setting backend type to k8s..."
 	@sed -i "s/^Backend.Type:.*/Backend.Type: k8s/" dockerPackage/allScripts/starexecScripts/overrides.properties
 	@echo "Backend type set to k8s. You can now run 'make starexec' to build the container."
 	@$(MAKE) starexec
 
-starexec: ## Build the starexec container image (deprecated - use pull instead)
+starexec: ## Build the starexec container image (internal use)
 	@echo "Warning: Building locally is deprecated. Use 'make pull' to get the pre-built image."
 	@echo "If you still want to build locally, the build process remains the same but is not recommended."
 	VERSION=${VERSION} && \
@@ -236,7 +236,7 @@ clean: ## Remove the starexec container image and dangling images
 		echo "No dangling images to remove."; \
 	fi
 
-real-clean: ## WARNING: Reset Podman - removes ALL containers, images, volumes
+real-clean: ## Reset Podman - removes ALL containers, images, volumes
 	@echo "WARNING: This will reset Podman and remove ALL containers, images, and volumes."
 	@read -r -p "Are you sure you want to continue? [y/N] " answer && \
 	case "$$answer" in \
@@ -363,7 +363,7 @@ state-init: ## Initialize local state folders and prepare DB/export for sharing
 	else \
 		echo "Database already exists in $(SAVED_STATE_DIR). Using existing state."; \
 		echo "To create a fresh state, use: make state-create"; \
-		echo "To restore from a tar.gz, use: make state-restore FILE=path.tar.gz"; \
+		echo "To restore from a tgz, use: make state-restore FILE=path.tgz"; \
 	fi
 	@echo "State initialization complete."
 
@@ -399,10 +399,10 @@ state-create: ## Force creation of a new database state (WARNING: destroys exist
 	fi
 	@echo "New database state created successfully."
 
-state-restore: ## Restore state from a tar.gz file (use: make state-restore FILE=path.tar.gz SAVED_STATE_DIR=target)
+state-restore: ## Restore state from a .tgz file (use: make state-restore FILE=path.tgz SAVED_STATE_DIR=target)
 	@if [ -z "$$FILE" ]; then \
-		echo "Usage: make state-restore FILE=/path/to/starexec-state-*.tar.gz [SAVED_STATE_DIR=target_directory]"; \
-		echo "Example: make state-restore FILE=shared-state.tar.gz SAVED_STATE_DIR=starexec_restored_state"; \
+		echo "Usage: make state-restore FILE=/path/to/starexec-state-*.tgz [SAVED_STATE_DIR=target_directory]"; \
+		echo "Example: make state-restore FILE=shared-state.tgz SAVED_STATE_DIR=starexec_restored_state"; \
 		exit 1; \
 	fi
 	@if [ ! -f "$$FILE" ]; then \
@@ -439,8 +439,8 @@ state-restore: ## Restore state from a tar.gz file (use: make state-restore FILE
 	@echo "State restored successfully to $(SAVED_STATE_DIR)"
 	@echo "You can now start with: make start SAVED_STATE_DIR=$(SAVED_STATE_DIR)"
 
-state-pack: ## Create a tar.gz with the current backup state to share
-	@echo "Packing $(SAVED_STATE_DIR) into a tar.gz..."
+state-pack: ## Create a tgz with the current backup state to share
+	@echo "Packing $(SAVED_STATE_DIR) into a tgz..."
 	@if [ ! -d "$(SAVED_STATE_DIR)" ]; then \
 		echo "Error: Directory $(SAVED_STATE_DIR) does not exist."; \
 		echo "Create a state first with: make start"; \
@@ -448,15 +448,15 @@ state-pack: ## Create a tar.gz with the current backup state to share
 	fi
 	@ts=$$(date +%Y%m%d_%H%M%S); \
 	backup_name=$$(basename $(SAVED_STATE_DIR)); \
-	out="starexec-state-$$backup_name-$$ts.tar.gz"; \
+	out="starexec-state-$$backup_name-$$ts.tgz"; \
 	echo "Creating archive: $$out"; \
 	tar -C $$(dirname $(SAVED_STATE_DIR)) -czf "$$out" "$$backup_name"; \
 	echo "Created: $$out"; \
 	echo "Share this file with: make state-restore FILE=$$out SAVED_STATE_DIR=target_directory"
 
-state-unpack: ## Unpack a state tar.gz into current project (DEPRECATED - use state-restore)
+state-unpack: ## Unpack a state tgz into current project (DEPRECATED - use state-restore)
 	@echo "WARNING: state-unpack is deprecated. Use 'make state-restore' instead."
-	@echo "Usage: make state-restore FILE=/path/to/starexec-state-*.tar.gz SAVED_STATE_DIR=target_directory"
+	@echo "Usage: make state-restore FILE=/path/to/starexec-state-*.tgz SAVED_STATE_DIR=target_directory"
 	@if [ -n "$$FILE" ]; then \
 		echo "Calling state-restore with your parameters..."; \
 		$(MAKE) state-restore FILE="$$FILE"; \
@@ -476,7 +476,7 @@ state-fix-perms: ## Fix ownership of SAVED_STATE_DIR to current user
 help: ## Display help for Makefile targets
 	@echo "Makefile Commands:"
 	@echo "------------------"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}' | \
 		sort
 	@echo "------------------"
@@ -486,7 +486,7 @@ help: ## Display help for Makefile targets
 	@echo "State Management Workflow:"
 	@echo "  1. Create new state:     make start"
 	@echo "  2. Pack for sharing:     make state-pack"
-	@echo "  3. Restore shared state: make state-restore FILE=archive.tar.gz SAVED_STATE_DIR=my_backup"
+	@echo "  3. Restore shared state: make state-restore FILE=archive.tgz SAVED_STATE_DIR=my_backup"
 	@echo "  4. Use restored state:   make start SAVED_STATE_DIR=my_backup"
 	@echo ""
 
