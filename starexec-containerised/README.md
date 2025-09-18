@@ -23,13 +23,11 @@ The targets that are useful for (advanced) use of StarExec in a container are:
 - `kill` -              Stop and remove the persistent starexec container
 - `image` -             Ensure the starexec image is available locally
 - `clean` -             Remove the starexec container image and dangling images
-- `cleanVolumes` -      Remove starexec related volumes from `STAREXEC_SAVED_STATE_DIR`
 - `state-create` -      Force creation of a new database state, destroying existing data
-- `state-fix-perms` -   Fix ownership of SAVED_STATE_DIR to current user
 - `state-init` -        Initialize local state folders and prepare DB/export for sharing
 - `state-pack` -        Create a .tgz with the current backup state to share
 - `state-restore` -     Restore state from a .tgz file (use: make state-restore FILE=path.tgz SAVED_STATE_DIR=target)
-- `state-unpack` -      Unpack a state .tgz into current project (DEPRECATED - use state-restore)
+- `state-fix-perms` -   Fix ownership of `STAREXEC_SAVED_STATE_DIR` to current user
 - `mkcert-setup` -      Setup mkcert and generate localhost TLS certificates
 - `ssh-setup` -         Setup SSH keys for podman communication
 - `help` -              Display help for Makefile targets
@@ -49,6 +47,7 @@ The targets that are useful for development of StarExec in a container are:
 - `connect` -           Connect to the running starexec container via bash shell
 - `starexec` -          Build the starexec container image (internal use)
 - `start-container` -   Start the starexec container (internal use)
+- `clean-volumes` -     Remove starexec related volumes from `STAREXEC_SAVED_STATE_DIR`
 - `real-clean` -        Reset Podman - removes ALL containers, images, volumes
 - `help` -              Display help for Makefile targets
 
