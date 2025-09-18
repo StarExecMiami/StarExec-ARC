@@ -8,7 +8,7 @@ REGISTRY ?= ghcr.io
 VERSION ?= latest
 CONTAINER_NAME := starexec-app
 STAREXEC_IMAGE := ghcr.io/starexecmiami/starexec-arc:${VERSION}
-# Allow SAVED_STATE_DIR to be provided via environment (or fallback to STAREXEC_SAVED_STATE_DIR),
+# Allow SAVED_STATE_DIR to be provided via the environment variable STAREXEC_SAVED_STATE_DIR,
 # otherwise default to $(CURDIR)/starexec_saved_state
 ifndef SAVED_STATE_DIR
 	ifdef STAREXEC_SAVED_STATE_DIR
@@ -52,7 +52,7 @@ k8s: ## Set backend type to k8s and build
 	@echo "Backend type set to k8s. You can now run 'make starexec' to build the container."
 	@$(MAKE) starexec
 
-starexec: ## Build the starexec container image (internal use)
+starexec: ## Build the StarExec container image (internal use)
 	@echo "Warning: Building locally is deprecated. Use 'make pull' to get the pre-built image."
 	@echo "If you still want to build locally, the build process remains the same but is not recommended."
 	VERSION=${VERSION} && \
@@ -63,14 +63,14 @@ starexec: ## Build the starexec container image (internal use)
 	END_TIME=$$(date +%Y-%m-%d\ %H:%M:%S) && echo "Build finished at: $$END_TIME" | tee -a build-$$VERSION.log && \
 	echo "Build duration: $$(date -u -d @$$(( $$(date -d "$$END_TIME" +%s) - $$(date -d "$$START_TIME" +%s) )) +%H:%M:%S)" | tee -a build-$$VERSION.log
 
-pull: ## Pull the pre-built starexec image from GitHub Container Registry
-	@echo "Pulling starexec image from ${STAREXEC_IMAGE}..."
+pull: ## Pull the pre-built StarExec image from GitHub Container Registry
+	@echo "Pulling StarExec image from ${STAREXEC_IMAGE}..."
 	@podman pull ${STAREXEC_IMAGE}
 	@podman tag ${STAREXEC_IMAGE} starexec:${VERSION}
 	@echo "Image pulled and tagged as starexec:${VERSION}"
 
 # Add image target to ensure image availability
-image: ## Ensure the starexec image is available locally
+image: ## Ensure the StarExec image is available locally
 	@if ! podman image exists starexec:${VERSION}; then \
 		echo "Image starexec:${VERSION} not found locally. Pulling from registry..."; \
 		$(MAKE) pull; \
@@ -132,8 +132,8 @@ mkcert-setup: ## Setup mkcert and generate localhost TLS certificates
 	@echo "  - localhost.crt"
 	@echo "  - localhost.key"
 
-run: ssh-setup mkcert-setup ## Run the starexec container interactively (for testing/dev)
-	@echo "Running the starexec container interactively (will be removed on exit)..."
+run: ssh-setup mkcert-setup ## Run the StarExec container interactively (for testing/dev)
+	@echo "Running the StarExec container interactively (will be removed on exit)..."
 	@echo "Make sure to run 'make mkcert-setup' and 'ssh-setup' first."
 	@if ! podman image exists starexec:${VERSION}; then \
 		echo "Image starexec:${VERSION} not found locally. Pulling from registry..."; \
@@ -164,8 +164,8 @@ run: ssh-setup mkcert-setup ## Run the starexec container interactively (for tes
 			--healthcheck-command "bash -c 'mysqladmin ping -u root --silent --connect-timeout=5 && (service apache2 status | grep -q \"running\" || pgrep apache2 >/dev/null) && (ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap\" || pgrep -f catalina >/dev/null) && (curl -s -k --max-time 10 -I https://localhost/starexec/ | grep -q \"200\\|302\\|301\" || curl -s -k --max-time 10 https://localhost/starexec/ >/dev/null)'" \
 			-p 7827:443 -p 7826:80 starexec:${VERSION}
 
-start-container: image ## Start the starexec container (internal use)
-	@echo "Starting the starexec container persistently..."
+start-container: image ## Start the StarExec container (internal use)
+	@echo "Starting the StarExec container persistently..."
 	@container_id=$$($(GET_CONTAINER_ID_CMD)); \
 	if [ -n "$$container_id" ]; then \
 		echo "Container $(CONTAINER_NAME) is already running with ID: $$container_id"; \
@@ -206,13 +206,13 @@ start-container: image ## Start the starexec container (internal use)
 	@sleep 60
 	@printf "SUCCESS! VISIT IN YOUR BROWSER: https://localhost:7827\n\nuser: admin\npassword: admin\n\n"
 
-start: ssh-setup mkcert-setup state-init ## Start the starexec container, preserving state
+start: ssh-setup mkcert-setup state-init ## Start the StarExec container, preserving state
 	@echo "Starting StarExec..."
 	@# This will start a stopped container or create a new one if it does not exist.
 	@$(MAKE) start-container
 	
-stop: ## Stop the persistent starexec container
-	@echo "Stopping the starexec container..."
+stop: ## Stop the persistent StarExec container
+	@echo "Stopping the StarExec container..."
 	@if [ -z "$$($(GET_CONTAINER_ID_CMD))" ]; then \
 		echo "Container $(CONTAINER_NAME) is not running."; \
 		exit 0; \
@@ -220,7 +220,7 @@ stop: ## Stop the persistent starexec container
 	$(MAKE) kill
 	@echo "StarExec container stopped."
 
-clean: ## Remove the starexec container image and dangling images
+clean: ## Remove the StarExec container image and dangling images
 	@echo "Checking for existing 'starexec' image..."
 	@podman image inspect starexec > /dev/null 2>&1 && { \
 		echo "Removing 'starexec' image..."; \
@@ -244,7 +244,7 @@ real-clean: ## Reset Podman - removes ALL containers, images, volumes
 		*) echo "Operation cancelled.";; \
 	esac
 
-kill: ## Stop and remove the persistent starexec container
+kill: ## Stop and remove the persistent StarExec container
 	@echo "Stopping and removing container $(CONTAINER_NAME)..."
 	@container_id=$$($(GET_CONTAINER_ID_CMD)); \
 	if [ -n "$$container_id" ]; then \
@@ -260,7 +260,7 @@ kill: ## Stop and remove the persistent starexec container
 		fi; \
 	fi
 
-clean-volumes: ## Remove starexec related volumes from STAREXEC_SAVED_STATE_DIR 
+clean-volumes: ## Remove StarExec related volumes from STAREXEC_SAVED_STATE_DIR 
 	@echo "Removing volumes from: $(SAVED_STATE_DIR)"
 	@if [ ! -d "$(SAVED_STATE_DIR)" ]; then \
 		echo "Directory $(SAVED_STATE_DIR) does not exist. Nothing to clean."; \
@@ -294,7 +294,7 @@ clean-volumes: ## Remove starexec related volumes from STAREXEC_SAVED_STATE_DIR
 	@podman unshare rm -rf $(SAVED_STATE_DIR) 2>/dev/null || sudo rm -rf $(SAVED_STATE_DIR) 2>/dev/null || true
 	@echo "Volumes removed successfully."
 
-connect: ## Connect to the running starexec container via bash shell
+connect: ## Connect to the running StarExec container via bash shell
 	@container_id=$$($(GET_CONTAINER_ID_CMD)); \
 	if [ -n "$$container_id" ]; then \
 		podman exec -it $$container_id /bin/bash; \
@@ -304,7 +304,7 @@ connect: ## Connect to the running starexec container via bash shell
 		exit 1; \
 	fi
 
-push: ## Push the starexec image to a container registry
+push: ## Push the StarExec image to a container registry
 	@echo "Pushing starexec:${VERSION} image..."
 	@if [ "${REGISTRY}" = "microk8s" ]; then \
 		echo "Pushing to MicroK8s registry at localhost:32000"; \
@@ -325,19 +325,19 @@ push: ## Push the starexec image to a container registry
 	fi
 	@echo "Image pushed successfully."
 
-microk8s-import: ## Import the starexec image into MicroK8s registry
+microk8s-import: ## Import the StarExec image into MicroK8s registry
 	@echo "Importing starexec:${VERSION} image into MicroK8s..."
 	@podman save localhost:32000/starexec:${VERSION} -o starexec-image.tar
 	@microk8s ctr image import starexec-image.tar
 	@rm starexec-image.tar
 	@echo "Image imported into MicroK8s successfully."
 
-list-microk8s: ## List starexec images in the MicroK8s registry
+list-microk8s: ## List StarExec images in the MicroK8s registry
 	@echo "Listing images in MicroK8s registry..."
 	@microk8s ctr images list | grep starexec
 	@echo "Listing images in MicroK8s registry done."
 
-microk8s-clean: ## Clean up starexec images from the MicroK8s registry
+microk8s-clean: ## Clean up StarExec images from the MicroK8s registry
 	@echo "Cleaning up MicroK8s images..."
 	@for img in localhost:32000/starexec:${VERSION} localhost:32000/starexec:latest; do \
 		if microk8s ctr images list | grep -q "$$img"; then \
@@ -399,7 +399,7 @@ state-create: ## Force creation of a new database state
 	fi
 	@echo "New database state created successfully."
 
-state-restore: ## Restore state from a .tgz file (use: make state-restore FILE=path.tgz SAVED_STATE_DIR=target)
+state-restore: ## Restore state from a .tgz file (use: make state-restore FILE=the.tgz SAVED_STATE_DIR=target_location)
 	@if [ -z "$$FILE" ]; then \
 		echo "Usage: make state-restore FILE=/path/to/starexec-state-*.tgz [SAVED_STATE_DIR=target_directory]"; \
 		echo "Example: make state-restore FILE=shared-state.tgz SAVED_STATE_DIR=starexec_restored_state"; \
