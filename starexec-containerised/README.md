@@ -15,26 +15,43 @@ That will save the state in the same place it was read from, or in the current d
 
 # StarExec Containerized - Advanced Use Documentation
 
-## Persistent Runs and State Management
+The `Makefile` contains many targets for use and development of StarExec in a container.
+The full list can be seen in a summarized form with `make help`.
+The targets that are useful for (advanced) use of StarExec in a container are:
+- all                  Prompt for backend type
+- clean                Remove the starexec container image and dangling images
+- cleanVolumes         Remove starexec related volumes from SAVED_STATE_DIR (WARNING: data loss)
+- connect              Connect to the running starexec container via bash shell
+- help                 Display help for Makefile targets
+- image                Ensure the starexec image is available locally
+- kill                 Stop and remove the persistent starexec container
+- local                Set backend type to local and prepare for building
+  mkcert-setup         Setup mkcert and generate localhost TLS certificates
+  pull                 Pull the pre-built starexec image from GitHub Container Registry
+  push                 Push the starexec image to a container registry
+  real-clean           WARNING: Reset Podman - removes ALL containers, images, volumes
+  run                  Run the starexec container interactively (for testing/dev)
+  ssh-setup            Setup SSH keys for podman communication
+  starexec             Build the starexec container image (deprecated - use pull instead)
+  start-container      Start the starexec container (internal use)
+  start                Start the starexec container, preserving state
+  state-create         Force creation of a new database state (WARNING: destroys existing data)
+  state-fix-perms      Fix ownership of SAVED_STATE_DIR to current user
+  state-init           Initialize local state folders and prepare DB/export for sharing
+  state-pack           Create a tar.gz with the current backup state to share
+  state-restore        Restore state from a tar.gz file (use: make state-restore FILE=path.tar.gz SAVED_STATE_DIR=target)
+  state-unpack         Unpack a state tar.gz into current project (DEPRECATED - use state-restore)
+  stop                 Stop the persistent starexec container
 
-StarExec supports persistent state management through backup directories, allowing you to save, share, and restore complete system states.
-
-### Basic Operations
+# StarExec Containerized - Developer Documentation
 
 - **Temporary Run (for testing/dev)**: Run `make run`. The container and its state will be removed upon exit.
-- **Start Persistently**: Use `make start` to launch the StarExec container in detached mode. The container will run in the background and persist its state in `./starexec_backup/` by default.
-- **Stop Persistently**: Use `make stop`. This command stops the container without removing its state.
-
-### State Directory Management
-
-You can work with multiple state directories using the `BACKUP_DIR` parameter:
-# StarExec Containerized - Developer Documentation
 
 - `dockerPackage` contains shell scripts used by the Dockerfile for building the application image.
 - `dockerPackage/configFiles` contains network configuration files.
 - `dockerPackage/allScripts/starexecScripts/overrides.properties` contains StarExec configuration files.
 
-## Build the Image
+## Building the Image
 
 1. Ensure you have Podman installed, as explained in the [installation guide](../README.md).
 2. Ensure that `$HOME/.ssh` exists and you have read-write permission.
