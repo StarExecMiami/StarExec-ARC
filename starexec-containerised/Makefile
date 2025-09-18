@@ -27,7 +27,7 @@ GET_CONTAINER_ID_CMD = podman ps --filter name=$(CONTAINER_NAME) --format '{{.ID
 # Helper command to get any container (running or stopped) ID by name
 GET_ANY_CONTAINER_ID_CMD = podman ps -a --filter name=$(CONTAINER_NAME) --format '{{.ID}}'
 
-.PHONY: all local k8s starexec pull clean cleanVolumes connect start stop kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help state-init state-pack state-unpack state-restore state-create image state-fix-perms
+.PHONY: all local k8s starexec pull clean clean-volumes connect start stop kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help state-init state-pack state-unpack state-restore state-create image state-fix-perms
 
 all: ## Prompt for backend type and build
 	@echo "Choose backend type:"
@@ -260,7 +260,7 @@ kill: ## Stop and remove the persistent starexec container
 		fi; \
 	fi
 
-cleanVolumes: ## Remove starexec related volumes from SAVED_STATE_DIR (WARNING: data loss)
+clean-volumes: ## Remove starexec related volumes from STAREXEC_SAVED_STATE_DIR 
 	@echo "Removing volumes from: $(SAVED_STATE_DIR)"
 	@if [ ! -d "$(SAVED_STATE_DIR)" ]; then \
 		echo "Directory $(SAVED_STATE_DIR) does not exist. Nothing to clean."; \
@@ -367,7 +367,7 @@ state-init: ## Initialize local state folders and prepare DB/export for sharing
 	fi
 	@echo "State initialization complete."
 
-state-create: ## Force creation of a new database state (WARNING: destroys existing data)
+state-create: ## Force creation of a new database state
 	@echo "Creating new database state in $(SAVED_STATE_DIR)..."
 	@mkdir -p $(SAVED_STATE_DIR)/volDB $(SAVED_STATE_DIR)/volExport $(SAVED_STATE_DIR)/volStarexec
 	@if ! podman image exists starexec:${VERSION}; then \
