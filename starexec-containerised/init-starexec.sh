@@ -17,6 +17,8 @@ else
   echo "StarExec directory found in volume, skipping initialization."
 fi
 
+git config --global --add safe.directory /home/starexec/StarExec-deploy
+
 # Change to the deployment directory now that we've ensured it exists
 cd /home/starexec/StarExec-deploy
 
