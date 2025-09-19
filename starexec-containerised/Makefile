@@ -401,7 +401,7 @@ state-create: ## Force creation of a new database state
 
 state-restore: ## Restore state from a .tgz file (use: make state-restore FILE=the.tgz SAVED_STATE_DIR=target_location)
 	@if [ -z "$$FILE" ]; then \
-		echo "Usage: make state-restore FILE=/path/to/starexec-state-*.tgz [SAVED_STATE_DIR=target_directory]"; \
+		echo "Usage: make state-restore FILE=/path/to/starexec-state-*.tgz [SAVED_STATE_DIR=target_location]"; \
 		echo "Example: make state-restore FILE=shared-state.tgz SAVED_STATE_DIR=starexec_restored_state"; \
 		exit 1; \
 	fi
@@ -448,11 +448,11 @@ state-pack: ## Create a tgz with the current backup state to share
 	fi
 	@ts=$$(date +%Y%m%d_%H%M%S); \
 	backup_name=$$(basename $(SAVED_STATE_DIR)); \
-	out="starexec-state-$$backup_name-$$ts.tgz"; \
+	out="$$backup_name-$$ts.tgz"; \
 	echo "Creating archive: $$out"; \
 	podman unshare tar -C $$(dirname $(SAVED_STATE_DIR)) -czf "$$out" "$$backup_name"; \
 	echo "Created: $$out"; \
-	echo "Share this file with: make state-restore FILE=$$out SAVED_STATE_DIR=target_directory"
+	echo "Restore the state with: make state-restore FILE=$$out SAVED_STATE_DIR=target_location"
 
 state-unpack: ## Unpack a state tgz into current project (DEPRECATED - use state-restore)
 	@echo "WARNING: state-unpack is deprecated. Use 'make state-restore' instead."
