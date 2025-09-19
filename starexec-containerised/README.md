@@ -21,7 +21,7 @@ If you have been given a saved state, you might have been given a user login to 
 When you are done, stop the container with **`make stop`**.
 That will save the state in the same place it was read from, or in the current directory if there was no saved state when you started the container.
 
-## StarExec Containerized - Advanced Use Documentation
+# StarExec Containerized - Advanced Use Documentation
 
 The `Makefile` contains many targets for use and development of StarExec in a container.
 The full list can be seen in a summarized form with `make help`.
@@ -38,7 +38,7 @@ The targets that are useful for (advanced) use of StarExec in a container are:
 - `mkcert-setup` -      Setup mkcert and generate localhost TLS certificates
 - `help` -              Display help for Makefile targets
 
-## StarExec Containerized - Developer Documentation
+# StarExec Containerized - Developer Documentation
 
 The `Makefile` contains many targets for use and development of StarExec in a container.
 The full list can be seen in a summarized form with `make help`.
