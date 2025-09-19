@@ -483,12 +483,16 @@ state-pack: ## Create a tgz with the current backup state to share
 		exit 1; \
 	fi
 	@ts=$$(date +%Y%m%d_%H%M%S); \
-	backup_name=$$(basename $(SAVED_STATE_DIR)); \
-	out="$$backup_name-$$ts.tgz"; \
+	out="starexec-saved-state-$$ts.tgz"; \
 	echo "Creating archive: $$out"; \
-	podman unshare tar -C $$(dirname $(SAVED_STATE_DIR)) -czf "$$out" "$$backup_name"; \
-	echo "Created: $$out"; \
-	echo "Restore the state with: make state-restore FILE=$$out SAVED_STATE_DIR=target_location"
+	podman unshare tar -C $$(dirname $(SAVED_STATE_DIR)) -czf "$$out" $(notdir $(SAVED_STATE_DIR)); \
+	if [ $$? -eq 0 ]; then \
+		echo "Created: $$out"; \
+		echo "Restore the state with: make state-restore FILE=$$out SAVED_STATE_DIR=target_location"; \
+	else \
+		echo "Error: Failed to create archive."; \
+		exit 1; \
+	fi
 
 state-unpack: ## Unpack a state tgz into current project (DEPRECATED - use state-restore)
 	@echo "WARNING: state-unpack is deprecated. Use 'make state-restore' instead."
