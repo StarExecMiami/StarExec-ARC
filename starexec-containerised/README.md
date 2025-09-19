@@ -24,9 +24,9 @@ That will save the state in the same place it was read from, or in the current d
 The `Makefile` contains many targets for use and development of StarExec in a container.
 The full list can be seen in a summarized form with `make help`.
 The targets that are useful for (advanced) use of StarExec in a container are:
-- `start` -             Start the StarExec container, preserving state
-- `stop` -              Stop the persistent StarExec container
-- `kill` -              Stop and remove the persistent StarExec container
+- `start` -             Start the StarExec container, restoring any saved state
+- `stop` -              Stop the StarExec container, saving the state
+- `kill` -              Stop and remove the StarExec container
 - `image` -             Ensure the StarExec image is available locally
 - `clean` -             Remove the StarExec container image and dangling images
 - `state-pack` -        Create a .tgz with the current backup state to share

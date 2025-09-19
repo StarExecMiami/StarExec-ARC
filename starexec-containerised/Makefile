@@ -215,12 +215,12 @@ start-container: image ## Start the StarExec container (internal use)
 	@sleep 60
 	@printf "SUCCESS! VISIT IN YOUR BROWSER: https://localhost:7827\n\nuser: admin\npassword: admin\n\n"
 
-start: ssh-setup mkcert-setup state-init ## Start the StarExec container, preserving state
+start: ssh-setup mkcert-setup state-init ## Start the StarExec container, restoring any saved state
 	@echo "Starting StarExec..."
 	@# This will start a stopped container or create a new one if it does not exist.
 	@$(MAKE) start-container
 	
-stop: ## Stop the persistent StarExec container
+stop: ## Stop the StarExec container, saving the state
 	@echo "Stopping the StarExec container..."
 	@if [ -z "$$($(GET_CONTAINER_ID_CMD))" ]; then \
 		echo "Container $(CONTAINER_NAME) is not running."; \
@@ -253,7 +253,7 @@ real-clean: ## Reset Podman - removes ALL containers, images, volumes
 		*) echo "Operation cancelled.";; \
 	esac
 
-kill: ## Stop and remove the persistent StarExec container
+kill: ## Stop and remove the StarExec container
 	@echo "Stopping and removing container $(CONTAINER_NAME)..."
 	@container_id=$$($(GET_CONTAINER_ID_CMD)); \
 	if [ -n "$$container_id" ]; then \
