@@ -467,8 +467,6 @@ state-restore: ## Restore state from a .tgz file (use: make state-restore FILE=t
 	@chmod 775 $(SAVED_STATE_DIR)/volDB 2>/dev/null || true
 	@chmod -R 775 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
 	@chmod -R 775 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
-	@echo "State restored successfully to $(SAVED_STATE_DIR)"
-	@echo "You can now start with: make start SAVED_STATE_DIR=$(SAVED_STATE_DIR)"
 	@chmod 775 $(SAVED_STATE_DIR)/volDB 2>/dev/null || true
 	@chmod -R 775 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
 	@chmod -R 775 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
