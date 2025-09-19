@@ -21,11 +21,12 @@ If you have been given a saved state, you might have been given a user login to 
 When you are done, stop the container with **`make stop`**.
 That will save the state in the same place it was read from, or in the current directory if there was no saved state when you started the container.
 
-# StarExec Containerized - Advanced Use Documentation
+## StarExec Containerized - Advanced Use Documentation
 
 The `Makefile` contains many targets for use and development of StarExec in a container.
 The full list can be seen in a summarized form with `make help`.
 The targets that are useful for (advanced) use of StarExec in a container are:
+
 - `start` -             Start the StarExec container, restoring any saved state
 - `stop` -              Stop the StarExec container, saving the state
 - `kill` -              Stop and remove the StarExec container
@@ -37,11 +38,12 @@ The targets that are useful for (advanced) use of StarExec in a container are:
 - `mkcert-setup` -      Setup mkcert and generate localhost TLS certificates
 - `help` -              Display help for Makefile targets
 
-# StarExec Containerized - Developer Documentation
+## StarExec Containerized - Developer Documentation
 
 The `Makefile` contains many targets for use and development of StarExec in a container.
 The full list can be seen in a summarized form with `make help`.
 The targets that are useful for development of StarExec in a container are:
+
 - `all` -               Prompt for backend type and build
 - `local` -             Set backend type to local and build
 - `k8s` -               Set backend type to k8s and build
@@ -55,11 +57,12 @@ The targets that are useful for development of StarExec in a container are:
 - `ssh-setup` -         Setup SSH keys for podman communication (internal use)
 - `state-init` -        Initialize local state folders and prepare DB/export for sharing
 - `state-create` -      Force creation of a new database state, destroying existing data
-- `state-fix-perms` -   Fix ownership of `STAREXEC_SAVED_STATE_DIR` to current user
+- `state-fix-perms` -   Reclaim ownership of `STAREXEC_SAVED_STATE_DIR` to host user for deletion
 - `real-clean` -        Reset Podman - removes ALL containers, images, volumes
 - `help` -              Display help for Makefile targets
 
 ## Directory Contents
+
 - `dockerPackage` contains shell scripts used by the Dockerfile for building the application image.
 - `dockerPackage/configFiles` contains network configuration files.
 - `dockerPackage/allScripts/starexecScripts/overrides.properties` contains StarExec configuration files.
@@ -94,21 +97,35 @@ The targets that are useful for development of StarExec in a container are:
 
 2. Run `make mkcert-setup` to generate localhost TLS certificates.
 
+## Persistent Volumes
+
+StarExec uses three persistent volumes that are mounted from the host:
+
+- **volDB** (`/var/lib/mysql`) - MariaDB data directory containing system tables, user databases, and log files. Owned by mysql user (999:999).
+- **volExport** (`/export`) - Shared artifacts like job outputs and downloadable bundles. Owned by export user (153:160).
+- **volStarexec** (`/home/starexec`) - Application runtime home with configs, logs, and staging areas. Owned by starexec user (152:160).
+
 ### State Management Targets
 
 | Target          | Destructive? | What It Does | When To Use |
 |-----------------|--------------|--------------|-------------|
 | state-init      | No           | Creates state dirs if missing, fixes permissions; initializes DB only if absent (auto-runs state-create if DB missing) | Normal startup (`make start`) |
 | state-create    | DB only      | Forces fresh MariaDB system tables; leaves exports and user data intact | Reset broken DB while keeping solvers/benchmarks |
-| clean-volumes   | Yes (all)    | Deletes entire saved state directory (DB + export + home) | Full reset / reclaim space |
-| state-pack      | No           | Archives current state to a timestamped `.tgz` | Share or back up environment |
+| state-delete    | Yes (all)    | Destroys all three volumes (irreversible) | Full reset / reclaim space |
+| state-pack      | No           | Archives all three volumes to a timestamped `.tgz` | Share or back up environment |
 | state-restore   | Overwrites target dir | Extracts a packed state into `SAVED_STATE_DIR`, fixes permissions | Rehydrate shared environment |
+| state-fix-perms | No           | Reclaims ownership of saved state directory to host user | Prepare for manual deletion |
 
 #### Decision Guide
 
-- “I just want to start or restart” → `make start`
-- “DB corrupted / want empty schema” → `make state-create && make start`
-- “Total wipe” → `make clean-volumes && make start`
-- “Move environment to another machine” → `make state-pack` then on other machine `make state-restore FILE=... && make start`
-- “Share environment with a colleague” → `make state-pack` and send them the `.tgz`
-- “Receive shared environment from a colleague” → `make state-restore FILE=... && make start`
+- "I just want to start or restart" → `make start`
+- "DB corrupted / want empty schema" → `make state-create && make start`
+- "Total wipe" → `make state-delete && make start`
+- "Move environment to another machine" → `make state-pack` then on other machine `make state-restore FILE=... && make start`
+- "Share environment with a colleague" → `make state-pack` and send them the `.tgz`
+- "Receive shared environment from a colleague" → `make state-restore FILE=... && make start`
+- "Can't delete saved state directory" → `make state-fix-perms` then `rm -rf starexec_saved_state`
+
+#### Host Cleanup Note
+
+Direct removal with `rm -rf starexec_saved_state` may fail due to rootless Podman's shifted UIDs. Use `make state-delete` for safe cleanup, or `make state-fix-perms` first to reclaim ownership before manual deletion.
