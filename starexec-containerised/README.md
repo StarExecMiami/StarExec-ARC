@@ -34,7 +34,6 @@ The targets that are useful for (advanced) use of StarExec in a container are:
 - `state-pack` -        Create a .tgz with the current backup state to share
 - `state-restore` -     Restore state from a .tgz file (use: `make state-restore FILE=the.tgz SAVED_STATE_DIR=target_location`)
 - `mkcert-setup` -      Setup mkcert and generate localhost TLS certificates
-- `ssh-setup` -         Setup SSH keys for podman communication
 - `help` -              Display help for Makefile targets
 
 # StarExec Containerized - Developer Documentation
@@ -52,6 +51,7 @@ The targets that are useful for development of StarExec in a container are:
 - `connect` -           Connect to the running StarExec container via bash shell
 - `starexec` -          Build the StarExec container image (internal use)
 - `start-container` -   Start the StarExec container (internal use)
+- `ssh-setup` -         Setup SSH keys for podman communication (internal use)
 - `state-fix-perms` -   Fix ownership of `STAREXEC_SAVED_STATE_DIR` to current user
 - `clean-volumes` -     Remove StarExec related volumes from `STAREXEC_SAVED_STATE_DIR`
 - `real-clean` -        Reset Podman - removes ALL containers, images, volumes
