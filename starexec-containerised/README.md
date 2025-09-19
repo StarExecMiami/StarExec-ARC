@@ -92,4 +92,21 @@ The targets that are useful for development of StarExec in a container are:
 
 2. Run `make mkcert-setup` to generate localhost TLS certificates.
 
+### State Management Targets
 
+| Target          | Destructive? | What It Does | When To Use |
+|-----------------|--------------|--------------|-------------|
+| state-init      | No           | Creates state dirs if missing, fixes permissions; initializes DB only if absent (auto-runs state-create if DB missing) | Normal startup (`make start`) |
+| state-create    | DB only      | Forces fresh MariaDB system tables; leaves exports and user data intact | Reset broken DB while keeping solvers/benchmarks |
+| clean-volumes   | Yes (all)    | Deletes entire saved state directory (DB + export + home) | Full reset / reclaim space |
+| state-pack      | No           | Archives current state to a timestamped `.tgz` | Share or back up environment |
+| state-restore   | Overwrites target dir | Extracts a packed state into `SAVED_STATE_DIR`, fixes permissions | Rehydrate shared environment |
+
+#### Decision Guide
+
+- “I just want to start or restart” → `make start`
+- “DB corrupted / want empty schema” → `make state-create && make start`
+- “Total wipe” → `make clean-volumes && make start`
+- “Move environment to another machine” → `make state-pack` then on other machine `make state-restore FILE=... && make start`
+- “Share environment with a colleague” → `make state-pack` and send them the `.tgz`
+- “Receive shared environment from a colleague” → `make state-restore FILE=... && make start`
