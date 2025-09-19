@@ -27,7 +27,7 @@ GET_CONTAINER_ID_CMD = podman ps --filter name=$(CONTAINER_NAME) --format '{{.ID
 # Helper command to get any container (running or stopped) ID by name
 GET_ANY_CONTAINER_ID_CMD = podman ps -a --filter name=$(CONTAINER_NAME) --format '{{.ID}}'
 
-.PHONY: all local k8s starexec pull clean clean-volumes connect start stop kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help state-init state-pack state-unpack state-restore state-create image state-fix-perms
+.PHONY: all local k8s starexec pull clean state-delete connect start stop kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help state-init state-pack state-unpack state-restore state-create image state-fix-perms
 
 all: ## Prompt for backend type and build
 	@echo "Choose backend type:"
@@ -260,7 +260,7 @@ kill: ## Stop and remove the persistent StarExec container
 		fi; \
 	fi
 
-clean-volumes: ## Remove StarExec related volumes from STAREXEC_SAVED_STATE_DIR 
+state-delete: ## Delete StarExec related volumes from STAREXEC_SAVED_STATE_DIR 
 	@echo "Removing volumes from: $(SAVED_STATE_DIR)"
 	@if [ ! -d "$(SAVED_STATE_DIR)" ]; then \
 		echo "Directory $(SAVED_STATE_DIR) does not exist. Nothing to clean."; \
