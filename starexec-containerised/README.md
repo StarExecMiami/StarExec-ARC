@@ -10,8 +10,10 @@ Set the `STAREXEC_SAVED_STATE_DIR` environment variable to the absolute path of 
 directory.
 
 Start the StarExec container with **`make start`**.
-This will take a minute or two, at the end of which you will be prompted to open the URL `https://localhost:7827`
-(if the container is running on a different computer to the browser, you'll need to redirect `localhost:7827` to that computer, with  `ssh -f -N -L 7827:remote.computer.running.starexec.com:7827 user@remote.computer.running.starexec.com`).
+This will take a minute or two, at the end of which you will be prompted to open the URL
+`https://localhost:7827` (if the container is running on a different computer to the browser,
+you'll need to redirect `localhost:7827` to that computer, with
+`ssh -f -N -L 7827:remote.computer.running.starexec.com:7827 user@remote.computer.running.starexec.com`).
 That will take you to the StarExec login page.
 The default administrative login credentials are `admin:admin`.
 If you have been given a saved state, you might have been given a user login to use instead.
@@ -46,7 +48,7 @@ The targets that are useful for development of StarExec in a container are:
 - `push` -              Push the StarExec image to a container registry
 - `pull` -              Pull the pre-built StarExec image from GitHub Container Registry
 - `run` -               Run the StarExec container interactively.
-                        The container and its state will be removed upon exit.
+                        The container and its state are removed on exit.
 - `connect` -           Connect to the running StarExec container via bash shell
 - `starexec` -          Build the StarExec container image (internal use)
 - `start-container` -   Start the StarExec container (internal use)
