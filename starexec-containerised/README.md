@@ -96,11 +96,11 @@ The targets that are useful for development of StarExec in a container are:
 
 | Target          | Destructive? | What It Does | When To Use |
 |-----------------|--------------|--------------|-------------|
-| state-init      | No           | Creates state dirs if missing, fixes permissions; initializes DB only if absent | Normal startup (`make start`) |
+| state-init      | No           | Creates state dirs if missing, fixes permissions; initializes DB only if absent (auto-runs state-create if DB missing) | Normal startup (`make start`) |
 | state-create    | DB only      | Forces fresh MariaDB system tables; leaves exports and user data intact | Reset broken DB while keeping solvers/benchmarks |
 | clean-volumes   | Yes (all)    | Deletes entire saved state directory (DB + export + home) | Full reset / reclaim space |
 | state-pack      | No           | Archives current state to a timestamped `.tgz` | Share or back up environment |
-| state-restore   | Overwrites target dir | Extracts a packed state into `SAVED_STATE_DIR` | Rehydrate shared environment |
+| state-restore   | Overwrites target dir | Extracts a packed state into `SAVED_STATE_DIR`, fixes permissions | Rehydrate shared environment |
 
 #### Decision Guide
 
