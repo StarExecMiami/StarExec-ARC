@@ -1,3 +1,34 @@
+# ---------------------------------------------------------------------------
+# StarExec persistent volumes (host -> container):
+#   volDB       -> /var/lib/mysql
+#       MariaDB data directory (system tables, ibdata1, ib_logfile*, user DBs).
+#       Must be initialized atomically. Wiped/recreated only by state-create.
+#   volExport   -> /export
+#       Shared/exportable artifacts (job outputs, downloadable bundles, etc.).
+#       Preserved across DB resets. Removed only by state-delete.
+#   volStarexec -> /home/starexec
+#       Application runtime home: configs, logs, unpacked solvers/benchmarks,
+#       job input/output staging, processor scripts.
+#       Preserved across DB resets. Removed only by state-delete.
+#
+# Lifecycle summary:
+#   make start / state-init : creates dirs; initializes DB only if missing.
+#   make state-create       : forces NEW database (volDB only).
+#   make state-pack         : archives all three volumes.
+#   make state-restore      : restores all three.
+#   make state-delete       : destroys all three (irreversible).
+#
+# Ownership (container UIDs/GIDs):
+#   mysql:        999:999        (volDB)
+#   export user:  153:160        (volExport)
+#   starexec user 152:160        (volStarexec)
+#
+# Host cleanup note:
+#   Direct 'rm -rf starexec_saved_state' may fail due to shifted subuids.
+#   Use: make state-delete
+#   Or: make state-fix-perms (reclaim) then rm -rf
+# ---------------------------------------------------------------------------
+
 SHELL := /bin/bash
 
 .ONESHELL:
@@ -34,10 +65,13 @@ GET_ANY_CONTAINER_ID_CMD = podman ps -a --filter name=$(CONTAINER_NAME) --format
 .state-mkdirs:
 	@mkdir -p $(SAVED_STATE_DIR)/volDB $(SAVED_STATE_DIR)/volExport $(SAVED_STATE_DIR)/volStarexec
 
-.state-fix-perms:
+.state-chown-container:
 	@podman unshare chown -R 999:999 $(SAVED_STATE_DIR)/volDB 2>/dev/null || true
 	@podman unshare chown -R 153:160 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
 	@podman unshare chown -R 152:160 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
+
+.state-fix-perms:
+	@$(MAKE) .state-chown-container
 
 .PHONY: all local k8s starexec pull clean connect start stop kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help state-init state-pack state-unpack state-restore state-create image state-fix-perms state-delete 
 
@@ -353,7 +387,7 @@ state-init: ## Initialize local state folders and prepare DB/export for sharing
 	@echo "Initializing persistent state in $(SAVED_STATE_DIR)..."
 	@$(MAKE) .state-mkdirs
 	@echo "Fixing ownership for rootless Podman..."
-	@$(MAKE) .state-fix-perms
+	@$(MAKE) .state-chown-container
 	@chmod 775 $(SAVED_STATE_DIR)/volDB 2>/dev/null || true
 	@chmod -R 775 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
 	@chmod -R 775 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
@@ -375,9 +409,9 @@ state-create: ## Force creation of a new database state
 		echo "Image starexec:${VERSION} not found locally. Pulling..."; \
 		$(MAKE) pull; \
 	fi
-	@echo "Removing existing database data...";
+	@echo "Removing existing database data..."
 	@podman unshare rm -rf $(SAVED_STATE_DIR)/volDB/* 2>/dev/null || true
-	@echo "Running database initialization...";
+	@echo "Running database initialization..."
 	@podman run --rm \
 		--user 0 \
 		--tmpfs /var/run/mysqld:rw,size=128m,mode=775 \
@@ -391,14 +425,7 @@ state-create: ## Force creation of a new database state
 			find /var/lib/mysql -type f -exec chmod 644 {} \; \
 		'
 	@echo "Fixing final ownership after initialization..."
-	@$(MAKE) .state-fix-perms
-	@if [ ! -d "$(SAVED_STATE_DIR)/volDB/mysql" ] || [ ! -f "$(SAVED_STATE_DIR)/volDB/ibdata1" ]; then \
-		echo "ERROR: Database initialization failed!"; \
-		exit 1; \
-	fi
-	@echo "New database state created successfully."
-	@podman unshare chown -R 153:160 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
-	@podman unshare chown -R 152:160 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
+	@$(MAKE) .state-chown-container
 	@if [ ! -d "$(SAVED_STATE_DIR)/volDB/mysql" ] || [ ! -f "$(SAVED_STATE_DIR)/volDB/ibdata1" ]; then \
 		echo "ERROR: Database initialization failed!"; \
 		exit 1; \
@@ -472,12 +499,12 @@ state-unpack: ## Unpack a state tgz into current project (DEPRECATED - use state
 	fi
 
 state-fix-perms: ## Fix ownership of SAVED_STATE_DIR to current user
-	@echo "Fixing ownership of $(SAVED_STATE_DIR) to current user..."
+	@echo "Reclaiming ownership of $(SAVED_STATE_DIR) to host user $(USER)..."
 	@if [ -d "$(SAVED_STATE_DIR)" ]; then \
 		podman unshare chown -R $(shell id -u):$(shell id -g) $(SAVED_STATE_DIR) 2>/dev/null || \
 		sudo chown -R $(USER):$(USER) $(SAVED_STATE_DIR) 2>/dev/null || \
 		{ echo "Cannot fix ownership. Please run: sudo chown -R $(USER):$(USER) $(SAVED_STATE_DIR)"; exit 1; }; \
-		echo "Ownership fixed."; \
+		echo "Ownership fixed. You can now: rm -rf $(SAVED_STATE_DIR) (or use: make state-delete)"; \
 	else \
 		echo "Directory $(SAVED_STATE_DIR) does not exist."; \
 	fi
