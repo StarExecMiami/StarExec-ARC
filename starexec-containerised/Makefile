@@ -450,7 +450,7 @@ state-pack: ## Create a tgz with the current backup state to share
 	backup_name=$$(basename $(SAVED_STATE_DIR)); \
 	out="starexec-state-$$backup_name-$$ts.tgz"; \
 	echo "Creating archive: $$out"; \
-	tar -C $$(dirname $(SAVED_STATE_DIR)) -czf "$$out" "$$backup_name"; \
+	podman unshare tar -C $$(dirname $(SAVED_STATE_DIR)) -czf "$$out" "$$backup_name"; \
 	echo "Created: $$out"; \
 	echo "Share this file with: make state-restore FILE=$$out SAVED_STATE_DIR=target_directory"
 
