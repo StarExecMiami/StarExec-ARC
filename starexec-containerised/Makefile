@@ -22,6 +22,9 @@ endif
 override SAVED_STATE_DIR := $(abspath $(SAVED_STATE_DIR))
 export SAVED_STATE_DIR
 
+# Reusable test to determine if DB state is uninitialized
+DB_INIT_TEST = [ ! -d "$(SAVED_STATE_DIR)/volDB/mysql" ] || [ ! -f "$(SAVED_STATE_DIR)/volDB/ibdata1" ] || [ -z "$$(ls -A $(SAVED_STATE_DIR)/volDB/mysql 2>/dev/null)" ]
+
 # Helper command to get the running container ID by name
 GET_CONTAINER_ID_CMD = podman ps --filter name=$(CONTAINER_NAME) --format '{{.ID}}'
 # Helper command to get any container (running or stopped) ID by name
@@ -355,18 +358,9 @@ state-init: ## Initialize local state folders and prepare DB/export for sharing
 	@chmod -R 775 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
 	@chmod -R 775 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
 	@# Check if database is already initialized by looking for key MariaDB files
-	@if [ ! -d "$(SAVED_STATE_DIR)/volDB/mysql" ] || [ ! -f "$(SAVED_STATE_DIR)/volDB/ibdata1" ] || [ -z "$$(ls -A $(SAVED_STATE_DIR)/volDB/mysql 2>/dev/null)" ]; then \
+	@if $(DB_INIT_TEST); then \
 		echo "No existing database found. Creating new state..."; \
 		$(MAKE) state-create; \
-	else \
-		echo "Database already exists in $(SAVED_STATE_DIR). Using existing state."; \
-		echo "To create a fresh state, use: make state-create"; \
-		echo "To restore from a tgz, use: make state-restore FILE=path.tgz"; \
-	fi
-	@echo "State initialization complete."
-	@if [ ! -d "$(SAVED_STATE_DIR)/volDB/mysql" ] || [ ! -f "$(SAVED_STATE_DIR)/volDB/ibdata1" ] || [ -z "$$(ls -A $(SAVED_STATE_DIR)/volDB/mysql 2>/dev/null)" ]; then \
-		echo "No existing database found. Creating new state..."; \
-		$(MAKE) state-create;
 	else \
 		echo "Database already exists in $(SAVED_STATE_DIR). Using existing state."; \
 		echo "To create a fresh state, use: make state-create"; \
