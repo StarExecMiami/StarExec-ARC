@@ -27,6 +27,15 @@ GET_CONTAINER_ID_CMD = podman ps --filter name=$(CONTAINER_NAME) --format '{{.ID
 # Helper command to get any container (running or stopped) ID by name
 GET_ANY_CONTAINER_ID_CMD = podman ps -a --filter name=$(CONTAINER_NAME) --format '{{.ID}}'
 
+# Internal helper targets (not listed in help)
+.state-mkdirs:
+	@mkdir -p $(SAVED_STATE_DIR)/volDB $(SAVED_STATE_DIR)/volExport $(SAVED_STATE_DIR)/volStarexec
+
+.state-fix-perms:
+	@podman unshare chown -R 999:999 $(SAVED_STATE_DIR)/volDB 2>/dev/null || true
+	@podman unshare chown -R 153:160 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
+	@podman unshare chown -R 152:160 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
+
 .PHONY: all local k8s starexec pull clean clean-volumes connect start stop kill run ssh-setup mkcert-setup push microk8s-import list-microk8s microk8s-clean real-clean help state-init state-pack state-unpack state-restore state-create image state-fix-perms
 
 all: ## Prompt for backend type and build
@@ -337,24 +346,13 @@ list-microk8s: ## List StarExec images in the MicroK8s registry
 	@microk8s ctr images list | grep starexec
 	@echo "Listing images in MicroK8s registry done."
 
-microk8s-clean: ## Clean up StarExec images from the MicroK8s registry
-	@echo "Cleaning up MicroK8s images..."
-	@for img in localhost:32000/starexec:${VERSION} localhost:32000/starexec:latest; do \
-		if microk8s ctr images list | grep -q "$$img"; then \
-			microk8s ctr images rm "$$img"; \
-		fi; \
-	done
-	@echo "MicroK8s image cleanup complete."
-
 state-init: ## Initialize local state folders and prepare DB/export for sharing
 	@echo "Initializing persistent state in $(SAVED_STATE_DIR)..."
-	@mkdir -p $(SAVED_STATE_DIR)/volDB $(SAVED_STATE_DIR)/volExport $(SAVED_STATE_DIR)/volStarexec
+	@$(MAKE) .state-mkdirs
 	@echo "Fixing ownership for rootless Podman..."
-	@podman unshare chown -R 999:999 $(SAVED_STATE_DIR)/volDB 2>/dev/null || true
+	@$(MAKE) .state-fix-perms
 	@chmod 775 $(SAVED_STATE_DIR)/volDB 2>/dev/null || true
-	@podman unshare chown -R 153:160 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
 	@chmod -R 775 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
-	@podman unshare chown -R 152:160 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
 	@chmod -R 775 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
 	@# Check if database is already initialized by looking for key MariaDB files
 	@if [ ! -d "$(SAVED_STATE_DIR)/volDB/mysql" ] || [ ! -f "$(SAVED_STATE_DIR)/volDB/ibdata1" ] || [ -z "$$(ls -A $(SAVED_STATE_DIR)/volDB/mysql 2>/dev/null)" ]; then \
@@ -366,10 +364,19 @@ state-init: ## Initialize local state folders and prepare DB/export for sharing
 		echo "To restore from a tgz, use: make state-restore FILE=path.tgz"; \
 	fi
 	@echo "State initialization complete."
+	@if [ ! -d "$(SAVED_STATE_DIR)/volDB/mysql" ] || [ ! -f "$(SAVED_STATE_DIR)/volDB/ibdata1" ] || [ -z "$$(ls -A $(SAVED_STATE_DIR)/volDB/mysql 2>/dev/null)" ]; then \
+		echo "No existing database found. Creating new state..."; \
+		$(MAKE) state-create;
+	else \
+		echo "Database already exists in $(SAVED_STATE_DIR). Using existing state."; \
+		echo "To create a fresh state, use: make state-create"; \
+		echo "To restore from a tgz, use: make state-restore FILE=path.tgz"; \
+	fi
+	@echo "State initialization complete."
 
 state-create: ## Force creation of a new database state
 	@echo "Creating new database state in $(SAVED_STATE_DIR)..."
-	@mkdir -p $(SAVED_STATE_DIR)/volDB $(SAVED_STATE_DIR)/volExport $(SAVED_STATE_DIR)/volStarexec
+	@$(MAKE) .state-mkdirs
 	@if ! podman image exists starexec:${VERSION}; then \
 		echo "Image starexec:${VERSION} not found locally. Pulling..."; \
 		$(MAKE) pull; \
@@ -390,7 +397,12 @@ state-create: ## Force creation of a new database state
 			find /var/lib/mysql -type f -exec chmod 644 {} \; \
 		'
 	@echo "Fixing final ownership after initialization..."
-	@podman unshare chown -R 999:999 $(SAVED_STATE_DIR)/volDB 2>/dev/null || true
+	@$(MAKE) .state-fix-perms
+	@if [ ! -d "$(SAVED_STATE_DIR)/volDB/mysql" ] || [ ! -f "$(SAVED_STATE_DIR)/volDB/ibdata1" ]; then \
+		echo "ERROR: Database initialization failed!"; \
+		exit 1; \
+	fi
+	@echo "New database state created successfully."
 	@podman unshare chown -R 153:160 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
 	@podman unshare chown -R 152:160 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
 	@if [ ! -d "$(SAVED_STATE_DIR)/volDB/mysql" ] || [ ! -f "$(SAVED_STATE_DIR)/volDB/ibdata1" ]; then \
@@ -430,9 +442,12 @@ state-restore: ## Restore state from a .tgz file (use: make state-restore FILE=t
 		mv "$$(dirname $(SAVED_STATE_DIR))/$$extracted_dir" "$(SAVED_STATE_DIR)"; \
 	fi
 	@echo "Fixing ownership for restored state..."
-	@podman unshare chown -R 999:999 $(SAVED_STATE_DIR)/volDB 2>/dev/null || true
-	@podman unshare chown -R 153:160 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
-	@podman unshare chown -R 152:160 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
+	@$(MAKE) .state-fix-perms
+	@chmod 775 $(SAVED_STATE_DIR)/volDB 2>/dev/null || true
+	@chmod -R 775 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
+	@chmod -R 775 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
+	@echo "State restored successfully to $(SAVED_STATE_DIR)"
+	@echo "You can now start with: make start SAVED_STATE_DIR=$(SAVED_STATE_DIR)"
 	@chmod 775 $(SAVED_STATE_DIR)/volDB 2>/dev/null || true
 	@chmod -R 775 $(SAVED_STATE_DIR)/volExport 2>/dev/null || true
 	@chmod -R 775 $(SAVED_STATE_DIR)/volStarexec 2>/dev/null || true
