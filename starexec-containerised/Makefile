@@ -218,13 +218,8 @@ preflight-check: ## Verify required host tools (podman, mkcert, libnss3-tools) a
 		echo "All prerequisites present."; \
 	fi
 
-run: ssh-setup mkcert-setup ## Run the StarExec container interactively (for testing/dev)
+run: ssh-setup mkcert-setup image ## Run the StarExec container interactively (for testing/dev)
 	@echo "Running the StarExec container interactively (will be removed on exit)..."
-	@echo "Make sure to run 'make mkcert-setup' and 'ssh-setup' first."
-	@if ! podman image exists starexec:${VERSION}; then \
-		echo "Image starexec:${VERSION} not found locally. Pulling from registry..."; \
-		$(MAKE) pull; \
-	fi
 	@mkdir -p $(SAVED_STATE_DIR)/volDB
 	@mkdir -p $(SAVED_STATE_DIR)/volExport
 	@mkdir -p $(SAVED_STATE_DIR)/volStarexec
@@ -250,7 +245,7 @@ run: ssh-setup mkcert-setup ## Run the StarExec container interactively (for tes
 			--healthcheck-command "bash -c 'mysqladmin ping -u root --silent --connect-timeout=5 && (service apache2 status | grep -q \"running\" || pgrep apache2 >/dev/null) && (ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap\" || pgrep -f catalina >/dev/null) && (curl -s -k --max-time 10 -I https://localhost/starexec/ | grep -q \"200\\|302\\|301\" || curl -s -k --max-time 10 https://localhost/starexec/ >/dev/null)'" \
 			-p 7827:443 -p 7826:80 starexec:${VERSION}
 
-start: preflight-check state-init image mkcert-setup ## Start the StarExec container, restoring any saved state
+start: preflight-check state-init image ssh-setup mkcert-setup ## Start the StarExec container, restoring any saved state
 	@echo "Starting StarExec..."
 	@echo "Note: Podman and mkcert are prerequisites; if missing see README or run: make software_install (opt-in)."
 	@echo "Starting the StarExec container persistently..."
