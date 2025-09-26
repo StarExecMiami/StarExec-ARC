@@ -170,21 +170,52 @@ mkcert-setup: ## Ensure mkcert and localhost TLS certificates are present (does 
 	@echo "  - localhost.crt"
 	@echo "  - localhost.key"
 
-software_install: ## Optionally install host software (mkcert, libnss3-tools) - interactive and opt-in
-	@echo "This target will attempt to install mkcert and libnss3-tools on supported systems (opt-in)."
+software_install: ## Optionally install host software (podman, mkcert, libnss3-tools) - interactive and opt-in
+	@echo "This target will attempt to install podman, mkcert and libnss3-tools on supported systems (opt-in)."
 	@read -r -p "Proceed with installation? [y/N] " answer && case "$$answer" in [yY]) true ;; *) echo "Cancelled."; exit 1 ;; esac
 	@if [ "$$(uname)" = "Linux" ]; then \
-		echo "Installing mkcert and libnss3-tools on Linux (requires sudo)..."; \
-		sudo apt update && sudo apt install -y mkcert libnss3-tools; \
-		echo "Installation complete. You can now run: make mkcert-setup"; \
+		echo "Installing podman, mkcert and libnss3-tools on Linux (requires sudo)..."; \
+		sudo apt update && sudo apt install -y podman mkcert libnss3-tools || { echo "Install failed; please install podman, mkcert and libnss3-tools manually."; exit 1; }; \
+		echo "Installation complete."; \
 	elif [ "$$(uname)" = "Darwin" ]; then \
-		echo "Installing mkcert on macOS via Homebrew..."; \
-		brew install mkcert || { echo "Homebrew install failed; please install mkcert manually."; exit 1; }; \
+		echo "Installing podman and mkcert on macOS via Homebrew..."; \
+		brew install podman mkcert || { echo "Homebrew install failed; please install podman and mkcert manually."; exit 1; }; \
 		echo "Note: macOS requires Podman machine (podman machine init && podman machine start) to run the StarExec container in a Linux VM."; \
-		echo "You can now run: make mkcert-setup"; \
 	else \
-		echo "Unsupported OS for automated installation. Please install mkcert and libnss3-tools manually."; \
+		echo "Unsupported OS for automated installation. Please install podman, mkcert and libnss3-tools manually."; \
 		exit 1; \
+	fi
+
+preflight-check: ## Verify required host tools (podman, mkcert, libnss3-tools) and instruct to run software_install if missing
+	@echo "Checking required host tools..."
+	@missing=""
+	@if ! command -v podman >/dev/null 2>&1; then \
+		echo "  - podman: MISSING"; \
+		missing="$$missing podman"; \
+	else \
+		echo "  - podman: OK"; \
+	fi
+	@if ! command -v mkcert >/dev/null 2>&1; then \
+		echo "  - mkcert: MISSING"; \
+		missing="$$missing mkcert"; \
+	else \
+		echo "  - mkcert: OK"; \
+	fi
+	@if [ "$$(uname)" = "Linux" ]; then \
+		if ! dpkg -l | grep -q libnss3-tools; then \
+			echo "  - libnss3-tools: MISSING"; \
+			missing="$$missing libnss3-tools"; \
+		else \
+			echo "  - libnss3-tools: OK"; \
+		fi; \
+	fi
+	@if [ -n "$$missing" ]; then \
+		echo ""; \
+		echo "One or more prerequisites are missing:$$missing"; \
+		echo "Please run: make software_install"; \
+		exit 1; \
+	else \
+		echo "All prerequisites present."; \
 	fi
 
 run: ssh-setup mkcert-setup ## Run the StarExec container interactively (for testing/dev)
@@ -219,7 +250,9 @@ run: ssh-setup mkcert-setup ## Run the StarExec container interactively (for tes
 			--healthcheck-command "bash -c 'mysqladmin ping -u root --silent --connect-timeout=5 && (service apache2 status | grep -q \"running\" || pgrep apache2 >/dev/null) && (ps -ef | grep -v grep | grep -q \"org.apache.catalina.startup.Bootstrap\" || pgrep -f catalina >/dev/null) && (curl -s -k --max-time 10 -I https://localhost/starexec/ | grep -q \"200\\|302\\|301\" || curl -s -k --max-time 10 https://localhost/starexec/ >/dev/null)'" \
 			-p 7827:443 -p 7826:80 starexec:${VERSION}
 
-start-container: image ## Start the StarExec container (internal use)
+start: preflight-check state-init image mkcert-setup ## Start the StarExec container, restoring any saved state
+	@echo "Starting StarExec..."
+	@echo "Note: Podman and mkcert are prerequisites; if missing see README or run: make software_install (opt-in)."
 	@echo "Starting the StarExec container persistently..."
 	@container_id=$$($(GET_CONTAINER_ID_CMD)); \
 	if [ -n "$$container_id" ]; then \
@@ -261,12 +294,6 @@ start-container: image ## Start the StarExec container (internal use)
 	@sleep 60
 	@printf "SUCCESS! VISIT IN YOUR BROWSER: https://localhost:7827\n\nuser: admin\npassword: admin\n\n"
 
-start: state-init ## Start the StarExec container, restoring any saved state
-	@echo "Starting StarExec..."
-	@echo "Note: Podman and mkcert are prerequisites; if missing see README or run: make software_install (opt-in)." 
-	@# This will start a stopped container or create a new one if it does not exist.
-	@$(MAKE) start-container
-	
 stop: ## Stop the StarExec container, saving the state
 	@echo "Stopping the StarExec container..."
 	@if [ -z "$$($(GET_CONTAINER_ID_CMD))" ]; then \
