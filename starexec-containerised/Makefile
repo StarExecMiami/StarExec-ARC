@@ -142,31 +142,23 @@ ssh-setup: ## Setup SSH keys for podman communication
 		echo "Skipping SSH key setup for Jenkins user."; \
 	fi
 
-mkcert-setup: ## Setup mkcert and generate localhost TLS certificates
-	@echo "Setting up mkcert and localhost certificates..."
-	@echo "Run this only if certificates are missing."
-	@echo "Checking for mkcert and libnss3-tools..."
-	@if [ "$$(uname)" = "Linux" ]; then \
-		if ! command -v mkcert > /dev/null 2>&1 || ! dpkg -l | grep -q libnss3-tools; then \
-			echo >&2 "mkcert or libnss3-tools is not installed. Installing..."; \
-			sudo apt update && sudo apt install -y mkcert libnss3-tools; \
-			echo "mkcert and libnss3-tools installed successfully."; \
-		else \
-			echo "mkcert and libnss3-tools are already installed."; \
-		fi \
-	elif [ "$$(uname)" = "Darwin" ]; then \
-		if ! command -v mkcert > /dev/null 2>&1; then \
-			brew install mkcert; \
-		fi \
-	else \
-		echo "Unsupported OS. Please install mkcert and libnss3-tools manually."; \
+mkcert-setup: ## Ensure mkcert and localhost TLS certificates are present (does NOT auto-install packages)
+	@echo "Checking mkcert and localhost certificates (no automatic system package installs performed)..."
+	@if ! command -v mkcert > /dev/null 2>&1; then \
+		echo "Error: 'mkcert' is not installed. Please install mkcert (see README) or run: make software_install"; \
 		exit 1; \
+	fi
+	@if [ "$$(uname)" = "Linux" ]; then \
+		if ! dpkg -l | grep -q libnss3-tools; then \
+			echo "Error: 'libnss3-tools' is not installed. Please install it (see README) or run: make software_install"; \
+			exit 1; \
+		fi \
 	fi
 	
 	@echo "Creating mkcert configuration directory..."
 	@mkdir -p $(HOME)/.local/share/mkcert > /dev/null 2>&1
-	
-	@echo "Setting up certificates..."
+
+	@echo "Setting up certificates (mkcert must already be installed)..."
 	@mkcert -install
 	@mkdir -p $(HOME)/.local/share/mkcert
 	@if [ ! -f "$(HOME)/.local/share/mkcert/localhost.crt" ] || [ ! -f "$(HOME)/.local/share/mkcert/localhost.key" ]; then \
@@ -177,6 +169,23 @@ mkcert-setup: ## Setup mkcert and generate localhost TLS certificates
 	@echo "Done. Certificates are ready in $(HOME)/.local/share/mkcert:"
 	@echo "  - localhost.crt"
 	@echo "  - localhost.key"
+
+software_install: ## Optionally install host software (mkcert, libnss3-tools) - interactive and opt-in
+	@echo "This target will attempt to install mkcert and libnss3-tools on supported systems (opt-in)."
+	@read -r -p "Proceed with installation? [y/N] " answer && case "$$answer" in [yY]) true ;; *) echo "Cancelled."; exit 1 ;; esac
+	@if [ "$$(uname)" = "Linux" ]; then \
+		echo "Installing mkcert and libnss3-tools on Linux (requires sudo)..."; \
+		sudo apt update && sudo apt install -y mkcert libnss3-tools; \
+		echo "Installation complete. You can now run: make mkcert-setup"; \
+	elif [ "$$(uname)" = "Darwin" ]; then \
+		echo "Installing mkcert on macOS via Homebrew..."; \
+		brew install mkcert || { echo "Homebrew install failed; please install mkcert manually."; exit 1; }; \
+		echo "Note: macOS requires Podman machine (podman machine init && podman machine start) to run the StarExec container in a Linux VM."; \
+		echo "You can now run: make mkcert-setup"; \
+	else \
+		echo "Unsupported OS for automated installation. Please install mkcert and libnss3-tools manually."; \
+		exit 1; \
+	fi
 
 run: ssh-setup mkcert-setup ## Run the StarExec container interactively (for testing/dev)
 	@echo "Running the StarExec container interactively (will be removed on exit)..."
@@ -252,8 +261,9 @@ start-container: image ## Start the StarExec container (internal use)
 	@sleep 60
 	@printf "SUCCESS! VISIT IN YOUR BROWSER: https://localhost:7827\n\nuser: admin\npassword: admin\n\n"
 
-start: ssh-setup mkcert-setup state-init ## Start the StarExec container, restoring any saved state
+start: state-init ## Start the StarExec container, restoring any saved state
 	@echo "Starting StarExec..."
+	@echo "Note: Podman and mkcert are prerequisites; if missing see README or run: make software_install (opt-in)." 
 	@# This will start a stopped container or create a new one if it does not exist.
 	@$(MAKE) start-container
 	
