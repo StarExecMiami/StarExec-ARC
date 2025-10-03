@@ -246,8 +246,6 @@ run: ssh-setup mkcert-setup image ## Run the StarExec container interactively (f
 			-p 7827:443 -p 7826:80 starexec:${VERSION}
 
 start: preflight-check state-init image ssh-setup mkcert-setup ## Start the StarExec container, restoring any saved state
-	@echo "Starting StarExec..."
-	@echo "Note: Podman and mkcert are prerequisites; if missing see README or run: make software_install (opt-in)."
 	@echo "Starting the StarExec container persistently..."
 	@container_id=$$($(GET_CONTAINER_ID_CMD)); \
 	if [ -n "$$container_id" ]; then \
